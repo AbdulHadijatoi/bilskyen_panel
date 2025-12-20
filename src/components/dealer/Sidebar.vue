@@ -12,10 +12,13 @@
       backgroundColor: 'var(--sidebar)',
       color: 'var(--sidebar-foreground)',
       borderRight: '1px solid var(--sidebar-border)',
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100%',
     }"
   >
-    <!-- Sidebar Header -->
-    <div class="sidebar-header" :style="{ padding: '0.5rem' }">
+    <!-- Sidebar Header - Fixed at top -->
+    <div class="sidebar-header" :style="{ flexShrink: 0 }">
       <v-list nav density="compact">
         <v-list-item 
           class="sidebar-header-item"
@@ -45,19 +48,18 @@
       </v-list>
     </div>
 
-    <v-divider :style="{ borderColor: 'var(--sidebar-border)' }" />
+    <v-divider :style="{ borderColor: 'var(--sidebar-border)', flexShrink: 0 }" />
 
-    <!-- Navigation Items -->
+    <!-- Navigation Items - Scrollable -->
     <div 
       class="sidebar-content" 
       :class="{ 'sidebar-content-collapsed': sidebarStore.isCollapsed && !sidebarStore.isMobile }"
-      style="flex: 1 1 0%; min-height: 0;"
+      style="flex: 1 1 0%; min-height: 0; overflow-y: auto; overflow-x: hidden;"
     >
       <template v-for="(section, sectionIndex) in dealerSidebarSections" :key="sectionIndex">
         <div 
           class="sidebar-group" 
           :class="{ 'sidebar-group-collapsed': sidebarStore.isCollapsed && !sidebarStore.isMobile }"
-          :style="{ padding: '0.5rem' }"
         >
           <div
             v-if="section.title"
@@ -87,8 +89,8 @@
     </div>
 
     <template #append>
-      <v-divider :style="{ borderColor: 'var(--sidebar-border)', margin: '0 0.5rem' }" />
-      <div class="sidebar-footer" :style="{ padding: '0.5rem' }">
+      <v-divider :style="{ borderColor: 'var(--sidebar-border)', margin: '0 0.5rem', flexShrink: 0 }" />
+      <div class="sidebar-footer" :style="{ padding: '0.5rem', flexShrink: 0 }">
         <v-menu location="top">
           <template #activator="{ props: menuProps }">
             <v-list nav density="compact">
@@ -171,6 +173,20 @@ const handleLogout = () => {
 </script>
 
 <style scoped>
+/* Ensure sidebar uses flexbox layout */
+.dealer-sidebar {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+}
+
+.dealer-sidebar :deep(.v-navigation-drawer__content) {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
 /* Remove all spacers in sidebar items */
 .dealer-sidebar :deep(.v-list-item__spacer) {
   display: none !important;
@@ -236,7 +252,10 @@ const handleLogout = () => {
 }
 
 .sidebar-content {
-  overflow: auto;
+  flex: 1 1 0%;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .sidebar-content-collapsed {
