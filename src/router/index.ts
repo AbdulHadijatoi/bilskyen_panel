@@ -1,23 +1,189 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: HomeView,
+      redirect: '/dealer',
     },
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue'),
+      path: '/login',
+      name: 'login',
+      component: () => import('@/views/Login.vue'),
+    },
+    {
+      path: '/dealer',
+      component: () => import('@/components/dealer/DealerLayout.vue'),
+      meta: { requiresAuth: true },
+      children: [
+        {
+          path: '',
+          name: 'dealer.dashboard',
+          component: () => import('@/views/dealer/Dashboard.vue'),
+        },
+        {
+          path: 'vehicles',
+          redirect: '/dealer/vehicles/overview',
+        },
+        {
+          path: 'vehicles/overview',
+          name: 'dealer.vehicles.overview',
+          component: () => import('@/views/dealer/vehicles/VehiclesOverview.vue'),
+        },
+        {
+          path: 'vehicles/add-vehicle',
+          name: 'dealer.vehicles.add',
+          component: () => import('@/views/dealer/vehicles/AddVehicle.vue'),
+        },
+        {
+          path: 'purchases',
+          redirect: '/dealer/purchases/overview',
+        },
+        {
+          path: 'purchases/overview',
+          name: 'dealer.purchases.overview',
+          component: () => import('@/views/dealer/purchases/PurchasesOverview.vue'),
+        },
+        {
+          path: 'purchases/add-purchase',
+          name: 'dealer.purchases.add',
+          component: () => import('@/views/dealer/purchases/AddPurchase.vue'),
+        },
+        {
+          path: 'sales',
+          redirect: '/dealer/sales/overview',
+        },
+        {
+          path: 'sales/overview',
+          name: 'dealer.sales.overview',
+          component: () => import('@/views/dealer/sales/SalesOverview.vue'),
+        },
+        {
+          path: 'sales/add-sale',
+          name: 'dealer.sales.add',
+          component: () => import('@/views/dealer/sales/AddSale.vue'),
+        },
+        {
+          path: 'expenses',
+          redirect: '/dealer/expenses/overview',
+        },
+        {
+          path: 'expenses/overview',
+          name: 'dealer.expenses.overview',
+          component: () => import('@/views/dealer/expenses/ExpensesOverview.vue'),
+        },
+        {
+          path: 'expenses/add-expense',
+          name: 'dealer.expenses.add',
+          component: () => import('@/views/dealer/expenses/AddExpense.vue'),
+        },
+        {
+          path: 'contacts',
+          redirect: '/dealer/contacts/directory',
+        },
+        {
+          path: 'contacts/directory',
+          name: 'dealer.contacts.directory',
+          component: () => import('@/views/dealer/contacts/ContactsDirectory.vue'),
+        },
+        {
+          path: 'contacts/add-contact',
+          name: 'dealer.contacts.add',
+          component: () => import('@/views/dealer/contacts/AddContact.vue'),
+        },
+        {
+          path: 'enquiries',
+          redirect: '/dealer/enquiries/overview',
+        },
+        {
+          path: 'enquiries/overview',
+          name: 'dealer.enquiries.overview',
+          component: () => import('@/views/dealer/enquiries/EnquiriesOverview.vue'),
+        },
+        {
+          path: 'enquiries/add-enquiry',
+          name: 'dealer.enquiries.add',
+          component: () => import('@/views/dealer/enquiries/AddEnquiry.vue'),
+        },
+        {
+          path: 'accounting/transactions',
+          name: 'dealer.accounting.transactions',
+          component: () => import('@/views/dealer/accounting/Transactions.vue'),
+        },
+        {
+          path: 'accounting/add-transaction',
+          name: 'dealer.accounting.add-transaction',
+          component: () => import('@/views/dealer/accounting/AddTransaction.vue'),
+        },
+        {
+          path: 'accounting/financial-accounts',
+          name: 'dealer.accounting.financial-accounts',
+          component: () => import('@/views/dealer/accounting/FinancialAccounts.vue'),
+        },
+        {
+          path: 'accounting/financial-accounts/add-financial-account',
+          name: 'dealer.accounting.financial-accounts.add',
+          component: () => import('@/views/dealer/accounting/AddFinancialAccount.vue'),
+        },
+        {
+          path: 'accounting/financial-reports',
+          name: 'dealer.accounting.financial-reports',
+          component: () => import('@/views/dealer/accounting/FinancialReports.vue'),
+        },
+        {
+          path: 'settings',
+          redirect: '/dealer/settings/general',
+        },
+        {
+          path: 'settings/general',
+          name: 'dealer.settings.general',
+          component: () => import('@/views/dealer/settings/GeneralSettings.vue'),
+        },
+        {
+          path: 'settings/profile',
+          name: 'dealer.settings.profile',
+          component: () => import('@/views/dealer/settings/ProfileSettings.vue'),
+        },
+        {
+          path: 'settings/sessions',
+          name: 'dealer.settings.sessions',
+          component: () => import('@/views/dealer/settings/SessionsSettings.vue'),
+        },
+        {
+          path: 'settings/change-password',
+          name: 'dealer.settings.change-password',
+          component: () => import('@/views/dealer/settings/ChangePassword.vue'),
+        },
+        {
+          path: 'notifications',
+          name: 'dealer.notifications',
+          component: () => import('@/views/dealer/Notifications.vue'),
+        },
+      ],
+    },
+    {
+      path: '/privacy',
+      name: 'privacy',
+      component: () => import('@/views/Privacy.vue'),
+    },
+    {
+      path: '/terms',
+      name: 'terms',
+      component: () => import('@/views/Terms.vue'),
     },
   ],
+})
+
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore()
+
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    next('/login')
+  } else {
+    next()
+  }
 })
 
 export default router

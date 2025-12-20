@@ -1,0 +1,17 @@
+<template>
+  <div class="privacy-page">
+    <h1>Privacy Policy</h1>
+    <p>Privacy Policy page coming soon...</p>
+  </div>
+</template>
+
+<script setup lang="ts">
+// Privacy Policy page placeholder
+</script>
+
+<style scoped>
+.privacy-page {
+  padding: 2rem;
+}
+</style>
+
