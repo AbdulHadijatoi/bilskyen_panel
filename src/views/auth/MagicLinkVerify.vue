@@ -41,8 +41,8 @@ onMounted(async () => {
     // TODO: Replace with actual API call to verify magic link
     await new Promise((resolve) => setTimeout(resolve, 1000))
     
-    // On success, redirect to dealer dashboard
-    router.push('/dealer')
+    // On success, redirect to dashboard
+    router.push('/')
   } catch (err: any) {
     error.value = err.message || 'Failed to verify magic link. Please try again.'
   }

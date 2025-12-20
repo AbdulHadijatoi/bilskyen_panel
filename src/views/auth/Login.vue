@@ -93,15 +93,16 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { useRouter, useRoute } from 'vue-router'
 import { AUTH_ROUTE_BASE } from '@/constants/app'
+import { login, type ApiError } from '@/services/auth'
+import { decryptUrlParam } from '@/utils/urlEncryption'
 import AuthLayout from '@/components/auth/AuthLayout.vue'
 import PasswordInput from '@/components/ui/PasswordInput.vue'
 import SeparatorWithText from '@/components/ui/SeparatorWithText.vue'
 
 const router = useRouter()
-const authStore = useAuthStore()
+const route = useRoute()
 
 const formRef = ref()
 const email = ref('')
@@ -122,19 +123,33 @@ const handleSubmit = async () => {
   error.value = null
 
   try {
-    // TODO: Replace with actual API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    
-    authStore.setUser({
-      id: 1,
-      name: 'Abdul Hadi',
+    await login({
       email: email.value,
-      role: 'dealer',
+      password: password.value,
     })
-    authStore.setToken('mock-access-token')
-    router.push('/dealer')
+    
+    // Redirect to the original destination or dashboard
+    const redirectParam = route.query.redirect as string | undefined
+    let redirectPath = '/'
+    
+    if (redirectParam) {
+      // Decrypt the redirect parameter
+      const decrypted = decryptUrlParam(redirectParam)
+      if (decrypted) {
+        redirectPath = decrypted
+      }
+    }
+    
+    router.push(redirectPath)
   } catch (err: any) {
-    error.value = err.message || 'Failed to login.'
+    const apiError = err as ApiError
+    if (apiError.errors) {
+      // Handle validation errors
+      const errorMessages = Object.values(apiError.errors).flat()
+      error.value = errorMessages.join(', ') || apiError.message || 'Failed to login.'
+    } else {
+      error.value = apiError.message || 'Failed to login.'
+    }
   } finally {
     loading.value = false
   }

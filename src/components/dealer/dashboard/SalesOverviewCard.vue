@@ -29,7 +29,7 @@
                   padding: '0.5rem',
                 }"
               >
-                <v-icon size="small">mdi-currency-inr</v-icon>
+                <v-icon size="small">mdi-currency-usd</v-icon>
               </div>
               <div class="flex-1">
                 <p class="text-sm font-medium mb-0" style="color: var(--muted-foreground);">Total Revenue</p>
@@ -126,7 +126,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
-import { DEALER_ROUTE_BASE } from '@/constants/dealer'
+import { API_DEALER_BASE } from '@/constants/app'
 
 interface SalesOverview {
   totalSales: number
@@ -143,13 +143,13 @@ interface SalesOverview {
 const salesOverview = ref<SalesOverview | null>(null)
 
 const formatCurrency = (value: number) => {
-  return `₹${value.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
+  return `${value.toLocaleString('da-DK', { maximumFractionDigits: 0 })} kr.`
 }
 
 const fetchSalesOverview = async () => {
   try {
     const response = await axios.get<SalesOverview>(
-      `/api${DEALER_ROUTE_BASE}/get-sales-overview`
+      `/api${API_DEALER_BASE}/get-sales-overview`
     )
     salesOverview.value = response.data || null
   } catch (error) {

@@ -1,45 +1,65 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 export interface User {
   id: number
   name: string
   email: string
   role?: string
+  emailVerified?: boolean
+  phone?: string
+  address?: string
+  image?: string
+  banned?: boolean
+  created_at?: string
 }
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref<User | null>({
-    id: 1,
-    name: 'Abdul Hadi',
-    email: 'abdulhadijatoi@gmail.com',
-    role: 'dealer',
-  })
+  // State - In-memory storage (preferred for security)
+  const user = ref<User | null>(null)
   const accessToken = ref<string | null>(null)
-  const isAuthenticated = ref(true)
 
+  // Computed
+  const isAuthenticated = computed(() => {
+    return user.value !== null && accessToken.value !== null
+  })
+
+  // Actions
   const setUser = (userData: User) => {
     user.value = userData
-    isAuthenticated.value = true
   }
 
-  const setToken = (token: string) => {
+  const setAccessToken = (token: string) => {
+    accessToken.value = token
+  }
+
+  const setAuth = (userData: User, token: string) => {
+    user.value = userData
     accessToken.value = token
   }
 
   const logout = () => {
     user.value = null
     accessToken.value = null
-    isAuthenticated.value = false
+  }
+
+  const clearAuth = () => {
+    user.value = null
+    accessToken.value = null
   }
 
   return {
+    // State
     user,
     accessToken,
+    // Computed
     isAuthenticated,
+    // Actions
     setUser,
-    setToken,
+    setAccessToken,
+    setAuth,
     logout,
+    clearAuth,
   }
 })
 

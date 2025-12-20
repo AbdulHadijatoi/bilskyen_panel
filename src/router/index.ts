@@ -1,13 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { checkAuth } from '@/services/auth'
+import { encryptUrlParam } from '@/utils/urlEncryption'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    {
-      path: '/',
-      redirect: '/dealer',
-    },
     {
       path: '/auth/login',
       name: 'auth.login',
@@ -54,7 +52,7 @@ const router = createRouter({
       redirect: '/auth/login',
     },
     {
-      path: '/dealer',
+      path: '/',
       component: () => import('@/components/dealer/DealerLayout.vue'),
       meta: { requiresAuth: true },
       children: [
@@ -65,7 +63,7 @@ const router = createRouter({
         },
         {
           path: 'vehicles',
-          redirect: '/dealer/vehicles/overview',
+          redirect: '/vehicles/overview',
         },
         {
           path: 'vehicles/overview',
@@ -79,7 +77,7 @@ const router = createRouter({
         },
         {
           path: 'purchases',
-          redirect: '/dealer/purchases/overview',
+          redirect: '/purchases/overview',
         },
         {
           path: 'purchases/overview',
@@ -93,7 +91,7 @@ const router = createRouter({
         },
         {
           path: 'sales',
-          redirect: '/dealer/sales/overview',
+          redirect: '/sales/overview',
         },
         {
           path: 'sales/overview',
@@ -107,7 +105,7 @@ const router = createRouter({
         },
         {
           path: 'expenses',
-          redirect: '/dealer/expenses/overview',
+          redirect: '/expenses/overview',
         },
         {
           path: 'expenses/overview',
@@ -121,7 +119,7 @@ const router = createRouter({
         },
         {
           path: 'contacts',
-          redirect: '/dealer/contacts/directory',
+          redirect: '/contacts/directory',
         },
         {
           path: 'contacts/directory',
@@ -135,7 +133,7 @@ const router = createRouter({
         },
         {
           path: 'enquiries',
-          redirect: '/dealer/enquiries/overview',
+          redirect: '/enquiries/overview',
         },
         {
           path: 'enquiries/overview',
@@ -174,7 +172,7 @@ const router = createRouter({
         },
         {
           path: 'settings',
-          redirect: '/dealer/settings/general',
+          redirect: '/settings/general',
         },
         {
           path: 'settings/general',
@@ -216,11 +214,33 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
 
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next('/login')
+  // Check if route requires authentication
+  if (to.meta.requiresAuth) {
+    // Check if user is authenticated
+    const isAuthenticated = await checkAuth()
+    
+    if (!isAuthenticated) {
+      // Redirect to login if not authenticated
+      // Encrypt the redirect parameter for security
+      const encryptedRedirect = encryptUrlParam(to.fullPath)
+      next({ path: '/auth/login', query: { redirect: encryptedRedirect } })
+    } else {
+      next()
+    }
+  } else if (to.path.startsWith('/auth/') || to.path === '/login') {
+    // Prevent authenticated users from accessing auth pages (login, signup, etc.)
+    // Check authentication status
+    const isAuthenticated = await checkAuth()
+    
+    if (isAuthenticated) {
+      // Redirect authenticated users away from auth pages
+      next('/')
+    } else {
+      next()
+    }
   } else {
     next()
   }

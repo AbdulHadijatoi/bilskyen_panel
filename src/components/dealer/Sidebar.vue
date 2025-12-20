@@ -35,12 +35,12 @@
                 flexShrink: 0,
               }"
             >
-              <span class="font-bold text-sm">R</span>
+              <span class="font-bold text-sm">B</span>
             </div>
           </template>
           <template v-if="!sidebarStore.isCollapsed || sidebarStore.isMobile">
             <div class="flex-1 text-left" style="min-width: 0;">
-              <div class="text-sm font-medium truncate">RevoLot</div>
+              <div class="text-sm font-medium truncate">Bilskyen</div>
               <div class="text-xs truncate">Dealer Panel</div>
             </div>
           </template>
@@ -128,10 +128,10 @@
             </v-list>
           </template>
           <v-list>
-            <v-list-item to="/profile" prepend-icon="mdi-account">
+            <v-list-item :to="{ name: 'dealer.settings.profile' }" prepend-icon="mdi-account">
               <v-list-item-title>Profile</v-list-item-title>
             </v-list-item>
-            <v-list-item to="/dealer/settings" prepend-icon="mdi-cog">
+            <v-list-item :to="{ name: 'dealer.settings.general' }" prepend-icon="mdi-cog">
               <v-list-item-title>Settings</v-list-item-title>
             </v-list-item>
             <v-divider />
@@ -146,10 +146,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSidebarStore } from '@/stores/sidebar'
 import { useAuthStore } from '@/stores/auth'
+import { logout, getCurrentUser } from '@/services/auth'
 import { dealerSidebarSections } from '@/constants/dealer'
 import SidebarItem from './SidebarItem.vue'
 
@@ -166,10 +167,28 @@ const userInitials = computed(() => {
   return name.substring(0, 2).toUpperCase()
 })
 
-const handleLogout = () => {
-  authStore.logout()
-  router.push('/login')
+const handleLogout = async () => {
+  try {
+    await logout()
+  } catch (error) {
+    // Even if logout fails, clear local state and redirect
+    console.error('Logout error:', error)
+    authStore.logout()
+    router.push('/auth/login')
+  }
 }
+
+// Fetch user data on mount if we have a token but no user data
+onMounted(async () => {
+  if (authStore.accessToken && !authStore.user) {
+    try {
+      await getCurrentUser()
+    } catch (error) {
+      // If fetching user fails, it will be handled by the router guard
+      console.error('Failed to fetch user data:', error)
+    }
+  }
+})
 </script>
 
 <style scoped>

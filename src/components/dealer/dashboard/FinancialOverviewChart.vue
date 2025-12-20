@@ -57,7 +57,7 @@ import {
 import VChart, { THEME_KEY } from 'vue-echarts'
 import axios from 'axios'
 import FinancialOverviewCards from './FinancialOverviewCards.vue'
-import { DEALER_ROUTE_BASE } from '@/constants/dealer'
+import { API_DEALER_BASE } from '@/constants/app'
 import { provide } from 'vue'
 
 use([
@@ -92,7 +92,7 @@ const loading = ref(true)
 const chartContainer = ref<HTMLElement | null>(null)
 
 const formatCurrency = (value: number) => {
-  return `₹${value.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
+  return `${value.toLocaleString('da-DK', { maximumFractionDigits: 0 })} kr.`
 }
 
 const formatDate = (dateString: string) => {
@@ -338,7 +338,7 @@ const fetchChartData = async () => {
   try {
     loading.value = true
     const response = await axios.get<ChartDataPoint[]>(
-      `/api${DEALER_ROUTE_BASE}/accounting/get-financial-overview-chart?granularity=${granularity.value}`
+      `/api${API_DEALER_BASE}/accounting/get-financial-overview-chart?granularity=${granularity.value}`
     )
     chartData.value = Array.isArray(response.data) ? response.data : []
   } catch (error) {

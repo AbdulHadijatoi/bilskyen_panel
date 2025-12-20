@@ -66,7 +66,7 @@ import axios from 'axios'
 
 const route = useRoute()
 
-const href = computed(() => `${DEALER_ROUTE_BASE}/notifications`)
+const href = computed(() => `${DEALER_ROUTE_BASE}notifications`)
 
 const count = ref(0)
 const isLoading = ref(true)

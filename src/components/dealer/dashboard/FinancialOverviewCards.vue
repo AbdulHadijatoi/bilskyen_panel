@@ -42,15 +42,14 @@
           >
             <div class="d-flex justify-space-between align-center">
               <p class="text-sm mb-0">{{ overview.type }}</p>
-              <v-icon v-if="overview.type === 'Revenue'" size="small">mdi-currency-inr</v-icon>
+              <v-icon v-if="overview.type === 'Revenue'" size="small">mdi-currency-usd</v-icon>
               <v-icon v-else-if="overview.type === 'Expense'" size="small">mdi-receipt-text</v-icon>
               <v-icon v-else-if="overview.type === 'Net Profit'" size="small">mdi-chart-line</v-icon>
               <v-icon v-else-if="overview.type === 'Profit Margin'" size="small">mdi-percent</v-icon>
             </div>
             <h3 class="text-2xl font-bold mb-0">
-              <template v-if="overview.type !== 'Profit Margin'">₹</template>
-              {{ overview.type === 'Profit Margin' ? parseFloat(String(overview.value)).toFixed(1) : overview.value.toLocaleString() }}
-              <template v-if="overview.type === 'Profit Margin'">%</template>
+              <template v-if="overview.type !== 'Profit Margin'">{{ overview.value.toLocaleString('da-DK') }} kr.</template>
+              <template v-else>{{ parseFloat(String(overview.value)).toFixed(1) }}%</template>
             </h3>
             <p
               class="d-flex align-center text-xs mb-0"
@@ -105,7 +104,7 @@
         <v-card-text class="d-flex flex-column" style="gap: 0.25rem;">
           <div class="d-flex justify-space-between align-center">
             <p class="text-sm mb-0">{{ overview.type }}</p>
-            <v-icon v-if="overview.type === 'Revenue'" size="small">mdi-currency-inr</v-icon>
+            <v-icon v-if="overview.type === 'Revenue'" size="small">mdi-currency-usd</v-icon>
             <v-icon v-else-if="overview.type === 'Expense'" size="small">mdi-receipt-text</v-icon>
             <v-icon v-else-if="overview.type === 'Net Profit'" size="small">mdi-chart-line</v-icon>
             <v-icon v-else-if="overview.type === 'Profit Margin'" size="small">mdi-percent</v-icon>
@@ -143,7 +142,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import axios from 'axios'
-import { DEALER_ROUTE_BASE } from '@/constants/dealer'
+import { API_DEALER_BASE } from '@/constants/app'
 
 interface FinancialOverview {
   type: string
@@ -179,7 +178,7 @@ const fetchFinancialOverview = async () => {
   try {
     loading.value = true
     const response = await axios.get<FinancialOverview[]>(
-      `/api${DEALER_ROUTE_BASE}/accounting/get-financial-overview?period=${props.period}`
+      `/api${API_DEALER_BASE}/accounting/get-financial-overview?period=${props.period}`
     )
     financialOverview.value = Array.isArray(response.data) ? response.data : []
   } catch (error) {
