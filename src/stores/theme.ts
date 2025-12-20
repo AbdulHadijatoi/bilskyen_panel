@@ -35,20 +35,43 @@ export const useThemeStore = defineStore('theme', () => {
       if (vuetifyTheme) {
         vuetifyTheme.change(prefersDark ? 'dark' : 'light')
       }
+      // Apply class to html element
+      if (prefersDark) {
+        document.documentElement.classList.add('dark')
+        document.documentElement.classList.remove('light')
+      } else {
+        document.documentElement.classList.remove('dark')
+        document.documentElement.classList.add('light')
+      }
     } else {
       isDark.value = newTheme === 'dark'
       if (vuetifyTheme) {
         vuetifyTheme.change(newTheme)
       }
+      // Apply class to html element
+      if (newTheme === 'dark') {
+        document.documentElement.classList.add('dark')
+        document.documentElement.classList.remove('light')
+      } else {
+        document.documentElement.classList.remove('dark')
+        document.documentElement.classList.add('light')
+      }
     }
   }
 
-  // Watch for isDark changes and sync with Vuetify
+  // Watch for isDark changes and sync with Vuetify and DOM
   watch(isDark, (newValue) => {
     if (vuetifyTheme) {
       vuetifyTheme.change(newValue ? 'dark' : 'light')
     }
-    document.documentElement.classList.toggle('dark', newValue)
+    // Apply dark class to html element for CSS variable support
+    if (newValue) {
+      document.documentElement.classList.add('dark')
+      document.documentElement.classList.remove('light')
+    } else {
+      document.documentElement.classList.remove('dark')
+      document.documentElement.classList.add('light')
+    }
   }, { immediate: true })
 
   // Initialize theme from localStorage

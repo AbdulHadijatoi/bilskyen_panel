@@ -77,6 +77,8 @@
 
       <div style="flex-grow: 1;" />
 
+      <ThemeToggle />
+
       <NotificationsButton />
     </div>
   </header>
@@ -87,6 +89,7 @@ import { LayoutPanelLeft } from 'lucide-vue-next'
 import { useSidebarStore } from '@/stores/sidebar'
 import Breadcrumb from './Breadcrumb.vue'
 import NotificationsButton from './NotificationsButton.vue'
+import ThemeToggle from '@/components/ui/ThemeToggle.vue'
 
 const sidebarStore = useSidebarStore()
 </script>

@@ -69,12 +69,55 @@
   * {
     @apply border-border;
   }
+  html,
   body {
     @apply bg-background text-foreground;
     font-family: 'Sora', ui-sans-serif, system-ui, sans-serif;
     font-weight: 400;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.2s, color 0.2s;
+  }
+  
+  /* Ensure auth pages use theme colors */
+  .auth-layout,
+  .auth-layout * {
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  }
+  
+  /* Make Vuetify components in auth pages use theme colors */
+  .auth-layout :deep(.v-text-field),
+  .auth-layout :deep(.v-btn),
+  .auth-layout :deep(.v-alert),
+  .auth-layout :deep(.v-menu),
+  .auth-layout :deep(.v-list) {
+    color: var(--foreground) !important;
+  }
+  
+  .auth-layout :deep(.v-text-field .v-field) {
+    background-color: var(--background) !important;
+    color: var(--foreground) !important;
+    border-color: var(--border) !important;
+  }
+  
+  .auth-layout :deep(.v-text-field .v-field__input) {
+    color: var(--foreground) !important;
+  }
+  
+  .auth-layout :deep(.v-text-field .v-label) {
+    color: var(--muted-foreground) !important;
+  }
+  
+  .auth-layout :deep(.v-btn--variant-elevated),
+  .auth-layout :deep(.v-btn--variant-flat) {
+    background-color: var(--primary) !important;
+    color: var(--primary-foreground) !important;
+  }
+  
+  .auth-layout :deep(.v-alert--variant-tonal) {
+    background-color: var(--muted) !important;
+    color: var(--foreground) !important;
+    border-color: var(--border) !important;
   }
   
   /* Apply Sora font to Vuetify components */
