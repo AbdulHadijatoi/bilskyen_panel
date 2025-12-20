@@ -117,6 +117,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { AUTH_ROUTE_BASE } from '@/constants/app'
+import { register, type ApiError } from '@/services/auth'
 import AuthLayout from '@/components/auth/AuthLayout.vue'
 import PasswordInput from '@/components/ui/PasswordInput.vue'
 import SeparatorWithText from '@/components/ui/SeparatorWithText.vue'
@@ -161,17 +162,24 @@ const handleSubmit = async () => {
   successMsg.value = null
 
   try {
-    // TODO: Replace with actual API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await register({
+      name: name.value,
+      email: email.value,
+      password: password.value,
+    })
     
-    successMsg.value = 'Please verify your email address to continue. Check your inbox for the verification link.'
-    
-    // Redirect to login after a delay
-    setTimeout(() => {
-      router.push(`${AUTH_ROUTE_BASE}/login`)
-    }, 3000)
+    // Registration successful - user is now logged in
+    // Redirect to dashboard
+    router.push('/')
   } catch (err: any) {
-    error.value = err.message || 'Failed to signup.'
+    const apiError = err as ApiError
+    if (apiError.errors) {
+      // Handle validation errors
+      const errorMessages = Object.values(apiError.errors).flat()
+      error.value = errorMessages.join(', ') || apiError.message || 'Failed to register.'
+    } else {
+      error.value = apiError.message || 'Failed to register.'
+    }
   } finally {
     loading.value = false
   }

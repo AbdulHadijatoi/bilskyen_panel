@@ -8,6 +8,26 @@ export interface LoginCredentials {
   password: string
 }
 
+export interface RegisterCredentials {
+  name: string
+  email: string
+  password: string
+  phone?: string
+  address?: string
+  role?: string
+}
+
+export interface RegisterResponse {
+  status: string
+  message: string
+  data: {
+    user: User
+    access_token: string
+    token_type: string
+    expires_in: number
+  }
+}
+
 export interface LoginResponse {
   status: string
   message: string
@@ -38,6 +58,34 @@ export interface ApiError {
   message: string
   errors?: Record<string, string[]>
   error_code?: string
+}
+
+/**
+ * Register a new user with email and password
+ */
+export async function register(credentials: RegisterCredentials): Promise<RegisterResponse> {
+  try {
+    const response = await apiClient.post<RegisterResponse>('/auth/register', credentials)
+    const authStore = useAuthStore()
+
+    if (response.data.status === 'success' && response.data.data) {
+      // Store user and access token in memory
+      authStore.setAuth(response.data.data.user, response.data.data.access_token)
+      
+      // Refresh token is automatically stored in HttpOnly cookie by backend
+      return response.data
+    }
+
+    throw new Error('Invalid response format')
+  } catch (error: any) {
+    if (error.response?.data) {
+      throw error.response.data as ApiError
+    }
+    throw {
+      status: 'error',
+      message: error.message || 'Registration failed',
+    } as ApiError
+  }
 }
 
 /**
