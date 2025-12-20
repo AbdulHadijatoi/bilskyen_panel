@@ -130,9 +130,9 @@ const hexToRgba = (hex: string, alpha: number) => {
 
 const rgbToHex = (rgb: string) => {
   const match = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/)
-  if (!match) return '#3b82f6'
+  if (!match || !match[1] || !match[2] || !match[3]) return '#3b82f6'
   return '#' + [1, 2, 3].map(i => {
-    const hex = parseInt(match[i]).toString(16)
+    const hex = parseInt(match[i]!).toString(16)
     return hex.length === 1 ? '0' + hex : hex
   }).join('')
 }

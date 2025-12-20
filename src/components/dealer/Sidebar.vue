@@ -162,7 +162,13 @@ const userInitials = computed(() => {
   const name = authStore.user?.name || 'User'
   const names = name.split(' ')
   if (names.length >= 2) {
-    return (names[0][0] + names[names.length - 1][0]).toUpperCase()
+    const firstName = names[0]
+    const lastName = names[names.length - 1]
+    if (firstName && lastName) {
+      const first = firstName[0] || ''
+      const last = lastName[0] || ''
+      return (first + last).toUpperCase()
+    }
   }
   return name.substring(0, 2).toUpperCase()
 })

@@ -56,7 +56,7 @@ const handleLogin = async () => {
       email: email.value,
       role: 'dealer',
     })
-    authStore.setToken('mock-access-token')
+    authStore.setAccessToken('mock-access-token')
     router.push('/')
     loading.value = false
   }, 1000)

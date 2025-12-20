@@ -7,7 +7,7 @@
         variant="text"
         class="mr-2"
       >
-        <v-icon>{{ themeStore.isDark.value ? 'mdi-weather-night' : 'mdi-weather-sunny' }}</v-icon>
+        <v-icon>{{ themeStore.isDark ? 'mdi-weather-night' : 'mdi-weather-sunny' }}</v-icon>
       </v-btn>
     </template>
     <v-list>
