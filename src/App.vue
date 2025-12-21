@@ -9,7 +9,7 @@
     <LoadingBar />
     <router-view v-slot="{ Component, route }">
       <transition
-        :name="route.meta.transition || 'fade'"
+        :name="getTransitionName(route.meta.transition)"
         mode="out-in"
       >
         <component :is="Component" :key="route.path" />
@@ -28,6 +28,10 @@ import LoadingBar from '@/components/LoadingBar.vue'
 
 const themeStore = useThemeStore()
 const vuetifyTheme = useTheme()
+
+const getTransitionName = (transition: unknown): string => {
+  return typeof transition === 'string' ? transition : 'fade'
+}
 
 onMounted(() => {
   // Set Vuetify theme instance in the store

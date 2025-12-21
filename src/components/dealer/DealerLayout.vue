@@ -17,7 +17,7 @@
       <div :style="{ padding: '1.5rem', paddingBottom: '3rem' }">
         <router-view v-slot="{ Component, route }">
           <transition
-            :name="route.meta.transition || 'fade'"
+            :name="getTransitionName(route.meta.transition)"
             mode="out-in"
           >
             <component :is="Component" :key="route.path" />
@@ -41,6 +41,10 @@ import Footer from './Footer.vue'
 const sidebarStore = useSidebarStore()
 const themeStore = useThemeStore()
 const vuetifyTheme = useTheme()
+
+const getTransitionName = (transition: unknown): string => {
+  return typeof transition === 'string' ? transition : 'fade'
+}
 
 const handleResize = () => {
   sidebarStore.setMobile(window.innerWidth < 768)
