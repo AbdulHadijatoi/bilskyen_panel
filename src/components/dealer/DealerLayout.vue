@@ -15,7 +15,14 @@
     >
       <Header />
       <div :style="{ padding: '1.5rem', paddingBottom: '3rem' }">
-        <router-view />
+        <router-view v-slot="{ Component, route }">
+          <transition
+            :name="route.meta.transition || 'fade'"
+            mode="out-in"
+          >
+            <component :is="Component" :key="route.path" />
+          </transition>
+        </router-view>
       </div>
       <Footer />
     </v-main>
@@ -60,4 +67,45 @@ onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
 })
 </script>
+
+<style scoped>
+/* Fade transition */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Slide transition */
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-enter-from {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.slide-leave-to {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+/* Scale transition */
+.scale-enter-active,
+.scale-leave-active {
+  transition: all 0.3s ease;
+}
+
+.scale-enter-from,
+.scale-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+</style>
 

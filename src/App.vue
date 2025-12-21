@@ -6,7 +6,16 @@
       minHeight: '100vh',
     }"
   >
-    <router-view />
+    <LoadingBar />
+    <router-view v-slot="{ Component, route }">
+      <transition
+        :name="route.meta.transition || 'fade'"
+        mode="out-in"
+      >
+        <component :is="Component" :key="route.path" />
+      </transition>
+    </router-view>
+    <LoadingOverlay />
   </div>
 </template>
 
@@ -14,6 +23,8 @@
 import { onMounted } from 'vue'
 import { useTheme } from 'vuetify'
 import { useThemeStore } from '@/stores/theme'
+import LoadingOverlay from '@/components/LoadingOverlay.vue'
+import LoadingBar from '@/components/LoadingBar.vue'
 
 const themeStore = useThemeStore()
 const vuetifyTheme = useTheme()
@@ -33,3 +44,44 @@ onMounted(() => {
   }
 })
 </script>
+
+<style scoped>
+/* Fade transition */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Slide transition */
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-enter-from {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.slide-leave-to {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+/* Scale transition */
+.scale-enter-active,
+.scale-leave-active {
+  transition: all 0.3s ease;
+}
+
+.scale-enter-from,
+.scale-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+</style>

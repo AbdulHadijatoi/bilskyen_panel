@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useLoadingStore } from '@/stores/loading'
 import { checkAuth } from '@/services/auth'
 import { encryptUrlParam } from '@/utils/urlEncryption'
 
@@ -214,8 +215,19 @@ const router = createRouter({
   ],
 })
 
+// Track if we're navigating (to prevent showing loading on initial load)
+let isNavigating = false
+
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
+  const loadingStore = useLoadingStore()
+
+  // Show loading indicator when navigating to a different route
+  // Skip on initial load (when from.name is null)
+  if (to.path !== from.path && from.name !== null) {
+    isNavigating = true
+    loadingStore.startLoading('Loading page...')
+  }
 
   // Check if route requires authentication
   if (to.meta.requiresAuth) {
@@ -226,6 +238,8 @@ router.beforeEach(async (to, from, next) => {
       // Redirect to login if not authenticated
       // Encrypt the redirect parameter for security
       const encryptedRedirect = encryptUrlParam(to.fullPath)
+      loadingStore.stopLoading()
+      isNavigating = false
       next({ path: '/auth/login', query: { redirect: encryptedRedirect } })
     } else {
       next()
@@ -237,6 +251,8 @@ router.beforeEach(async (to, from, next) => {
     
     if (isAuthenticated) {
       // Redirect authenticated users away from auth pages
+      loadingStore.stopLoading()
+      isNavigating = false
       next('/')
     } else {
       next()
@@ -244,6 +260,26 @@ router.beforeEach(async (to, from, next) => {
   } else {
     next()
   }
+})
+
+router.afterEach(async () => {
+  const loadingStore = useLoadingStore()
+  
+  // Only hide loading if we were actually navigating
+  if (isNavigating) {
+    // Wait a bit for the component to render and transition to complete
+    // This ensures the loading indicator stays visible during the actual loading
+    await new Promise(resolve => setTimeout(resolve, 150))
+    loadingStore.stopLoading()
+    isNavigating = false
+  }
+})
+
+router.onError((error) => {
+  const loadingStore = useLoadingStore()
+  loadingStore.stopLoading()
+  isNavigating = false
+  console.error('Router error:', error)
 })
 
 export default router
