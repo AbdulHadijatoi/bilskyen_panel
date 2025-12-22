@@ -196,6 +196,11 @@ const router = createRouter({
           component: () => import('@/views/dealer/settings/ChangePassword.vue'),
         },
         {
+          path: 'settings/permissions',
+          name: 'dealer.settings.permissions',
+          component: () => import('@/views/dealer/settings/PermissionsManagement.vue'),
+        },
+        {
           path: 'notifications',
           name: 'dealer.notifications',
           component: () => import('@/views/dealer/Notifications.vue'),

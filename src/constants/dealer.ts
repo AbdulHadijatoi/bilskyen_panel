@@ -178,6 +178,10 @@ export const dealerSidebarSections: SidebarSection[] = [
             title: 'Change Password',
             url: `${DEALER_ROUTE_BASE}settings/change-password`,
           },
+          {
+            title: 'Permissions',
+            url: `${DEALER_ROUTE_BASE}settings/permissions`,
+          },
         ],
       },
     ],

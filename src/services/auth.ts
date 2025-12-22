@@ -14,7 +14,7 @@ export interface RegisterCredentials {
   password: string
   phone?: string
   address?: string
-  role?: string
+  roles?: string[]
 }
 
 export interface RegisterResponse {
