@@ -12,41 +12,6 @@ const router = createRouter({
       name: 'auth.login',
       component: () => import('@/views/auth/Login.vue'),
     },
-    {
-      path: '/auth/signup',
-      name: 'auth.signup',
-      component: () => import('@/views/auth/Signup.vue'),
-    },
-    {
-      path: '/auth/forgot-password',
-      name: 'auth.forgot-password',
-      component: () => import('@/views/auth/ForgotPassword.vue'),
-    },
-    {
-      path: '/auth/reset-password',
-      name: 'auth.reset-password',
-      component: () => import('@/views/auth/ResetPassword.vue'),
-    },
-    {
-      path: '/auth/magic-link/login',
-      name: 'auth.magic-link.login',
-      component: () => import('@/views/auth/MagicLinkLogin.vue'),
-    },
-    {
-      path: '/auth/magic-link/signup',
-      name: 'auth.magic-link.signup',
-      component: () => import('@/views/auth/MagicLinkSignup.vue'),
-    },
-    {
-      path: '/auth/magic-link/verify',
-      name: 'auth.magic-link.verify',
-      component: () => import('@/views/auth/MagicLinkVerify.vue'),
-    },
-    {
-      path: '/auth/verify-email',
-      name: 'auth.verify-email',
-      component: () => import('@/views/auth/VerifyEmail.vue'),
-    },
     // Legacy login route for backward compatibility
     {
       path: '/login',
@@ -249,13 +214,13 @@ router.beforeEach(async (to, from, next) => {
     } else {
       next()
     }
-  } else if (to.path.startsWith('/auth/') || to.path === '/login') {
-    // Prevent authenticated users from accessing auth pages (login, signup, etc.)
+  } else if (to.path === '/auth/login' || to.path === '/login') {
+    // Prevent authenticated users from accessing login page
     // Check authentication status
     const isAuthenticated = await checkAuth()
     
     if (isAuthenticated) {
-      // Redirect authenticated users away from auth pages
+      // Redirect authenticated users away from login page
       loadingStore.stopLoading()
       isNavigating = false
       next('/')

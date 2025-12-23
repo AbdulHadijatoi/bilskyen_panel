@@ -1,92 +1,143 @@
 <template>
   <AuthLayout>
-    <div class="auth-form-container">
-      <div class="auth-form-header">
-        <h1 class="auth-form-title">Login into your account</h1>
-        <p class="auth-form-description">
+    <div class="flex h-full w-full flex-col items-center justify-center gap-4">
+      <div class="flex w-full flex-col space-y-2">
+        <h1 class="text-2xl font-semibold tracking-tight">
+          Login into your account
+        </h1>
+        <p class="text-sm text-muted-foreground">
           Enter your email and password to login to your account.
         </p>
       </div>
 
-      <v-alert
+      <div
         v-if="error"
-        type="error"
-        variant="tonal"
-        class="mb-4"
-        closable
-        @click:close="error = null"
+        class="w-full rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive"
       >
-        <v-alert-title>Login Error</v-alert-title>
-        <div>{{ error }}</div>
-      </v-alert>
-
-      <v-form ref="formRef" @submit.prevent="handleSubmit" class="auth-form">
-        <v-text-field
-          v-model="email"
-          label="Email"
-          type="email"
-          placeholder="johndoe@mail.com"
-          autocomplete="email"
-          :rules="emailRules"
-          required
-          variant="outlined"
-          density="compact"
-          class="mb-3 auth-input"
-          :style="{
-            '--v-field-label-color': 'var(--muted-foreground)',
-            '--v-field-input-color': 'var(--foreground)',
-          }"
-        />
-
-        <div class="mb-3">
-          <div class="d-flex justify-space-between align-center mb-2">
-            <label for="password" class="text-body-2">Password</label>
-            <router-link
-              :to="`${AUTH_ROUTE_BASE}/forgot-password`"
-              class="text-body-2 text-decoration-underline"
-            >
-              Forgot your password?
-            </router-link>
-          </div>
-          <PasswordInput
-            v-model="password"
-            id="password"
-            placeholder="Your Password"
-            autocomplete="current-password"
-            :disabled="loading"
-          />
-        </div>
-
-        <v-btn
-          type="submit"
-          color="primary"
-          block
-          :loading="loading"
-          :disabled="loading"
-          size="large"
-        >
-          {{ loading ? 'Logging in...' : 'Login' }}
-        </v-btn>
-      </v-form>
-
-      <div class="auth-form-footer">
-        <div class="text-center text-body-2">
-          Don't have an account?
-          <router-link :to="`${AUTH_ROUTE_BASE}/signup`" class="text-decoration-underline">
-            Signup
-          </router-link>
-        </div>
-        <SeparatorWithText text="or" />
-        <div class="text-center text-body-2">
-          Without a password?
-          <router-link
-            :to="`${AUTH_ROUTE_BASE}/magic-link/login`"
-            class="text-decoration-underline"
+        <div class="flex">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="mr-2 h-5 w-5"
           >
-            Email me a login link
-          </router-link>
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" x2="12" y1="8" y2="12"></line>
+            <line x1="12" x2="12.01" y1="16" y2="16"></line>
+          </svg>
+          <div>
+            <h3 class="font-semibold">Login Error</h3>
+            <p class="mt-1 text-sm">{{ error }}</p>
+          </div>
         </div>
       </div>
+
+      <form @submit.prevent="handleSubmit" class="grid w-full gap-3.5">
+        <div class="grid gap-2">
+          <label
+            for="email"
+            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            Email
+          </label>
+          <input
+            id="email"
+            v-model="email"
+            type="email"
+            placeholder="johndoe@mail.com"
+            autocomplete="email"
+            tabindex="1"
+            required
+            :disabled="loading"
+            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          />
+          <p id="email-error" class="hidden text-sm text-destructive"></p>
+        </div>
+
+        <div class="grid gap-2">
+          <div class="flex items-center justify-between">
+            <label
+              for="password"
+              class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Password
+            </label>
+          </div>
+          <div class="relative">
+            <input
+              id="password"
+              v-model="password"
+              :type="showPassword ? 'text' : 'password'"
+              placeholder="Your Password"
+              autocomplete="current-password"
+              tabindex="2"
+              required
+              :disabled="loading"
+              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 pr-10 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            />
+            <button
+              type="button"
+              @click="togglePassword"
+              :disabled="loading"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <svg
+                v-if="!showPassword"
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="h-4 w-4"
+              >
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <svg
+                v-else
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="h-4 w-4"
+              >
+                <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+                <path
+                  d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"
+                ></path>
+                <path
+                  d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"
+                ></path>
+                <line x1="2" x2="22" y1="2" y2="22"></line>
+              </svg>
+            </button>
+          </div>
+          <p id="password-error" class="hidden text-sm text-destructive"></p>
+        </div>
+
+        <button
+          type="submit"
+          :disabled="loading"
+          class="inline-flex h-10 w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+        >
+          {{ loading ? 'Logging in...' : 'Login' }}
+        </button>
+      </form>
     </div>
   </AuthLayout>
 </template>
@@ -94,30 +145,34 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { AUTH_ROUTE_BASE } from '@/constants/app'
 import { login, type ApiError } from '@/services/auth'
 import { decryptUrlParam } from '@/utils/urlEncryption'
 import AuthLayout from '@/components/auth/AuthLayout.vue'
-import PasswordInput from '@/components/ui/PasswordInput.vue'
-import SeparatorWithText from '@/components/ui/SeparatorWithText.vue'
 
 const router = useRouter()
 const route = useRoute()
 
-const formRef = ref()
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
 const error = ref<string | null>(null)
+const showPassword = ref(false)
 
-const emailRules = [
-  (v: string) => !!v || 'Email is required',
-  (v: string) => /.+@.+\..+/.test(v) || 'Email must be valid',
-]
+const togglePassword = () => {
+  showPassword.value = !showPassword.value
+}
 
 const handleSubmit = async () => {
-  const { valid } = await formRef.value.validate()
-  if (!valid) return
+  // Basic validation
+  if (!email.value || !password.value) {
+    error.value = 'Please fill in all fields.'
+    return
+  }
+
+  if (!/.+@.+\..+/.test(email.value)) {
+    error.value = 'Please enter a valid email address.'
+    return
+  }
 
   loading.value = true
   error.value = null
@@ -157,52 +212,6 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
-.auth-form-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  width: 100%;
-  height: 100%;
-}
-
-.auth-form-header {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  gap: 0.5rem;
-}
-
-.auth-form-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  line-height: 1.2;
-  letter-spacing: -0.025em;
-  color: var(--foreground);
-}
-
-.auth-form-description {
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: var(--muted-foreground);
-}
-
-.auth-form {
-  display: grid;
-  width: 100%;
-  gap: 0.875rem;
-}
-
-.auth-form-footer {
-  margin-top: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  width: 100%;
-  text-align: center;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-}
+/* Styles are handled by Tailwind classes */
 </style>
 
