@@ -65,7 +65,7 @@
     </template>
     <span>{{ item.title }}</span>
   </v-tooltip>
-  <div v-else-if="item.items" class="sidebar-menu-group">
+  <div v-else-if="item.items" ref="menuGroupRef" class="sidebar-menu-group">
     <v-list-item
       :title="item.title"
       :active="isActive"
@@ -137,7 +137,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSidebarStore } from '@/stores/sidebar'
 import type { SidebarSectionItem } from '@/constants/dealer'
@@ -168,8 +168,9 @@ watch(
       const shouldBeExpanded = props.item.items.some((subItem) =>
         newPath.startsWith(subItem.url)
       )
-      if (shouldBeExpanded) {
+      if (shouldBeExpanded && !isExpanded.value) {
         isExpanded.value = true
+        // Scroll will be handled by onAfterEnter transition hook
       }
     }
   },
@@ -187,6 +188,60 @@ const toggleExpanded = () => {
 }
 
 const submenuRef = ref<HTMLElement | null>(null)
+const menuGroupRef = ref<HTMLElement | null>(null)
+
+/**
+ * Find the scrollable sidebar container
+ */
+const findScrollableContainer = (element: HTMLElement | null): HTMLElement | null => {
+  if (!element) return null
+  
+  let current: HTMLElement | null = element.parentElement
+  while (current) {
+    const style = window.getComputedStyle(current)
+    if (style.overflowY === 'auto' || style.overflowY === 'scroll' || style.overflow === 'auto' || style.overflow === 'scroll') {
+      return current
+    }
+    // Check if it's the sidebar-content class
+    if (current.classList.contains('sidebar-content')) {
+      return current
+    }
+    current = current.parentElement
+  }
+  return null
+}
+
+/**
+ * Scroll to make the expanded content visible
+ */
+const scrollToExpandedContent = () => {
+  nextTick(() => {
+    if (!submenuRef.value || !menuGroupRef.value) return
+    
+    // Skip scrolling if sidebar is collapsed or on mobile
+    if (sidebarStore.isCollapsed && !sidebarStore.isMobile) return
+    
+    const scrollContainer = findScrollableContainer(submenuRef.value)
+    if (!scrollContainer) return
+    
+    const containerRect = scrollContainer.getBoundingClientRect()
+    const expandedRect = submenuRef.value.getBoundingClientRect()
+    
+    // Check if the expanded content is outside the visible viewport
+    const isAboveViewport = expandedRect.top < containerRect.top
+    const isBelowViewport = expandedRect.bottom > containerRect.bottom
+    
+    // Only scroll if content is outside the viewport
+    if (isAboveViewport || isBelowViewport) {
+      // Use scrollIntoView for smooth scrolling
+      submenuRef.value.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'nearest'
+      })
+    }
+  })
+}
 
 const onEnter = (el: Element) => {
   const element = el as HTMLElement
@@ -201,6 +256,8 @@ const onAfterEnter = (el: Element) => {
   const element = el as HTMLElement
   element.style.height = 'auto'
   element.style.overflow = ''
+  // Scroll to make expanded content visible
+  scrollToExpandedContent()
 }
 
 const onLeave = (el: Element) => {
