@@ -2,10 +2,13 @@ export interface SidebarSectionItem {
   title: string
   url: string
   icon?: string
+  badge?: string
+  shortcut?: string[]
   items?: {
     title: string
     url: string
     icon?: string
+    badge?: string
   }[]
 }
 

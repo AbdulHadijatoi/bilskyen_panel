@@ -18,114 +18,116 @@
     }"
   >
     <!-- Sidebar Header - Fixed at top -->
-    <div class="sidebar-header" :style="{ flexShrink: 0 }">
-      <v-list nav density="compact">
-        <v-list-item 
-          class="sidebar-header-item"
-          :class="{ 'sidebar-header-item-collapsed': sidebarStore.isCollapsed && !sidebarStore.isMobile }"
+    <div class="sidebar-header" :style="{ flexShrink: 0, padding: '0.75rem' }">
+      <div
+        class="sidebar-header-content"
+        :class="{ 'sidebar-header-collapsed': sidebarStore.isCollapsed && !sidebarStore.isMobile }"
+        style="display: flex; align-items: center; gap: 0.75rem;"
+      >
+        <div
+          class="sidebar-header-icon"
+          :style="{
+            width: sidebarStore.isCollapsed && !sidebarStore.isMobile ? '32px' : '32px',
+            height: '32px',
+            backgroundColor: 'var(--sidebar-primary)',
+            color: 'var(--sidebar-primary-foreground)',
+            borderRadius: '0.375rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            fontWeight: 'bold',
+            fontSize: '0.875rem',
+          }"
         >
-          <template #prepend>
-            <div
-              class="d-flex align-center justify-center rounded-lg sidebar-header-icon"
-              :style="{
-                width: '32px',
-                height: '32px',
-                backgroundColor: 'var(--sidebar-primary)',
-                color: 'var(--sidebar-primary-foreground)',
-                flexShrink: 0,
-              }"
-            >
-              <span class="font-bold text-sm">B</span>
-            </div>
-          </template>
-          <template v-if="!sidebarStore.isCollapsed || sidebarStore.isMobile">
-            <div class="flex-1 text-left" style="min-width: 0;">
-              <div class="text-sm font-medium truncate">Bilskyen</div>
-              <div class="text-xs truncate">Dealer Panel</div>
-            </div>
-          </template>
-        </v-list-item>
-      </v-list>
+          B
+        </div>
+        <div
+          v-if="!sidebarStore.isCollapsed || sidebarStore.isMobile"
+          class="sidebar-header-text"
+          style="flex: 1; min-width: 0;"
+        >
+          <div class="text-sm font-medium truncate">Bilskyen</div>
+          <div class="text-xs truncate" style="opacity: 0.7;">Dealer Panel</div>
+        </div>
+      </div>
     </div>
 
-    <v-divider :style="{ borderColor: 'var(--sidebar-border)', flexShrink: 0 }" />
-
     <!-- Navigation Items - Scrollable -->
-    <div 
-      class="sidebar-content" 
-      :class="{ 'sidebar-content-collapsed': sidebarStore.isCollapsed && !sidebarStore.isMobile }"
-      style="flex: 1 1 0%; min-height: 0; overflow-y: auto; overflow-x: hidden;"
+    <aside 
+      class="sidebar-content sidebar-section"
+      :class="{ 
+        'sidebar-content-collapsed': sidebarStore.isCollapsed && !sidebarStore.isMobile,
+        'last:mb-5': true
+      }"
+      style="flex: 1 1 0%; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 0.5rem;"
     >
       <template v-for="(section, sectionIndex) in dealerSidebarSections" :key="sectionIndex">
         <div 
           class="sidebar-group" 
           :class="{ 'sidebar-group-collapsed': sidebarStore.isCollapsed && !sidebarStore.isMobile }"
+          :style="{ marginTop: sectionIndex === 0 ? '0' : '0.5rem' }"
         >
           <div
-            v-if="section.title"
+            v-if="section.title && (!sidebarStore.isCollapsed || sidebarStore.isMobile)"
             class="sidebar-group-label"
-            :class="{ 'sidebar-group-label-collapsed': sidebarStore.isCollapsed && !sidebarStore.isMobile }"
             :style="{
-              height: '32px',
-              padding: '0 0.5rem',
+              padding: '0.5rem 0.75rem 0.25rem',
               fontSize: '0.75rem',
               fontWeight: 500,
-              color: 'color-mix(in oklch, var(--sidebar-foreground) 70%, transparent)',
-              display: 'flex',
-              alignItems: 'center',
-              borderRadius: '0.375rem',
+              color: 'color-mix(in oklch, var(--sidebar-foreground) 60%, transparent)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
             }"
           >
             {{ section.title }}
           </div>
 
-          <v-list nav density="compact" class="sidebar-menu" style="gap: 0.25rem;">
+          <div class="sidebar-menu" style="display: flex; flex-direction: column; gap: 0.125rem;">
             <template v-for="(item, itemIndex) in section.items" :key="itemIndex">
               <SidebarItem :item="item" />
             </template>
-          </v-list>
+          </div>
         </div>
       </template>
-    </div>
+    </aside>
 
     <template #append>
-      <v-divider :style="{ borderColor: 'var(--sidebar-border)', margin: '0 0.5rem', flexShrink: 0 }" />
-      <div class="sidebar-footer" :style="{ padding: '0.5rem', flexShrink: 0 }">
+      <div class="sidebar-footer" :style="{ padding: '0.75rem', flexShrink: 0, borderTop: '1px solid var(--sidebar-border)' }">
         <v-menu location="top">
           <template #activator="{ props: menuProps }">
-            <v-list nav density="compact">
-              <v-list-item
-                v-bind="menuProps"
-                class="sidebar-footer-item"
-                :class="{ 'sidebar-footer-item-collapsed': sidebarStore.isCollapsed && !sidebarStore.isMobile }"
-                :style="{
-                  height: sidebarStore.isCollapsed && !sidebarStore.isMobile ? '32px' : '48px',
-                  padding: sidebarStore.isCollapsed && !sidebarStore.isMobile ? '0.5rem' : '0.375rem 0.5rem',
-                  borderRadius: '0.375rem',
-                  cursor: 'pointer',
-                }"
-              >
-                <template #prepend>
-                  <v-avatar
-                    size="32"
-                    class="rounded-lg"
-                    :style="{
-                      backgroundColor: 'var(--muted)',
-                      color: 'var(--muted-foreground)',
-                      flexShrink: 0,
-                    }"
-                  >
-                    <span class="text-xs font-medium">{{ userInitials }}</span>
-                  </v-avatar>
-                </template>
-                <template v-if="!sidebarStore.isCollapsed || sidebarStore.isMobile">
-                  <div class="flex-1 text-left" style="min-width: 0;">
-                    <div class="text-sm font-medium truncate">{{ authStore.user?.name || 'User' }}</div>
-                    <div class="text-xs truncate">{{ authStore.user?.email || '' }}</div>
-                  </div>
-                </template>
-              </v-list-item>
-            </v-list>
+            <div
+              v-bind="menuProps"
+              class="sidebar-footer-item group __menu-item hoverable"
+              :class="{ 'sidebar-footer-item-collapsed': sidebarStore.isCollapsed && !sidebarStore.isMobile }"
+              style="cursor: pointer;"
+            >
+              <div class="flex min-w-0 items-center gap-1.5">
+                <div
+                  class="flex items-center justify-center icon"
+                  :style="{
+                    width: '32px',
+                    height: '32px',
+                    backgroundColor: 'var(--muted)',
+                    color: 'var(--muted-foreground)',
+                    borderRadius: '0.375rem',
+                    flexShrink: 0,
+                    fontSize: '0.625rem',
+                    fontWeight: 500,
+                  }"
+                >
+                  {{ userInitials }}
+                </div>
+                <div
+                  v-if="!sidebarStore.isCollapsed || sidebarStore.isMobile"
+                  class="flex min-w-0 grow flex-col items-start gap-0.5"
+                  style="min-width: 0;"
+                >
+                  <div class="truncate text-xs font-medium" style="width: 100%;">{{ authStore.user?.name || 'User' }}</div>
+                  <div class="truncate text-xs" style="opacity: 0.7; width: 100%; font-size: 0.6875rem;">{{ authStore.user?.email || '' }}</div>
+                </div>
+              </div>
+            </div>
           </template>
           <v-list>
             <v-list-item :to="{ name: 'dealer.settings.profile' }" prepend-icon="mdi-account">
@@ -223,56 +225,30 @@ onMounted(async () => {
   padding: 0 !important;
 }
 
-.sidebar-header-item {
-  min-height: 48px;
-  height: 48px;
-}
-
-.sidebar-header-item-collapsed {
-  min-height: 32px !important;
-  height: 32px !important;
-  justify-content: center !important;
-  padding: 0.5rem !important;
-  width: 32px !important;
-  min-width: 32px !important;
-  margin: 0 auto !important;
-}
-
-.sidebar-header-item-collapsed :deep(.v-list-item__prepend) {
-  margin-inline-end: 0 !important;
-  margin-inline-start: 0 !important;
-  display: flex !important;
-  align-items: center !important;
+.sidebar-header-collapsed {
   justify-content: center !important;
 }
 
-.sidebar-header-item-collapsed :deep(.v-list-item__content) {
+.sidebar-header-collapsed .sidebar-header-text {
   display: none !important;
 }
 
 .sidebar-footer-item {
   min-height: 48px;
-  height: 48px;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
 }
 
 .sidebar-footer-item-collapsed {
-  min-height: 32px !important;
-  height: 32px !important;
   justify-content: center !important;
+  padding: 0.5rem !important;
   width: 32px !important;
   min-width: 32px !important;
+  height: 32px !important;
   margin: 0 auto !important;
 }
 
-.sidebar-footer-item-collapsed :deep(.v-list-item__prepend) {
-  margin-inline-end: 0 !important;
-  margin-inline-start: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-.sidebar-footer-item-collapsed :deep(.v-list-item__content) {
+.sidebar-footer-item-collapsed .flex.min-w-0.grow {
   display: none !important;
 }
 
@@ -281,10 +257,33 @@ onMounted(async () => {
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--sidebar-border) transparent;
+}
+
+.sidebar-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb {
+  background-color: var(--sidebar-border);
+  border-radius: 3px;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb:hover {
+  background-color: var(--sidebar-accent);
 }
 
 .sidebar-content-collapsed {
   overflow: hidden !important;
+}
+
+.sidebar-section {
+  position: relative;
 }
 
 .sidebar-group {
@@ -300,14 +299,8 @@ onMounted(async () => {
 }
 
 .sidebar-group-label {
-  transition: margin 0.2s ease-linear, opacity 0.2s ease-linear;
-}
-
-.sidebar-group-label-collapsed {
-  margin-top: -32px !important;
-  opacity: 0 !important;
-  height: 0 !important;
-  overflow: hidden !important;
+  transition: opacity 0.2s ease-linear;
+  user-select: none;
 }
 
 .sidebar-menu {

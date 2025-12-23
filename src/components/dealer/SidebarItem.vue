@@ -1,100 +1,165 @@
 <template>
+  <!-- Simple menu item (no children) -->
   <v-tooltip
     v-if="sidebarStore.isCollapsed && !sidebarStore.isMobile && (!item.items || item.items.length === 0)"
     location="right"
-    :disabled="!sidebarStore.isCollapsed || sidebarStore.isMobile"
   >
     <template #activator="{ props: tooltipProps }">
-      <v-list-item
-        v-if="!item.items || item.items.length === 0"
-        v-bind="tooltipProps"
+      <component
+        :is="item.url ? 'router-link' : 'div'"
         :to="item.url"
-        :title="item.title"
-        :active="isActive"
-        class="sidebar-menu-item"
-        :class="{ 'sidebar-menu-item-collapsed': sidebarStore.isCollapsed && !sidebarStore.isMobile }"
-        :style="{
-          height: sidebarStore.isCollapsed && !sidebarStore.isMobile ? '32px' : '32px',
-          padding: '0.5rem',
-          gap: '0.5rem',
-        }"
-      >
-        <template #prepend>
-          <v-icon v-if="item.icon" :size="16" :style="{ flexShrink: 0, display: 'block' }">{{ item.icon }}</v-icon>
-        </template>
-      </v-list-item>
-    </template>
-    <span>{{ item.title }}</span>
-  </v-tooltip>
-  <v-list-item
-    v-else-if="!item.items || item.items.length === 0"
-    :to="item.url"
-    :title="item.title"
-    :active="isActive"
-    class="sidebar-menu-item"
-    :style="{
-      height: '32px',
-      padding: '0.5rem',
-      gap: '0.5rem',
-    }"
-  >
-    <template #prepend>
-      <v-icon v-if="item.icon" :size="16" :style="{ flexShrink: 0, display: 'block' }">{{ item.icon }}</v-icon>
-    </template>
-  </v-list-item>
-
-  <v-tooltip
-    v-else-if="sidebarStore.isCollapsed && !sidebarStore.isMobile && item.items"
-    location="right"
-  >
-    <template #activator="{ props: tooltipProps }">
-      <v-list-item
         v-bind="tooltipProps"
-        :active="isActive"
-        class="sidebar-menu-item sidebar-menu-item-collapsed"
-        :style="{
-          height: '32px',
-          padding: '0.5rem',
-          gap: '0.5rem',
+        tabindex="0"
+        class="group __menu-item hoverable"
+        :class="{
+          'menu-item-active': isActive,
+          'menu-item-collapsed': sidebarStore.isCollapsed && !sidebarStore.isMobile,
         }"
+        data-sidebar-item="true"
       >
-        <template #prepend>
-          <v-icon :size="16" :style="{ flexShrink: 0, display: 'block', visibility: 'visible', opacity: 1 }">{{ item.icon }}</v-icon>
-        </template>
-      </v-list-item>
+        <div class="flex min-w-0 items-center gap-1.5">
+          <div
+            v-if="item.icon"
+            class="flex items-center justify-center icon group-disabled:opacity-50 group-data-disabled:opacity-50"
+          >
+            <v-icon :size="20" class="icon">{{ item.icon }}</v-icon>
+          </div>
+          <div class="flex min-w-0 grow items-center gap-2.5">
+            <div class="truncate">{{ item.title }}</div>
+            <span v-if="item.badge" class="__menu-item-badge">{{ item.badge }}</span>
+          </div>
+        </div>
+        <div v-if="item.shortcut && (!sidebarStore.isCollapsed || sidebarStore.isMobile)" class="trailing highlight text-token-text-tertiary">
+          <div class="inline-flex whitespace-pre *:inline-flex *:font-sans touch:hidden">
+            <kbd v-for="(key, index) in item.shortcut" :key="index" :aria-label="key">
+              <span class="min-w-[1em]">{{ formatKey(key) }}</span>
+            </kbd>
+          </div>
+        </div>
+      </component>
     </template>
     <span>{{ item.title }}</span>
   </v-tooltip>
-  <div v-else-if="item.items" ref="menuGroupRef" class="sidebar-menu-group">
-    <v-list-item
-      :title="item.title"
-      :active="isActive"
-      class="sidebar-menu-item"
-      :style="{
-        height: '32px',
-        padding: '0.5rem',
-        gap: '0.5rem',
-        cursor: 'pointer',
-      }"
-      @click="toggleExpanded"
+  <component
+    v-else-if="!item.items || item.items.length === 0"
+    :is="item.url ? 'router-link' : 'div'"
+    :to="item.url"
+    tabindex="0"
+    class="group __menu-item hoverable"
+    :class="{
+      'menu-item-active': isActive,
+      'menu-item-collapsed': sidebarStore.isCollapsed && !sidebarStore.isMobile,
+    }"
+    data-sidebar-item="true"
+  >
+    <div class="flex min-w-0 items-center gap-1.5">
+      <div
+        v-if="item.icon"
+        class="flex items-center justify-center icon group-disabled:opacity-50 group-data-disabled:opacity-50"
+      >
+        <v-icon :size="20" class="icon">{{ item.icon }}</v-icon>
+      </div>
+      <div class="flex min-w-0 grow items-center gap-2.5">
+        <div class="truncate">{{ item.title }}</div>
+        <span v-if="item.badge" class="__menu-item-badge">{{ item.badge }}</span>
+      </div>
+    </div>
+    <div v-if="item.shortcut && (!sidebarStore.isCollapsed || sidebarStore.isMobile)" class="trailing highlight text-token-text-tertiary">
+      <div class="inline-flex whitespace-pre *:inline-flex *:font-sans touch:hidden">
+        <kbd v-for="(key, index) in item.shortcut" :key="index" :aria-label="key">
+          <span class="min-w-[1em]">{{ formatKey(key) }}</span>
+        </kbd>
+      </div>
+    </div>
+  </component>
+
+  <!-- Expandable menu item (with children) -->
+  <div v-else ref="menuGroupRef" class="sidebar-menu-group">
+    <v-tooltip
+      v-if="sidebarStore.isCollapsed && !sidebarStore.isMobile"
+      location="right"
     >
-      <template #prepend>
-        <v-icon :size="16" :style="{ flexShrink: 0, display: 'block' }">{{ item.icon }}</v-icon>
+      <template #activator="{ props: tooltipProps }">
+        <div
+          v-bind="tooltipProps"
+          tabindex="0"
+          class="group __menu-item hoverable"
+          :class="{
+            'menu-item-active': isActive,
+            'menu-item-collapsed': sidebarStore.isCollapsed && !sidebarStore.isMobile,
+          }"
+          data-sidebar-item="true"
+          @click="toggleExpanded"
+          @keydown.enter="toggleExpanded"
+          @keydown.space.prevent="toggleExpanded"
+        >
+          <div class="flex min-w-0 items-center gap-1.5">
+            <div
+              v-if="item.icon"
+              class="flex items-center justify-center icon group-disabled:opacity-50 group-data-disabled:opacity-50"
+            >
+              <v-icon :size="20" class="icon">{{ item.icon }}</v-icon>
+            </div>
+            <div class="flex min-w-0 grow items-center gap-2.5">
+              <div class="truncate">{{ item.title }}</div>
+              <span v-if="item.badge" class="__menu-item-badge">{{ item.badge }}</span>
+            </div>
+          </div>
+          <div class="trailing">
+            <v-icon
+              :size="16"
+              class="transition-transform duration-200"
+              :style="{
+                transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+              }"
+            >
+              mdi-chevron-right
+            </v-icon>
+          </div>
+        </div>
       </template>
-      <template #append>
+      <span>{{ item.title }}</span>
+    </v-tooltip>
+    <div
+      v-else
+      tabindex="0"
+      class="group __menu-item hoverable"
+      :class="{
+        'menu-item-active': isActive,
+        'menu-item-collapsed': sidebarStore.isCollapsed && !sidebarStore.isMobile,
+      }"
+      data-sidebar-item="true"
+      @click="toggleExpanded"
+      @keydown.enter="toggleExpanded"
+      @keydown.space.prevent="toggleExpanded"
+    >
+      <div class="flex min-w-0 items-center gap-1.5">
+        <div
+          v-if="item.icon"
+          class="flex items-center justify-center icon group-disabled:opacity-50 group-data-disabled:opacity-50"
+        >
+          <v-icon :size="20" class="icon">{{ item.icon }}</v-icon>
+        </div>
+        <div class="flex min-w-0 grow items-center gap-2.5">
+          <div class="truncate">{{ item.title }}</div>
+          <span v-if="item.badge" class="__menu-item-badge">{{ item.badge }}</span>
+        </div>
+      </div>
+      <div class="trailing">
         <v-icon
           :size="16"
-          class="sidebar-chevron transition-transform duration-200"
+          class="transition-transform duration-200"
           :style="{
             transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
           }"
         >
           mdi-chevron-right
         </v-icon>
-      </template>
-    </v-list-item>
+      </div>
+    </div>
 
     <transition
+      v-if="!sidebarStore.isCollapsed || sidebarStore.isMobile"
       name="collapsible"
       @enter="onEnter"
       @after-enter="onAfterEnter"
@@ -102,35 +167,32 @@
       @after-leave="onAfterLeave"
     >
       <div
-        v-if="isExpanded"
+        v-if="isExpanded && (!sidebarStore.isCollapsed || sidebarStore.isMobile)"
         ref="submenuRef"
         class="sidebar-menu-sub"
-        :style="{
-          flexDirection: 'column',
-          gap: '0.25rem',
-          paddingLeft: '2rem',
-          paddingTop: '0.25rem',
-          paddingBottom: '0.25rem',
-        }"
       >
-        <v-list-item
+        <router-link
           v-for="(subItem, index) in item.items"
           :key="`${item.title}-${index}`"
           :to="subItem.url"
-          :title="subItem.title"
-          :active="isSubItemActive(subItem.url)"
-          class="sidebar-submenu-item"
-          :style="{
-            height: '28px',
-            minHeight: '28px',
-            padding: '0 0.5rem',
-            gap: '0.5rem',
-          }"
+          tabindex="0"
+          class="group __menu-item hoverable __submenu-item"
+          :class="{ 'menu-item-active': isSubItemActive(subItem.url) }"
+          data-sidebar-item="true"
         >
-          <template #prepend>
-            <v-icon :size="16" :style="{ flexShrink: 0 }">{{ subItem.icon || 'mdi-circle-small' }}</v-icon>
-          </template>
-        </v-list-item>
+          <div class="flex min-w-0 items-center gap-1.5">
+            <div
+              v-if="subItem.icon"
+              class="flex items-center justify-center icon group-disabled:opacity-50 group-data-disabled:opacity-50"
+            >
+              <v-icon :size="20" class="icon">{{ subItem.icon || 'mdi-circle-small' }}</v-icon>
+            </div>
+            <div class="flex min-w-0 grow items-center gap-2.5">
+              <div class="truncate">{{ subItem.title }}</div>
+              <span v-if="subItem.badge" class="__menu-item-badge">{{ subItem.badge }}</span>
+            </div>
+          </div>
+        </router-link>
       </div>
     </transition>
   </div>
@@ -164,6 +226,11 @@ watch(
   () => route.path,
   (newPath) => {
     if (props.item.items) {
+      // Don't auto-expand when sidebar is collapsed
+      if (sidebarStore.isCollapsed && !sidebarStore.isMobile) {
+        return
+      }
+      
       // Only auto-expand if a sub-item is active, don't force collapse
       const shouldBeExpanded = props.item.items.some((subItem) =>
         newPath.startsWith(subItem.url)
@@ -177,14 +244,52 @@ watch(
   { immediate: true }
 )
 
+// Watch for sidebar collapse state - collapse menu items when sidebar collapses, re-expand when sidebar expands if active
+watch(
+  () => sidebarStore.isCollapsed,
+  (isCollapsed) => {
+    if (!props.item.items) return
+    
+    if (isCollapsed && !sidebarStore.isMobile && isExpanded.value) {
+      // Collapse the menu item when sidebar collapses
+      isExpanded.value = false
+    } else if (!isCollapsed && !sidebarStore.isMobile) {
+      // When sidebar expands, check if any sub-item is active and re-expand
+      const hasActiveSubItem = props.item.items.some((subItem) =>
+        route.path.startsWith(subItem.url)
+      )
+      if (hasActiveSubItem && !isExpanded.value) {
+        isExpanded.value = true
+      }
+    }
+  }
+)
+
 const isSubItemActive = (url: string) => {
   return route.path === url
 }
 
 const toggleExpanded = () => {
-  if (!sidebarStore.isCollapsed || sidebarStore.isMobile) {
-    isExpanded.value = !isExpanded.value
+  // If sidebar is collapsed, just expand the sidebar, don't expand the menu item
+  if (sidebarStore.isCollapsed && !sidebarStore.isMobile) {
+    sidebarStore.isCollapsed = false
+    // Don't expand the menu item - let user click again after sidebar expands
+    return
   }
+  
+  // Sidebar is expanded, toggle the menu item expansion
+  isExpanded.value = !isExpanded.value
+}
+
+const formatKey = (key: string): string => {
+  const keyMap: Record<string, string> = {
+    'Shift': '⇧',
+    'Command': '⌘',
+    'Ctrl': '⌃',
+    'Alt': '⌥',
+    'Meta': '⌘',
+  }
+  return keyMap[key] || key
 }
 
 const submenuRef = ref<HTMLElement | null>(null)
@@ -277,187 +382,148 @@ const onAfterLeave = (el: Element) => {
 </script>
 
 <style scoped>
-/* Removed wrapper div, styles moved to individual items */
-
-.sidebar-menu-item {
-  border-radius: 0.375rem;
+/* ChatGPT-style menu item */
+.__menu-item {
   display: flex;
-  width: 100%;
   align-items: center;
+  justify-content: space-between;
+  min-height: 32px;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  text-decoration: none;
+  color: var(--sidebar-foreground);
   gap: 0.5rem;
-  overflow: hidden;
-  text-align: left;
-  font-size: 0.875rem;
-  outline: none;
-  transition: width 0.2s ease-linear, height 0.2s ease-linear, padding 0.2s ease-linear;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
 }
 
-.sidebar-menu-item-collapsed {
-  width: 32px !important;
-  height: 32px !important;
-  min-width: 32px !important;
-  min-height: 32px !important;
-  padding: 0.5rem !important;
-  justify-content: center !important;
-  align-items: center !important;
-  margin: 0 auto !important;
+.__menu-item.router-link-active,
+.__menu-item.router-link-exact-active {
+  background-color: var(--sidebar-accent);
+  color: var(--sidebar-accent-foreground);
+  font-weight: 500;
 }
 
-.sidebar-menu-item-collapsed :deep(.v-list-item__prepend) {
-  margin-inline-end: 0 !important;
-  margin-inline-start: 0 !important;
-  display: flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 16px !important;
-  height: 16px !important;
-  min-width: 16px !important;
-  min-height: 16px !important;
+.__menu-item:hover,
+.__menu-item.hoverable:hover {
+  background-color: var(--sidebar-accent);
+  color: var(--sidebar-accent-foreground);
 }
 
-.sidebar-menu-item-collapsed :deep(.v-list-item__prepend .v-icon) {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  width: 16px !important;
-  height: 16px !important;
-  min-width: 16px !important;
-  min-height: 16px !important;
-  font-size: 16px !important;
-  line-height: 16px !important;
+.__menu-item.menu-item-active {
+  background-color: var(--sidebar-accent);
+  color: var(--sidebar-accent-foreground);
+  font-weight: 500;
 }
 
-.sidebar-menu-item-collapsed :deep(.v-list-item__prepend *) {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
+.__menu-item:focus-visible {
+  outline: 2px solid var(--sidebar-ring);
+  outline-offset: 2px;
 }
 
-.sidebar-menu-item-collapsed :deep(.v-list-item__content) {
+.__menu-item.menu-item-collapsed {
+  justify-content: center;
+  padding: 0.5rem;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  margin: 0 auto;
+}
+
+.menu-item-collapsed .flex {
+  justify-content: center;
+}
+
+.menu-item-collapsed .flex.min-w-0.grow {
   display: none !important;
 }
 
-.sidebar-menu-item-collapsed :deep(.v-list-item-title) {
+.menu-item-collapsed .trailing {
   display: none !important;
+}
+
+.menu-item-collapsed .icon {
+  margin: 0;
+}
+
+/* Icon styling */
+.icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Badge styling */
+.__menu-item-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1;
+  border-radius: 9999px;
+  background-color: var(--sidebar-accent);
+  color: var(--sidebar-accent-foreground);
+  white-space: nowrap;
+}
+
+/* Keyboard shortcut styling */
+.trailing {
+  flex-shrink: 0;
+  margin-left: auto;
+  opacity: 0.6;
+  font-size: 0.6875rem;
+}
+
+.trailing kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1em;
+  padding: 0.125rem 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1;
+  border-radius: 0.25rem;
+  background-color: var(--sidebar-accent);
+  color: var(--sidebar-accent-foreground);
+  border: 1px solid var(--sidebar-border);
+  box-shadow: 0 1px 0 0 var(--sidebar-border);
+}
+
+.trailing kbd + kbd {
+  margin-left: 0.125rem;
+}
+
+/* Submenu items */
+.__submenu-item {
+  padding-left: 2.75rem;
+  min-height: 28px;
+  font-size: 0.75rem;
+  margin-left: 0.5rem;
 }
 
 .sidebar-menu-group {
   position: relative;
 }
 
-:deep(.v-list-group__items) {
-  border-left: 1px solid var(--sidebar-border);
-  margin-left: 0.875rem;
-  margin-right: 0.875rem;
-  padding-left: 0.625rem !important;
-  padding-right: 0.625rem !important;
-  padding-top: 0.125rem !important;
-  padding-bottom: 0.125rem !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 0.25rem !important;
-  transform: translateX(1px);
-  transition: opacity 0.2s ease-linear;
-}
-
-.sidebar-menu-sub-collapsed {
-  display: none !important;
-}
-
-/* Prevent group expansion when collapsed */
-:deep(.v-list-group--disabled) {
-  pointer-events: auto !important;
-}
-
-:deep(.v-list-group--disabled .v-list-group__header) {
-  pointer-events: auto !important;
-  cursor: default !important;
-}
-
-:deep(.v-list-group--disabled .v-list-group__items) {
-  display: none !important;
-}
-
-:deep(.v-list-group:not(.v-list-group--disabled) .v-list-group__items) {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  max-height: none !important;
-  overflow: visible !important;
-}
-
-:deep(.v-list-group[aria-expanded="true"] .v-list-group__items) {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-:deep(.v-list-group__items) {
-  padding: 0 !important;
-  margin: 0 !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  max-height: none !important;
-  overflow: visible !important;
-}
-
-:deep(.v-list-group__items .v-list-item) {
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  display: flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
 .sidebar-menu-sub {
-  list-style: none !important;
-  padding-left: 0 !important;
-  margin-left: 0 !important;
-  display: flex !important;
-  overflow: hidden !important;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  overflow: hidden;
 }
 
-/* Remove spacer between icon and label for all sidebar items */
-:deep(.sidebar-menu-item .v-list-item__spacer),
-:deep(.sidebar-submenu-item .v-list-item__spacer),
-:deep(.v-list-item__prepend .v-list-item__spacer),
-:deep(.v-list-item__append .v-list-item__spacer),
-:deep(.sidebar-menu-item .v-list-item__prepend .v-list-item__spacer),
-:deep(.sidebar-menu-item .v-list-item__append .v-list-item__spacer) {
-  display: none !important;
-  width: 0 !important;
-  min-width: 0 !important;
-  max-width: 0 !important;
-  flex: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-.sidebar-submenu-item {
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  min-height: 28px;
-  height: 28px;
-  list-style: none !important;
-}
-
-:deep(.sidebar-menu-sub .v-list-item),
-:deep(.sidebar-submenu-item) {
-  list-style: none !important;
-}
-
-:deep(.sidebar-menu-sub .v-list-item::before),
-:deep(.sidebar-menu-sub .v-list-item::marker),
-:deep(.sidebar-submenu-item::before),
-:deep(.sidebar-submenu-item::marker) {
-  display: none !important;
-  content: none !important;
-}
-
-/* Collapsible transition - matching Next.js sidebar */
+/* Collapsible transition */
 .collapsible-enter-active {
   transition: height 0.2s ease-out;
   overflow: hidden;
@@ -468,147 +534,51 @@ const onAfterLeave = (el: Element) => {
   overflow: hidden;
 }
 
-/* Match Next.js sidebar styling */
-:deep(.v-list-item--active) {
-  background-color: var(--sidebar-accent) !important;
-  color: var(--sidebar-accent-foreground) !important;
-  font-weight: 500 !important;
+/* Flex utilities */
+.flex {
+  display: flex;
 }
 
-:deep(.v-list-item:hover:not(.v-list-item--active)) {
-  background-color: var(--sidebar-accent) !important;
-  color: var(--sidebar-accent-foreground) !important;
-}
-
-:deep(.v-list-item:focus-visible) {
-  outline: 2px solid var(--sidebar-ring);
-  outline-offset: 2px;
-}
-
-:deep(.v-list-item-title) {
-  font-size: 0.875rem !important;
-  font-weight: 400 !important;
-  line-height: 1.25rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1 1 0%;
+.min-w-0 {
   min-width: 0;
 }
 
-/* Right-align chevron icons */
-.sidebar-chevron {
-  margin-left: auto !important;
-  flex-shrink: 0;
+.items-center {
+  align-items: center;
 }
 
-:deep(.v-list-item__append) {
-  margin-left: auto !important;
-  flex-shrink: 0;
+.gap-1\.5 {
+  gap: 0.375rem;
 }
 
-:deep(.v-list-item) {
-  display: flex !important;
-  align-items: center !important;
+.gap-2\.5 {
+  gap: 0.625rem;
 }
 
-.sidebar-menu-item-collapsed :deep(.v-list-item) {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  flex-direction: row !important;
+.grow {
+  flex-grow: 1;
 }
 
-.sidebar-menu-item-collapsed :deep(.v-list-item__overlay) {
-  display: none !important;
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-:deep(.v-list-group__items) {
-  padding: 0 !important;
-  margin: 0 !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  max-height: none !important;
-  overflow: visible !important;
+.whitespace-pre {
+  white-space: pre;
 }
 
-:deep(.v-list-group__items .v-list-item) {
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  display: flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
+.inline-flex {
+  display: inline-flex;
 }
 
-:deep(.v-list-group__header) {
-  padding: 0 !important;
+
+*:inline-flex {
+  display: inline-flex;
 }
 
-:deep(.v-list-group__header .v-list-item) {
-  padding: 0.5rem !important;
-}
-
-/* Hide group items when collapsed */
-:deep(.v-list-group[data-collapsed="true"] .v-list-group__items) {
-  display: none !important;
-}
-
-/* Force show items when expanded - override all Vuetify defaults */
-:deep(.v-list-group:not(.v-list-group--disabled) .v-list-group__items) {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  max-height: 9999px !important;
-  height: auto !important;
-  overflow: visible !important;
-}
-
-/* Ensure items are visible when model is true - check multiple possible states */
-:deep(.v-list-group[aria-expanded="true"] .v-list-group__items),
-:deep(.v-list-group--active .v-list-group__items),
-:deep(.v-list-group[data-model-value="true"] .v-list-group__items) {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  max-height: 9999px !important;
-  height: auto !important;
-}
-
-/* Override any Vuetify default hiding - be very aggressive */
-:deep(.v-list-group .v-list-group__items[style*="display: none"]),
-:deep(.v-list-group .v-list-group__items[style*="display:none"]),
-:deep(.v-list-group .v-list-group__items[style*="height: 0"]),
-:deep(.v-list-group .v-list-group__items[style*="height:0"]),
-:deep(.v-list-group .v-list-group__items[style*="max-height: 0"]),
-:deep(.v-list-group .v-list-group__items[style*="max-height:0"]) {
-  display: block !important;
-  height: auto !important;
-  max-height: 9999px !important;
-}
-
-/* Make sure all list items inside are visible */
-:deep(.v-list-group__items .v-list-item) {
-  display: flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  height: 28px !important;
-  min-height: 28px !important;
-}
-
-/* Ensure items are visible when model is true */
-:deep(.v-list-group[aria-expanded="true"] .v-list-group__items),
-:deep(.v-list-group--active .v-list-group__items) {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  max-height: 9999px !important;
-  height: auto !important;
-}
-
-/* Override any Vuetify default hiding - be very aggressive */
-:deep(.v-list-group .v-list-group__items[style*="display: none"]),
-:deep(.v-list-group .v-list-group__items[style*="display:none"]) {
-  display: block !important;
+*:font-sans {
+  font-family: ui-sans-serif, system-ui, sans-serif;
 }
 </style>
