@@ -240,3 +240,58 @@ export async function checkAuth(): Promise<boolean> {
   return authStore.isAuthenticated
 }
 
+export interface ForgotPasswordResponse {
+  status: string
+  message: string
+}
+
+export interface ResetPasswordCredentials {
+  token: string
+  email: string
+  password: string
+  password_confirmation: string
+}
+
+export interface ResetPasswordResponse {
+  status: string
+  message: string
+}
+
+/**
+ * Request password reset email
+ */
+export async function forgotPassword(email: string): Promise<ForgotPasswordResponse> {
+  try {
+    const response = await apiClient.post<ForgotPasswordResponse>('/auth/forget-password', {
+      email,
+    })
+    return response.data
+  } catch (error: any) {
+    if (error.response?.data) {
+      throw error.response.data as ApiError
+    }
+    throw {
+      status: 'error',
+      message: error.message || 'Failed to send password reset email',
+    } as ApiError
+  }
+}
+
+/**
+ * Reset password using token from email
+ */
+export async function resetPassword(credentials: ResetPasswordCredentials): Promise<ResetPasswordResponse> {
+  try {
+    const response = await apiClient.post<ResetPasswordResponse>('/auth/reset-password', credentials)
+    return response.data
+  } catch (error: any) {
+    if (error.response?.data) {
+      throw error.response.data as ApiError
+    }
+    throw {
+      status: 'error',
+      message: error.message || 'Failed to reset password',
+    } as ApiError
+  }
+}
+

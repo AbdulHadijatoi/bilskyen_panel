@@ -12,6 +12,21 @@ const router = createRouter({
       name: 'auth.login',
       component: () => import('@/views/auth/Login.vue'),
     },
+    {
+      path: '/auth/register',
+      name: 'auth.register',
+      component: () => import('@/views/auth/Register.vue'),
+    },
+    {
+      path: '/auth/forgot-password',
+      name: 'auth.forgot-password',
+      component: () => import('@/views/auth/ForgotPassword.vue'),
+    },
+    {
+      path: '/auth/reset-password',
+      name: 'auth.reset-password',
+      component: () => import('@/views/auth/ResetPassword.vue'),
+    },
     // Legacy login route for backward compatibility
     {
       path: '/login',
@@ -214,13 +229,19 @@ router.beforeEach(async (to, from, next) => {
     } else {
       next()
     }
-  } else if (to.path === '/auth/login' || to.path === '/login') {
-    // Prevent authenticated users from accessing login page
+  } else if (
+    to.path === '/auth/login' ||
+    to.path === '/login' ||
+    to.path === '/auth/register' ||
+    to.path === '/auth/forgot-password' ||
+    to.path === '/auth/reset-password'
+  ) {
+    // Prevent authenticated users from accessing auth pages
     // Check authentication status
     const isAuthenticated = await checkAuth()
     
     if (isAuthenticated) {
-      // Redirect authenticated users away from login page
+      // Redirect authenticated users away from auth pages
       loadingStore.stopLoading()
       isNavigating = false
       next('/')
