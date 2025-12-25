@@ -1,0 +1,244 @@
+/**
+ * API Endpoints
+ * 
+ * Centralized endpoint constants organized by feature
+ * Easy to update for API version changes
+ */
+
+/**
+ * Authentication endpoints
+ */
+export const AUTH_ENDPOINTS = {
+  REGISTER: '/auth/register',
+  LOGIN: '/auth/login',
+  REFRESH: '/auth/refresh',
+  LOGOUT: '/auth/logout',
+  ME: '/auth/me',
+  SIGN_OUT: '/auth/sign-out',
+  GET_SESSION: '/auth/get-session',
+  UPDATE_USER: '/auth/update-user',
+  REVOKE_SESSION: '/auth/revoke-session',
+  CHANGE_PASSWORD: '/auth/change-password',
+  FORGOT_PASSWORD: '/auth/forget-password',
+  RESET_PASSWORD: '/auth/reset-password',
+} as const
+
+/**
+ * Public vehicle endpoints
+ */
+export const PUBLIC_VEHICLE_ENDPOINTS = {
+  LIST: '/vehicles',
+  SHOW: (id: number | string) => `/vehicles/${id}`,
+} as const
+
+/**
+ * Public lookup endpoints
+ */
+export const PUBLIC_LOOKUP_ENDPOINTS = {
+  LOCATIONS: '/locations',
+  FUEL_TYPES: '/fuel-types',
+  TRANSMISSIONS: '/transmissions',
+} as const
+
+/**
+ * Dealer vehicle endpoints
+ */
+export const DEALER_VEHICLE_ENDPOINTS = {
+  LIST: '/dealer/vehicles',
+  SHOW: (id: number | string) => `/dealer/vehicles/${id}`,
+  CREATE: '/dealer/vehicles',
+  UPDATE: (id: number | string) => `/dealer/vehicles/${id}`,
+  DELETE: (id: number | string) => `/dealer/vehicles/${id}`,
+  UPLOAD_IMAGES: (id: number | string) => `/dealer/vehicles/${id}/images`,
+  DELETE_IMAGE: (vehicleId: number | string, imageId: number | string) =>
+    `/dealer/vehicles/${vehicleId}/images/${imageId}`,
+  UPDATE_STATUS: (id: number | string) => `/dealer/vehicles/${id}/status`,
+  UPDATE_PRICE: (id: number | string) => `/dealer/vehicles/${id}/price`,
+  FETCH_FROM_NUMMERPLADE: '/dealer/vehicles/fetch-from-nummerplade',
+} as const
+
+/**
+ * Dealer lead endpoints
+ */
+export const DEALER_LEAD_ENDPOINTS = {
+  LIST: '/dealer/leads',
+  SHOW: (id: number | string) => `/dealer/leads/${id}`,
+  ASSIGN: (id: number | string) => `/dealer/leads/${id}/assign`,
+  UPDATE_STAGE: (id: number | string) => `/dealer/leads/${id}/stage`,
+  GET_MESSAGES: (id: number | string) => `/dealer/leads/${id}/messages`,
+  SEND_MESSAGE: (id: number | string) => `/dealer/leads/${id}/messages`,
+} as const
+
+/**
+ * Dealer favorites endpoints
+ */
+export const DEALER_FAVORITE_ENDPOINTS = {
+  LIST: '/dealer/favorites',
+  CREATE: '/dealer/favorites',
+  DELETE: (vehicleId: number | string) => `/dealer/favorites/${vehicleId}`,
+} as const
+
+/**
+ * Dealer saved searches endpoints
+ */
+export const DEALER_SAVED_SEARCH_ENDPOINTS = {
+  LIST: '/dealer/saved-searches',
+  CREATE: '/dealer/saved-searches',
+  DELETE: (id: number | string) => `/dealer/saved-searches/${id}`,
+} as const
+
+/**
+ * Dealer profile endpoints
+ */
+export const DEALER_PROFILE_ENDPOINTS = {
+  SHOW: '/dealer/profile',
+  UPDATE: '/dealer/profile',
+} as const
+
+/**
+ * Dealer staff endpoints
+ */
+export const DEALER_STAFF_ENDPOINTS = {
+  LIST: '/dealer/staff',
+  CREATE: '/dealer/staff',
+  UPDATE: (userId: number | string) => `/dealer/staff/${userId}`,
+  DELETE: (userId: number | string) => `/dealer/staff/${userId}`,
+} as const
+
+/**
+ * Dealer subscription endpoints
+ */
+export const DEALER_SUBSCRIPTION_ENDPOINTS = {
+  SHOW: '/dealer/subscription',
+  FEATURES: '/dealer/subscription/features',
+  HISTORY: '/dealer/subscription/history',
+} as const
+
+/**
+ * Admin user endpoints
+ */
+export const ADMIN_USER_ENDPOINTS = {
+  LIST: '/admin/users',
+  SHOW: (id: number | string) => `/admin/users/${id}`,
+  CREATE: '/admin/users',
+  UPDATE: (id: number | string) => `/admin/users/${id}`,
+  DELETE: (id: number | string) => `/admin/users/${id}`,
+  UPDATE_STATUS: (id: number | string) => `/admin/users/${id}/status`,
+  BAN: (id: number | string) => `/admin/users/${id}/ban`,
+  UNBAN: (id: number | string) => `/admin/users/${id}/unban`,
+} as const
+
+/**
+ * Admin dealer endpoints
+ */
+export const ADMIN_DEALER_ENDPOINTS = {
+  LIST: '/admin/dealers',
+  SHOW: (id: number | string) => `/admin/dealers/${id}`,
+  CREATE: '/admin/dealers',
+  UPDATE: (id: number | string) => `/admin/dealers/${id}`,
+  DELETE: (id: number | string) => `/admin/dealers/${id}`,
+} as const
+
+/**
+ * Admin vehicle endpoints
+ */
+export const ADMIN_VEHICLE_ENDPOINTS = {
+  LIST: '/admin/vehicles',
+  SHOW: (id: number | string) => `/admin/vehicles/${id}`,
+  UPDATE_STATUS: (id: number | string) => `/admin/vehicles/${id}/status`,
+  DELETE: (id: number | string) => `/admin/vehicles/${id}`,
+  HISTORY: (id: number | string) => `/admin/vehicles/${id}/history`,
+} as const
+
+/**
+ * Admin plan endpoints
+ */
+export const ADMIN_PLAN_ENDPOINTS = {
+  LIST: '/admin/plans',
+  SHOW: (id: number | string) => `/admin/plans/${id}`,
+  CREATE: '/admin/plans',
+  UPDATE: (id: number | string) => `/admin/plans/${id}`,
+  DELETE: (id: number | string) => `/admin/plans/${id}`,
+  FEATURES: (id: number | string) => `/admin/plans/${id}/features`,
+  ASSIGN_FEATURE: (id: number | string) => `/admin/plans/${id}/features`,
+  REMOVE_FEATURE: (planId: number | string, featureId: number | string) =>
+    `/admin/plans/${planId}/features/${featureId}`,
+} as const
+
+/**
+ * Admin subscription endpoints
+ */
+export const ADMIN_SUBSCRIPTION_ENDPOINTS = {
+  LIST: '/admin/subscriptions',
+  CREATE: '/admin/subscriptions',
+  UPDATE_STATUS: (id: number | string) => `/admin/subscriptions/${id}/status`,
+} as const
+
+/**
+ * Admin feature endpoints
+ */
+export const ADMIN_FEATURE_ENDPOINTS = {
+  LIST: '/admin/features',
+  SHOW: (id: number | string) => `/admin/features/${id}`,
+  CREATE: '/admin/features',
+  UPDATE: (id: number | string) => `/admin/features/${id}`,
+  DELETE: (id: number | string) => `/admin/features/${id}`,
+} as const
+
+/**
+ * Admin CMS page endpoints
+ */
+export const ADMIN_PAGE_ENDPOINTS = {
+  LIST: '/admin/pages',
+  SHOW: (id: number | string) => `/admin/pages/${id}`,
+  CREATE: '/admin/pages',
+  UPDATE: (id: number | string) => `/admin/pages/${id}`,
+  DELETE: (id: number | string) => `/admin/pages/${id}`,
+  PUBLISH: (id: number | string) => `/admin/pages/${id}/publish`,
+} as const
+
+/**
+ * Admin CMS blog endpoints
+ */
+export const ADMIN_BLOG_ENDPOINTS = {
+  LIST: '/admin/blogs',
+  SHOW: (id: number | string) => `/admin/blogs/${id}`,
+  CREATE: '/admin/blogs',
+  UPDATE: (id: number | string) => `/admin/blogs/${id}`,
+  DELETE: (id: number | string) => `/admin/blogs/${id}`,
+} as const
+
+/**
+ * Admin analytics endpoints
+ */
+export const ADMIN_ANALYTICS_ENDPOINTS = {
+  VEHICLES: '/admin/analytics/vehicles',
+  LEADS: '/admin/analytics/leads',
+  SUBSCRIPTIONS: '/admin/analytics/subscriptions',
+} as const
+
+/**
+ * Admin audit endpoints
+ */
+export const ADMIN_AUDIT_ENDPOINTS = {
+  LOGS: '/admin/audit-logs',
+} as const
+
+/**
+ * Nummerplade proxy endpoints
+ */
+export const NUMMERPLADE_ENDPOINTS = {
+  VEHICLE_BY_REGISTRATION: '/nummerplade/vehicle-by-registration',
+  VEHICLE_BY_VIN: '/nummerplade/vehicle-by-vin',
+  REFERENCE_BODY_TYPES: '/nummerplade/reference/body-types',
+  REFERENCE_COLORS: '/nummerplade/reference/colors',
+  REFERENCE_FUEL_TYPES: '/nummerplade/reference/fuel-types',
+  REFERENCE_EQUIPMENT: '/nummerplade/reference/equipment',
+  INSPECTIONS: (vehicleId: number | string) => `/nummerplade/inspections/${vehicleId}`,
+  DMR: (vehicleId: number | string) => `/nummerplade/dmr/${vehicleId}`,
+  DEBT: (vehicleId: number | string) => `/nummerplade/debt/${vehicleId}`,
+  TINGLYSNING: (vin: string) => `/nummerplade/tinglysning/${vin}`,
+  EMISSIONS: (input: string) => `/nummerplade/emissions/${input}`,
+  EVALUATIONS: (input: string) => `/nummerplade/evaluations/${input}`,
+} as const
+
