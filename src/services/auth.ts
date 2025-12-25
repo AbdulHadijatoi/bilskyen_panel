@@ -65,15 +65,21 @@ export interface ApiError {
  */
 export async function register(credentials: RegisterCredentials): Promise<RegisterResponse> {
   try {
-    const response = await apiClient.post<RegisterResponse>('/auth/register', credentials)
+    const response = await apiClient.post<{ data: RegisterResponse['data'] }>('/auth/register', credentials)
     const authStore = useAuthStore()
 
-    if (response.data.status === 'success' && response.data.data) {
+    // Backend returns { data: { user, access_token, ... } } for success
+    if (response.data?.data?.user && response.data?.data?.access_token) {
       // Store user and access token in memory
+      // setAuth automatically resets refreshTokenFailed flag
       authStore.setAuth(response.data.data.user, response.data.data.access_token)
       
       // Refresh token is automatically stored in HttpOnly cookie by backend
-      return response.data
+      return {
+        status: 'success',
+        message: 'Registration successful',
+        data: response.data.data,
+      }
     }
 
     throw new Error('Invalid response format')
@@ -93,15 +99,21 @@ export async function register(credentials: RegisterCredentials): Promise<Regist
  */
 export async function login(credentials: LoginCredentials): Promise<LoginResponse> {
   try {
-    const response = await apiClient.post<LoginResponse>('/auth/login', credentials)
+    const response = await apiClient.post<{ data: LoginResponse['data'] }>('/auth/login', credentials)
     const authStore = useAuthStore()
 
-    if (response.data.status === 'success' && response.data.data) {
+    // Backend returns { data: { user, access_token, ... } } for success
+    if (response.data?.data?.user && response.data?.data?.access_token) {
       // Store user and access token in memory
+      // setAuth automatically resets refreshTokenFailed flag
       authStore.setAuth(response.data.data.user, response.data.data.access_token)
       
       // Refresh token is automatically stored in HttpOnly cookie by backend
-      return response.data
+      return {
+        status: 'success',
+        message: 'Login successful',
+        data: response.data.data,
+      }
     }
 
     throw new Error('Invalid response format')
@@ -119,12 +131,20 @@ export async function login(credentials: LoginCredentials): Promise<LoginRespons
 /**
  * Refresh access token using refresh token (stored in HttpOnly cookie)
  * Uses axios directly to avoid interceptor issues when no access token exists
+ * Returns null if refresh token has already failed (prevents loops)
  */
-export async function refreshToken(): Promise<RefreshResponse> {
+export async function refreshToken(): Promise<RefreshResponse | null> {
+  const authStore = useAuthStore()
+  
+  // If refresh token has already failed, don't attempt refresh again
+  if (authStore.refreshTokenFailed) {
+    return null
+  }
+
   try {
     // Use axios directly (not apiClient) to avoid interceptor issues
     // when there's no access token (e.g., on page refresh)
-    const response = await axios.post<RefreshResponse>(
+    const response = await axios.post<{ data: RefreshResponse['data'] }>(
       `${import.meta.env.VITE_API_BASE_URL || '/api'}/auth/refresh`,
       {},
       {
@@ -133,14 +153,21 @@ export async function refreshToken(): Promise<RefreshResponse> {
       }
     )
     
-    if (response.data.status === 'success' && response.data.data) {
-      const authStore = useAuthStore()
+    // Backend returns { data: { access_token, ... } } for success
+    if (response.data?.data?.access_token) {
       authStore.setAccessToken(response.data.data.access_token)
-      return response.data
+      return {
+        status: 'success',
+        message: 'Token refreshed successfully',
+        data: response.data.data,
+      }
     }
 
     throw new Error('Invalid response format')
   } catch (error: any) {
+    // Mark refresh token as failed to prevent further attempts
+    authStore.markRefreshTokenFailed()
+    
     if (error.response?.data) {
       throw error.response.data as ApiError
     }
@@ -176,10 +203,11 @@ export async function logout(): Promise<void> {
  */
 export async function getCurrentUser(): Promise<User> {
   try {
-    const response = await apiClient.get<MeResponse>('/auth/me')
+    const response = await apiClient.get<{ data: MeResponse['data'] }>('/auth/me')
     const authStore = useAuthStore()
 
-    if (response.data.status === 'success' && response.data.data) {
+    // Backend returns { data: { id, name, email, ... } } for success
+    if (response.data?.data) {
       authStore.setUser(response.data.data)
       return response.data.data
     }
@@ -199,9 +227,15 @@ export async function getCurrentUser(): Promise<User> {
 /**
  * Check if user is authenticated and fetch user data if needed
  * On page refresh, attempts to refresh token if no access token exists
+ * Prevents refresh token loops by checking failure flag
  */
 export async function checkAuth(): Promise<boolean> {
   const authStore = useAuthStore()
+
+  // If refresh token has already failed, don't attempt refresh
+  if (authStore.refreshTokenFailed) {
+    return false
+  }
 
   // If we have a token but no user data, fetch user data
   if (authStore.accessToken && !authStore.user) {
@@ -211,7 +245,12 @@ export async function checkAuth(): Promise<boolean> {
     } catch (error) {
       // If fetching user fails, try to refresh token
       try {
-        await refreshToken()
+        const refreshResponse = await refreshToken()
+        if (!refreshResponse) {
+          // Refresh token failed and was marked as failed
+          authStore.clearAuth()
+          return false
+        }
         await getCurrentUser()
         return true
       } catch (refreshError) {
@@ -226,7 +265,12 @@ export async function checkAuth(): Promise<boolean> {
   if (!authStore.accessToken) {
     try {
       // Attempt to refresh token using refresh token cookie
-      await refreshToken()
+      const refreshResponse = await refreshToken()
+      if (!refreshResponse) {
+        // Refresh token failed and was marked as failed
+        authStore.clearAuth()
+        return false
+      }
       // After successful refresh, get user data
       await getCurrentUser()
       return true

@@ -65,6 +65,7 @@ export async function register(credentials: RegisterCredentials): Promise<UserMo
     const user = normalizeUser(data.user)
     
     // Store user and access token
+    // setAuth automatically resets refreshTokenFailed flag
     authStore.setAuth(user, data.access_token)
     
     // Refresh token is automatically stored in HttpOnly cookie by backend
@@ -92,6 +93,7 @@ export async function login(credentials: LoginCredentials): Promise<UserModel> {
     const user = normalizeUser(data.user)
     
     // Store user and access token
+    // setAuth automatically resets refreshTokenFailed flag
     authStore.setAuth(user, data.access_token)
     
     // Refresh token is automatically stored in HttpOnly cookie by backend
@@ -104,8 +106,16 @@ export async function login(credentials: LoginCredentials): Promise<UserModel> {
 /**
  * Refresh access token
  * Uses axios directly to avoid interceptor loop
+ * Returns null if refresh token has already failed (prevents loops)
  */
-export async function refreshToken(): Promise<string> {
+export async function refreshToken(): Promise<string | null> {
+  const authStore = useAuthStore()
+  
+  // If refresh token has already failed, don't attempt refresh again
+  if (authStore.refreshTokenFailed) {
+    return null
+  }
+
   try {
     const response = await axios.post<{ data: { access_token: string } }>(
       `${API_CONFIG.baseUrl}${AUTH_ENDPOINTS.REFRESH}`,
@@ -128,6 +138,8 @@ export async function refreshToken(): Promise<string> {
     
     return accessToken
   } catch (error) {
+    // Mark refresh token as failed to prevent further attempts
+    authStore.markRefreshTokenFailed()
     throw handleError(error)
   }
 }
@@ -177,9 +189,15 @@ export async function getCurrentUser(): Promise<UserModel> {
 /**
  * Check if user is authenticated
  * Attempts to refresh token if needed
+ * Prevents refresh token loops by checking failure flag
  */
 export async function checkAuth(): Promise<boolean> {
   const authStore = useAuthStore()
+
+  // If refresh token has already failed, don't attempt refresh
+  if (authStore.refreshTokenFailed) {
+    return false
+  }
 
   // If we have a token but no user data, fetch user data
   if (authStore.accessToken && !authStore.user) {
@@ -189,7 +207,12 @@ export async function checkAuth(): Promise<boolean> {
     } catch (error) {
       // If fetching user fails, try to refresh token
       try {
-        await refreshToken()
+        const newToken = await refreshToken()
+        if (!newToken) {
+          // Refresh token failed and was marked as failed
+          authStore.clearAuth()
+          return false
+        }
         await getCurrentUser()
         return true
       } catch (refreshError) {
@@ -203,7 +226,12 @@ export async function checkAuth(): Promise<boolean> {
   // If no access token but we might have a refresh token cookie, try to refresh
   if (!authStore.accessToken) {
     try {
-      await refreshToken()
+      const newToken = await refreshToken()
+      if (!newToken) {
+        // Refresh token failed and was marked as failed
+        authStore.clearAuth()
+        return false
+      }
       await getCurrentUser()
       return true
     } catch (error) {

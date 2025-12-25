@@ -1,5 +1,5 @@
 import axios, { type InternalAxiosRequestConfig, type AxiosError } from 'axios'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@/stores/auth.store'
 import router from '@/router'
 
 // Create axios instance
@@ -57,6 +57,16 @@ apiClient.interceptors.response.use(
 
     // If error is 401 and we haven't tried to refresh yet
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+      // If refresh token has already failed, don't attempt refresh again
+      if (authStore.refreshTokenFailed) {
+        // Clear auth and redirect to login
+        authStore.logout()
+        if (router.currentRoute.value.path !== '/auth/login') {
+          router.push('/auth/login')
+        }
+        return Promise.reject(error)
+      }
+
       if (isRefreshing) {
         // If already refreshing, queue this request
         return new Promise((resolve, reject) => {
@@ -108,7 +118,10 @@ apiClient.interceptors.response.use(
           throw new Error('No access token in refresh response')
         }
       } catch (refreshError) {
-        // Refresh failed - clear auth and redirect to login
+        // Refresh failed - mark as failed to prevent further attempts
+        authStore.markRefreshTokenFailed()
+        
+        // Clear auth and redirect to login
         processQueue(refreshError as AxiosError, null)
         authStore.logout()
         

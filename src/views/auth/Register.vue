@@ -285,7 +285,7 @@ const handleSubmit = async () => {
       name: name.value,
       email: email.value,
       password: password.value,
-      roles: ['seller'], // Register as seller
+      roles: ['dealer'], // Register as seller
     })
     
     // Redirect to dashboard after successful registration
