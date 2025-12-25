@@ -48,112 +48,45 @@ export const dealerSidebarSections: SidebarSection[] = [
         ],
       },
       {
-        title: 'Purchases',
-        url: `${DEALER_ROUTE_BASE}purchases`,
-        icon: 'mdi-cart',
-        items: [
-          { title: 'Overview', url: `${DEALER_ROUTE_BASE}purchases/overview` },
-          {
-            title: 'Add Purchase',
-            url: `${DEALER_ROUTE_BASE}purchases/add-purchase`,
-          },
-        ],
-      },
-      {
-        title: 'Sales',
-        url: `${DEALER_ROUTE_BASE}sales`,
-        icon: 'mdi-cash',
-        items: [
-          { title: 'Overview', url: `${DEALER_ROUTE_BASE}sales/overview` },
-          {
-            title: 'Add Sale',
-            url: `${DEALER_ROUTE_BASE}sales/add-sale`,
-          },
-        ],
-      },
-      {
-        title: 'Expenses',
-        url: `${DEALER_ROUTE_BASE}expenses`,
-        icon: 'mdi-receipt-text',
-        items: [
-          { title: 'Overview', url: `${DEALER_ROUTE_BASE}expenses/overview` },
-          {
-            title: 'Add Expense',
-            url: `${DEALER_ROUTE_BASE}expenses/add-expense`,
-          },
-        ],
-      },
-    ],
-  },
-  {
-    title: 'Contact Management',
-    items: [
-      {
-        title: 'Contacts',
-        url: `${DEALER_ROUTE_BASE}contacts`,
+        title: 'Leads',
+        url: `${DEALER_ROUTE_BASE}leads`,
         icon: 'mdi-account-group',
         items: [
           {
-            title: 'Directory',
-            url: `${DEALER_ROUTE_BASE}contacts/directory`,
-          },
-          {
-            title: 'Add Contact',
-            url: `${DEALER_ROUTE_BASE}contacts/add-contact`,
-          },
-        ],
-      },
-      {
-        title: 'Enquiries',
-        url: `${DEALER_ROUTE_BASE}enquiries`,
-        icon: 'mdi-message-text',
-        items: [
-          { title: 'Overview', url: `${DEALER_ROUTE_BASE}enquiries/overview` },
-          {
-            title: 'Add Enquiry',
-            url: `${DEALER_ROUTE_BASE}enquiries/add-enquiry`,
+            title: 'Overview',
+            url: `${DEALER_ROUTE_BASE}leads/overview`,
           },
         ],
       },
     ],
   },
   {
-    title: 'Accounting & Finance',
+    title: 'User Features',
     items: [
       {
-        title: 'Transactions',
-        url: `${DEALER_ROUTE_BASE}accounting/transactions`,
-        icon: 'mdi-currency-usd',
-        items: [
+        title: 'Favorites',
+        url: `${DEALER_ROUTE_BASE}favorites`,
+        icon: 'mdi-heart',
+      },
           {
-            title: 'General Ledger Entries',
-            url: `${DEALER_ROUTE_BASE}accounting/transactions`,
-          },
-          {
-            title: 'Add Transaction',
-            url: `${DEALER_ROUTE_BASE}accounting/add-transaction`,
-          },
-        ],
+        title: 'Saved Searches',
+        url: `${DEALER_ROUTE_BASE}saved-searches`,
+        icon: 'mdi-magnify',
+      },
+    ],
+  },
+  {
+    title: 'Management',
+    items: [
+      {
+        title: 'Staff',
+        url: `${DEALER_ROUTE_BASE}staff`,
+        icon: 'mdi-account-multiple',
       },
       {
-        title: 'Financial Accounts',
-        url: `${DEALER_ROUTE_BASE}accounting/financial-accounts`,
-        icon: 'mdi-book-open-page-variant',
-        items: [
-          {
-            title: 'Chart of Accounts',
-            url: `${DEALER_ROUTE_BASE}accounting/financial-accounts`,
-          },
-          {
-            title: 'Add Financial Account',
-            url: `${DEALER_ROUTE_BASE}accounting/financial-accounts/add-financial-account`,
-          },
-        ],
-      },
-      {
-        title: 'Financial Reports',
-        url: `${DEALER_ROUTE_BASE}accounting/financial-reports`,
-        icon: 'mdi-file-document-multiple-outline',
+        title: 'Subscription',
+        url: `${DEALER_ROUTE_BASE}subscription`,
+        icon: 'mdi-crown',
       },
     ],
   },

@@ -58,99 +58,38 @@ const router = createRouter({
           component: () => import('@/views/dealer/vehicles/AddVehicle.vue'),
         },
         {
-          path: 'purchases',
-          redirect: '/purchases/overview',
+          path: 'leads',
+          redirect: '/leads/overview',
         },
         {
-          path: 'purchases/overview',
-          name: 'dealer.purchases.overview',
-          component: () => import('@/views/dealer/purchases/PurchasesOverview.vue'),
+          path: 'leads/overview',
+          name: 'dealer.leads.overview',
+          component: () => import('@/views/dealer/leads/LeadsOverview.vue'),
         },
         {
-          path: 'purchases/add-purchase',
-          name: 'dealer.purchases.add',
-          component: () => import('@/views/dealer/purchases/AddPurchase.vue'),
+          path: 'leads/:id',
+          name: 'dealer.leads.detail',
+          component: () => import('@/views/dealer/leads/LeadDetail.vue'),
         },
         {
-          path: 'sales',
-          redirect: '/sales/overview',
+          path: 'favorites',
+          name: 'dealer.favorites',
+          component: () => import('@/views/dealer/favorites/Favorites.vue'),
         },
         {
-          path: 'sales/overview',
-          name: 'dealer.sales.overview',
-          component: () => import('@/views/dealer/sales/SalesOverview.vue'),
+          path: 'saved-searches',
+          name: 'dealer.saved-searches',
+          component: () => import('@/views/dealer/saved-searches/SavedSearches.vue'),
         },
         {
-          path: 'sales/add-sale',
-          name: 'dealer.sales.add',
-          component: () => import('@/views/dealer/sales/AddSale.vue'),
+          path: 'staff',
+          name: 'dealer.staff',
+          component: () => import('@/views/dealer/staff/StaffManagement.vue'),
         },
         {
-          path: 'expenses',
-          redirect: '/expenses/overview',
-        },
-        {
-          path: 'expenses/overview',
-          name: 'dealer.expenses.overview',
-          component: () => import('@/views/dealer/expenses/ExpensesOverview.vue'),
-        },
-        {
-          path: 'expenses/add-expense',
-          name: 'dealer.expenses.add',
-          component: () => import('@/views/dealer/expenses/AddExpense.vue'),
-        },
-        {
-          path: 'contacts',
-          redirect: '/contacts/directory',
-        },
-        {
-          path: 'contacts/directory',
-          name: 'dealer.contacts.directory',
-          component: () => import('@/views/dealer/contacts/ContactsDirectory.vue'),
-        },
-        {
-          path: 'contacts/add-contact',
-          name: 'dealer.contacts.add',
-          component: () => import('@/views/dealer/contacts/AddContact.vue'),
-        },
-        {
-          path: 'enquiries',
-          redirect: '/enquiries/overview',
-        },
-        {
-          path: 'enquiries/overview',
-          name: 'dealer.enquiries.overview',
-          component: () => import('@/views/dealer/enquiries/EnquiriesOverview.vue'),
-        },
-        {
-          path: 'enquiries/add-enquiry',
-          name: 'dealer.enquiries.add',
-          component: () => import('@/views/dealer/enquiries/AddEnquiry.vue'),
-        },
-        {
-          path: 'accounting/transactions',
-          name: 'dealer.accounting.transactions',
-          component: () => import('@/views/dealer/accounting/Transactions.vue'),
-        },
-        {
-          path: 'accounting/add-transaction',
-          name: 'dealer.accounting.add-transaction',
-          component: () => import('@/views/dealer/accounting/AddTransaction.vue'),
-        },
-        {
-          path: 'accounting/financial-accounts',
-          name: 'dealer.accounting.financial-accounts',
-          component: () => import('@/views/dealer/accounting/FinancialAccounts.vue'),
-        },
-        {
-          path: 'accounting/financial-accounts/add-financial-account',
-          name: 'dealer.accounting.financial-accounts.add',
-          component: () => import('@/views/dealer/accounting/AddFinancialAccount.vue'),
-        },
-        {
-          path: 'accounting/financial-reports',
-          name: 'dealer.accounting.financial-reports',
-          component: () => import('@/views/dealer/accounting/FinancialReports.vue'),
+          path: 'subscription',
+          name: 'dealer.subscription',
+          component: () => import('@/views/dealer/subscription/Subscription.vue'),
         },
         {
           path: 'settings',
@@ -181,10 +120,102 @@ const router = createRouter({
           name: 'dealer.settings.permissions',
           component: () => import('@/views/dealer/settings/PermissionsManagement.vue'),
         },
+      ],
+    },
         {
-          path: 'notifications',
-          name: 'dealer.notifications',
-          component: () => import('@/views/dealer/Notifications.vue'),
+      path: '/admin',
+      component: () => import('@/components/admin/AdminLayout.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true },
+      children: [
+        {
+          path: '',
+          name: 'admin.dashboard',
+          component: () => import('@/views/admin/Dashboard.vue'),
+        },
+        {
+          path: 'users',
+          name: 'admin.users',
+          component: () => import('@/views/admin/users/UsersOverview.vue'),
+        },
+        {
+          path: 'users/:id',
+          name: 'admin.users.detail',
+          component: () => import('@/views/admin/users/UserDetail.vue'),
+        },
+        {
+          path: 'dealers',
+          name: 'admin.dealers',
+          component: () => import('@/views/admin/dealers/DealersOverview.vue'),
+        },
+        {
+          path: 'dealers/:id',
+          name: 'admin.dealers.detail',
+          component: () => import('@/views/admin/dealers/DealerDetail.vue'),
+        },
+        {
+          path: 'vehicles',
+          name: 'admin.vehicles',
+          component: () => import('@/views/admin/vehicles/VehiclesOverview.vue'),
+        },
+        {
+          path: 'vehicles/:id',
+          name: 'admin.vehicles.detail',
+          component: () => import('@/views/admin/vehicles/VehicleDetail.vue'),
+        },
+        {
+          path: 'plans',
+          name: 'admin.plans',
+          component: () => import('@/views/admin/plans/PlansOverview.vue'),
+        },
+        {
+          path: 'plans/:id',
+          name: 'admin.plans.detail',
+          component: () => import('@/views/admin/plans/PlanDetail.vue'),
+        },
+        {
+          path: 'subscriptions',
+          name: 'admin.subscriptions',
+          component: () => import('@/views/admin/subscriptions/SubscriptionsOverview.vue'),
+        },
+        {
+          path: 'features',
+          name: 'admin.features',
+          component: () => import('@/views/admin/features/FeaturesOverview.vue'),
+        },
+        {
+          path: 'features/:id',
+          name: 'admin.features.detail',
+          component: () => import('@/views/admin/features/FeatureDetail.vue'),
+        },
+        {
+          path: 'pages',
+          name: 'admin.pages',
+          component: () => import('@/views/admin/pages/PagesOverview.vue'),
+        },
+        {
+          path: 'pages/:id',
+          name: 'admin.pages.detail',
+          component: () => import('@/views/admin/pages/PageDetail.vue'),
+        },
+        {
+          path: 'blogs',
+          name: 'admin.blogs',
+          component: () => import('@/views/admin/blogs/BlogsOverview.vue'),
+        },
+        {
+          path: 'blogs/:id',
+          name: 'admin.blogs.detail',
+          component: () => import('@/views/admin/blogs/BlogDetail.vue'),
+        },
+        {
+          path: 'analytics',
+          name: 'admin.analytics',
+          component: () => import('@/views/admin/analytics/Analytics.vue'),
+        },
+        {
+          path: 'audit-logs',
+          name: 'admin.audit-logs',
+          component: () => import('@/views/admin/audit-logs/AuditLogs.vue'),
         },
       ],
     },
@@ -228,7 +259,14 @@ router.beforeEach(async (to, from, next) => {
       isNavigating = false
       next({ path: '/auth/login', query: { redirect: encryptedRedirect } })
     } else {
+      // Check if route requires admin role
+      if (to.meta.requiresAdmin && !isAdmin()) {
+        loadingStore.stopLoading()
+        isNavigating = false
+        next('/')
+    } else {
       next()
+      }
     }
   } else if (
     to.path === '/auth/login' ||

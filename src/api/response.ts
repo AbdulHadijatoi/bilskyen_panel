@@ -6,8 +6,8 @@
  */
 
 import type { AxiosError, AxiosResponse } from 'axios'
-import type { ApiErrorModel, NummerpladeErrorModel, HttpErrorType } from '@/models/api-error.model'
-import { isNummerpladeError, isRetryableError } from '@/models/api-error.model'
+import type { ApiErrorModel, NummerpladeErrorModel } from '@/models/api-error.model'
+import { HttpErrorType, isNummerpladeError, isRetryableError } from '@/models/api-error.model'
 import { getAccessToken, clearTokens } from '@/utils/token'
 import router from '@/router'
 
@@ -46,7 +46,7 @@ export function handleError(error: unknown): ApiErrorModel | NummerpladeErrorMod
   const responseData = axiosError.response.data
 
   // Handle 401 Unauthorized - logout user
-  if (status === HttpErrorType.UNAUTHORIZED) {
+  if (status === 401 || status === HttpErrorType.UNAUTHORIZED) {
     // Clear tokens and redirect to login
     clearTokens()
     
@@ -55,18 +55,28 @@ export function handleError(error: unknown): ApiErrorModel | NummerpladeErrorMod
       router.push('/auth/login')
     }
     
+    // Extract message from response or use default
+    const message = responseData?.message || 
+                    (typeof responseData === 'object' && 'error' in responseData ? responseData.error : null) ||
+                    'Your session has expired. Please log in again.'
+    
     return {
       status: 'error',
-      message: 'Your session has expired. Please log in again.',
+      message: message,
       error_code: 'UNAUTHORIZED',
     }
   }
 
   // Handle 403 Forbidden - permission error
-  if (status === HttpErrorType.FORBIDDEN) {
+  if (status === 403 || status === HttpErrorType.FORBIDDEN) {
+    // Extract message from response or use default
+    const message = responseData?.message || 
+                    (typeof responseData === 'object' && 'error' in responseData ? responseData.error : null) ||
+                    'You do not have permission to perform this action.'
+    
     return {
       status: 'error',
-      message: responseData?.message || 'You do not have permission to perform this action.',
+      message: message,
       error_code: 'FORBIDDEN',
     }
   }
@@ -106,10 +116,29 @@ export function handleError(error: unknown): ApiErrorModel | NummerpladeErrorMod
     return responseData as NummerpladeErrorModel
   }
 
-  // Default error response
+  // Default error response - handle various response formats
+  let message = 'An error occurred'
+  
+  if (responseData) {
+    // Try to extract message from different possible formats
+    if (typeof responseData === 'object') {
+      if ('message' in responseData && responseData.message) {
+        message = responseData.message
+      } else if ('error' in responseData && responseData.error) {
+        message = typeof responseData.error === 'string' ? responseData.error : String(responseData.error)
+      } else if ('status' in responseData && responseData.status === 'error' && 'message' in responseData) {
+        message = responseData.message || message
+      }
+    }
+  }
+  
+  if (!message || message === 'An error occurred') {
+    message = axiosError.message || 'An error occurred'
+  }
+  
   return {
     status: 'error',
-    message: responseData?.message || axiosError.message || 'An error occurred',
+    message: message,
     errors: responseData?.errors,
     error_code: responseData?.error_code || `HTTP_${status}`,
   }
