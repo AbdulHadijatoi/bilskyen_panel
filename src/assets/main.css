@@ -163,4 +163,60 @@
   .font-weight-normal {
     font-weight: 400 !important;
   }
+  
+  /* Global Vuetify Data Table Styles */
+  .v-data-table {
+    background-color: var(--card) !important;
+    color: var(--card-foreground) !important;
+  }
+  
+  .v-data-table__wrapper {
+    background-color: var(--card) !important;
+  }
+  
+  .v-data-table__thead {
+    background-color: var(--muted) !important;
+  }
+  
+  .v-data-table__thead th {
+    background-color: var(--muted) !important;
+    color: var(--muted-foreground) !important;
+  }
+  
+  .v-data-table__tbody {
+    background-color: var(--card) !important;
+  }
+  
+  .v-data-table__tbody tr {
+    background-color: var(--card) !important;
+  }
+  
+  .v-data-table__tbody tr:hover {
+    background-color: var(--muted) !important;
+  }
+  
+  .v-data-table__tbody td {
+    background-color: var(--card) !important;
+    color: var(--card-foreground) !important;
+  }
+  
+  /* Make table body darker than header in light mode */
+  /* Header: --muted (oklch(0.97)) is lighter, body should be darker */
+  .light .v-data-table__tbody,
+  .light .v-data-table__tbody tr,
+  .light .v-data-table__tbody td {
+    background-color: oklch(0.96 0 0) !important;
+  }
+  
+  /* Dark mode: --card (oklch(0.205)) is already darker than --muted (oklch(0.269)) */
+  .dark .v-data-table__tbody,
+  .dark .v-data-table__tbody tr,
+  .dark .v-data-table__tbody td {
+    background-color: var(--card) !important;
+  }
+  
+  .v-data-table-footer {
+    background-color: transparent !important;
+    border-top: none !important;
+  }
 }
