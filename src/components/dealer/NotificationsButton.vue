@@ -1,7 +1,6 @@
 <template>
   <div class="notifications-button-wrapper" style="position: relative;">
-    <router-link
-      :to="href"
+    <button
       aria-label="Notifications"
       class="notifications-button"
       :style="{
@@ -25,9 +24,10 @@
         (e.target as HTMLElement).style.backgroundColor = 'var(--secondary)'
         ;(e.target as HTMLElement).style.opacity = '1'
       }"
+      @click="() => {}"
     >
       <v-icon size="16">mdi-bell-outline</v-icon>
-    </router-link>
+    </button>
 
     <span
       v-if="count > 0"
@@ -59,14 +59,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { DEALER_ROUTE_BASE } from '@/constants/dealer'
 import axios from 'axios'
 
 const route = useRoute()
-
-const href = computed(() => `${DEALER_ROUTE_BASE}notifications`)
 
 const count = ref(0)
 const isLoading = ref(true)

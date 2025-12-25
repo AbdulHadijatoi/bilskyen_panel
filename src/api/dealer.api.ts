@@ -504,10 +504,17 @@ export interface SavedSearchModel {
  */
 export async function getSavedSearches(): Promise<SavedSearchModel[]> {
   try {
-    const response = await httpClient.get<{ data: SavedSearchModel[] }>(
+    const response = await httpClient.get<{ data: PaginationModel<SavedSearchModel> }>(
       DEALER_SAVED_SEARCH_ENDPOINTS.LIST
     )
-    return handleSuccess<SavedSearchModel[]>(response)
+    const paginatedData = handleSuccess<PaginationModel<SavedSearchModel>>(response)
+    // Return the docs array, filtering out any null/undefined values and ensuring id exists
+    return (paginatedData?.docs || []).filter((search): search is SavedSearchModel => 
+      search != null && 
+      typeof search === 'object' && 
+      'id' in search && 
+      search.id != null
+    )
   } catch (error) {
     throw handleError(error)
   }
@@ -611,12 +618,50 @@ export async function updateProfile(data: UpdateProfileData): Promise<DealerMode
 /**
  * Get dealer staff
  */
+/**
+ * Map role ID to role name (matches backend DealerUser constants)
+ */
+function getDealerRoleName(roleId: number | null): string {
+  if (!roleId) return 'N/A'
+  const roleMap: Record<number, string> = {
+    1: 'Owner',
+    2: 'Manager',
+    3: 'Staff',
+  }
+  return roleMap[roleId] || 'Unknown'
+}
+
 export async function getStaff(): Promise<any[]> {
   try {
-    const response = await httpClient.get<{ data: any[] }>(
+    const response = await httpClient.get<{ data: PaginationModel<any> }>(
       DEALER_STAFF_ENDPOINTS.LIST
     )
-    return handleSuccess<any[]>(response)
+    const paginatedData = handleSuccess<PaginationModel<any>>(response)
+    // Map the backend response (User objects with pivot) to the structure expected by the component
+    return (paginatedData?.docs || []).map((user: any) => {
+      // Backend returns User objects with pivot data containing role_id
+      const roleId = user.pivot?.role_id || null
+      return {
+        user_id: user.id,
+        role_id: roleId,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+        },
+        role: {
+          id: roleId,
+          name: getDealerRoleName(roleId),
+        },
+        // Include pivot data for reference
+        pivot: user.pivot,
+      }
+    }).filter((staff): staff is any => 
+      staff != null && 
+      typeof staff === 'object' &&
+      staff.user_id != null
+    )
   } catch (error) {
     throw handleError(error)
   }

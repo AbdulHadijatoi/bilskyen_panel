@@ -41,7 +41,7 @@
 
         <div v-else class="d-flex flex-column gap-2">
           <v-card
-            v-for="search in savedSearches"
+            v-for="search in savedSearches.filter(s => s && s.id)"
             :key="search.id"
             variant="outlined"
             :style="{
