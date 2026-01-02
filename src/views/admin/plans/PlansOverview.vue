@@ -124,7 +124,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getPlans, createPlan, deletePlan as deletePlanApi, type CreatePlanData, type PlanModel } from '@/api/admin.api'
+import { getPlans, createPlan as createPlanApi, deletePlan as deletePlanApi, type CreatePlanData, type PlanModel } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
 const router = useRouter()
@@ -157,7 +157,7 @@ const loadPlans = async () => {
 const createPlan = async () => {
   try {
     creating.value = true
-    await createPlan(newPlan.value)
+    await createPlanApi(newPlan.value)
     showCreateDialog.value = false
     newPlan.value = { name: '', description: '', price: 0, interval: 'monthly' }
     await loadPlans()

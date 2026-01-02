@@ -16,7 +16,19 @@ import { UserRole } from '@/models/user.model'
  */
 export function getUser(): UserModel | null {
   const authStore = useAuthStore()
-  return authStore.user
+  if (!authStore.user) return null
+  // Map store User to UserModel format
+  return {
+    id: authStore.user.id,
+    name: authStore.user.name,
+    email: authStore.user.email,
+    phone: authStore.user.phone,
+    emailVerified: authStore.user.emailVerified ?? false,
+    image: authStore.user.image,
+    banned: authStore.user.banned ?? false,
+    roles: authStore.user.roles,
+    createdAt: authStore.user.created_at,
+  }
 }
 
 /**

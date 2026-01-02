@@ -103,7 +103,8 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getFavorites, removeFavorite as removeFavoriteApi } from '@/api/dealer.api'
-import type { PaginationModel, VehicleModel } from '@/models/pagination.model'
+import type { PaginationModel } from '@/models/pagination.model'
+import type { VehicleModel } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
 const router = useRouter()

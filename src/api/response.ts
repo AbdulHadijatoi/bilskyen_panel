@@ -56,8 +56,8 @@ export function handleError(error: unknown): ApiErrorModel | NummerpladeErrorMod
     }
     
     // Extract message from response or use default
-    const message = responseData?.message || 
-                    (typeof responseData === 'object' && 'error' in responseData ? responseData.error : null) ||
+    const message: string = responseData?.message || 
+                    (typeof responseData === 'object' && 'error' in responseData ? String(responseData.error) : null) ||
                     'Your session has expired. Please log in again.'
     
     return {
@@ -70,8 +70,8 @@ export function handleError(error: unknown): ApiErrorModel | NummerpladeErrorMod
   // Handle 403 Forbidden - permission error
   if (status === 403 || status === HttpErrorType.FORBIDDEN) {
     // Extract message from response or use default
-    const message = responseData?.message || 
-                    (typeof responseData === 'object' && 'error' in responseData ? responseData.error : null) ||
+    const message: string = responseData?.message || 
+                    (typeof responseData === 'object' && 'error' in responseData ? String(responseData.error) : null) ||
                     'You do not have permission to perform this action.'
     
     return {

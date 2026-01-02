@@ -127,7 +127,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { getLeads, assignLead, getStaff } from '@/api/dealer.api'
+import { getLeads, assignLead as assignLeadApi, getStaff } from '@/api/dealer.api'
 import type { LeadModel } from '@/models/lead.model'
 import { LeadStage } from '@/models/lead.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
@@ -170,7 +170,7 @@ const handleAssignLead = async () => {
 
   try {
     loading.value = true
-    await assignLead(selectedLead.value.id, { assigned_to_id: selectedStaffId.value })
+    await assignLeadApi(selectedLead.value.id, { assigned_to_id: selectedStaffId.value })
     await loadLeads()
     assignDialog.value = false
     selectedLead.value = null

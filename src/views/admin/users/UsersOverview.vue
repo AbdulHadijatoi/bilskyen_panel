@@ -98,7 +98,7 @@
         class="data-table"
         :class="$style.dataTable"
         elevation="0"
-        @update:page="loadUsers"
+        @update:page="() => loadUsers()"
       >
         <template #item.roles="{ item }">
           <div class="d-flex gap-1 flex-wrap">
@@ -215,8 +215,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getUsers, createUser, deleteUser as deleteUserApi, type CreateUserData } from '@/api/admin.api'
-import type { PaginationModel, UserModel } from '@/models/pagination.model'
+import { getUsers, createUser as createUserApi, deleteUser as deleteUserApi, type CreateUserData } from '@/api/admin.api'
+import type { PaginationModel } from '@/models/pagination.model'
+import type { UserModel } from '@/models/user.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
 const router = useRouter()
@@ -249,7 +250,7 @@ const headers = [
   { title: 'Email', key: 'email' },
   { title: 'Roles', key: 'roles' },
   { title: 'Status', key: 'status', width: '100px' },
-  { title: '', key: 'actions', sortable: false, width: '60px', align: 'end' },
+  { title: '', key: 'actions', sortable: false, width: '60px', align: 'end' as const },
 ]
 
 const loadUsers = async () => {
@@ -268,7 +269,7 @@ const loadUsers = async () => {
 const createUser = async () => {
   try {
     creating.value = true
-    await createUser(newUser.value)
+    await createUserApi(newUser.value)
     showCreateDialog.value = false
     newUser.value = { name: '', email: '', password: '', phone: '' }
     await loadUsers()

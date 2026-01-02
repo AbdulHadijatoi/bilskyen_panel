@@ -182,7 +182,7 @@ const headers = [
   { title: 'Model', key: 'model', width: '120px' },
   { title: 'Year', key: 'year', width: '80px' },
   { title: 'Price', key: 'listedPrice', width: '120px' },
-  { title: '', key: 'actions', sortable: false, width: '60px', align: 'end' },
+  { title: '', key: 'actions', sortable: false, width: '60px', align: 'end' as const },
 ]
 
 const vehicles = ref([

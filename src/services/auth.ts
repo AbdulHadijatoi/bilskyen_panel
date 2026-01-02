@@ -158,7 +158,6 @@ export async function refreshToken(): Promise<RefreshResponse | null> {
       authStore.setAccessToken(response.data.data.access_token)
       return {
         status: 'success',
-        message: 'Token refreshed successfully',
         data: response.data.data,
       }
     }

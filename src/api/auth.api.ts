@@ -257,7 +257,7 @@ export interface ForgotPasswordResponse {
  */
 export async function forgotPassword(email: string): Promise<ForgotPasswordResponse> {
   try {
-    const response = await httpClient.post<ForgotPasswordResponse>(
+    const response = await httpClient.post<{ data: ForgotPasswordResponse }>(
       AUTH_ENDPOINTS.FORGOT_PASSWORD,
       { email }
     )
@@ -290,7 +290,7 @@ export interface ResetPasswordResponse {
  */
 export async function resetPassword(credentials: ResetPasswordCredentials): Promise<ResetPasswordResponse> {
   try {
-    const response = await httpClient.post<ResetPasswordResponse>(
+    const response = await httpClient.post<{ data: ResetPasswordResponse }>(
       AUTH_ENDPOINTS.RESET_PASSWORD,
       credentials
     )

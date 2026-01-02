@@ -42,7 +42,7 @@
           :items="auditLogs.docs"
           :items-per-page="auditLogs.limit"
           :page="auditLogs.page"
-          @update:page="loadAuditLogs"
+          @update:page="() => loadAuditLogs()"
         >
           <template #item.action="{ item }">
             <v-chip size="small" variant="flat">

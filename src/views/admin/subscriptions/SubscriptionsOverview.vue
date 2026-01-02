@@ -34,7 +34,7 @@
           :items="subscriptions.docs"
           :items-per-page="subscriptions.limit"
           :page="subscriptions.page"
-          @update:page="loadSubscriptions"
+          @update:page="() => loadSubscriptions()"
         >
           <template #item.status="{ item }">
             <v-chip
@@ -147,7 +147,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { getSubscriptions, createSubscription, updateSubscriptionStatus, type CreateSubscriptionData, type SubscriptionModel, type UpdateSubscriptionStatusData } from '@/api/admin.api'
+import { getSubscriptions, createSubscription as createSubscriptionApi, updateSubscriptionStatus, type CreateSubscriptionData, type SubscriptionModel, type UpdateSubscriptionStatusData } from '@/api/admin.api'
 import type { PaginationModel } from '@/models/pagination.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
@@ -210,7 +210,7 @@ const loadSubscriptions = async () => {
 const createSubscription = async () => {
   try {
     creating.value = true
-    await createSubscription(newSubscription.value)
+    await createSubscriptionApi(newSubscription.value)
     showCreateDialog.value = false
     newSubscription.value = { dealer_id: 0, plan_id: 0, start_date: '', end_date: '' }
     await loadSubscriptions()

@@ -34,7 +34,7 @@
           :items="blogs.docs"
           :items-per-page="blogs.limit"
           :page="blogs.page"
-          @update:page="loadBlogs"
+          @update:page="() => loadBlogs()"
         >
           <template #item.actions="{ item }">
             <v-btn
@@ -111,7 +111,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getBlogs, createBlog, deleteBlog as deleteBlogApi, type CreateBlogData, type BlogModel } from '@/api/admin.api'
+import { getBlogs, createBlog as createBlogApi, deleteBlog as deleteBlogApi, type CreateBlogData, type BlogModel } from '@/api/admin.api'
 import type { PaginationModel } from '@/models/pagination.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
@@ -162,7 +162,7 @@ const loadBlogs = async () => {
 const createBlog = async () => {
   try {
     creating.value = true
-    await createBlog(newBlog.value)
+    await createBlogApi(newBlog.value)
     showCreateDialog.value = false
     newBlog.value = { title: '', slug: '', content: '', excerpt: '' }
     await loadBlogs()

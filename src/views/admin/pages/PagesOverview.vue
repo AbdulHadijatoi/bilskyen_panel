@@ -98,7 +98,7 @@
         class="data-table"
         :class="$style.dataTable"
         elevation="0"
-        @update:page="loadPages"
+        @update:page="() => loadPages()"
       >
         <template #item.status="{ item }">
           <v-chip
@@ -195,7 +195,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getPages, createPage, deletePage as deletePageApi, type CreatePageData, type PageModel } from '@/api/admin.api'
+import { getPages, createPage as createPageApi, deletePage as deletePageApi, type CreatePageData, type PageModel } from '@/api/admin.api'
 import type { PaginationModel } from '@/models/pagination.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
@@ -227,7 +227,7 @@ const headers = [
   { title: 'Title', key: 'title' },
   { title: 'Slug', key: 'slug' },
   { title: 'Status', key: 'status', width: '100px' },
-  { title: '', key: 'actions', sortable: false, width: '60px', align: 'end' },
+  { title: '', key: 'actions', sortable: false, width: '60px', align: 'end' as const },
 ]
 
 const loadPages = async () => {
@@ -246,7 +246,7 @@ const loadPages = async () => {
 const createPage = async () => {
   try {
     creating.value = true
-    await createPage(newPage.value)
+    await createPageApi(newPage.value)
     showCreateDialog.value = false
     newPage.value = { title: '', slug: '', content: '' }
     await loadPages()

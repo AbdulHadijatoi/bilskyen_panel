@@ -98,7 +98,7 @@
         class="data-table"
         :class="$style.dataTable"
         elevation="0"
-        @update:page="loadDealers"
+        @update:page="() => loadDealers()"
       >
         <template #item.actions="{ item }">
           <v-menu>
@@ -191,8 +191,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getDealers, createDealer, deleteDealer as deleteDealerApi, type CreateDealerData } from '@/api/admin.api'
-import type { PaginationModel, DealerModel } from '@/models/pagination.model'
+import { getDealers, createDealer as createDealerApi, deleteDealer as deleteDealerApi, type CreateDealerData } from '@/api/admin.api'
+import type { PaginationModel } from '@/models/pagination.model'
+import type { DealerModel } from '@/models/dealer.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
 const router = useRouter()
@@ -224,7 +225,7 @@ const headers = [
   { title: 'Name', key: 'name' },
   { title: 'Email', key: 'email' },
   { title: 'Phone', key: 'phone' },
-  { title: '', key: 'actions', sortable: false, width: '60px', align: 'end' },
+  { title: '', key: 'actions', sortable: false, width: '60px', align: 'end' as const },
 ]
 
 const loadDealers = async () => {
@@ -243,7 +244,7 @@ const loadDealers = async () => {
 const createDealer = async () => {
   try {
     creating.value = true
-    await createDealer(newDealer.value)
+    await createDealerApi(newDealer.value)
     showCreateDialog.value = false
     newDealer.value = { name: '', email: '', phone: '', address: '' }
     await loadDealers()

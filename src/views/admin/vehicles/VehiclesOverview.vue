@@ -90,7 +90,7 @@
         class="data-table"
         :class="$style.dataTable"
         elevation="0"
-        @update:page="loadVehicles"
+        @update:page="() => loadVehicles()"
       >
         <template #item.status="{ item }">
           <v-chip
@@ -149,7 +149,8 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getVehicles, deleteVehicle as deleteVehicleApi } from '@/api/admin.api'
-import type { PaginationModel, VehicleModel } from '@/models/pagination.model'
+import type { PaginationModel } from '@/models/pagination.model'
+import type { VehicleModel } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
 const router = useRouter()
@@ -174,7 +175,7 @@ const headers = [
   { title: 'Registration', key: 'registration' },
   { title: 'Price', key: 'price', width: '120px' },
   { title: 'Status', key: 'status', width: '100px' },
-  { title: '', key: 'actions', sortable: false, width: '60px', align: 'end' },
+  { title: '', key: 'actions', sortable: false, width: '60px', align: 'end' as const },
 ]
 
 const loadVehicles = async () => {

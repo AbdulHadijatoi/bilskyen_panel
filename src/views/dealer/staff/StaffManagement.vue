@@ -233,7 +233,7 @@ const headers = [
   { title: 'Name', key: 'user.name' },
   { title: 'Email', key: 'user.email' },
   { title: 'Role', key: 'role.name', width: '120px' },
-  { title: '', key: 'actions', sortable: false, width: '60px', align: 'end' },
+  { title: '', key: 'actions', sortable: false, width: '60px', align: 'end' as const },
 ]
 
 const loadStaff = async () => {

@@ -117,7 +117,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getFeatures, createFeature, deleteFeature as deleteFeatureApi, type CreateFeatureData, type FeatureModel } from '@/api/admin.api'
+import { getFeatures, createFeature as createFeatureApi, deleteFeature as deleteFeatureApi, type CreateFeatureData, type FeatureModel } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
 const router = useRouter()
@@ -149,7 +149,7 @@ const loadFeatures = async () => {
 const createFeature = async () => {
   try {
     creating.value = true
-    await createFeature(newFeature.value)
+    await createFeatureApi(newFeature.value)
     showCreateDialog.value = false
     newFeature.value = { name: '', key: '', description: '' }
     await loadFeatures()
