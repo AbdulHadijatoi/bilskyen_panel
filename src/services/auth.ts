@@ -145,11 +145,11 @@ export async function refreshToken(): Promise<RefreshResponse | null> {
     // Use axios directly (not apiClient) to avoid interceptor issues
     // when there's no access token (e.g., on page refresh)
     const response = await axios.post<{ data: RefreshResponse['data'] }>(
-      `${import.meta.env.VITE_API_BASE_URL || '/api'}/auth/refresh`,
+      `${import.meta.env.VITE_API_BASE_URL || '/api/v1'}/auth/refresh`,
       {},
       {
         withCredentials: true, // Send refresh token cookie
-        baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+        baseURL: import.meta.env.VITE_API_BASE_URL || '/api/v1',
       }
     )
     

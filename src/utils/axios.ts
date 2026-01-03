@@ -4,7 +4,7 @@ import router from '@/router'
 
 // Create axios instance
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api/v1',
   timeout: 30000,
   withCredentials: true, // Important for HttpOnly cookies (refresh token)
   headers: {
@@ -90,11 +90,11 @@ apiClient.interceptors.response.use(
         // Attempt to refresh the token
         // Use axios directly (not apiClient) to avoid interceptor loop
         const response = await axios.post(
-          `${import.meta.env.VITE_API_BASE_URL || '/api'}/auth/refresh`,
+          `${import.meta.env.VITE_API_BASE_URL || '/api/v1'}/auth/refresh`,
           {},
           {
             withCredentials: true, // Send refresh token cookie
-            baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+            baseURL: import.meta.env.VITE_API_BASE_URL || '/api/v1',
           }
         )
 
