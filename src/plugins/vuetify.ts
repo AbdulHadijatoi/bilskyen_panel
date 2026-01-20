@@ -12,8 +12,8 @@ export default createVuetify({
     themes: {
       light: {
         colors: {
-          // Using CSS variables that reference OKLCH colors from main.css
-          primary: '#333333', // oklch(0.205 0 0) - dark gray/black
+          // Brand colors from brand guide
+          primary: '#004aad', // Main brand color
           secondary: '#f5f5f5', // oklch(0.97 0 0) - light gray
           background: '#ffffff', // oklch(1 0 0) - white
           surface: '#ffffff', // oklch(1 0 0) - white
@@ -22,25 +22,9 @@ export default createVuetify({
           success: '#388e3c',
           warning: '#f57c00',
           'on-primary': '#ffffff', // oklch(0.985 0 0) - white
-          'on-secondary': '#333333', // oklch(0.205 0 0) - dark gray
+          'on-secondary': '#252525', // oklch(0.145 0 0) - dark text on secondary
           'on-background': '#252525', // oklch(0.145 0 0) - very dark gray
           'on-surface': '#252525', // oklch(0.145 0 0) - very dark gray
-        },
-      },
-      dark: {
-        colors: {
-          primary: '#e5e5e5', // oklch(0.922 0 0) - light gray
-          secondary: '#444444', // oklch(0.269 0 0) - medium gray
-          background: '#252525', // oklch(0.145 0 0) - very dark gray
-          surface: '#333333', // oklch(0.205 0 0) - dark gray
-          error: '#ef5350', // oklch(0.704 0.191 22.216) - lighter red
-          info: '#42a5f5',
-          success: '#66bb6a',
-          warning: '#ffa726',
-          'on-primary': '#252525', // oklch(0.205 0 0) - dark gray
-          'on-secondary': '#ffffff', // oklch(0.985 0 0) - white
-          'on-background': '#ffffff', // oklch(0.985 0 0) - white
-          'on-surface': '#ffffff', // oklch(0.985 0 0) - white
         },
       },
     },

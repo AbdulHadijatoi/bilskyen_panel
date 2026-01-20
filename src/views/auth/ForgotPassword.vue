@@ -12,7 +12,7 @@
 
       <div
         v-if="success"
-        class="w-full rounded-lg border border-green-500/50 bg-green-500/10 p-4 text-green-600 dark:text-green-400"
+        class="w-full rounded-lg border border-green-500/50 bg-green-500/10 p-4 text-green-600"
       >
         <div class="flex">
           <svg

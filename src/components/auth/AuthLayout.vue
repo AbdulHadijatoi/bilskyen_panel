@@ -7,6 +7,15 @@
     }"
   >
     <div class="auth-layout-left">
+      <div class="auth-layout-left-header">
+        <router-link to="/" class="auth-logo-link">
+          <img
+            src="/images/logo.png"
+            alt="Bilskyen"
+            class="auth-logo"
+          />
+        </router-link>
+      </div>
       <div class="auth-layout-left-content">
         <blockquote class="auth-testimonial">
           <p class="auth-testimonial-text">
@@ -19,8 +28,14 @@
       </div>
     </div>
     <div class="auth-layout-right">
-      <div class="auth-theme-toggle-wrapper">
-        <ThemeToggle />
+      <div class="auth-layout-right-header">
+        <router-link to="/" class="auth-logo-link-mobile">
+          <img
+            src="/images/logo.png"
+            alt="Bilskyen"
+            class="auth-logo-mobile"
+          />
+        </router-link>
       </div>
       <slot />
     </div>
@@ -33,7 +48,6 @@ import { useTheme } from 'vuetify'
 import { APP } from '@/constants/app'
 import { BRANDING } from '@/constants/branding'
 import { useThemeStore } from '@/stores/theme'
-import ThemeToggle from '@/components/ui/ThemeToggle.vue'
 
 const themeStore = useThemeStore()
 const vuetifyTheme = useTheme()
@@ -42,14 +56,6 @@ onMounted(() => {
   // Set Vuetify theme instance in the store if not already set
   if (!vuetifyTheme) return
   themeStore.setVuetifyTheme(vuetifyTheme)
-  
-  // Initialize theme from storage
-  const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | 'system' | null
-  if (savedTheme) {
-    themeStore.setTheme(savedTheme)
-  } else {
-    themeStore.setTheme('system')
-  }
 })
 </script>
 
@@ -96,6 +102,36 @@ onMounted(() => {
   }
 }
 
+.auth-layout-left-header {
+  position: relative;
+  z-index: 20;
+  margin-bottom: 2rem;
+  flex-shrink: 0;
+}
+
+.auth-logo-link {
+  display: inline-block;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.auth-logo-link:hover {
+  opacity: 0.9;
+}
+
+.auth-logo {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+@media (min-width: 1280px) {
+  .auth-logo {
+    height: 48px;
+  }
+}
+
 .auth-layout-left-content {
   position: relative;
   z-index: 20;
@@ -136,17 +172,39 @@ onMounted(() => {
   }
 }
 
-.auth-theme-toggle-wrapper {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  z-index: 10;
+.auth-layout-right-header {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+  flex-shrink: 0;
 }
 
 @media (min-width: 1024px) {
-  .auth-theme-toggle-wrapper {
-    top: 2.5rem;
-    right: 2.5rem;
+  .auth-layout-right-header {
+    display: none;
+  }
+}
+
+.auth-logo-link-mobile {
+  display: inline-block;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.auth-logo-link-mobile:hover {
+  opacity: 0.9;
+}
+
+.auth-logo-mobile {
+  height: 36px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+@media (min-width: 640px) {
+  .auth-logo-mobile {
+    height: 40px;
   }
 }
 </style>

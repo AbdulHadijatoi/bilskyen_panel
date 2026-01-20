@@ -38,14 +38,6 @@ onMounted(() => {
   if (vuetifyTheme) {
     themeStore.setVuetifyTheme(vuetifyTheme)
   }
-  
-  // Initialize theme from storage
-  const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | 'system' | null
-  if (savedTheme) {
-    themeStore.setTheme(savedTheme)
-  } else {
-    themeStore.setTheme('system')
-  }
 })
 </script>
 

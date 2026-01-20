@@ -69,7 +69,7 @@ use([
   GridComponent,
 ])
 
-provide(THEME_KEY, 'dark')
+provide(THEME_KEY, 'light')
 
 interface ChartDataPoint {
   periodStart: string

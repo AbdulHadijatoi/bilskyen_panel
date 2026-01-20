@@ -52,14 +52,8 @@ const handleResize = () => {
 
 onMounted(() => {
   // Set Vuetify theme instance in the store
-  themeStore.setVuetifyTheme(vuetifyTheme)
-  
-  // Initialize theme
-  const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | 'system' | null
-  if (savedTheme) {
-    themeStore.setTheme(savedTheme)
-  } else {
-    themeStore.setTheme('system')
+  if (vuetifyTheme) {
+    themeStore.setVuetifyTheme(vuetifyTheme)
   }
 
   // Handle sidebar resize

@@ -24,32 +24,30 @@
         :class="{ 'sidebar-header-collapsed': sidebarStore.isCollapsed && !sidebarStore.isMobile }"
         style="display: flex; align-items: center; gap: 0.75rem;"
       >
-        <div
-          class="sidebar-header-icon"
+        <router-link
+          to="/"
+          class="sidebar-header-logo"
           :style="{
-            width: sidebarStore.isCollapsed && !sidebarStore.isMobile ? '32px' : '32px',
+            width: sidebarStore.isCollapsed && !sidebarStore.isMobile ? '32px' : 'auto',
             height: '32px',
-            backgroundColor: 'var(--sidebar-primary)',
-            color: 'var(--sidebar-primary-foreground)',
-            borderRadius: '0.375rem',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             flexShrink: 0,
-            fontWeight: 'bold',
-            fontSize: '0.875rem',
+            textDecoration: 'none',
           }"
         >
-          B
-        </div>
-        <div
-          v-if="!sidebarStore.isCollapsed || sidebarStore.isMobile"
-          class="sidebar-header-text"
-          style="flex: 1; min-width: 0;"
-        >
-          <div class="text-sm font-medium truncate">Bilskyen</div>
-          <div class="text-xs truncate" style="opacity: 0.7;">Dealer Panel</div>
-        </div>
+          <img
+            src="/images/logo.png"
+            alt="Bilskyen"
+            :style="{
+              height: sidebarStore.isCollapsed && !sidebarStore.isMobile ? '28px' : '40px',
+              width: 'auto',
+              objectFit: 'contain',
+              display: 'block',
+            }"
+          />
+        </router-link>
       </div>
     </div>
 
@@ -231,6 +229,22 @@ onMounted(async () => {
 
 .sidebar-header-collapsed .sidebar-header-text {
   display: none !important;
+}
+
+.sidebar-header-logo {
+  transition: all 0.2s ease;
+}
+
+.sidebar-header-logo img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Responsive logo sizing */
+@media (max-width: 640px) {
+  .sidebar-header-logo img {
+    max-height: 28px;
+  }
 }
 
 .sidebar-footer-item {

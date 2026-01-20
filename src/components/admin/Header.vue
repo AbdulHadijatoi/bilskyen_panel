@@ -76,8 +76,6 @@
       <Breadcrumb />
 
       <div style="flex-grow: 1;" />
-
-      <ThemeToggle />
     </div>
   </header>
 </template>
@@ -86,7 +84,6 @@
 import { LayoutPanelLeft } from 'lucide-vue-next'
 import { useSidebarStore } from '@/stores/sidebar'
 import Breadcrumb from '../dealer/Breadcrumb.vue'
-import ThemeToggle from '@/components/ui/ThemeToggle.vue'
 
 const sidebarStore = useSidebarStore()
 </script>
