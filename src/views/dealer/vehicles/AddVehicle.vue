@@ -21,25 +21,109 @@
       </div>
     </div>
 
-    <!-- Main Tabs Container -->
-    <v-card variant="flat" elevation="1">
-      <v-tabs
-        v-model="currentStep"
-        color="primary"
-        bg-color="grey-lighten-5"
-        slider-color="primary"
-      >
-        <v-tab
-          v-for="(step, index) in steps"
-          :key="index"
-          :value="index"
-          class="text-caption"
-        >
-          {{ step.label }}
-        </v-tab>
-      </v-tabs>
+    <!-- License Plate Lookup Section (Outside Tabs) -->
+    <v-card variant="flat" elevation="1" class="mb-4">
+      <v-card-text class="pa-6">
+        <div class="mb-2">
+          <h3 class="text-h6 font-weight-semibold mb-2">Vehicle Lookup</h3>
+          <p class="text-body-2 text-medium-emphasis mb-4">
+            Enter license plate to auto-fill vehicle information
+          </p>
 
-      <v-window v-model="currentStep">
+          <v-row class="align-center">
+            <v-col cols="12" md="8">
+              <v-text-field
+                v-model="lookupForm.registrationNumber"
+                label="License Plate"
+                placeholder="e.g., AB 12 345"
+                variant="outlined"
+                :disabled="lookupLoading || showFormFields"
+                hide-details="auto"
+                @keyup.enter="performLookup"
+              />
+            </v-col>
+            <v-col cols="12" md="4" class="d-flex align-center" style="height: 56px;">
+              <v-btn
+                v-if="!showFormFields"
+                color="primary"
+                variant="elevated"
+                :loading="lookupLoading"
+                :disabled="!lookupForm.registrationNumber"
+                @click="performLookup"
+                class="mr-2"
+                style="height: 56px;"
+              >
+                <v-icon start>mdi-magnify</v-icon>
+                Find A Vehicle
+              </v-btn>
+              <v-btn
+                v-if="!showFormFields"
+                variant="outlined"
+                color="grey-darken-1"
+                @click="manualEntryMode = true"
+                style="height: 56px;"
+              >
+                <v-icon start>mdi-pencil</v-icon>
+                Enter Manually
+              </v-btn>
+              <v-btn
+                v-if="showFormFields"
+                variant="outlined"
+                color="grey-darken-1"
+                @click="manualEntryMode = false; lookupSuccess = false; lookupData = null"
+                style="height: 56px;"
+              >
+                <v-icon start>mdi-refresh</v-icon>
+                Start Over
+              </v-btn>
+            </v-col>
+          </v-row>
+
+          <v-alert
+            v-if="lookupError"
+            type="error"
+            variant="tonal"
+            density="compact"
+            class="mt-3"
+            closable
+            @click:close="lookupError = null"
+          >
+            {{ lookupError }}
+          </v-alert>
+
+          <v-alert
+            v-if="lookupSuccess"
+            type="success"
+            variant="tonal"
+            density="compact"
+            class="mt-3"
+          >
+            Vehicle data fetched successfully
+          </v-alert>
+        </div>
+      </v-card-text>
+    </v-card>
+
+    <!-- Main Tabs Container -->
+    <v-expand-transition>
+      <v-card v-if="showFormFields" variant="flat" elevation="1">
+        <v-tabs
+          v-model="currentStep"
+          color="primary"
+          bg-color="grey-lighten-5"
+          slider-color="primary"
+        >
+          <v-tab
+            v-for="(step, index) in steps"
+            :key="index"
+            :value="index"
+            class="text-caption"
+          >
+            {{ step.label }}
+          </v-tab>
+        </v-tabs>
+
+        <v-window v-model="currentStep">
         <v-window-item
           v-for="(step, index) in steps"
           :key="index"
@@ -50,78 +134,32 @@
           <!-- Step 1: Vehicle Lookup and Pre Fill -->
               <template v-if="index === 0">
                 <div>
-                <div class="mb-6">
-                  <h3 class="text-h6 font-weight-semibold mb-2">Vehicle Lookup</h3>
-            <p class="text-body-2 text-medium-emphasis mb-4">
-                    Enter license plate to auto-fill vehicle information
-            </p>
+                <!-- Form Fields - Shown after lookup or manual entry -->
+                <v-expand-transition>
+                  <div v-if="showFormFields">
+                    <div class="mb-6">
+                      <h3 class="text-h6 font-weight-semibold mb-2">Vehicle Information</h3>
+                      <p class="text-body-2 text-medium-emphasis mb-0">
+                        Complete the vehicle details below
+                      </p>
+                    </div>
 
-            <v-row>
-                    <v-col cols="12" md="8">
-                <v-text-field
-                  v-model="lookupForm.registrationNumber"
-                  label="License Plate"
-                  placeholder="e.g., AB 12 345"
-                  variant="outlined"
-                  :disabled="lookupLoading"
-                  :rules="[rules.required]"
-                        hide-details="auto"
-                  @keyup.enter="performLookup"
-                >
-                  <template #append-inner>
-                    <v-btn
-                      icon
-                      variant="text"
-                      :loading="lookupLoading"
-                      @click="performLookup"
-                    >
-                      <v-icon>mdi-magnify</v-icon>
-                    </v-btn>
-                  </template>
-                </v-text-field>
-              </v-col>
-            </v-row>
-
-            <v-alert
-              v-if="lookupError"
-              type="error"
-              variant="tonal"
-              density="compact"
-                    class="mt-3"
-                    closable
-                    @click:close="lookupError = null"
-            >
-              {{ lookupError }}
-            </v-alert>
-
-            <v-alert
-              v-if="lookupSuccess"
-              type="success"
-              variant="tonal"
-              density="compact"
-                    class="mt-3"
-            >
-                    <v-icon start>mdi-check-circle</v-icon>
-                    Vehicle data fetched successfully
-            </v-alert>
-                </div>
-
-                <v-divider class="my-6" />
-                <div class="mb-4">
-                  <h4 class="text-subtitle-1 font-weight-semibold mb-4">
-                    <v-icon size="20" class="mr-2">mdi-car-info</v-icon>
-                    Basic Information
-                  </h4>
+                    <v-divider class="my-6" />
+                    <div class="mb-4">
+                      <h4 class="text-subtitle-1 font-weight-semibold mb-4">
+                        <v-icon size="20" class="mr-2">mdi-car-info</v-icon>
+                        Basic Information
+                      </h4>
               <v-row dense>
               <v-col cols="12" md="4">
                 <v-autocomplete
                   v-model="form.make"
-                  :items="makes"
+                  :items="brands.map(b => b.name)"
                   label="Make"
                   density="compact"
                   variant="outlined"
                   :rules="[rules.required]"
-                  :readonly="lookupData?.make"
+                  :readonly="!!lookupData?.make"
                     hide-details="auto"
                 />
               </v-col>
@@ -132,7 +170,7 @@
                   density="compact"
                   variant="outlined"
                   :rules="[rules.required]"
-                  :readonly="lookupData?.model"
+                  :readonly="!!lookupData?.model"
                     hide-details="auto"
                 />
               </v-col>
@@ -151,12 +189,12 @@
               <v-col cols="12" md="4">
                 <v-autocomplete
                   v-model="form.fuelType"
-                  :items="fuelTypes"
+                  :items="fuelTypes.map(f => f.name)"
                   label="Fuel Type"
                   density="compact"
                   variant="outlined"
                   :rules="[rules.required]"
-                  :readonly="lookupData?.fuelType"
+                  :readonly="!!lookupData?.fuelType"
                     hide-details="auto"
                 />
               </v-col>
@@ -168,80 +206,85 @@
                     variant="outlined"
                     maxlength="17"
                     :rules="[rules.required, rules.vin]"
-                    :readonly="lookupData?.vin"
+                    :readonly="!!lookupData?.vin"
                     hide-details="auto"
                   />
                 </v-col>
                 <v-col cols="12" md="4">
-                  <DatePicker
+                  <MonthYearPicker
                     v-model="form.registrationDate"
-                    label="Registration Date"
+                    label="Registration"
                     :rules="[rules.required]"
-                    :readonly="lookupData?.registrationDate"
+                    :readonly="!!lookupData?.registrationDate"
                   />
                 </v-col>
               </v-row>
             </div>
 
-                <v-divider class="my-6" />
-                <div class="mb-4">
-                  <h4 class="text-subtitle-1 font-weight-semibold mb-4">
-                    <v-icon size="20" class="mr-2">mdi-gauge</v-icon>
-                    Performance & Emissions (Optional)
-                  </h4>
-                  <v-row dense>
-              <v-col cols="12" md="3">
-                <v-text-field
-                  v-model.number="form.powerHp"
-                  label="Power (HP)"
-                  type="number"
-                  density="compact"
-                  variant="outlined"
-                        hide-details="auto"
-                />
-              </v-col>
-              <v-col cols="12" md="3">
-                <v-text-field
-                  v-model.number="form.powerKw"
-                  label="Power (kW)"
-                  type="number"
-                  density="compact"
-                  variant="outlined"
-                        hide-details="auto"
-                />
-              </v-col>
-              <v-col cols="12" md="3">
-                <v-text-field
-                  v-model.number="form.co2Emissions"
-                  label="CO2 Emissions (g/km)"
-                  type="number"
-                  density="compact"
-                  variant="outlined"
-                        hide-details="auto"
-                />
-              </v-col>
-                    <v-col cols="12" md="3">
-                <v-text-field
-                        v-model.number="form.fuelConsumptionWltp"
-                        label="Fuel Consumption WLTP (L/100km)"
-                  type="number"
-                  density="compact"
-                  variant="outlined"
-                        hide-details="auto"
-                />
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-text-field
-                        v-model.number="form.fuelConsumptionNedc"
-                        label="Fuel Consumption NEDC (L/100km)"
-                  type="number"
-                  density="compact"
-                  variant="outlined"
-                        hide-details="auto"
-                />
-              </v-col>
-            </v-row>
-          </div>
+                    <v-divider class="my-6" />
+                    <div class="mb-4">
+                      <h4 class="text-subtitle-1 font-weight-semibold mb-4">
+                        <v-icon size="20" class="mr-2">mdi-gauge</v-icon>
+                        Performance & Emissions (Optional)
+                      </h4>
+                      <v-row dense>
+                        <v-col cols="12" md="3">
+                          <v-text-field
+                            v-model.number="form.powerHp"
+                            label="Power (HP)"
+                            type="number"
+                            density="compact"
+                            variant="outlined"
+                            hint="Calculated from kW"
+                            persistent-hint
+                            hide-details="auto"
+                            readonly
+                          />
+                        </v-col>
+                        <v-col cols="12" md="3">
+                          <v-text-field
+                            v-model.number="form.powerKw"
+                            label="Power (kW)"
+                            type="number"
+                            density="compact"
+                            variant="outlined"
+                            hide-details="auto"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="3">
+                          <v-text-field
+                            v-model.number="form.co2Emissions"
+                            label="CO2 Emissions (g/km)"
+                            type="number"
+                            density="compact"
+                            variant="outlined"
+                            hide-details="auto"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="3">
+                          <v-text-field
+                            v-model.number="form.fuelConsumptionWltp"
+                            label="Fuel Consumption WLTP (L/100km)"
+                            type="number"
+                            density="compact"
+                            variant="outlined"
+                            hide-details="auto"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="4">
+                          <v-text-field
+                            v-model.number="form.fuelConsumptionNedc"
+                            label="Fuel Consumption NEDC (L/100km)"
+                            type="number"
+                            density="compact"
+                            variant="outlined"
+                            hide-details="auto"
+                          />
+                        </v-col>
+                      </v-row>
+                    </div>
+                  </div>
+                </v-expand-transition>
                 </div>
               </template>
 
@@ -263,16 +306,16 @@
                   </h4>
               <v-row dense>
               <v-col cols="12" md="4">
-                <DatePicker
+                <MonthYearPicker
                   v-model="form.firstRegistrationDate"
-                  label="First Registration Date"
+                  label="First Registration"
                   :rules="[rules.required]"
                 />
               </v-col>
               <v-col cols="12" md="4">
-                <DatePicker
+                <MonthYearPicker
                   v-model="form.productionDate"
-                  label="Production Date"
+                  label="Production"
                   hint="Optional"
                   persistent-hint
                 />
@@ -288,9 +331,9 @@
                 />
               </v-col>
               <v-col cols="12" md="4">
-                <DatePicker
+                <MonthYearPicker
                   v-model="form.lastInspectionDate"
-                  label="Last Inspection Date"
+                  label="Last Inspection"
                 />
               </v-col>
               <v-col cols="12" md="4">
@@ -335,7 +378,7 @@
               <v-col cols="12" md="4">
                 <v-select
                   v-model="form.previousUsage"
-                  :items="previousUsageTypes"
+                  :items="vehicleUses.map(u => u.name)"
                   label="Previous Usage"
                   density="compact"
                   variant="outlined"
@@ -377,7 +420,7 @@
               <v-col cols="12" md="4">
                 <v-select
                   v-model="form.transmissionType"
-                  :items="transmissionTypes"
+                  :items="fuelTypes.map(f => f.name)"
                   label="Transmission"
                   density="compact"
                   variant="outlined"
@@ -388,7 +431,7 @@
               <v-col cols="12" md="4">
                 <v-select
                   v-model="form.drivetrain"
-                  :items="drivetrainTypes"
+                  :items="drivetrainTypes.map(d => d.value)"
                   label="Drivetrain"
                   density="compact"
                   variant="outlined"
@@ -407,20 +450,13 @@
                   </h4>
               <v-row dense>
               <v-col cols="12" md="4">
-                <v-select
-                  v-model="form.fuelConsumptionUnit"
-                  :items="consumptionUnits"
-                  label="Fuel Consumption Unit"
-                  density="compact"
-                  variant="outlined"
-                    hide-details="auto"
-                />
-              </v-col>
-              <v-col cols="12" md="4">
                 <v-text-field
                   v-model.number="form.fuelConsumption"
-                  label="Fuel Consumption"
+                  :label="fuelConsumptionLabel"
+                  :hint="fuelConsumptionHint"
+                  persistent-hint
                   type="number"
+                  step="any"
                   density="compact"
                   variant="outlined"
                     hide-details="auto"
@@ -451,35 +487,54 @@
                 </div>
 
             <div
-              v-for="(category, categoryIndex) in equipmentCategories"
-              :key="categoryIndex"
-                  class="mb-6"
-                >
-                  <h4 class="text-subtitle-1 font-weight-semibold mb-4">
-                    <v-icon size="20" class="mr-2">{{ getCategoryIcon(category.name) }}</v-icon>
-                    {{ category.name }}
+              v-for="(equipmentType, typeIndex) in equipmentTypes"
+              :key="typeIndex"
+              class="mb-3"
+            >
+              <div class="d-flex align-center justify-space-between mb-2">
+                <h4 class="text-subtitle-1 font-weight-semibold mb-0">
+                  <!-- <v-icon size="20" class="mr-2">{{ getCategoryIcon(equipmentType.name) }}</v-icon> -->
+                  {{ equipmentType.name }}
                   </h4>
-                  <v-row dense>
+                <v-chip
+                  v-if="equipmentType.equipments?.length"
+                  size="x-small"
+                  color="primary"
+                  variant="tonal"
+                  class="text-caption"
+                >
+                  {{
+                    form.equipment.filter(id =>
+                      equipmentType.equipments.some(eq => eq.id.toString() === id)
+                    ).length
+                  }} selected
+                </v-chip>
+              </div>
+              <v-row dense class="ma-n1">
                 <v-col
-                  v-for="(feature, featureIndex) in category.features"
-                  :key="featureIndex"
+                  v-for="(equipment, equipmentIndex) in equipmentType.equipments"
+                  :key="equipmentIndex"
                   cols="12"
-                  md="6"
-                  lg="4"
+                  sm="6"
+                  md="4"
+                  lg="3"
+                  class="pa-1"
                 >
                   <v-checkbox
                     v-model="form.equipment"
-                    :value="feature.value"
+                    :value="equipment.id.toString()"
+                    color="primary"
                     density="compact"
                     hide-details
+                    class="equipment-checkbox"
                   >
                     <template #label>
-                      <span class="text-body-2">{{ feature.label }}</span>
+                      <span class="text-body-2 equipment-label">{{ equipment.name }}</span>
                     </template>
                   </v-checkbox>
                 </v-col>
               </v-row>
-                  <v-divider v-if="categoryIndex < equipmentCategories.length - 1" class="mt-6" />
+              <v-divider v-if="typeIndex < equipmentTypes.length - 1" class="mt-3 mb-1" />
             </div>
           </div>
               </template>
@@ -521,7 +576,7 @@
                   type="number"
                   density="compact"
                   variant="outlined"
-                  prepend-inner-icon="mdi-currency-inr"
+                  prefix="kr"
                     hint="Including delivery"
                     persistent-hint
                   :rules="[rules.price]"
@@ -535,7 +590,7 @@
                   type="number"
                   density="compact"
                   variant="outlined"
-                  prepend-inner-icon="mdi-currency-inr"
+                  prefix="kr"
                     hide-details="auto"
                 />
               </v-col>
@@ -546,7 +601,7 @@
                   type="number"
                   density="compact"
                   variant="outlined"
-                  prepend-inner-icon="mdi-currency-inr"
+                  prefix="kr"
                     hide-details="auto"
                 />
               </v-col>
@@ -557,7 +612,7 @@
                   type="number"
                   density="compact"
                   variant="outlined"
-                  prepend-inner-icon="mdi-currency-inr"
+                  prefix="kr"
                     hint="Dealer only"
                     persistent-hint
                     hide-details="auto"
@@ -609,7 +664,7 @@
                     type="number"
                     density="compact"
                     variant="outlined"
-                    prepend-inner-icon="mdi-currency-inr"
+                    prefix="kr"
                       hide-details="auto"
                   />
                 </v-col>
@@ -620,7 +675,7 @@
                     type="number"
                     density="compact"
                     variant="outlined"
-                    prepend-inner-icon="mdi-currency-inr"
+                    prefix="kr"
                       hide-details="auto"
                   />
                 </v-col>
@@ -631,7 +686,7 @@
                     type="number"
                     density="compact"
                     variant="outlined"
-                    prepend-inner-icon="mdi-currency-inr"
+                    prefix="kr"
                       hide-details="auto"
                   />
                 </v-col>
@@ -662,7 +717,7 @@
                     type="number"
                     density="compact"
                     variant="outlined"
-                    prepend-inner-icon="mdi-currency-inr"
+                    prefix="kr"
                       hide-details="auto"
                   />
                 </v-col>
@@ -682,89 +737,8 @@
                 </div>
               </template>
 
-          <!-- Step 6: Internal Notes and Administration -->
+          <!-- Step 6: Media Management -->
               <template v-if="index === 5">
-                <div>
-                <div class="mb-6">
-                  <h3 class="text-h6 font-weight-semibold mb-2">Internal Administration</h3>
-                  <p class="text-body-2 text-medium-emphasis mb-0">
-                    Internal use only - not displayed publicly
-                  </p>
-                </div>
-
-                <v-divider class="my-6" />
-                <div class="mb-4">
-                  <h4 class="text-subtitle-1 font-weight-semibold mb-4">
-                    <v-icon size="20" class="mr-2">mdi-account-cog</v-icon>
-                    Administration
-                  </h4>
-              <v-row dense>
-              <v-col cols="12" md="4">
-                <v-text-field
-                  v-model="form.responsibleEmployee"
-                  label="Responsible Employee"
-                  density="compact"
-                  variant="outlined"
-                    hide-details="auto"
-                />
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-text-field
-                  v-model="form.internalVehicleId"
-                  label="Internal Vehicle ID"
-                  density="compact"
-                  variant="outlined"
-                    hide-details="auto"
-                />
-              </v-col>
-                <v-col cols="12" md="4">
-                  <v-select
-                    v-model="form.status"
-                    :items="statuses"
-                    label="Status"
-                    density="compact"
-                    variant="outlined"
-                    :rules="[rules.required]"
-                    hide-details="auto"
-                  />
-                </v-col>
-                <v-col cols="12" md="3">
-                <v-text-field
-                  v-model.number="form.numberOfKeys"
-                  label="Number of Keys"
-                  type="number"
-                  density="compact"
-                  variant="outlined"
-                    hide-details="auto"
-                />
-              </v-col>
-                <v-col cols="12" md="3">
-                <v-switch
-                  v-model="form.hasDamageHistory"
-                  label="Damage History"
-                  density="compact"
-                  color="primary"
-                    hide-details
-                />
-              </v-col>
-              </v-row>
-            </div>
-
-            <div class="form-section mt-4">
-                <v-textarea
-                  v-model="form.internalConditionNotes"
-                  label="Internal Condition Notes"
-                  density="compact"
-                  variant="outlined"
-                  rows="4"
-                hide-details="auto"
-                />
-          </div>
-                </div>
-              </template>
-
-          <!-- Step 7: Media Management -->
-              <template v-if="index === 6">
                 <div>
                 <div class="mb-6">
                   <h3 class="text-h6 font-weight-semibold mb-2">Media & Description</h3>
@@ -783,7 +757,8 @@
                     </v-chip>
                   </h4>
                 <v-file-input
-                  v-model="form.images"
+                  :model-value="[]"
+                  @update:model-value="handleImageUpload"
                 label="Upload Images"
                   multiple
                   accept="image/*"
@@ -792,7 +767,8 @@
                   prepend-icon="mdi-camera"
                 hint="Upload 1-20 images. First image will be used as cover."
                   persistent-hint
-                  :rules="[rules.requiredImages]"
+                  :error="form.images.length === 0"
+                  :error-messages="form.images.length === 0 ? ['Please upload at least 1 image'] : []"
                 hide-details="auto"
                 class="mb-4"
               />
@@ -809,7 +785,18 @@
                   <v-card
                     :variant="form.coverImageIndex === imgIndex ? 'outlined' : 'flat'"
                     :color="form.coverImageIndex === imgIndex ? 'primary' : undefined"
-                    class="position-relative"
+                    class="position-relative image-drag-item"
+                    :class="{ 
+                      'dragging': draggedImageIndex === imgIndex,
+                      'drag-over': dragOverIndex === imgIndex
+                    }"
+                    draggable="true"
+                    @dragstart="handleDragStart(imgIndex, $event)"
+                    @dragover.prevent="handleDragOver($event)"
+                    @dragenter.prevent="handleDragEnter(imgIndex, $event)"
+                    @dragleave="handleDragLeave($event)"
+                    @drop="handleDrop(imgIndex, $event)"
+                    @dragend="handleDragEnd"
                   >
                     <v-chip
                       size="x-small"
@@ -881,15 +868,49 @@
                   density="compact"
                   variant="outlined"
                   rows="6"
-                hint="Describe the vehicle's condition, features, and selling points"
+                hint="Description will be auto-generated based on vehicle information. You can edit it manually."
                   persistent-hint
                   :rules="[rules.required, rules.description]"
                 hide-details="auto"
+                @input="isDescriptionManuallyEdited = true"
                 />
           </div>
               </div>
               </template>
         </v-form>
+
+      <!-- Error Display -->
+      <v-alert
+        v-if="submitError"
+        type="error"
+        variant="tonal"
+        density="compact"
+        class="ma-4"
+        closable
+        @click:close="submitError = null"
+      >
+        {{ submitError }}
+      </v-alert>
+
+      <!-- Validation Errors Display -->
+      <v-alert
+        v-if="Object.keys(validationErrors).length > 0"
+        type="error"
+        variant="tonal"
+        density="compact"
+        class="ma-4"
+        closable
+        @click:close="validationErrors = {}"
+      >
+        <div class="mb-2">
+          <strong>Please fix the following errors:</strong>
+        </div>
+        <ul class="mb-0 pl-4">
+          <li v-for="(errors, field) in validationErrors" :key="field">
+            <strong>{{ field }}:</strong> {{ errors.join(', ') }}
+          </li>
+        </ul>
+      </v-alert>
 
       <!-- Wizard Navigation -->
       <v-divider class="mt-8 mb-4" />
@@ -930,7 +951,7 @@
             color="primary"
             variant="elevated"
             :loading="submitting"
-            :disabled="!formValid"
+            :disabled="!formValid || !imagesValid"
             @click="submitForm"
           >
             <v-icon start>{{ submitting ? 'mdi-loading' : 'mdi-check-circle' }}</v-icon>
@@ -941,17 +962,17 @@
           </v-card-text>
         </v-window-item>
       </v-window>
-    </v-card>
+      </v-card>
+    </v-expand-transition>
   </v-container>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import { createVehicle } from '@/api/dealer.api'
+import { createVehicle, getLookupConstants, lookupVehicleByRegistration } from '@/api/dealer.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
-import axios from 'axios'
-import DatePicker from '@/components/ui/DatePicker.vue'
+import MonthYearPicker from '@/components/ui/MonthYearPicker.vue'
 
 const router = useRouter()
 
@@ -964,7 +985,6 @@ const steps = [
   { label: 'Technical Data', key: 'technical' },
   { label: 'Equipment & Features', key: 'equipment' },
   { label: 'Pricing & Sales', key: 'pricing' },
-  { label: 'Internal Notes', key: 'internal' },
   { label: 'Media', key: 'media' },
 ]
 
@@ -973,6 +993,13 @@ const formRef = ref()
 const formValid = ref(false)
 const submitting = ref(false)
 const draftSaved = ref(false)
+const submitError = ref<string | null>(null)
+const validationErrors = ref<Record<string, string[]>>({})
+
+// Computed property to check if images are valid
+const imagesValid = computed(() => {
+  return form.value.images && form.value.images.length >= 1 && form.value.images.length <= 20
+})
 
 // Lookup state
 const lookupForm = ref({
@@ -982,6 +1009,141 @@ const lookupLoading = ref(false)
 const lookupError = ref<string | null>(null)
 const lookupSuccess = ref(false)
 const lookupData = ref<any>(null)
+const manualEntryMode = ref(false)
+
+// Computed property to check if form fields should be shown
+const showFormFields = computed(() => {
+  return lookupSuccess.value || manualEntryMode.value
+})
+
+// Computed property for fuel consumption label based on fuel type
+const fuelConsumptionLabel = computed(() => {
+  const fuelTypeName = form.value.fuelType?.toLowerCase() || ''
+  
+  // Electric fuel types
+  if (fuelTypeName.includes('electric') && !fuelTypeName.includes('hybrid')) {
+    return 'Electric Range (km)'
+  }
+  
+  // Hybrid fuel types
+  if (fuelTypeName.includes('hybrid')) {
+    return 'Electric Range / KM/L'
+  }
+  
+  // Default for Petrol, Diesel, etc.
+  return 'KM/L'
+})
+
+// Computed property for fuel consumption hint
+const fuelConsumptionHint = computed(() => {
+  const fuelTypeName = form.value.fuelType?.toLowerCase() || ''
+  
+  // Electric fuel types
+  if (fuelTypeName.includes('electric') && !fuelTypeName.includes('hybrid')) {
+    return 'Electric range in kilometers'
+  }
+  
+  // Hybrid fuel types
+  if (fuelTypeName.includes('hybrid')) {
+    return 'Electric range in km (for EV mode) or fuel efficiency in km/l'
+  }
+  
+  // Default for Petrol, Diesel, etc.
+  return 'Fuel efficiency in kilometers per liter'
+})
+
+// Helper to calculate power in HP from kW (rounded to nearest whole number, e.g. 149.6 -> 150)
+const calculatePowerHp = (powerKw: number | null | undefined): number | null => {
+  if (powerKw === null || powerKw === undefined) return null
+  return Math.round(powerKw * 1.36)
+}
+
+// Track if description was manually edited by user
+const isDescriptionManuallyEdited = ref(false)
+
+// Generate description based on vehicle information and equipment
+const generateDescription = (): string => {
+  const parts: string[] = []
+  
+  // Basic vehicle info
+  if (form.value.make && form.value.model) {
+    let vehicleTitle = form.value.make
+    if (form.value.model) {
+      vehicleTitle += ` ${form.value.model}`
+    }
+    if (form.value.variant) {
+      vehicleTitle += ` ${form.value.variant}`
+    }
+    parts.push(vehicleTitle)
+  }
+  
+  // Year/Registration date
+  if (form.value.firstRegistrationDate) {
+    const year = form.value.firstRegistrationDate.split('-')[0]
+    if (year) {
+      parts.push(`from ${year}`)
+    }
+  }
+  
+  // Fuel type
+  if (form.value.fuelType) {
+    parts.push(`with ${form.value.fuelType} engine`)
+  }
+  
+  // Power
+  if (form.value.powerKw) {
+    const powerHp = calculatePowerHp(form.value.powerKw)
+    if (powerHp) {
+      parts.push(`${form.value.powerKw} kW (${powerHp} HP)`)
+    } else {
+      parts.push(`${form.value.powerKw} kW`)
+    }
+  }
+  
+  // Mileage
+  if (form.value.odometer) {
+    parts.push(`with ${form.value.odometer.toLocaleString()} km on the odometer`)
+  }
+  
+  // Transmission
+  if (form.value.transmissionType) {
+    parts.push(`${form.value.transmissionType} transmission`)
+  }
+  
+  // Equipment
+  if (form.value.equipment && form.value.equipment.length > 0) {
+    const equipmentNames: string[] = []
+    form.value.equipment.forEach((equipmentId: string) => {
+      equipmentTypes.value.forEach(type => {
+        const equipment = type.equipments.find(eq => eq.id.toString() === equipmentId)
+        if (equipment) {
+          equipmentNames.push(equipment.name)
+        }
+      })
+    })
+    
+    if (equipmentNames.length > 0) {
+      // Limit to top 10 most important equipment items
+      const topEquipment = equipmentNames.slice(0, 10)
+      if (topEquipment.length > 0) {
+        parts.push(`equipped with ${topEquipment.join(', ')}`)
+        if (equipmentNames.length > 10) {
+          parts.push(`and ${equipmentNames.length - 10} more features`)
+        }
+      }
+    }
+  }
+  
+  // Combine parts into a readable description
+  let description = parts.join(', ')
+  
+  // Add a closing statement
+  if (description) {
+    description += '.'
+  }
+  
+  return description
+}
 
 // Form data
 const form = ref({
@@ -999,7 +1161,7 @@ const form = ref({
   fuelConsumptionWltp: null as number | null,
   
   // Step 2
-  firstRegistrationDate: '',
+  firstRegistrationDate: null,
   productionDate: '',
   registrationNumber: '',
   lastInspectionDate: '',
@@ -1012,7 +1174,6 @@ const form = ref({
   engineType: '',
   transmissionType: '',
   drivetrain: '',
-  fuelConsumptionUnit: 'l_per_100km',
   fuelConsumption: null as number | null,
   euroEmissionClass: '',
   
@@ -1036,59 +1197,26 @@ const form = ref({
   leasingAnnualMileage: null as number | null,
   leasingTotalCost: null as number | null,
   
-  // Step 6
-  responsibleEmployee: '',
-  internalVehicleId: '',
-  numberOfKeys: 1,
-  hasDamageHistory: false,
-  internalConditionNotes: '',
-  status: 'Draft',
-  
-  // Step 7
+  // Step 6 (Media)
   images: [] as File[],
   coverImageIndex: 0,
   description: '',
 })
 
+// Lookup data state
+const brands = ref<Array<{id: number, name: string}>>([])
+const fuelTypes = ref<Array<{id: number, name: string}>>([])
+const gearTypes = ref<Array<{id: number, name: string}>>([])
+const vehicleUses = ref<Array<{id: number, name: string}>>([])
+const drivetrainTypes = ref<Array<{value: string, title: string}>>([])
+const equipmentTypes = ref<Array<{id: number, name: string, equipments: Array<{id: number, name: string}>}>>([])
+
 // Image previews
 const imagePreviews = ref<string[]>([])
+const draggedImageIndex = ref<number | null>(null)
+const dragOverIndex = ref<number | null>(null)
 
-// Constants
-const makes = [
-  'Acura', 'Alfa Romeo', 'Aston Martin', 'Audi', 'Bentley', 'BMW', 'Bugatti', 'Buick',
-  'Cadillac', 'Chevrolet', 'Chrysler', 'Citroën', 'Dacia', 'Daewoo', 'Daihatsu', 'Dodge',
-  'Donkervoort', 'DS', 'Ferrari', 'Fiat', 'Fisker', 'Ford', 'Genesis', 'GMC', 'Honda',
-  'Hummer', 'Hyundai', 'Infiniti', 'Isuzu', 'Jaguar', 'Jeep', 'Kia', 'Koenigsegg', 'KTM',
-  'Lada', 'Lamborghini', 'Lancia', 'Land Rover', 'Lexus', 'Lincoln', 'Lotus', 'Maserati',
-  'Maybach', 'Mazda', 'McLaren', 'Mercedes-Benz', 'Mercury', 'Mini', 'Mitsubishi', 'Nissan',
-  'Opel', 'Pagani', 'Peugeot', 'Polestar', 'Pontiac', 'Porsche', 'RAM', 'Renault',
-  'Rolls-Royce', 'Saab', 'Saturn', 'Scion', 'Seat', 'Škoda', 'Smart', 'SsangYong',
-  'Subaru', 'Suzuki', 'Tesla', 'Toyota', 'Volkswagen', 'Volvo', 'Maruti Suzuki', 'Tata Motors',
-  'Mahindra & Mahindra', 'Ashok Leyland', 'Force Motors', 'MG Motor', 'Skoda', 'BYD', 'VinFast',
-]
-
-const fuelTypes = [
-  'Petrol', 'Diesel', 'Compressed Natural Gas (CNG)', 'Liquefied Petroleum Gas (LPG)',
-  'Electric Vehicle (EV)', 'Hybrid Electric Vehicle (HEV)', 'Plug-in Hybrid Electric Vehicle (PHEV)',
-]
-
-const previousUsageTypes = [
-  'Private', 'Leasing', 'Rental', 'Company car', 'Demo vehicle',
-]
-
-const transmissionTypes = [
-  'Manual', 'Automatic',
-]
-
-const drivetrainTypes = [
-  'FWD', 'RWD', 'AWD',
-]
-
-const consumptionUnits = [
-  { title: 'Liters per 100 km', value: 'l_per_100km' },
-  { title: 'Kilometers per liter', value: 'km_per_l' },
-]
-
+// Constants (static data that doesn't come from API)
 const leasingTypes = [
   'Financial', 'Operational',
 ]
@@ -1097,117 +1225,32 @@ const leasingCustomerTypes = [
   'Private', 'Business (excluding VAT)',
 ]
 
-const statuses = [
-  'Draft', 'Ready for sale', 'Reserved', 'Sold',
-]
-
-// Equipment categories
-const equipmentCategories = [
-  {
-    name: 'Interior',
-    features: [
-      { label: 'On board computer', value: 'onboard_computer' },
-      { label: 'Multifunction steering wheel', value: 'multifunction_steering' },
-      { label: 'Leather', value: 'leather' },
-      { label: 'Alcantara', value: 'alcantara' },
-      { label: 'Fabric', value: 'fabric' },
-      { label: 'Heated seats', value: 'heated_seats' },
-      { label: 'Electrically adjustable seats', value: 'electric_seats' },
-      { label: 'Memory seats', value: 'memory_seats' },
-      { label: 'Ambient lighting', value: 'ambient_lighting' },
-      { label: 'Adjustable lumbar support', value: 'lumbar_support' },
-    ],
-  },
-  {
-    name: 'Exterior',
-    features: [
-      { label: 'Alloy wheels 15"', value: 'alloy_wheels_15' },
-      { label: 'Alloy wheels 16"', value: 'alloy_wheels_16' },
-      { label: 'Alloy wheels 17"', value: 'alloy_wheels_17' },
-      { label: 'Alloy wheels 18"', value: 'alloy_wheels_18' },
-      { label: 'Alloy wheels 19"', value: 'alloy_wheels_19' },
-      { label: 'Alloy wheels 20"', value: 'alloy_wheels_20' },
-      { label: 'Alloy wheels 21"', value: 'alloy_wheels_21' },
-      { label: 'Alloy wheels 22"', value: 'alloy_wheels_22' },
-      { label: 'Summer wheels', value: 'summer_wheels' },
-      { label: 'Winter wheels', value: 'winter_wheels' },
-      { label: 'All season wheels', value: 'all_season_wheels' },
-      { label: 'Sunroof', value: 'sunroof' },
-      { label: 'Panoramic roof', value: 'panoramic_roof' },
-      { label: 'Electric mirrors', value: 'electric_mirrors' },
-      { label: 'Heated mirrors', value: 'heated_mirrors' },
-      { label: 'Folding mirrors', value: 'folding_mirrors' },
-      { label: 'Xenon headlights', value: 'xenon_headlights' },
-      { label: 'LED headlights', value: 'led_headlights' },
-      { label: 'Matrix LED headlights', value: 'matrix_led_headlights' },
-      { label: 'Fog lights', value: 'fog_lights' },
-      { label: 'Adaptive headlights', value: 'adaptive_headlights' },
-    ],
-  },
-  {
-    name: 'Comfort',
-    features: [
-      { label: 'Air conditioning', value: 'air_conditioning' },
-      { label: 'Climate zone 1', value: 'climate_zone_1' },
-      { label: 'Climate zone 2', value: 'climate_zone_2' },
-      { label: 'Climate zone 3', value: 'climate_zone_3' },
-      { label: 'Climate zone 4', value: 'climate_zone_4' },
-      { label: 'Cruise control', value: 'cruise_control' },
-      { label: 'Adaptive cruise', value: 'adaptive_cruise' },
-      { label: 'Keyless entry and start', value: 'keyless_entry' },
-      { label: 'Heated steering wheel', value: 'heated_steering' },
-      { label: 'Electric windows (front)', value: 'electric_windows_front' },
-      { label: 'Electric windows (all)', value: 'electric_windows_all' },
-      { label: 'Electric tailgate', value: 'electric_tailgate' },
-      { label: 'Parking heater', value: 'parking_heater' },
-      { label: 'Start stop system', value: 'start_stop' },
-    ],
-  },
-  {
-    name: 'Multimedia',
-    features: [
-      { label: 'Radio', value: 'radio' },
-      { label: 'DAB', value: 'dab' },
-      { label: 'DAB Plus', value: 'dab_plus' },
-      { label: 'Navigation', value: 'navigation' },
-      { label: 'Bluetooth audio', value: 'bluetooth_audio' },
-      { label: 'Apple CarPlay', value: 'apple_carplay' },
-      { label: 'Android Auto', value: 'android_auto' },
-      { label: 'USB A', value: 'usb_a' },
-      { label: 'USB C', value: 'usb_c' },
-      { label: 'AUX', value: 'aux' },
-      { label: 'Rear seat entertainment', value: 'rear_seat_entertainment' },
-    ],
-  },
-  {
-    name: 'Assistance and Safety',
-    features: [
-      { label: 'Parking sensors (front)', value: 'parking_sensors_front' },
-      { label: 'Parking sensors (rear)', value: 'parking_sensors_rear' },
-      { label: 'Rear camera', value: 'rear_camera' },
-      { label: '360 camera', value: 'camera_360' },
-      { label: 'Lane assist', value: 'lane_assist' },
-      { label: 'Blind spot monitoring', value: 'blind_spot' },
-      { label: 'Traffic sign recognition', value: 'traffic_sign_recognition' },
-      { label: 'Night vision', value: 'night_vision' },
-      { label: 'Emergency braking', value: 'emergency_braking' },
-      { label: 'ESP', value: 'esp' },
-      { label: 'ABS', value: 'abs' },
-      { label: 'ISOFIX', value: 'isofix' },
-    ],
-  },
-]
+// Load lookup data function
+const loadLookupData = async () => {
+  try {
+    const data = await getLookupConstants()
+    
+    brands.value = data.brands || []
+    fuelTypes.value = data.fuel_types || []
+    gearTypes.value = data.gear_types || []
+    vehicleUses.value = data.vehicle_uses || []
+    drivetrainTypes.value = data.drivetrain_types || []
+    equipmentTypes.value = data.equipment_types || []
+  } catch (error) {
+    console.error('Failed to load lookup data:', error)
+  }
+}
 
 // Validation rules
 const rules = {
   required: (v: any) => !!v || 'This field is required',
   vin: (v: string) => {
-    if (!v) return true
+    if (!v) return 'This field is required'
     if (v.length !== 17) return 'VIN must be exactly 17 characters'
     return /^[A-HJ-NPR-Z0-9]+$/i.test(v) || 'VIN can only contain letters (except I, O, Q) and numbers'
   },
   odometer: (v: number) => {
-    if (v === null || v === undefined) return true
+    if (v === null || v === undefined) return 'This field is required'
     return (v >= 0 && v <= 12000000000000) || 'Odometer must be between 0 and 12,000,000,000,000'
   },
   price: (v: number) => {
@@ -1215,11 +1258,12 @@ const rules = {
     return (v >= 0 && v <= 999999999) || 'Price must be between 0 and 999,999,999'
   },
   description: (v: string) => {
-    if (!v) return true
+    if (!v) return 'This field is required'
     return (v.length >= 1 && v.length <= 5000) || 'Description must be between 1 and 5000 characters'
   },
   requiredImages: (v: File[]) => {
-    return (v && v.length >= 1 && v.length <= 20) || 'Please upload at least 1 and at most 20 images'
+    // This rule is not used anymore - validation is done via computed property
+    return true
   },
 }
 
@@ -1233,33 +1277,157 @@ const performLookup = async () => {
   lookupLoading.value = true
   lookupError.value = null
   lookupSuccess.value = false
+  // Reset manual edit flag when starting new lookup
+  isDescriptionManuallyEdited.value = false
 
   try {
-    const response = await axios.post('/api/nummerplade/vehicle-by-registration', {
-      registration: lookupForm.value.registrationNumber,
-      advanced: true,
-    })
-
-    const data = response.data.data || response.data
+    const data = await lookupVehicleByRegistration(
+      lookupForm.value.registrationNumber,
+      true // advanced = true
+    )
+    
+    // Clear any previous errors
+    lookupError.value = null
     lookupData.value = data
-    lookupSuccess.value = true
 
     // Auto-fill form with lookup data
-    if (data.make) form.value.make = data.make
-    if (data.model) form.value.model = data.model
-    if (data.fuel_type) form.value.fuelType = data.fuel_type
-    if (data.power_hp) form.value.powerHp = data.power_hp
-    if (data.power_kw) form.value.powerKw = data.power_kw
-    if (data.first_registration_date) form.value.firstRegistrationDate = data.first_registration_date
-    if (data.registration_date) form.value.registrationDate = data.registration_date
+    // Map brand (make) - handle both object and string formats
+    const brandName = data.brand?.name || data.brand_name || data.brand
+    if (brandName) {
+      const brand = brands.value.find(b => 
+        b.name.toLowerCase() === (typeof brandName === 'string' ? brandName : brandName.name || '').toLowerCase()
+      )
+      if (brand) form.value.make = brand.name
+    }
+
+    // Map model - handle both object and string formats
+    const modelName = data.model?.name || data.model_name || data.model
+    if (modelName) {
+      form.value.model = typeof modelName === 'string' ? modelName : modelName.name || ''
+    }
+
+    // Map variant - handle both object and string formats, also check for 'version' field
+    const variantName = data.variant?.name || data.version?.name || data.version || data.variant
+    if (variantName) {
+      form.value.variant = typeof variantName === 'string' ? variantName : variantName.name || ''
+    }
+
+    // Map fuel type and transmission type (both from fuel_type) - handle both object and string formats
+    const fuelTypeName = data.fuel_type?.name || data.fuel_type_name || data.fuel_type
+    if (fuelTypeName) {
+      const fuelType = fuelTypes.value.find(f => 
+        f.name.toLowerCase() === (typeof fuelTypeName === 'string' ? fuelTypeName : fuelTypeName.name || '').toLowerCase()
+      )
+      if (fuelType) {
+        form.value.fuelType = fuelType.name
+        form.value.transmissionType = fuelType.name
+      }
+    }
+
+    // Map power
+    if (data.engine_power) {
+      form.value.powerKw = data.engine_power
+      form.value.powerHp = calculatePowerHp(data.engine_power)
+    }
+
+    // Map dates (extract month/year)
+    if (data.first_registration_date) {
+      try {
+        const date = new Date(data.first_registration_date)
+        if (!isNaN(date.getTime())) {
+          const year = date.getFullYear()
+          const month = String(date.getMonth() + 1).padStart(2, '0')
+          form.value.registrationDate = `${year}-${month}`
+          form.value.firstRegistrationDate = `${year}-${month}`
+        }
+      } catch (e) {
+        console.warn('Failed to parse first_registration_date:', data.first_registration_date)
+      }
+    }
+
+    if (data.last_inspection_date) {
+      try {
+        const date = new Date(data.last_inspection_date)
+        if (!isNaN(date.getTime())) {
+          const year = date.getFullYear()
+          const month = String(date.getMonth() + 1).padStart(2, '0')
+          form.value.lastInspectionDate = `${year}-${month}`
+        }
+      } catch (e) {
+        console.warn('Failed to parse last_inspection_date:', data.last_inspection_date)
+      }
+    }
+
+    // Map odometer
+    if (data.last_inspection_odometer) {
+      form.value.odometer = data.last_inspection_odometer
+    }
+
+    // Map previous usage
+    if (data.use?.name) {
+      const use = vehicleUses.value.find(u => 
+        u.name.toLowerCase() === data.use.name.toLowerCase()
+      )
+      if (use) form.value.previousUsage = use.name
+    }
+
+    // Map euro emission class - handle both object and string formats
+    const euronormName = data.euronorm?.name || data.euronorm
+    if (euronormName) {
+      form.value.euroEmissionClass = typeof euronormName === 'string' ? euronormName : euronormName.name || ''
+    }
+
+    // Map fuel consumption (convert km/L to L/100km)
+    if (data.fuel_efficiency) {
+      form.value.fuelConsumption = Math.round((100 / data.fuel_efficiency) * 100) / 100
+    }
+
+    // Map drivetrain - handle both string and number formats
+    const driveAxles = data.drive_axles
+    if (driveAxles !== null && driveAxles !== undefined) {
+      const driveAxlesNum = typeof driveAxles === 'string' ? parseInt(driveAxles, 10) : driveAxles
+      if (driveAxlesNum === 1) {
+        form.value.drivetrain = 'FWD'
+      } else if (driveAxlesNum === 2) {
+        form.value.drivetrain = 'AWD' // or determine RWD vs AWD from other data
+      }
+    }
+
+    // Map equipment
+    if (data.equipment && Array.isArray(data.equipment)) {
+      const equipmentIds: string[] = []
+      data.equipment.forEach((apiEquipment: any) => {
+        // Find matching equipment in database by name
+        equipmentTypes.value.forEach(type => {
+          type.equipments.forEach(dbEquipment => {
+            if (dbEquipment.name.toLowerCase() === apiEquipment.name.toLowerCase()) {
+              equipmentIds.push(dbEquipment.id.toString())
+            }
+          })
+        })
+      })
+      form.value.equipment = equipmentIds
+    }
+
+    // Map VIN
     if (data.vin) form.value.vin = data.vin
-    if (data.co2_emissions) form.value.co2Emissions = data.co2_emissions
-    if (data.fuel_consumption_nedc) form.value.fuelConsumptionNedc = data.fuel_consumption_nedc
-    if (data.fuel_consumption_wltp) form.value.fuelConsumptionWltp = data.fuel_consumption_wltp
 
     form.value.registrationNumber = lookupForm.value.registrationNumber
+    
+    // Generate description after all data is mapped
+    if (!isDescriptionManuallyEdited.value) {
+      const autoDescription = generateDescription()
+      if (autoDescription) {
+        form.value.description = autoDescription
+      }
+    }
+    
+    // Set success flag only after all mapping is complete
+    lookupSuccess.value = true
   } catch (error: any) {
-    lookupError.value = error.response?.data?.message || 'Failed to fetch vehicle data. Please check the license plate and try again.'
+    // Clear success flag on error
+    lookupSuccess.value = false
+    lookupError.value = error.response?.data?.message || error.message || 'Failed to fetch vehicle data. Please check the license plate and try again.'
   } finally {
     lookupLoading.value = false
   }
@@ -1312,9 +1480,10 @@ const handleKeydown = (event: KeyboardEvent) => {
   }
 }
 
-// Add keyboard event listener
+// Add keyboard event listener and load lookup data
 onMounted(() => {
   window.addEventListener('keydown', handleKeydown)
+  loadLookupData()
 })
 
 // Cleanup will be handled in the combined onBeforeUnmount below
@@ -1334,6 +1503,22 @@ const setCoverImage = (index: number) => {
   form.value.coverImageIndex = index
 }
 
+const handleImageUpload = (newFiles: File[]) => {
+  if (!newFiles || newFiles.length === 0) return
+  
+  const currentCount = form.value.images.length
+  const remainingSlots = 20 - currentCount
+  
+  if (remainingSlots <= 0) {
+    // Already at max, don't add more
+    return
+  }
+  
+  // Add only as many as we can fit (up to 20 total)
+  const filesToAdd = newFiles.slice(0, remainingSlots)
+  form.value.images = [...form.value.images, ...filesToAdd]
+}
+
 const removeImage = (index: number) => {
   if (imagePreviews.value[index]) {
     URL.revokeObjectURL(imagePreviews.value[index])
@@ -1343,6 +1528,77 @@ const removeImage = (index: number) => {
   if (form.value.coverImageIndex >= form.value.images.length) {
     form.value.coverImageIndex = Math.max(0, form.value.images.length - 1)
   }
+}
+
+// Drag and drop handlers for image reordering
+const handleDragStart = (index: number, event: DragEvent) => {
+  draggedImageIndex.value = index
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move'
+    event.dataTransfer.setData('text/html', index.toString())
+  }
+}
+
+const handleDragOver = (event: DragEvent) => {
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'move'
+  }
+}
+
+const handleDragEnter = (index: number, event: DragEvent) => {
+  if (draggedImageIndex.value !== null && draggedImageIndex.value !== index) {
+    dragOverIndex.value = index
+  }
+}
+
+const handleDragLeave = (event: DragEvent) => {
+  const target = event.currentTarget as HTMLElement
+  const relatedTarget = event.relatedTarget as HTMLElement
+  if (!target.contains(relatedTarget)) {
+    dragOverIndex.value = null
+  }
+}
+
+const handleDrop = (dropIndex: number, event: DragEvent) => {
+  event.preventDefault()
+  dragOverIndex.value = null
+  
+  if (draggedImageIndex.value === null || draggedImageIndex.value === dropIndex) {
+    return
+  }
+
+  const fromIndex = draggedImageIndex.value
+  const toIndex = dropIndex
+
+  // Reorder images array
+  const imagesArray = [...form.value.images]
+  const [movedImage] = imagesArray.splice(fromIndex, 1)
+  imagesArray.splice(toIndex, 0, movedImage)
+  form.value.images = imagesArray
+
+  // Reorder previews array
+  const previewsArray = [...imagePreviews.value]
+  const [movedPreview] = previewsArray.splice(fromIndex, 1)
+  previewsArray.splice(toIndex, 0, movedPreview)
+  imagePreviews.value = previewsArray
+
+  // Update cover image index if it was affected
+  if (form.value.coverImageIndex === fromIndex) {
+    form.value.coverImageIndex = toIndex
+  } else if (form.value.coverImageIndex === toIndex && fromIndex < toIndex) {
+    form.value.coverImageIndex = toIndex - 1
+  } else if (form.value.coverImageIndex === toIndex && fromIndex > toIndex) {
+    form.value.coverImageIndex = toIndex + 1
+  } else if (fromIndex < form.value.coverImageIndex && toIndex >= form.value.coverImageIndex) {
+    form.value.coverImageIndex = form.value.coverImageIndex - 1
+  } else if (fromIndex > form.value.coverImageIndex && toIndex <= form.value.coverImageIndex) {
+    form.value.coverImageIndex = form.value.coverImageIndex + 1
+  }
+}
+
+const handleDragEnd = () => {
+  draggedImageIndex.value = null
+  dragOverIndex.value = null
 }
 
 const saveAsDraft = () => {
@@ -1357,61 +1613,174 @@ const saveAsDraft = () => {
 const submitForm = async () => {
   if (!formRef.value) return
 
-  const { valid } = await formRef.value.validate()
-  if (!valid) return
+  // Handle form ref - it's an array when multiple forms share the same ref
+  const forms = Array.isArray(formRef.value) ? formRef.value : [formRef.value]
+  
+  // Validate all forms (all steps)
+  let allValid = true
+  for (const form of forms) {
+    if (form && typeof form.validate === 'function') {
+      const { valid } = await form.validate()
+      if (!valid) {
+        allValid = false
+        break
+      }
+    }
+  }
+  
+  if (!allValid) return
 
-  if (!form.value.images || form.value.images.length === 0) {
-    // TODO: Show error toast
+  if (!imagesValid.value) {
+    submitError.value = 'Please upload at least 1 image (maximum 20 images)'
+    // Scroll to media step
+    currentStep.value = 5
     return
   }
 
   try {
     submitting.value = true
+    submitError.value = null
+    validationErrors.value = {}
 
     // Convert form data to API format
+    // Find brand_id from make name
+    const brand = brands.value.find(b => b.name === form.value.make)
+    if (!brand) {
+      submitError.value = 'Please select a valid make/brand'
+      currentStep.value = 0
+      return
+    }
+
+    // Find fuel_type_id from fuel type name
+    const fuelType = fuelTypes.value.find(f => f.name === form.value.fuelType)
+    if (!fuelType) {
+      submitError.value = 'Please select a valid fuel type'
+      currentStep.value = 0
+      return
+    }
+
+    // Generate title from make, model, variant
+    const titleParts = [form.value.make, form.value.model, form.value.variant].filter(Boolean)
+    const title = titleParts.join(' ') || `${form.value.make} ${form.value.model}`
+
+    // Start with Nummerplade API data if available (user data will override)
+    const nummerpladeData = lookupData.value || {}
+    
     const vehicleData: any = {
-      registration_number: form.value.registrationNumber,
-      vin: form.value.vin,
-      make: form.value.make,
-      model: form.value.model,
-      variant: form.value.variant,
-      fuel_type: form.value.fuelType,
-      transmission_type: form.value.transmissionType,
-      drivetrain: form.value.drivetrain,
-      odometer: form.value.odometer,
-      status: form.value.status,
-      listing_price: form.value.retailPrice || 0,
+      title: title,
+      registration: form.value.registrationNumber || nummerpladeData.registration,
+      vin: form.value.vin || nummerpladeData.vin,
+      brand_id: brand.id,
+      brand_name: form.value.make, // Also send name for auto-creation if needed
+      model_name: form.value.model || nummerpladeData.model_name || nummerpladeData.model, // Send model name for auto-creation
+      version: form.value.variant || nummerpladeData.version || nummerpladeData.variant, // variant maps to version in Vehicle model
+      fuel_type_id: fuelType.id,
+      price: form.value.retailPrice || 0,
+      km_driven: form.value.odometer || nummerpladeData.last_inspection_odometer,
       description: form.value.description,
       images: form.value.images,
-      equipment: form.value.equipment,
+      equipment: form.value.equipment.map(id => parseInt(id)), // Convert to numbers
+      vehicle_list_status_id: 1, // Default to draft/unpublished - adjust as needed
+    }
+
+    // Add model_year from Nummerplade API if available
+    if (nummerpladeData.model_year) {
+      vehicleData.model_year = nummerpladeData.model_year
+      vehicleData.model_year_name = String(nummerpladeData.model_year)
+    }
+
+    // Add towing_weight from Nummerplade API if available
+    if (nummerpladeData.towing_weight) {
+      vehicleData.towing_weight = nummerpladeData.towing_weight
+    }
+
+    // Add fuel_efficiency from Nummerplade API if available (convert km/L to L/100km if needed)
+    if (nummerpladeData.fuel_efficiency) {
+      // Nummerplade returns km/L, but we might have already converted it in the form
+      // Only use API value if form doesn't have it
+      if (!form.value.fuelConsumption) {
+        vehicleData.fuel_efficiency = nummerpladeData.fuel_efficiency
+      }
+    }
+
+    // Convert month/year dates to full dates (use first day of month)
+    // Use form data first, fall back to Nummerplade API data
+    if (form.value.firstRegistrationDate) {
+      const [year, month] = form.value.firstRegistrationDate.split('-')
+      vehicleData.first_registration_date = `${year}-${month}-01`
+    } else if (nummerpladeData.first_registration_date) {
+      // Use full date from API
+      vehicleData.first_registration_date = nummerpladeData.first_registration_date
+    }
+    
+    // Note: registrationDate is not a field in Vehicle model, only first_registration_date
+    if (form.value.productionDate) {
+      const [year, month] = form.value.productionDate.split('-')
+      vehicleData.production_date = `${year}-${month}-01`
+    }
+    
+    // Last inspection date - use form data or API data
+    if (form.value.lastInspectionDate) {
+      const [year, month] = form.value.lastInspectionDate.split('-')
+      vehicleData.last_inspection_date = `${year}-${month}-01`
+    } else if (nummerpladeData.last_inspection_date) {
+      vehicleData.last_inspection_date = nummerpladeData.last_inspection_date
     }
 
     // Add optional fields
-    if (form.value.firstRegistrationDate) {
-      vehicleData.first_registration_date = form.value.firstRegistrationDate
-    }
-    if (form.value.productionDate) {
-      vehicleData.production_date = form.value.productionDate
-    }
-    if (form.value.lastInspectionDate) {
-      vehicleData.last_inspection_date = form.value.lastInspectionDate
-    }
-    if (form.value.powerHp) {
-      vehicleData.power_hp = form.value.powerHp
-    }
     if (form.value.powerKw) {
-      vehicleData.power_kw = form.value.powerKw
+      vehicleData.engine_power = Math.round(form.value.powerKw) // Convert kW to integer
     }
+    
+    // Transmission type - find gear_type_id if transmissionType matches a gear type
+    if (form.value.transmissionType) {
+      const gearType = gearTypes.value.find(g => g.name === form.value.transmissionType)
+      if (gearType) {
+        vehicleData.gear_type_id = gearType.id
+      }
+    }
+
+    // Previous usage - find use_id from form or Nummerplade API
+    if (form.value.previousUsage) {
+      const vehicleUse = vehicleUses.value.find(u => u.name === form.value.previousUsage)
+      if (vehicleUse) {
+        vehicleData.use_id = vehicleUse.id
+      }
+    } else if (nummerpladeData.use?.id) {
+      vehicleData.use_id = nummerpladeData.use.id
+    } else if (nummerpladeData.use?.name) {
+      const vehicleUse = vehicleUses.value.find(u => 
+        u.name.toLowerCase() === nummerpladeData.use.name.toLowerCase()
+      )
+      if (vehicleUse) {
+        vehicleData.use_id = vehicleUse.id
+      }
+    }
+
+    // Additional optional fields that go to vehicle_details
     if (form.value.co2Emissions) {
       vehicleData.co2_emissions = form.value.co2Emissions
     }
     if (form.value.fuelConsumptionWltp) {
       vehicleData.fuel_consumption_wltp = form.value.fuelConsumptionWltp
     }
-    if (form.value.previousUsage) {
-      vehicleData.previous_usage = form.value.previousUsage
+    if (form.value.fuelConsumptionNedc) {
+      vehicleData.fuel_consumption_nedc = form.value.fuelConsumptionNedc
+    }
+    if (form.value.fuelConsumption) {
+      vehicleData.fuel_efficiency = form.value.fuelConsumption
+    }
+    if (form.value.euroEmissionClass) {
+      vehicleData.euronorm = form.value.euroEmissionClass
+    }
+    if (form.value.engineType) {
+      vehicleData.engine_type = form.value.engineType
+    }
+    if (form.value.drivetrain) {
+      vehicleData.drive_axles = form.value.drivetrain === 'FWD' ? 1 : (form.value.drivetrain === 'AWD' ? 2 : null)
     }
     if (form.value.salesType) {
+      // Find sales_type_id from sales type name if needed
       vehicleData.sales_type = form.value.salesType
     }
     if (form.value.wholesalePrice) {
@@ -1420,36 +1789,291 @@ const submitForm = async () => {
     if (form.value.internalCostPrice) {
       vehicleData.internal_cost_price = form.value.internalCostPrice
     }
-    if (form.value.responsibleEmployee) {
-      vehicleData.responsible_employee = form.value.responsibleEmployee
+    if (form.value.isImport !== undefined) {
+      vehicleData.is_import = form.value.isImport
     }
-    if (form.value.internalVehicleId) {
-      vehicleData.internal_vehicle_id = form.value.internalVehicleId
-    }
-    if (form.value.numberOfKeys) {
-      vehicleData.number_of_keys = form.value.numberOfKeys
-    }
-    if (form.value.hasDamageHistory) {
-      vehicleData.has_damage_history = form.value.hasDamageHistory
-    }
-    if (form.value.internalConditionNotes) {
-      vehicleData.internal_condition_notes = form.value.internalConditionNotes
+    if (form.value.isFactoryNew !== undefined) {
+      vehicleData.is_factory_new = form.value.isFactoryNew
     }
     if (form.value.coverImageIndex !== undefined) {
       vehicleData.cover_image_index = form.value.coverImageIndex
+    }
+
+    // ============================================
+    // Map all Nummerplade API data to vehicle_details
+    // User-provided form data takes precedence
+    // ============================================
+    
+    // Vehicle external ID (Nummerplade's vehicle_id)
+    if (nummerpladeData.vehicle_id) {
+      vehicleData.vehicle_external_id = nummerpladeData.vehicle_id
+    }
+
+    // VIN location
+    if (nummerpladeData.vin_location) {
+      vehicleData.vin_location = nummerpladeData.vin_location
+    }
+
+    // Type and type_name
+    if (nummerpladeData.type) {
+      vehicleData.type_name = nummerpladeData.type
+    }
+    if (nummerpladeData.type_name) {
+      vehicleData.type_name = nummerpladeData.type_name
+    }
+
+    // Registration status and dates
+    if (nummerpladeData.registration_status) {
+      vehicleData.registration_status = nummerpladeData.registration_status
+    }
+    if (nummerpladeData.registration_status_updated_date) {
+      vehicleData.registration_status_updated_date = nummerpladeData.registration_status_updated_date
+    }
+    if (nummerpladeData.expire_date) {
+      vehicleData.expire_date = nummerpladeData.expire_date
+    }
+    if (nummerpladeData.status_updated_date) {
+      vehicleData.status_updated_date = nummerpladeData.status_updated_date
+    }
+
+    // Weight fields
+    if (nummerpladeData.total_weight) {
+      vehicleData.total_weight = nummerpladeData.total_weight
+    }
+    if (nummerpladeData.vehicle_weight !== undefined) {
+      vehicleData.vehicle_weight = nummerpladeData.vehicle_weight
+    }
+    if (nummerpladeData.technical_total_weight) {
+      vehicleData.technical_total_weight = nummerpladeData.technical_total_weight
+    }
+    if (nummerpladeData.coupling !== undefined) {
+      vehicleData.coupling = nummerpladeData.coupling
+    }
+    if (nummerpladeData.towing_weight_brakes) {
+      vehicleData.towing_weight_brakes = nummerpladeData.towing_weight_brakes
+    }
+    if (nummerpladeData.minimum_weight) {
+      vehicleData.minimum_weight = nummerpladeData.minimum_weight
+    }
+    if (nummerpladeData.gross_combination_weight) {
+      vehicleData.gross_combination_weight = nummerpladeData.gross_combination_weight
+    }
+
+    // Engine details
+    if (nummerpladeData.engine_displacement) {
+      vehicleData.engine_displacement = nummerpladeData.engine_displacement
+    }
+    if (nummerpladeData.engine_cylinders) {
+      vehicleData.engine_cylinders = nummerpladeData.engine_cylinders
+    }
+    if (nummerpladeData.engine_code) {
+      vehicleData.engine_code = nummerpladeData.engine_code
+    }
+
+    // Category
+    if (nummerpladeData.category) {
+      vehicleData.category = nummerpladeData.category
+    }
+
+    // Last inspection details
+    if (nummerpladeData.last_inspection_result) {
+      vehicleData.last_inspection_result = nummerpladeData.last_inspection_result
+    }
+    if (nummerpladeData.last_inspection_odometer && !form.value.odometer) {
+      vehicleData.last_inspection_odometer = nummerpladeData.last_inspection_odometer
+    }
+
+    // Type approval code
+    if (nummerpladeData.type_approval_code) {
+      vehicleData.type_approval_code = nummerpladeData.type_approval_code
+    }
+
+    // Top speed
+    if (nummerpladeData.top_speed) {
+      vehicleData.top_speed = nummerpladeData.top_speed
+    }
+
+    // Doors and seats
+    if (nummerpladeData.doors) {
+      vehicleData.doors = nummerpladeData.doors
+    }
+    if (nummerpladeData.minimum_seats) {
+      vehicleData.minimum_seats = nummerpladeData.minimum_seats
+    }
+    if (nummerpladeData.maximum_seats) {
+      vehicleData.maximum_seats = nummerpladeData.maximum_seats
+    }
+
+    // Wheels
+    if (nummerpladeData.wheels) {
+      vehicleData.wheels = nummerpladeData.wheels
+    }
+
+    // Extra equipment
+    if (nummerpladeData.extra_equipment) {
+      vehicleData.extra_equipment = nummerpladeData.extra_equipment
+    }
+
+    // Axles (convert string to int if needed)
+    if (nummerpladeData.axles) {
+      vehicleData.axles = typeof nummerpladeData.axles === 'string' 
+        ? parseInt(nummerpladeData.axles, 10) 
+        : nummerpladeData.axles
+    }
+
+    // Drive axles (already handled above, but ensure it's set from API if not in form)
+    if (!form.value.drivetrain && nummerpladeData.drive_axles !== undefined) {
+      const driveAxlesNum = typeof nummerpladeData.drive_axles === 'string' 
+        ? parseInt(nummerpladeData.drive_axles, 10) 
+        : nummerpladeData.drive_axles
+      vehicleData.drive_axles = driveAxlesNum
+    }
+
+    // Wheelbase
+    if (nummerpladeData.wheelbase) {
+      vehicleData.wheelbase = nummerpladeData.wheelbase
+    }
+
+    // Color - send ID if available from Nummerplade API
+    // Note: Nummerplade API IDs might not match our database IDs, so we send the ID
+    // and let the backend handle validation. If ID doesn't exist, backend will ignore it.
+    if (nummerpladeData.color?.id) {
+      vehicleData.color_id = nummerpladeData.color.id
+    }
+
+    // Body type - send ID if available from Nummerplade API
+    // Note: Nummerplade API IDs might not match our database IDs, so we send the ID
+    // and let the backend handle validation. If ID doesn't exist, backend will ignore it.
+    if (nummerpladeData.body_type?.id) {
+      vehicleData.body_type_id = nummerpladeData.body_type.id
+    }
+
+    // Safety features
+    if (nummerpladeData.ncap_five !== undefined) {
+      vehicleData.ncap_five = nummerpladeData.ncap_five
+    }
+    if (nummerpladeData.airbags !== undefined) {
+      vehicleData.airbags = nummerpladeData.airbags
+    }
+    if (nummerpladeData.integrated_child_seats !== undefined) {
+      vehicleData.integrated_child_seats = nummerpladeData.integrated_child_seats
+    }
+    if (nummerpladeData.seat_belt_alarms !== undefined) {
+      vehicleData.seat_belt_alarms = nummerpladeData.seat_belt_alarms
+    }
+
+    // Euro norm - send as euronorm string
+    // The backend VehicleService doesn't currently handle euronorm -> euronom_id conversion
+    // in createVehicle, but we send it anyway. The field will go to vehicle_details as-is
+    // or backend can be updated later to handle the conversion
+    if (nummerpladeData.euronorm) {
+      vehicleData.euronorm = nummerpladeData.euronorm
+    }
+
+    // Permits - convert array to JSON string
+    if (nummerpladeData.permits && Array.isArray(nummerpladeData.permits)) {
+      vehicleData.permits = JSON.stringify(nummerpladeData.permits)
+    }
+
+    // Dispensations - convert array to JSON string
+    if (nummerpladeData.dispensations && Array.isArray(nummerpladeData.dispensations)) {
+      vehicleData.dispensations = JSON.stringify(nummerpladeData.dispensations)
+    }
+
+    // Leasing period
+    if (nummerpladeData.leasing_period_start) {
+      vehicleData.leasing_period_start = nummerpladeData.leasing_period_start
+    }
+    if (nummerpladeData.leasing_period_end) {
+      vehicleData.leasing_period_end = nummerpladeData.leasing_period_end
     }
 
     await createVehicle(vehicleData)
 
     localStorage.removeItem('add-vehicle-form-draft')
     router.push({ name: 'dealer.vehicles.overview' })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to create vehicle:', error)
-    // TODO: Show error toast
+    
+    // Handle API errors
+    const apiError = error as ApiErrorModel
+    
+    if (apiError.errors) {
+      // Validation errors - map to form fields
+      validationErrors.value = apiError.errors
+      
+      // Try to navigate to the first step with errors
+      // Map common field names to step indices
+      const fieldToStepMap: Record<string, number> = {
+        'make': 0,
+        'model': 0,
+        'variant': 0,
+        'fuel_type': 0,
+        'vin': 0,
+        'registration_date': 0,
+        'first_registration_date': 1,
+        'registration_number': 1,
+        'odometer': 1,
+        'previous_usage': 1,
+        'transmission_type': 2,
+        'drivetrain': 2,
+        'equipment': 3,
+        'retail_price': 4,
+        'listing_price': 4,
+        'images': 5,
+        'description': 5,
+      }
+      
+      // Find the first error field and navigate to its step
+      const firstErrorField = Object.keys(apiError.errors)[0]
+      const stepIndex = fieldToStepMap[firstErrorField.toLowerCase()] ?? 0
+      currentStep.value = stepIndex
+      
+      // Scroll to top to show error
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } else {
+      // General error
+      submitError.value = apiError.message || 'Failed to create vehicle. Please try again.'
+      
+      // Scroll to top to show error
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
   } finally {
     submitting.value = false
   }
 }
+
+// Watch for powerKw changes to auto-calculate powerHp
+watch(
+  () => form.value.powerKw,
+  (newPowerKw) => {
+    form.value.powerHp = calculatePowerHp(newPowerKw)
+  }
+)
+
+// Auto-update description when relevant fields change (only if not manually edited)
+watch(
+  () => [
+    form.value.make,
+    form.value.model,
+    form.value.variant,
+    form.value.fuelType,
+    form.value.powerKw,
+    form.value.odometer,
+    form.value.transmissionType,
+    form.value.firstRegistrationDate,
+    form.value.equipment,
+  ],
+  () => {
+    if (!isDescriptionManuallyEdited.value) {
+      const newDescription = generateDescription()
+      if (newDescription) {
+        form.value.description = newDescription
+      }
+    }
+  },
+  { deep: true }
+)
 
 // Watch for image changes
 watch(
@@ -1522,5 +2146,39 @@ loadDraft()
 </script>
 
 <style scoped>
-/* No custom styles - using pure Vuetify components and utility classes */
+/* Equipment checkbox layout - compact and readable */
+.equipment-checkbox :deep(.v-selection-control) {
+  align-items: center;
+  margin-bottom: 0;
+}
+
+.equipment-checkbox :deep(.v-selection-control__wrapper) {
+  margin-top: 0;
+}
+
+.equipment-label {
+  white-space: normal;
+  line-height: 1.2;
+}
+
+/* Image drag and drop styles */
+.image-drag-item {
+  cursor: move;
+  cursor: grab;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.image-drag-item:active {
+  cursor: grabbing;
+}
+
+.image-drag-item.dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+}
+
+.image-drag-item.drag-over {
+  border: 2px dashed rgb(var(--v-theme-primary));
+  transform: scale(1.05);
+}
 </style>

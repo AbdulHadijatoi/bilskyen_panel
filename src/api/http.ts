@@ -62,6 +62,12 @@ httpClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`
     }
     
+    // If sending FormData, remove Content-Type header to let browser set it
+    // with the correct multipart/form-data boundary
+    if (config.data instanceof FormData && config.headers) {
+      delete config.headers['Content-Type']
+    }
+    
     return config
   },
   (error: AxiosError) => {

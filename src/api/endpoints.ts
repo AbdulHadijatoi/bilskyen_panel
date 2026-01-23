@@ -58,6 +58,14 @@ export const DEALER_VEHICLE_ENDPOINTS = {
 } as const
 
 /**
+ * Dealer lookup endpoints
+ */
+export const DEALER_LOOKUP_ENDPOINTS = {
+  LOOKUP_CONSTANTS: '/dealer/lookup-constants',
+  VEHICLE_BY_REGISTRATION: '/dealer/lookup/vehicle-by-registration',
+} as const
+
+/**
  * Dealer lead endpoints
  */
 export const DEALER_LEAD_ENDPOINTS = {

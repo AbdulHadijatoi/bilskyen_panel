@@ -15,6 +15,7 @@ import {
   DEALER_PROFILE_ENDPOINTS,
   DEALER_STAFF_ENDPOINTS,
   DEALER_SUBSCRIPTION_ENDPOINTS,
+  DEALER_LOOKUP_ENDPOINTS,
 } from './endpoints'
 import type { VehicleModel } from '@/models/vehicle.model'
 import { mapVehicleFromApi } from '@/models/vehicle.model'
@@ -120,15 +121,41 @@ export async function createVehicle(
     }
 
     const formData = new FormData()
+    
+    // Handle images separately - append each file individually
+    // Laravel expects images[] to be an array of UploadedFile objects
+    if (data.images && Array.isArray(data.images) && data.images.length > 0) {
+      data.images.forEach((file: File) => {
+        // Ensure it's a File object
+        if (file instanceof File) {
+          formData.append('images[]', file, file.name)
+        }
+      })
+    }
+    
+    // Handle equipment separately - send as equipment[] array for Laravel
+    if (data.equipment && Array.isArray(data.equipment) && data.equipment.length > 0) {
+      data.equipment.forEach((equipmentId: number | string) => {
+        formData.append('equipment[]', String(equipmentId))
+      })
+    }
+    
+    // Handle other fields
     Object.keys(data).forEach((key) => {
-      if (key === 'images' && Array.isArray(data.images)) {
-        data.images.forEach((file) => {
-          formData.append('images[]', file)
-        })
-      } else if (data[key] !== undefined && data[key] !== null) {
-        if (typeof data[key] === 'object') {
+      // Skip images and equipment as we already handled them above
+      if (key === 'images' || key === 'equipment') {
+        return
+      }
+      
+      if (data[key] !== undefined && data[key] !== null) {
+        if (Array.isArray(data[key])) {
+          // For other arrays, send as JSON string
+          formData.append(key, JSON.stringify(data[key]))
+        } else if (typeof data[key] === 'object') {
+          // For objects, send as JSON string
           formData.append(key, JSON.stringify(data[key]))
         } else {
+          // For primitives, send as string
           formData.append(key, String(data[key]))
         }
       }
@@ -772,3 +799,65 @@ export async function getSubscriptionHistory(): Promise<any[]> {
   }
 }
 
+// ============================================================================
+// LOOKUP
+// ============================================================================
+
+/**
+ * Lookup constants response type
+ */
+export interface LookupConstantsResponse {
+  brands: Array<{ id: number; name: string }>
+  fuel_types: Array<{ id: number; name: string }>
+  gear_types: Array<{ id: number; name: string }>
+  vehicle_uses: Array<{ id: number; name: string }>
+  equipment_types: Array<{
+    id: number
+    name: string
+    equipments: Array<{ id: number; name: string }>
+  }>
+  drivetrain_types: Array<{ value: string; title: string }>
+}
+
+/**
+ * Get all lookup constants in a single response
+ */
+export async function getLookupConstants(): Promise<LookupConstantsResponse> {
+  try {
+    const response = await httpClient.get<{ data: LookupConstantsResponse }>(
+      DEALER_LOOKUP_ENDPOINTS.LOOKUP_CONSTANTS
+    )
+    return handleSuccess<LookupConstantsResponse>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Lookup vehicle by registration number
+ */
+export interface LookupVehicleByRegistrationData {
+  registration: string
+  advanced?: boolean
+}
+
+/**
+ * Lookup vehicle by registration number using Nummerplade API
+ */
+export async function lookupVehicleByRegistration(
+  registration: string,
+  advanced: boolean = true
+): Promise<any> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      DEALER_LOOKUP_ENDPOINTS.VEHICLE_BY_REGISTRATION,
+      {
+        registration,
+        advanced,
+      }
+    )
+    return handleSuccess<any>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
