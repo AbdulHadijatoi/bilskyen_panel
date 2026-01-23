@@ -18,13 +18,16 @@ export default createVuetify({
           background: '#ffffff', // oklch(1 0 0) - white
           surface: '#ffffff', // oklch(1 0 0) - white
           error: '#d32f2f', // oklch(0.577 0.245 27.325) - red
-          info: '#1976d2',
-          success: '#388e3c',
-          warning: '#f57c00',
+          info: '#3b82f6', // Blue accent
+          success: '#10b981', // Green accent
+          warning: '#f59e0b', // Amber accent
           'on-primary': '#ffffff', // oklch(0.985 0 0) - white
           'on-secondary': '#252525', // oklch(0.145 0 0) - dark text on secondary
           'on-background': '#252525', // oklch(0.145 0 0) - very dark gray
           'on-surface': '#252525', // oklch(0.145 0 0) - very dark gray
+          'on-info': '#ffffff',
+          'on-success': '#ffffff',
+          'on-warning': '#252525',
         },
       },
     },

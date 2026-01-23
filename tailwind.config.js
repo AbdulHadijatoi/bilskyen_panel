@@ -18,6 +18,8 @@ export default {
         primary: {
           DEFAULT: "var(--primary)",
           foreground: "var(--primary-foreground)",
+          hover: "var(--primary-hover)",
+          light: "var(--primary-light)",
         },
         secondary: {
           DEFAULT: "var(--secondary)",
@@ -34,6 +36,22 @@ export default {
         accent: {
           DEFAULT: "var(--accent)",
           foreground: "var(--accent-foreground)",
+          hover: "var(--accent-hover)",
+        },
+        success: {
+          DEFAULT: "var(--success)",
+          foreground: "var(--success-foreground)",
+          light: "var(--success-light)",
+        },
+        info: {
+          DEFAULT: "var(--info)",
+          foreground: "var(--info-foreground)",
+          light: "var(--info-light)",
+        },
+        warning: {
+          DEFAULT: "var(--warning)",
+          foreground: "var(--warning-foreground)",
+          light: "var(--warning-light)",
         },
         popover: {
           DEFAULT: "var(--popover)",
