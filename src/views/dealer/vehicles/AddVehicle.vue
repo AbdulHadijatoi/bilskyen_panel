@@ -1251,7 +1251,7 @@ const form = ref({
   fuelConsumptionWltp: null as number | null,
   
   // Step 2
-  firstRegistrationDate: null,
+  firstRegistrationDate: '',
   productionDate: '',
   registrationNumber: '',
   lastInspectionDate: '',
@@ -1266,6 +1266,8 @@ const form = ref({
   drivetrain: '',
   fuelConsumption: null as number | null,
   euroEmissionClass: '',
+  servicebog: '',
+  annualTax: null as number | null,
   
   // Step 4
   equipment: [] as string[],
@@ -1624,8 +1626,9 @@ const setCoverImage = (index: number) => {
   form.value.coverImageIndex = index
 }
 
-const handleImageUpload = (newFiles: File[]) => {
-  if (!newFiles || newFiles.length === 0) return
+const handleImageUpload = (newFiles: File | File[]) => {
+  const filesArray = Array.isArray(newFiles) ? newFiles : newFiles ? [newFiles] : []
+  if (filesArray.length === 0) return
   
   const currentCount = form.value.images.length
   const remainingSlots = 20 - currentCount
@@ -1636,7 +1639,7 @@ const handleImageUpload = (newFiles: File[]) => {
   }
   
   // Add only as many as we can fit (up to 20 total)
-  const filesToAdd = newFiles.slice(0, remainingSlots)
+  const filesToAdd = filesArray.slice(0, remainingSlots)
   form.value.images = [...form.value.images, ...filesToAdd]
 }
 
@@ -1694,12 +1697,18 @@ const handleDrop = (dropIndex: number, event: DragEvent) => {
   // Reorder images array
   const imagesArray = [...form.value.images]
   const [movedImage] = imagesArray.splice(fromIndex, 1)
+  if (!movedImage) {
+    return
+  }
   imagesArray.splice(toIndex, 0, movedImage)
   form.value.images = imagesArray
 
   // Reorder previews array
   const previewsArray = [...imagePreviews.value]
   const [movedPreview] = previewsArray.splice(fromIndex, 1)
+  if (!movedPreview) {
+    return
+  }
   previewsArray.splice(toIndex, 0, movedPreview)
   imagePreviews.value = previewsArray
 
@@ -1752,7 +1761,7 @@ const clearDraft = () => {
     fuelConsumptionWltp: null,
     
     // Step 2
-    firstRegistrationDate: null,
+    firstRegistrationDate: '',
     productionDate: '',
     registrationNumber: '',
     lastInspectionDate: '',
@@ -1767,6 +1776,8 @@ const clearDraft = () => {
     drivetrain: '',
     fuelConsumption: null,
     euroEmissionClass: '',
+    servicebog: '',
+    annualTax: null,
     
     // Step 4
     equipment: [],
@@ -2412,8 +2423,12 @@ const submitForm = async () => {
       
       // Find the first error field and navigate to its step
       const firstErrorField = Object.keys(apiError.errors)[0]
-      const stepIndex = fieldToStepMap[firstErrorField.toLowerCase()] ?? 0
-      currentStep.value = stepIndex
+      if (firstErrorField) {
+        const stepIndex = fieldToStepMap[firstErrorField.toLowerCase()] ?? 0
+        currentStep.value = stepIndex
+      } else {
+        currentStep.value = 0
+      }
       
       // Scroll to top to show error
       window.scrollTo({ top: 0, behavior: 'smooth' })

@@ -117,7 +117,7 @@ watch(
   () => props.modelValue,
   (newValue) => {
     if (newValue && newValue.match(/^\d{4}-\d{2}$/)) {
-      const [year, month] = newValue.split('-')
+      const [year = '', month = ''] = newValue.split('-')
       selectedYear.value = year
       selectedMonth.value = month
     } else if (!newValue) {

@@ -20,7 +20,6 @@
         density="compact"
         variant="outlined"
         prepend-inner-icon="mdi-calendar"
-        readonly
         clearable
         @click:clear="handleClear"
       />

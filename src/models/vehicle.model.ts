@@ -63,7 +63,6 @@ export interface VehicleModel {
   listingTypeName?: string
   images?: VehicleImageModel[]
   details?: Record<string, any>
-  equipment?: any
 }
 
 /**
@@ -135,7 +134,6 @@ export function mapVehicleFromApi(data: any): VehicleModel {
       createdAt: img.created_at,
     })),
     details: data.details,
-    equipment: data.equipment,
   }
 }
 
