@@ -18,6 +18,16 @@
         >
           Draft saved
         </v-chip>
+        <v-btn
+          v-if="showFormFields"
+          variant="outlined"
+          color="warning"
+          size="small"
+          @click="clearDraft"
+        >
+          <v-icon start>mdi-delete-sweep</v-icon>
+          Clear Draft
+        </v-btn>
       </div>
     </div>
 
@@ -164,14 +174,17 @@
                 />
               </v-col>
               <v-col cols="12" md="4">
-                <v-text-field
-                  v-model="form.model"
+                <v-autocomplete
+                  v-model="form.modelId"
+                  :items="filteredModels"
+                  item-title="name"
+                  item-value="id"
                   label="Model"
                   density="compact"
                   variant="outlined"
                   :rules="[rules.required]"
-                  :readonly="!!lookupData?.model"
-                    hide-details="auto"
+                  :disabled="!!lookupData?.model && !!form.modelId"
+                  hide-details="auto"
                 />
               </v-col>
               <v-col cols="12" md="4">
@@ -551,16 +564,49 @@
 
                 <v-divider class="my-6" />
                 <div class="mb-4">
-                  <h4 class="text-subtitle-1 font-weight-semibold mb-4">
-                    <v-icon size="20" class="mr-2">mdi-tag-outline</v-icon>
-                    Sales Type
-                  </h4>
-              <v-radio-group v-model="form.salesType" inline hide-details class="mt-0">
-                <v-radio label="Retail Sale" value="retail" density="compact" />
-                <v-radio label="Commission Sale" value="commission" density="compact" />
-                <v-radio label="Brokerage Sale" value="brokerage" density="compact" />
-                </v-radio-group>
-            </div>
+              <h4 class="text-subtitle-1 font-weight-semibold mb-4">
+                <v-icon size="20" class="mr-2">mdi-tag-outline</v-icon>
+                Sales Configuration
+              </h4>
+          <v-row dense>
+            <v-col cols="12" md="4">
+              <v-select
+                v-model="form.priceTypeId"
+                :items="priceTypes"
+                item-title="name"
+                item-value="id"
+                label="Price Type"
+                density="compact"
+                variant="outlined"
+                hide-details="auto"
+              />
+            </v-col>
+            <v-col cols="12" md="4">
+              <v-select
+                v-model="form.conditionId"
+                :items="conditions"
+                item-title="name"
+                item-value="id"
+                label="Condition"
+                density="compact"
+                variant="outlined"
+                hide-details="auto"
+              />
+            </v-col>
+            <v-col cols="12" md="4">
+              <v-select
+                v-model="form.salesTypeId"
+                :items="salesTypes"
+                item-title="name"
+                item-value="id"
+                label="Sales Type"
+                density="compact"
+                variant="outlined"
+                hide-details="auto"
+              />
+            </v-col>
+          </v-row>
+        </div>
 
                 <v-divider class="my-6" />
                 <div class="mb-4">
@@ -1016,6 +1062,31 @@ const showFormFields = computed(() => {
   return lookupSuccess.value || manualEntryMode.value
 })
 
+const selectedBrandId = computed(() => {
+  const brand = brands.value.find(b => b.name === form.value.make)
+  return brand?.id ?? null
+})
+
+const filteredModels = computed(() => {
+  if (!selectedBrandId.value) return []
+  return models.value.filter(model => model.brand_id === selectedBrandId.value)
+})
+
+const syncModelIdFromName = () => {
+  if (!form.value.model || form.value.modelId) return
+  if (!selectedBrandId.value || models.value.length === 0) return
+  const normalizedModelName = form.value.model.trim().toLowerCase()
+  if (!normalizedModelName) return
+  const matchedModel = models.value.find(
+    (model) =>
+      model.brand_id === selectedBrandId.value &&
+      model.name.toLowerCase() === normalizedModelName
+  )
+  if (matchedModel) {
+    form.value.modelId = matchedModel.id
+  }
+}
+
 // Computed property for fuel consumption label based on fuel type
 const fuelConsumptionLabel = computed(() => {
   const fuelTypeName = form.value.fuelType?.toLowerCase() || ''
@@ -1056,6 +1127,24 @@ const fuelConsumptionHint = computed(() => {
 const calculatePowerHp = (powerKw: number | null | undefined): number | null => {
   if (powerKw === null || powerKw === undefined) return null
   return Math.round(powerKw * 1.36)
+}
+
+const toNumberOrNull = (value: unknown): number | null => {
+  if (value === null || value === undefined || value === '') return null
+  const num = typeof value === 'number' ? value : Number(value)
+  return Number.isFinite(num) ? num : null
+}
+
+const toBooleanInt = (value: unknown): 0 | 1 | null => {
+  if (value === null || value === undefined || value === '') return null
+  if (typeof value === 'boolean') return value ? 1 : 0
+  if (typeof value === 'number') return value ? 1 : 0
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase()
+    if (['true', '1', 'yes', 'y'].includes(normalized)) return 1
+    if (['false', '0', 'no', 'n'].includes(normalized)) return 0
+  }
+  return null
 }
 
 // Track if description was manually edited by user
@@ -1150,6 +1239,7 @@ const form = ref({
   // Step 1
   make: '',
   model: '',
+  modelId: null as number | null,
   variant: '',
   fuelType: '',
   powerHp: null as number | null,
@@ -1181,7 +1271,9 @@ const form = ref({
   equipment: [] as string[],
   
   // Step 5
-  salesType: 'retail',
+  priceTypeId: null as number | null,
+  conditionId: null as number | null,
+  salesTypeId: null as number | null,
   retailPrice: null as number | null,
   wholesalePrice: null as number | null,
   wholesalePriceIncludesDelivery: false,
@@ -1208,6 +1300,11 @@ const brands = ref<Array<{id: number, name: string}>>([])
 const fuelTypes = ref<Array<{id: number, name: string}>>([])
 const gearTypes = ref<Array<{id: number, name: string}>>([])
 const vehicleUses = ref<Array<{id: number, name: string}>>([])
+const salesTypes = ref<Array<{id: number, name: string}>>([])
+const priceTypes = ref<Array<{id: number, name: string}>>([])
+const conditions = ref<Array<{id: number, name: string}>>([])
+const variants = ref<Array<{id: number, name: string}>>([])
+const models = ref<Array<{id: number, name: string, brand_id: number}>>([])
 const drivetrainTypes = ref<Array<{value: string, title: string}>>([])
 const equipmentTypes = ref<Array<{id: number, name: string, equipments: Array<{id: number, name: string}>}>>([])
 
@@ -1234,6 +1331,11 @@ const loadLookupData = async () => {
     fuelTypes.value = data.fuel_types || []
     gearTypes.value = data.gear_types || []
     vehicleUses.value = data.vehicle_uses || []
+    salesTypes.value = data.sales_types || []
+    priceTypes.value = data.price_types || []
+    conditions.value = data.conditions || []
+    variants.value = data.variants || []
+    models.value = data.models || []
     drivetrainTypes.value = data.drivetrain_types || []
     equipmentTypes.value = data.equipment_types || []
   } catch (error) {
@@ -1274,11 +1376,20 @@ const performLookup = async () => {
     return
   }
 
+  // Clear any saved draft/form state before applying lookup data
+  clearDraft()
+  manualEntryMode.value = false
+  lookupData.value = null
+
   lookupLoading.value = true
   lookupError.value = null
   lookupSuccess.value = false
   // Reset manual edit flag when starting new lookup
   isDescriptionManuallyEdited.value = false
+
+  if (brands.value.length === 0 || models.value.length === 0) {
+    await loadLookupData()
+  }
 
   try {
     const data = await lookupVehicleByRegistration(
@@ -1303,7 +1414,17 @@ const performLookup = async () => {
     // Map model - handle both object and string formats
     const modelName = data.model?.name || data.model_name || data.model
     if (modelName) {
-      form.value.model = typeof modelName === 'string' ? modelName : modelName.name || ''
+      const normalizedModelName = typeof modelName === 'string' ? modelName : modelName.name || ''
+      form.value.model = normalizedModelName
+      const matchedModel = models.value.find(
+        (model) => model.name.toLowerCase() === normalizedModelName.toLowerCase()
+      )
+      if (matchedModel) {
+        form.value.modelId = matchedModel.id
+      } else {
+        form.value.modelId = null
+        syncModelIdFromName()
+      }
     }
 
     // Map variant - handle both object and string formats, also check for 'version' field
@@ -1377,9 +1498,9 @@ const performLookup = async () => {
       form.value.euroEmissionClass = typeof euronormName === 'string' ? euronormName : euronormName.name || ''
     }
 
-    // Map fuel consumption (convert km/L to L/100km)
+    // Map fuel consumption
     if (data.fuel_efficiency) {
-      form.value.fuelConsumption = Math.round((100 / data.fuel_efficiency) * 100) / 100
+      form.value.fuelConsumption = data.fuel_efficiency
     }
 
     // Map drivetrain - handle both string and number formats
@@ -1610,6 +1731,91 @@ const saveAsDraft = () => {
   }, 3000)
 }
 
+const clearDraft = () => {
+  // Clear localStorage draft
+  localStorage.removeItem('add-vehicle-form-draft')
+  
+  // Reset form to initial state
+  form.value = {
+    // Step 1
+    make: '',
+  model: '',
+  modelId: null,
+    variant: '',
+    fuelType: '',
+    powerHp: null,
+    powerKw: null,
+    registrationDate: '',
+    vin: '',
+    co2Emissions: null,
+    fuelConsumptionNedc: null,
+    fuelConsumptionWltp: null,
+    
+    // Step 2
+    firstRegistrationDate: null,
+    productionDate: '',
+    registrationNumber: '',
+    lastInspectionDate: '',
+    isImport: false,
+    isFactoryNew: false,
+    odometer: 0,
+    previousUsage: '',
+    
+    // Step 3
+    engineType: '',
+    transmissionType: '',
+    drivetrain: '',
+    fuelConsumption: null,
+    euroEmissionClass: '',
+    
+    // Step 4
+    equipment: [],
+    
+  // Step 5
+  priceTypeId: null,
+  conditionId: null,
+  salesTypeId: null,
+    retailPrice: null,
+    wholesalePrice: null,
+    wholesalePriceIncludesDelivery: false,
+    priceWithoutTax: null,
+    internalCostPrice: null,
+    leasingEnabled: false,
+    leasingType: '',
+    leasingCustomerType: '',
+    leasingMonthlyPayment: null,
+    leasingFirstPayment: null,
+    leasingResidualValue: null,
+    leasingDuration: null,
+    leasingAnnualMileage: null,
+    leasingTotalCost: null,
+    
+    // Step 6 (Media)
+    images: [],
+    coverImageIndex: 0,
+    description: '',
+  }
+  
+  // Clear image previews
+  imagePreviews.value.forEach((url) => {
+    URL.revokeObjectURL(url)
+  })
+  imagePreviews.value = []
+  
+  // Reset to first step
+  currentStep.value = 0
+  
+  // Reset description manual edit flag
+  isDescriptionManuallyEdited.value = false
+  
+  // Clear any errors
+  submitError.value = null
+  validationErrors.value = {}
+  
+  // Show feedback
+  draftSaved.value = false
+}
+
 const submitForm = async () => {
   if (!formRef.value) return
 
@@ -1663,43 +1869,78 @@ const submitForm = async () => {
     const titleParts = [form.value.make, form.value.model, form.value.variant].filter(Boolean)
     const title = titleParts.join(' ') || `${form.value.make} ${form.value.model}`
 
-    // Start with Nummerplade API data if available (user data will override)
+    // Define nummerpladeData from lookupData (API response)
     const nummerpladeData = lookupData.value || {}
-    
+
     const vehicleData: any = {
       title: title,
-      registration: form.value.registrationNumber || nummerpladeData.registration,
-      vin: form.value.vin || nummerpladeData.vin,
+      registration: form.value.registrationNumber,
+      vin: form.value.vin,
       brand_id: brand.id,
-      brand_name: form.value.make, // Also send name for auto-creation if needed
-      model_name: form.value.model || nummerpladeData.model_name || nummerpladeData.model, // Send model name for auto-creation
+      model_id: form.value.modelId ?? undefined,
       version: form.value.variant || nummerpladeData.version || nummerpladeData.variant, // variant maps to version in Vehicle model
       fuel_type_id: fuelType.id,
-      price: form.value.retailPrice || 0,
-      km_driven: form.value.odometer || nummerpladeData.last_inspection_odometer,
+      price: toNumberOrNull(form.value.retailPrice) ?? 0,
+      km_driven: toNumberOrNull(form.value.odometer) ?? toNumberOrNull(nummerpladeData.last_inspection_odometer),
       description: form.value.description,
       images: form.value.images,
-      equipment: form.value.equipment.map(id => parseInt(id)), // Convert to numbers
+      equipment_ids: form.value.equipment.map(id => parseInt(id)), // Convert to numbers - use equipment_ids to match sell-your-car
       vehicle_list_status_id: 1, // Default to draft/unpublished - adjust as needed
+      // published_at will be set automatically when vehicle is published (don't set to null)
     }
 
-    // Add model_year from Nummerplade API if available
-    if (nummerpladeData.model_year) {
-      vehicleData.model_year = nummerpladeData.model_year
-      vehicleData.model_year_name = String(nummerpladeData.model_year)
+    const variantName = String(
+      form.value.variant ||
+        nummerpladeData.variant?.name ||
+        nummerpladeData.version?.name ||
+        nummerpladeData.version ||
+        nummerpladeData.variant ||
+        ''
+    ).trim()
+    if (variantName) {
+      const matchedVariant = variants.value.find(
+        (variant) => variant.name.toLowerCase() === variantName.toLowerCase()
+      )
+      if (matchedVariant) {
+        vehicleData.variant_id = matchedVariant.id
+      } else {
+        vehicleData.variant = variantName
+      }
     }
 
-    // Add towing_weight from Nummerplade API if available
-    if (nummerpladeData.towing_weight) {
-      vehicleData.towing_weight = nummerpladeData.towing_weight
+    // Add model_year_id from Nummerplade API if available
+    if (nummerpladeData.model_year?.id) {
+      const modelYearId = toNumberOrNull(nummerpladeData.model_year.id)
+      if (modelYearId !== null) {
+        vehicleData.model_year_id = modelYearId
+      }
+    } else if (typeof nummerpladeData.model_year === 'number') {
+      const modelYearId = toNumberOrNull(nummerpladeData.model_year)
+      if (modelYearId !== null) {
+        vehicleData.model_year_id = modelYearId
+      }
+    }
+
+    // Add towing_weight from Nummerplade API if available (including 0)
+    if (nummerpladeData.towing_weight !== undefined && nummerpladeData.towing_weight !== null) {
+      const towingWeight = toNumberOrNull(nummerpladeData.towing_weight)
+      if (towingWeight !== null) {
+        vehicleData.towing_weight = towingWeight
+      }
     }
 
     // Add fuel_efficiency from Nummerplade API if available (convert km/L to L/100km if needed)
-    if (nummerpladeData.fuel_efficiency) {
-      // Nummerplade returns km/L, but we might have already converted it in the form
-      // Only use API value if form doesn't have it
-      if (!form.value.fuelConsumption) {
-        vehicleData.fuel_efficiency = nummerpladeData.fuel_efficiency
+    // fuel_efficiency goes to vehicles table, not vehicle_details
+    if (form.value.fuelConsumption !== null && form.value.fuelConsumption !== undefined) {
+      const fuelEfficiency = toNumberOrNull(form.value.fuelConsumption)
+      if (fuelEfficiency !== null) {
+        vehicleData.fuel_efficiency = fuelEfficiency
+      }
+    } else if (nummerpladeData.fuel_efficiency !== undefined && nummerpladeData.fuel_efficiency !== null) {
+      // Nummerplade returns km/L
+      const fuelEfficiency = toNumberOrNull(nummerpladeData.fuel_efficiency)
+      if (fuelEfficiency !== null) {
+        vehicleData.fuel_efficiency = fuelEfficiency
       }
     }
 
@@ -1728,8 +1969,11 @@ const submitForm = async () => {
     }
 
     // Add optional fields
-    if (form.value.powerKw) {
-      vehicleData.engine_power = Math.round(form.value.powerKw) // Convert kW to integer
+    if (form.value.powerKw !== null && form.value.powerKw !== undefined) {
+      const enginePower = toNumberOrNull(form.value.powerKw)
+      if (enginePower !== null) {
+        vehicleData.engine_power = Math.round(enginePower) // Convert kW to integer
+      }
     }
     
     // Transmission type - find gear_type_id if transmissionType matches a gear type
@@ -1758,20 +2002,30 @@ const submitForm = async () => {
     }
 
     // Additional optional fields that go to vehicle_details
-    if (form.value.co2Emissions) {
-      vehicleData.co2_emissions = form.value.co2Emissions
+    if (form.value.co2Emissions !== null && form.value.co2Emissions !== undefined) {
+      const co2Emissions = toNumberOrNull(form.value.co2Emissions)
+      if (co2Emissions !== null) {
+        vehicleData.co2_emissions = co2Emissions
+      }
     }
-    if (form.value.fuelConsumptionWltp) {
-      vehicleData.fuel_consumption_wltp = form.value.fuelConsumptionWltp
+    if (form.value.fuelConsumptionWltp !== null && form.value.fuelConsumptionWltp !== undefined) {
+      const fuelConsumptionWltp = toNumberOrNull(form.value.fuelConsumptionWltp)
+      if (fuelConsumptionWltp !== null) {
+        vehicleData.fuel_consumption_wltp = fuelConsumptionWltp
+      }
     }
-    if (form.value.fuelConsumptionNedc) {
-      vehicleData.fuel_consumption_nedc = form.value.fuelConsumptionNedc
+    if (form.value.fuelConsumptionNedc !== null && form.value.fuelConsumptionNedc !== undefined) {
+      const fuelConsumptionNedc = toNumberOrNull(form.value.fuelConsumptionNedc)
+      if (fuelConsumptionNedc !== null) {
+        vehicleData.fuel_consumption_nedc = fuelConsumptionNedc
+      }
     }
-    if (form.value.fuelConsumption) {
-      vehicleData.fuel_efficiency = form.value.fuelConsumption
-    }
+    // fuel_efficiency is already set above from form or API data
     if (form.value.euroEmissionClass) {
-      vehicleData.euronorm = form.value.euroEmissionClass
+      const euroEmissionValue = String(form.value.euroEmissionClass).trim()
+      if (/^\d+$/.test(euroEmissionValue)) {
+        vehicleData.euronom_id = Number(euroEmissionValue)
+      }
     }
     if (form.value.engineType) {
       vehicleData.engine_type = form.value.engineType
@@ -1779,24 +2033,53 @@ const submitForm = async () => {
     if (form.value.drivetrain) {
       vehicleData.drive_axles = form.value.drivetrain === 'FWD' ? 1 : (form.value.drivetrain === 'AWD' ? 2 : null)
     }
-    if (form.value.salesType) {
-      // Find sales_type_id from sales type name if needed
-      vehicleData.sales_type = form.value.salesType
+    if (form.value.priceTypeId !== null && form.value.priceTypeId !== undefined) {
+      const priceTypeId = toNumberOrNull(form.value.priceTypeId)
+      if (priceTypeId !== null) {
+        vehicleData.price_type_id = priceTypeId
+      }
     }
-    if (form.value.wholesalePrice) {
-      vehicleData.wholesale_price = form.value.wholesalePrice
+    if (form.value.conditionId !== null && form.value.conditionId !== undefined) {
+      const conditionId = toNumberOrNull(form.value.conditionId)
+      if (conditionId !== null) {
+        vehicleData.condition_id = conditionId
+      }
     }
-    if (form.value.internalCostPrice) {
-      vehicleData.internal_cost_price = form.value.internalCostPrice
+    if (form.value.salesTypeId !== null && form.value.salesTypeId !== undefined) {
+      const salesTypeId = toNumberOrNull(form.value.salesTypeId)
+      if (salesTypeId !== null) {
+        vehicleData.sales_type_id = salesTypeId
+      }
+    }
+    if (form.value.wholesalePrice !== null && form.value.wholesalePrice !== undefined) {
+      const wholesalePrice = toNumberOrNull(form.value.wholesalePrice)
+      if (wholesalePrice !== null) {
+        vehicleData.wholesale_price = wholesalePrice
+      }
+    }
+    if (form.value.internalCostPrice !== null && form.value.internalCostPrice !== undefined) {
+      const internalCostPrice = toNumberOrNull(form.value.internalCostPrice)
+      if (internalCostPrice !== null) {
+        vehicleData.internal_cost_price = internalCostPrice
+      }
     }
     if (form.value.isImport !== undefined) {
-      vehicleData.is_import = form.value.isImport
+      const isImport = toBooleanInt(form.value.isImport)
+      if (isImport !== null) {
+        vehicleData.is_import = isImport
+      }
     }
     if (form.value.isFactoryNew !== undefined) {
-      vehicleData.is_factory_new = form.value.isFactoryNew
+      const isFactoryNew = toBooleanInt(form.value.isFactoryNew)
+      if (isFactoryNew !== null) {
+        vehicleData.is_factory_new = isFactoryNew
+      }
     }
-    if (form.value.coverImageIndex !== undefined) {
-      vehicleData.cover_image_index = form.value.coverImageIndex
+    if (form.value.coverImageIndex !== undefined && form.value.coverImageIndex !== null) {
+      const coverImageIndex = toNumberOrNull(form.value.coverImageIndex)
+      if (coverImageIndex !== null) {
+        vehicleData.cover_image_index = coverImageIndex
+      }
     }
 
     // ============================================
@@ -1806,7 +2089,10 @@ const submitForm = async () => {
     
     // Vehicle external ID (Nummerplade's vehicle_id)
     if (nummerpladeData.vehicle_id) {
-      vehicleData.vehicle_external_id = nummerpladeData.vehicle_id
+      const vehicleExternalId = toNumberOrNull(nummerpladeData.vehicle_id)
+      if (vehicleExternalId !== null) {
+        vehicleData.vehicle_external_id = vehicleExternalId
+      }
     }
 
     // VIN location
@@ -1829,7 +2115,8 @@ const submitForm = async () => {
     if (nummerpladeData.registration_status_updated_date) {
       vehicleData.registration_status_updated_date = nummerpladeData.registration_status_updated_date
     }
-    if (nummerpladeData.expire_date) {
+    // expire_date - send even if null (null means no expiration)
+    if (nummerpladeData.expire_date !== undefined) {
       vehicleData.expire_date = nummerpladeData.expire_date
     }
     if (nummerpladeData.status_updated_date) {
@@ -1837,34 +2124,63 @@ const submitForm = async () => {
     }
 
     // Weight fields
-    if (nummerpladeData.total_weight) {
-      vehicleData.total_weight = nummerpladeData.total_weight
+    if (nummerpladeData.total_weight !== undefined && nummerpladeData.total_weight !== null) {
+      const totalWeight = toNumberOrNull(nummerpladeData.total_weight)
+      if (totalWeight !== null) {
+        vehicleData.total_weight = totalWeight
+      }
     }
-    if (nummerpladeData.vehicle_weight !== undefined) {
-      vehicleData.vehicle_weight = nummerpladeData.vehicle_weight
+    if (nummerpladeData.vehicle_weight !== undefined && nummerpladeData.vehicle_weight !== null) {
+      const vehicleWeight = toNumberOrNull(nummerpladeData.vehicle_weight)
+      if (vehicleWeight !== null) {
+        vehicleData.vehicle_weight = vehicleWeight
+      }
     }
-    if (nummerpladeData.technical_total_weight) {
-      vehicleData.technical_total_weight = nummerpladeData.technical_total_weight
+    if (nummerpladeData.technical_total_weight !== undefined && nummerpladeData.technical_total_weight !== null) {
+      const technicalTotalWeight = toNumberOrNull(nummerpladeData.technical_total_weight)
+      if (technicalTotalWeight !== null) {
+        vehicleData.technical_total_weight = technicalTotalWeight
+      }
     }
-    if (nummerpladeData.coupling !== undefined) {
-      vehicleData.coupling = nummerpladeData.coupling
+    if (nummerpladeData.coupling !== undefined && nummerpladeData.coupling !== null) {
+      const coupling = toBooleanInt(nummerpladeData.coupling)
+      if (coupling !== null) {
+        vehicleData.coupling = coupling
+      }
     }
-    if (nummerpladeData.towing_weight_brakes) {
-      vehicleData.towing_weight_brakes = nummerpladeData.towing_weight_brakes
+    // towing_weight_brakes - send even if 0
+    if (nummerpladeData.towing_weight_brakes !== undefined && nummerpladeData.towing_weight_brakes !== null) {
+      const towingWeightBrakes = toNumberOrNull(nummerpladeData.towing_weight_brakes)
+      if (towingWeightBrakes !== null) {
+        vehicleData.towing_weight_brakes = towingWeightBrakes
+      }
     }
-    if (nummerpladeData.minimum_weight) {
-      vehicleData.minimum_weight = nummerpladeData.minimum_weight
+    if (nummerpladeData.minimum_weight !== undefined && nummerpladeData.minimum_weight !== null) {
+      const minimumWeight = toNumberOrNull(nummerpladeData.minimum_weight)
+      if (minimumWeight !== null) {
+        vehicleData.minimum_weight = minimumWeight
+      }
     }
-    if (nummerpladeData.gross_combination_weight) {
-      vehicleData.gross_combination_weight = nummerpladeData.gross_combination_weight
+    // gross_combination_weight - send even if 0
+    if (nummerpladeData.gross_combination_weight !== undefined && nummerpladeData.gross_combination_weight !== null) {
+      const grossCombinationWeight = toNumberOrNull(nummerpladeData.gross_combination_weight)
+      if (grossCombinationWeight !== null) {
+        vehicleData.gross_combination_weight = grossCombinationWeight
+      }
     }
 
-    // Engine details
-    if (nummerpladeData.engine_displacement) {
-      vehicleData.engine_displacement = nummerpladeData.engine_displacement
+    // Engine details - send even if 0
+    if (nummerpladeData.engine_displacement !== undefined && nummerpladeData.engine_displacement !== null) {
+      const engineDisplacement = toNumberOrNull(nummerpladeData.engine_displacement)
+      if (engineDisplacement !== null) {
+        vehicleData.engine_displacement = engineDisplacement
+      }
     }
-    if (nummerpladeData.engine_cylinders) {
-      vehicleData.engine_cylinders = nummerpladeData.engine_cylinders
+    if (nummerpladeData.engine_cylinders !== undefined && nummerpladeData.engine_cylinders !== null) {
+      const engineCylinders = toNumberOrNull(nummerpladeData.engine_cylinders)
+      if (engineCylinders !== null) {
+        vehicleData.engine_cylinders = engineCylinders
+      }
     }
     if (nummerpladeData.engine_code) {
       vehicleData.engine_code = nummerpladeData.engine_code
@@ -1879,8 +2195,12 @@ const submitForm = async () => {
     if (nummerpladeData.last_inspection_result) {
       vehicleData.last_inspection_result = nummerpladeData.last_inspection_result
     }
-    if (nummerpladeData.last_inspection_odometer && !form.value.odometer) {
-      vehicleData.last_inspection_odometer = nummerpladeData.last_inspection_odometer
+    // last_inspection_odometer - always send from API if available (even if 0)
+    if (nummerpladeData.last_inspection_odometer !== undefined && nummerpladeData.last_inspection_odometer !== null) {
+      const lastInspectionOdometer = toNumberOrNull(nummerpladeData.last_inspection_odometer)
+      if (lastInspectionOdometer !== null) {
+        vehicleData.last_inspection_odometer = lastInspectionOdometer
+      }
     }
 
     // Type approval code
@@ -1889,24 +2209,36 @@ const submitForm = async () => {
     }
 
     // Top speed
-    if (nummerpladeData.top_speed) {
-      vehicleData.top_speed = nummerpladeData.top_speed
+    if (nummerpladeData.top_speed !== undefined && nummerpladeData.top_speed !== null) {
+      const topSpeed = toNumberOrNull(nummerpladeData.top_speed)
+      if (topSpeed !== null) {
+        vehicleData.top_speed = topSpeed
+      }
     }
 
     // Doors and seats
-    if (nummerpladeData.doors) {
-      vehicleData.doors = nummerpladeData.doors
+    if (nummerpladeData.doors !== undefined && nummerpladeData.doors !== null) {
+      const doors = toNumberOrNull(nummerpladeData.doors)
+      if (doors !== null) {
+        vehicleData.doors = doors
+      }
     }
-    if (nummerpladeData.minimum_seats) {
-      vehicleData.minimum_seats = nummerpladeData.minimum_seats
+    if (nummerpladeData.minimum_seats !== undefined && nummerpladeData.minimum_seats !== null) {
+      const minimumSeats = toNumberOrNull(nummerpladeData.minimum_seats)
+      if (minimumSeats !== null) {
+        vehicleData.minimum_seats = minimumSeats
+      }
     }
-    if (nummerpladeData.maximum_seats) {
-      vehicleData.maximum_seats = nummerpladeData.maximum_seats
+    if (nummerpladeData.maximum_seats !== undefined && nummerpladeData.maximum_seats !== null) {
+      const maximumSeats = toNumberOrNull(nummerpladeData.maximum_seats)
+      if (maximumSeats !== null) {
+        vehicleData.maximum_seats = maximumSeats
+      }
     }
 
     // Wheels
-    if (nummerpladeData.wheels) {
-      vehicleData.wheels = nummerpladeData.wheels
+    if (nummerpladeData.wheels !== undefined && nummerpladeData.wheels !== null) {
+      vehicleData.wheels = String(nummerpladeData.wheels)
     }
 
     // Extra equipment
@@ -1915,23 +2247,27 @@ const submitForm = async () => {
     }
 
     // Axles (convert string to int if needed)
-    if (nummerpladeData.axles) {
-      vehicleData.axles = typeof nummerpladeData.axles === 'string' 
-        ? parseInt(nummerpladeData.axles, 10) 
-        : nummerpladeData.axles
+    if (nummerpladeData.axles !== undefined && nummerpladeData.axles !== null) {
+      const axles = toNumberOrNull(nummerpladeData.axles)
+      if (axles !== null) {
+        vehicleData.axles = axles
+      }
     }
 
     // Drive axles (already handled above, but ensure it's set from API if not in form)
-    if (!form.value.drivetrain && nummerpladeData.drive_axles !== undefined) {
-      const driveAxlesNum = typeof nummerpladeData.drive_axles === 'string' 
-        ? parseInt(nummerpladeData.drive_axles, 10) 
-        : nummerpladeData.drive_axles
-      vehicleData.drive_axles = driveAxlesNum
+    if (!form.value.drivetrain && nummerpladeData.drive_axles !== undefined && nummerpladeData.drive_axles !== null) {
+      const driveAxlesNum = toNumberOrNull(nummerpladeData.drive_axles)
+      if (driveAxlesNum !== null) {
+        vehicleData.drive_axles = driveAxlesNum
+      }
     }
 
     // Wheelbase
-    if (nummerpladeData.wheelbase) {
-      vehicleData.wheelbase = nummerpladeData.wheelbase
+    if (nummerpladeData.wheelbase !== undefined && nummerpladeData.wheelbase !== null) {
+      const wheelbase = toNumberOrNull(nummerpladeData.wheelbase)
+      if (wheelbase !== null) {
+        vehicleData.wheelbase = wheelbase
+      }
     }
 
     // Color - send ID if available from Nummerplade API
@@ -1949,25 +2285,42 @@ const submitForm = async () => {
     }
 
     // Safety features
-    if (nummerpladeData.ncap_five !== undefined) {
-      vehicleData.ncap_five = nummerpladeData.ncap_five
+    if (nummerpladeData.ncap_five !== undefined && nummerpladeData.ncap_five !== null) {
+      const ncapFive = toBooleanInt(nummerpladeData.ncap_five)
+      if (ncapFive !== null) {
+        vehicleData.ncap_five = ncapFive
+      }
     }
-    if (nummerpladeData.airbags !== undefined) {
-      vehicleData.airbags = nummerpladeData.airbags
+    if (nummerpladeData.airbags !== undefined && nummerpladeData.airbags !== null) {
+      const airbags = toNumberOrNull(nummerpladeData.airbags)
+      if (airbags !== null) {
+        vehicleData.airbags = airbags
+      }
     }
-    if (nummerpladeData.integrated_child_seats !== undefined) {
-      vehicleData.integrated_child_seats = nummerpladeData.integrated_child_seats
+    if (nummerpladeData.integrated_child_seats !== undefined && nummerpladeData.integrated_child_seats !== null) {
+      const integratedChildSeats = toNumberOrNull(nummerpladeData.integrated_child_seats)
+      if (integratedChildSeats !== null) {
+        vehicleData.integrated_child_seats = integratedChildSeats
+      }
     }
-    if (nummerpladeData.seat_belt_alarms !== undefined) {
-      vehicleData.seat_belt_alarms = nummerpladeData.seat_belt_alarms
+    if (nummerpladeData.seat_belt_alarms !== undefined && nummerpladeData.seat_belt_alarms !== null) {
+      const seatBeltAlarms = toNumberOrNull(nummerpladeData.seat_belt_alarms)
+      if (seatBeltAlarms !== null) {
+        vehicleData.seat_belt_alarms = seatBeltAlarms
+      }
     }
 
-    // Euro norm - send as euronorm string
-    // The backend VehicleService doesn't currently handle euronorm -> euronom_id conversion
-    // in createVehicle, but we send it anyway. The field will go to vehicle_details as-is
-    // or backend can be updated later to handle the conversion
-    if (nummerpladeData.euronorm) {
-      vehicleData.euronorm = nummerpladeData.euronorm
+    // Euro norm - send as euronorm_id if available
+    if (nummerpladeData.euronorm?.id) {
+      const euronomId = toNumberOrNull(nummerpladeData.euronorm.id)
+      if (euronomId !== null) {
+        vehicleData.euronom_id = euronomId
+      }
+    } else if (typeof nummerpladeData.euronorm === 'number') {
+      const euronomId = toNumberOrNull(nummerpladeData.euronorm)
+      if (euronomId !== null) {
+        vehicleData.euronom_id = euronomId
+      }
     }
 
     // Permits - convert array to JSON string
@@ -1980,12 +2333,45 @@ const submitForm = async () => {
       vehicleData.dispensations = JSON.stringify(nummerpladeData.dispensations)
     }
 
-    // Leasing period
-    if (nummerpladeData.leasing_period_start) {
+    // Leasing period - send even if null (null means no leasing period)
+    if (nummerpladeData.leasing_period_start !== undefined) {
       vehicleData.leasing_period_start = nummerpladeData.leasing_period_start
     }
-    if (nummerpladeData.leasing_period_end) {
+    if (nummerpladeData.leasing_period_end !== undefined) {
       vehicleData.leasing_period_end = nummerpladeData.leasing_period_end
+    }
+
+    // Variant ID - if variant is selected from form, send variant_id for vehicle_details
+    if (form.value.variant) {
+      // Try to find variant ID from lookup data if available
+      // Note: variant maps to version in vehicles table, but variant_id goes to vehicle_details
+      // For now, we'll let the backend handle variant creation if needed
+    }
+
+    // Type ID - if type is available from Nummerplade API
+    if (nummerpladeData.type && typeof nummerpladeData.type === 'object' && nummerpladeData.type.id) {
+      const typeId = toNumberOrNull(nummerpladeData.type.id)
+      if (typeId !== null) {
+        vehicleData.type_id = typeId
+      }
+    }
+
+    // Servicebog - from form if available
+    if (form.value.servicebog) {
+      vehicleData.servicebog = form.value.servicebog
+    }
+
+    // Annual tax - from form or API if available
+    if (form.value.annualTax !== null && form.value.annualTax !== undefined) {
+      const annualTax = toNumberOrNull(form.value.annualTax)
+      if (annualTax !== null) {
+        vehicleData.annual_tax = annualTax
+      }
+    } else if (nummerpladeData.annual_tax !== undefined && nummerpladeData.annual_tax !== null) {
+      const annualTax = toNumberOrNull(nummerpladeData.annual_tax)
+      if (annualTax !== null) {
+        vehicleData.annual_tax = annualTax
+      }
     }
 
     await createVehicle(vehicleData)
@@ -2048,6 +2434,38 @@ watch(
   () => form.value.powerKw,
   (newPowerKw) => {
     form.value.powerHp = calculatePowerHp(newPowerKw)
+  }
+)
+
+watch(
+  () => form.value.modelId,
+  (newModelId) => {
+    if (!newModelId) {
+      form.value.model = ''
+      return
+    }
+    const selectedModel = models.value.find(model => model.id === newModelId)
+    if (selectedModel) {
+      form.value.model = selectedModel.name
+    }
+  }
+)
+
+watch(
+  () => [models.value, form.value.model, form.value.make],
+  () => {
+    syncModelIdFromName()
+  },
+  { deep: true }
+)
+
+watch(
+  () => form.value.make,
+  (newMake, oldMake) => {
+    if (newMake !== oldMake) {
+      form.value.modelId = null
+      form.value.model = ''
+    }
   }
 )
 

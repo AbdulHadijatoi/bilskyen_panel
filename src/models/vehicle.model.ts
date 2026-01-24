@@ -26,10 +26,16 @@ export interface VehicleModel {
   vin?: string
   title?: string
   description?: string
+  brandName?: string
+  modelName?: string
+  modelYearName?: string
   price: number
   mileage?: number
   year?: number
+  kmDriven?: number
   fuelTypeId?: number
+  enginePower?: number
+  towingWeight?: number
   transmissionId?: number
   bodyType?: string
   hasCarplay?: boolean
@@ -38,6 +44,7 @@ export interface VehicleModel {
   specs?: Record<string, any>
   equipment?: string[] | Record<string, any>
   vehicleListStatusId?: number
+  vehicleListStatusName?: string
   status?: VehicleStatus
   publishedAt?: string
   viewsCount?: number
@@ -51,7 +58,12 @@ export interface VehicleModel {
   location?: any
   fuelType?: any
   transmission?: any
+  gearTypeName?: string
+  fuelTypeName?: string
+  listingTypeName?: string
   images?: VehicleImageModel[]
+  details?: Record<string, any>
+  equipment?: any
 }
 
 /**
@@ -80,10 +92,16 @@ export function mapVehicleFromApi(data: any): VehicleModel {
     vin: data.vin,
     title: data.title,
     description: data.description,
+    brandName: data.brand_name,
+    modelName: data.model_name,
+    modelYearName: data.model_year_name,
     price: data.price ?? 0,
     mileage: data.mileage,
     year: data.year,
+    kmDriven: data.km_driven,
     fuelTypeId: data.fuel_type_id,
+    enginePower: data.engine_power,
+    towingWeight: data.towing_weight,
     transmissionId: data.transmission_id,
     bodyType: data.body_type,
     hasCarplay: data.has_carplay ?? false,
@@ -92,6 +110,7 @@ export function mapVehicleFromApi(data: any): VehicleModel {
     specs: data.specs,
     equipment: data.equipment,
     vehicleListStatusId: data.vehicle_list_status_id,
+    vehicleListStatusName: data.vehicle_list_status_name,
     status: data.status,
     publishedAt: data.published_at,
     viewsCount: data.views_count ?? 0,
@@ -103,15 +122,20 @@ export function mapVehicleFromApi(data: any): VehicleModel {
     location: data.location,
     fuelType: data.fuel_type,
     transmission: data.transmission,
+    gearTypeName: data.gear_type_name,
+    fuelTypeName: data.fuel_type_name,
+    listingTypeName: data.listing_type_name,
     images: data.images?.map((img: any) => ({
       id: img.id,
       vehicleId: img.vehicle_id,
-      url: img.url,
-      path: img.path,
-      order: img.order,
+      url: img.url ?? img.image_url ?? img.thumbnail_url ?? img.thumbnail_path,
+      path: img.path ?? img.image_path ?? img.thumbnail_path,
+      order: img.order ?? img.sort_order,
       isPrimary: img.is_primary,
       createdAt: img.created_at,
     })),
+    details: data.details,
+    equipment: data.equipment,
   }
 }
 

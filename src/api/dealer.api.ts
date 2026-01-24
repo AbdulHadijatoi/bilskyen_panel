@@ -133,17 +133,19 @@ export async function createVehicle(
       })
     }
     
-    // Handle equipment separately - send as equipment[] array for Laravel
-    if (data.equipment && Array.isArray(data.equipment) && data.equipment.length > 0) {
-      data.equipment.forEach((equipmentId: number | string) => {
-        formData.append('equipment[]', String(equipmentId))
+    // Handle equipment_ids separately - send as equipment_ids[] array for Laravel (matches sell-your-car)
+    // Also support legacy 'equipment' key for backward compatibility
+    const equipmentArray = data.equipment_ids || data.equipment
+    if (equipmentArray && Array.isArray(equipmentArray) && equipmentArray.length > 0) {
+      equipmentArray.forEach((equipmentId: number | string) => {
+        formData.append('equipment_ids[]', String(equipmentId))
       })
     }
     
     // Handle other fields
     Object.keys(data).forEach((key) => {
-      // Skip images and equipment as we already handled them above
-      if (key === 'images' || key === 'equipment') {
+      // Skip images, equipment, and equipment_ids as we already handled them above
+      if (key === 'images' || key === 'equipment' || key === 'equipment_ids') {
         return
       }
       
@@ -811,6 +813,11 @@ export interface LookupConstantsResponse {
   fuel_types: Array<{ id: number; name: string }>
   gear_types: Array<{ id: number; name: string }>
   vehicle_uses: Array<{ id: number; name: string }>
+  sales_types: Array<{ id: number; name: string }>
+  price_types: Array<{ id: number; name: string }>
+  conditions: Array<{ id: number; name: string }>
+  variants: Array<{ id: number; name: string }>
+  models: Array<{ id: number; name: string; brand_id: number }>
   equipment_types: Array<{
     id: number
     name: string
