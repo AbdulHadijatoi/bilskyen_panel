@@ -1896,7 +1896,7 @@ const submitForm = async () => {
       description: form.value.description,
       images: form.value.images,
       equipment_ids: form.value.equipment.map(id => parseInt(id)), // Convert to numbers - use equipment_ids to match sell-your-car
-      vehicle_list_status_id: 1, // Default to draft/unpublished - adjust as needed
+      vehicle_list_status_id: 2, // Default to draft/unpublished - adjust as needed
       // published_at will be set automatically when vehicle is published (don't set to null)
     }
 
