@@ -183,7 +183,6 @@
                   density="compact"
                   variant="outlined"
                   :rules="[rules.required]"
-                  :disabled="!!lookupData?.model && !!form.modelId"
                   hide-details="auto"
                 />
               </v-col>
@@ -294,6 +293,19 @@
                             hide-details="auto"
                           />
                         </v-col>
+                        <v-col cols="12" md="4">
+                          <v-text-field
+                            v-model.number="form.fuelConsumption"
+                            :label="fuelConsumptionLabel"
+                            :hint="fuelConsumptionHint"
+                            persistent-hint
+                            type="number"
+                            step="any"
+                            density="compact"
+                            variant="outlined"
+                            hide-details="auto"
+                          />
+                        </v-col>
                       </v-row>
                     </div>
                   </div>
@@ -350,22 +362,38 @@
                 />
               </v-col>
               <v-col cols="12" md="4">
-                <v-switch
-                  v-model="form.isImport"
-                    label="Import Vehicle"
-                  density="compact"
-                  color="primary"
+                <div 
+                  class="checkbox-button-field"
+                  :class="{ 'checkbox-button-field--checked': form.isImport }"
+                  @click="form.isImport = !form.isImport"
+                >
+                  <v-checkbox
+                    v-model="form.isImport"
+                    density="compact"
+                    color="primary"
                     hide-details
+                    class="checkbox-button-field__checkbox"
+                    @click.stop
                   />
+                  <span class="checkbox-button-field__label">Import Vehicle</span>
+                </div>
               </v-col>
               <v-col cols="12" md="4">
-                <v-switch
-                  v-model="form.isFactoryNew"
-                  label="Factory New"
-                  density="compact"
-                  color="primary"
+                <div 
+                  class="checkbox-button-field"
+                  :class="{ 'checkbox-button-field--checked': form.isFactoryNew }"
+                  @click="form.isFactoryNew = !form.isFactoryNew"
+                >
+                  <v-checkbox
+                    v-model="form.isFactoryNew"
+                    density="compact"
+                    color="primary"
                     hide-details
+                    class="checkbox-button-field__checkbox"
+                    @click.stop
                   />
+                  <span class="checkbox-button-field__label">Factory New</span>
+                </div>
               </v-col>
             </v-row>
             </div>
@@ -385,17 +413,6 @@
                   density="compact"
                   variant="outlined"
                   :rules="[rules.required, rules.odometer]"
-                    hide-details="auto"
-                />
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-select
-                  v-model="form.previousUsage"
-                  :items="vehicleUses.map(u => u.name)"
-                  label="Previous Usage"
-                  density="compact"
-                  variant="outlined"
-                  :rules="[rules.required]"
                     hide-details="auto"
                 />
               </v-col>
@@ -665,23 +682,30 @@
                 />
               </v-col>
               <v-col cols="12" md="4">
-                <v-switch
-                  v-model="form.wholesalePriceIncludesDelivery"
-                  label="Wholesale price includes delivery"
-                  density="compact"
-                  color="primary"
+                <div 
+                  class="checkbox-button-field"
+                  :class="{ 'checkbox-button-field--checked': form.wholesalePriceIncludesDelivery }"
+                  @click="form.wholesalePriceIncludesDelivery = !form.wholesalePriceIncludesDelivery"
+                >
+                  <v-checkbox
+                    v-model="form.wholesalePriceIncludesDelivery"
+                    density="compact"
+                    color="primary"
                     hide-details
-                />
+                    class="checkbox-button-field__checkbox"
+                    @click.stop
+                  />
+                  <span class="checkbox-button-field__label">Wholesale price includes delivery</span>
+                </div>
               </v-col>
             </v-row>
             </div>
 
-            <v-expand-transition>
-              <div v-if="form.leasingEnabled" class="form-section mt-4">
-                <div class="section-title mb-3">
-                  <v-icon size="18" class="mr-2">mdi-calendar-clock</v-icon>
-                  <span class="text-subtitle-2 font-weight-medium">Leasing Details</span>
-                </div>
+            <div class="form-section mt-4">
+              <div class="section-title mb-3">
+                <v-icon size="18" class="mr-2">mdi-calendar-clock</v-icon>
+                <span class="text-subtitle-2 font-weight-medium">Leasing Details (Optional)</span>
+              </div>
                 <v-row dense>
                 <v-col cols="12" md="4">
                   <v-select
@@ -768,17 +792,6 @@
                   />
                 </v-col>
             </v-row>
-          </div>
-            </v-expand-transition>
-
-            <div class="form-section mt-4">
-              <v-switch
-                v-model="form.leasingEnabled"
-                label="Enable Leasing"
-                density="compact"
-                color="primary"
-                hide-details
-              />
             </div>
                 </div>
               </template>
@@ -802,22 +815,46 @@
                       {{ imagePreviews.length }}/20
                     </v-chip>
                   </h4>
-                <v-file-input
-                  :model-value="[]"
-                  @update:model-value="handleImageUpload"
-                label="Upload Images"
-                  multiple
-                  accept="image/*"
-                  density="compact"
-                  variant="outlined"
-                  prepend-icon="mdi-camera"
-                hint="Upload 1-20 images. First image will be used as cover."
-                  persistent-hint
-                  :error="form.images.length === 0"
-                  :error-messages="form.images.length === 0 ? ['Please upload at least 1 image'] : []"
-                hide-details="auto"
-                class="mb-4"
-              />
+                  
+                  <!-- Custom Upload Dropzone -->
+                  <div 
+                    class="image-upload-area"
+                    :class="{ 'has-images': imagePreviews.length > 0 }"
+                  >
+                    <input 
+                      type="file" 
+                      ref="fileInputRef"
+                      id="vehicle-images-input"
+                      multiple 
+                      accept="image/*"
+                      class="image-input"
+                      @change="handleFileInputChange"
+                    >
+                    <label 
+                      for="vehicle-images-input"
+                      class="upload-dropzone"
+                      :class="{ 'drag-over': isDragOver }"
+                      @dragover.prevent="handleDragOverDropzone"
+                      @dragenter.prevent="handleDragEnterDropzone"
+                      @dragleave.prevent="handleDragLeaveDropzone"
+                      @drop.prevent="handleDropDropzone"
+                    >
+                      <div class="upload-content">
+                        <v-icon class="upload-icon" size="36">mdi-cloud-upload</v-icon>
+                        <p class="upload-text">Click to upload or drag and drop</p>
+                        <p class="upload-hint">PNG, JPG, GIF up to 20MB each</p>
+                      </div>
+                    </label>
+                    <v-alert
+                      v-if="form.images.length === 0"
+                      type="error"
+                      variant="tonal"
+                      density="compact"
+                      class="mt-2"
+                    >
+                      Please upload at least 1 image
+                    </v-alert>
+                  </div>
 
               <v-row v-if="imagePreviews.length > 0" dense class="mt-4">
                 <v-col
@@ -1014,7 +1051,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { createVehicle, getLookupConstants, lookupVehicleByRegistration } from '@/api/dealer.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
@@ -1087,17 +1124,21 @@ const syncModelIdFromName = () => {
   }
 }
 
-// Computed property for fuel consumption label based on fuel type
+// Computed property for fuel consumption label based on fuel type ID
+// Matching logic from sell-your-car-form.js
 const fuelConsumptionLabel = computed(() => {
-  const fuelTypeName = form.value.fuelType?.toLowerCase() || ''
+  const fuelTypeId = form.value.fuelTypeId
   
-  // Electric fuel types
-  if (fuelTypeName.includes('electric') && !fuelTypeName.includes('hybrid')) {
+  // Electric fuel types: 3 (Electric), 7 (El)
+  const electricFuelTypes = [3, 7]
+  // Hybrid fuel types: 4 (Hybrid), 5 (Plug-in Hybrid)
+  const hybridFuelTypes = [4, 5]
+  
+  if (fuelTypeId && electricFuelTypes.includes(fuelTypeId)) {
     return 'Electric Range (km)'
   }
   
-  // Hybrid fuel types
-  if (fuelTypeName.includes('hybrid')) {
+  if (fuelTypeId && hybridFuelTypes.includes(fuelTypeId)) {
     return 'Electric Range / KM/L'
   }
   
@@ -1107,15 +1148,18 @@ const fuelConsumptionLabel = computed(() => {
 
 // Computed property for fuel consumption hint
 const fuelConsumptionHint = computed(() => {
-  const fuelTypeName = form.value.fuelType?.toLowerCase() || ''
+  const fuelTypeId = form.value.fuelTypeId
   
-  // Electric fuel types
-  if (fuelTypeName.includes('electric') && !fuelTypeName.includes('hybrid')) {
+  // Electric fuel types: 3 (Electric), 7 (El)
+  const electricFuelTypes = [3, 7]
+  // Hybrid fuel types: 4 (Hybrid), 5 (Plug-in Hybrid)
+  const hybridFuelTypes = [4, 5]
+  
+  if (fuelTypeId && electricFuelTypes.includes(fuelTypeId)) {
     return 'Electric range in kilometers'
   }
   
-  // Hybrid fuel types
-  if (fuelTypeName.includes('hybrid')) {
+  if (fuelTypeId && hybridFuelTypes.includes(fuelTypeId)) {
     return 'Electric range in km (for EV mode) or fuel efficiency in km/l'
   }
   
@@ -1145,6 +1189,51 @@ const toBooleanInt = (value: unknown): 0 | 1 | null => {
     if (['false', '0', 'no', 'n'].includes(normalized)) return 0
   }
   return null
+}
+
+type LookupOption = { id?: number; name?: string }
+
+const normalizeLookupName = (value: unknown): string => {
+  if (value === null || value === undefined) return ''
+  if (typeof value === 'string') return value.trim()
+  if (typeof value === 'object' && (value as LookupOption).name) {
+    return String((value as LookupOption).name).trim()
+  }
+  return ''
+}
+
+const upsertLookupOption = <T extends LookupOption>(
+  list: T[],
+  option: LookupOption,
+  extra?: Partial<T>
+): void => {
+  const id = typeof option.id === 'number' ? option.id : undefined
+  const name = normalizeLookupName(option)
+  const normalizedName = name.toLowerCase()
+
+  const existingIndex = list.findIndex((item) => {
+    if (id !== undefined && item.id === id) return true
+    if (normalizedName && item.name?.toLowerCase() === normalizedName) return true
+    return false
+  })
+
+  if (existingIndex >= 0) {
+    const existing = list[existingIndex]
+    list[existingIndex] = {
+      ...existing,
+      ...(id !== undefined ? { id } : {}),
+      ...(name ? { name } : {}),
+      ...(extra || {}),
+    } as T
+    return
+  }
+
+  if (!name && id === undefined) return
+  list.push({
+    ...(id !== undefined ? { id } : {}),
+    ...(name ? { name } : {}),
+    ...(extra || {}),
+  } as T)
 }
 
 // Track if description was manually edited by user
@@ -1242,6 +1331,7 @@ const form = ref({
   modelId: null as number | null,
   variant: '',
   fuelType: '',
+  fuelTypeId: null as number | null,
   powerHp: null as number | null,
   powerKw: null as number | null,
   registrationDate: '',
@@ -1257,7 +1347,7 @@ const form = ref({
   lastInspectionDate: '',
   isImport: false,
   isFactoryNew: false,
-  odometer: 0,
+  odometer: null as number | null,
   previousUsage: '',
   
   // Step 3
@@ -1314,6 +1404,8 @@ const equipmentTypes = ref<Array<{id: number, name: string, equipments: Array<{i
 const imagePreviews = ref<string[]>([])
 const draggedImageIndex = ref<number | null>(null)
 const dragOverIndex = ref<number | null>(null)
+const fileInputRef = ref<HTMLInputElement | null>(null)
+const isDragOver = ref(false)
 
 // Constants (static data that doesn't come from API)
 const leasingTypes = [
@@ -1404,22 +1496,53 @@ const performLookup = async () => {
     lookupData.value = data
 
     // Auto-fill form with lookup data
-    // Map brand (make) - handle both object and string formats
-    const brandName = data.brand?.name || data.brand_name || data.brand
-    if (brandName) {
-      const brand = brands.value.find(b => 
-        b.name.toLowerCase() === (typeof brandName === 'string' ? brandName : brandName.name || '').toLowerCase()
-      )
-      if (brand) form.value.make = brand.name
+    // Ensure lookup options contain API values (avoid duplicates) and set form values
+    const apiBrand = data.brand || data.brand_name || data.brand
+    const apiModel = data.model || data.model_name || data.model
+    const apiFuelType = data.fuel_type || data.fuel_type_name || data.fuel_type
+
+    // Handle brand - upsert first, then set form value
+    let brandId: number | undefined = undefined
+    if (apiBrand && typeof apiBrand === 'object') {
+      upsertLookupOption(brands.value, { id: apiBrand.id, name: apiBrand.name })
+      form.value.make = apiBrand.name
+      brandId = apiBrand.id
+    } else if (apiBrand) {
+      const brandName = typeof apiBrand === 'string' ? apiBrand : apiBrand.name || ''
+      upsertLookupOption(brands.value, { name: brandName })
+      form.value.make = brandName
+      // Try to find brand ID after upserting
+      const foundBrand = brands.value.find(b => b.name.toLowerCase() === brandName.toLowerCase())
+      if (foundBrand) brandId = foundBrand.id
     }
 
-    // Map model - handle both object and string formats
-    const modelName = data.model?.name || data.model_name || data.model
-    if (modelName) {
-      const normalizedModelName = typeof modelName === 'string' ? modelName : modelName.name || ''
-      form.value.model = normalizedModelName
+    // Handle model - upsert first, then set form value directly from API if it has an id
+    // Ensure we use the brandId from API or the selected brand
+    const finalBrandId = brandId || selectedBrandId.value
+    if (apiModel && typeof apiModel === 'object') {
+      // Upsert model with correct brand_id
+      upsertLookupOption(
+        models.value,
+        { id: apiModel.id, name: apiModel.name },
+        { brand_id: finalBrandId }
+      )
+      form.value.model = apiModel.name
+      // Wait for reactivity to update filteredModels before setting modelId
+      await nextTick()
+      form.value.modelId = apiModel.id
+    } else if (apiModel) {
+      const modelName = typeof apiModel === 'string' ? apiModel : apiModel.name || ''
+      upsertLookupOption(models.value, { name: modelName }, { brand_id: finalBrandId })
+      form.value.model = modelName
+      // Wait for reactivity to update
+      await nextTick()
+      // Try to find model ID after upserting
       const matchedModel = models.value.find(
-        (model) => model.name.toLowerCase() === normalizedModelName.toLowerCase()
+        (model) =>
+          model.brand_id === finalBrandId &&
+          model.name.toLowerCase() === modelName.toLowerCase()
+      ) || models.value.find(
+        (model) => model.name.toLowerCase() === modelName.toLowerCase()
       )
       if (matchedModel) {
         form.value.modelId = matchedModel.id
@@ -1429,22 +1552,30 @@ const performLookup = async () => {
       }
     }
 
+    // Handle fuel type - upsert first, then set form value
+    if (apiFuelType && typeof apiFuelType === 'object') {
+      upsertLookupOption(fuelTypes.value, { id: apiFuelType.id, name: apiFuelType.name })
+      form.value.fuelType = apiFuelType.name
+      form.value.fuelTypeId = apiFuelType.id
+      form.value.transmissionType = apiFuelType.name
+    } else if (apiFuelType) {
+      const fuelTypeName = typeof apiFuelType === 'string' ? apiFuelType : apiFuelType.name || ''
+      upsertLookupOption(fuelTypes.value, { name: fuelTypeName })
+      form.value.fuelType = fuelTypeName
+      // Try to find fuel type ID by name
+      const matchedFuelType = fuelTypes.value.find(f => f.name.toLowerCase() === fuelTypeName.toLowerCase())
+      if (matchedFuelType) {
+        form.value.fuelTypeId = matchedFuelType.id
+      } else {
+        form.value.fuelTypeId = null
+      }
+      form.value.transmissionType = fuelTypeName
+    }
+
     // Map variant - handle both object and string formats, also check for 'version' field
     const variantName = data.variant?.name || data.version?.name || data.version || data.variant
     if (variantName) {
       form.value.variant = typeof variantName === 'string' ? variantName : variantName.name || ''
-    }
-
-    // Map fuel type and transmission type (both from fuel_type) - handle both object and string formats
-    const fuelTypeName = data.fuel_type?.name || data.fuel_type_name || data.fuel_type
-    if (fuelTypeName) {
-      const fuelType = fuelTypes.value.find(f => 
-        f.name.toLowerCase() === (typeof fuelTypeName === 'string' ? fuelTypeName : fuelTypeName.name || '').toLowerCase()
-      )
-      if (fuelType) {
-        form.value.fuelType = fuelType.name
-        form.value.transmissionType = fuelType.name
-      }
     }
 
     // Map power
@@ -1479,11 +1610,6 @@ const performLookup = async () => {
       } catch (e) {
         console.warn('Failed to parse last_inspection_date:', data.last_inspection_date)
       }
-    }
-
-    // Map odometer
-    if (data.last_inspection_odometer) {
-      form.value.odometer = data.last_inspection_odometer
     }
 
     // Map previous usage
@@ -1638,9 +1764,90 @@ const handleImageUpload = (newFiles: File | File[]) => {
     return
   }
   
+  // Validate and filter files
+  const maxSize = 20 * 1024 * 1024 // 20MB
+  const validFiles: File[] = []
+  
+  filesArray.forEach((file) => {
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      console.warn(`File ${file.name} is not an image, skipping`)
+      return
+    }
+    
+    // Check file size
+    if (file.size > maxSize) {
+      console.warn(`File ${file.name} exceeds 20MB limit, skipping`)
+      return
+    }
+    
+    validFiles.push(file)
+  })
+  
+  if (validFiles.length === 0) return
+  
   // Add only as many as we can fit (up to 20 total)
-  const filesToAdd = filesArray.slice(0, remainingSlots)
+  const filesToAdd = validFiles.slice(0, remainingSlots)
   form.value.images = [...form.value.images, ...filesToAdd]
+}
+
+const triggerFileInput = () => {
+  if (fileInputRef.value) {
+    fileInputRef.value.click()
+  }
+}
+
+const handleFileInputChange = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  if (target.files && target.files.length > 0) {
+    const files = Array.from(target.files)
+    handleImageUpload(files)
+    // Reset input to allow selecting same files again
+    target.value = ''
+  }
+}
+
+const handleDragOverDropzone = (event: DragEvent) => {
+  event.preventDefault()
+  event.stopPropagation()
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'copy'
+  }
+  isDragOver.value = true
+}
+
+const handleDragEnterDropzone = (event: DragEvent) => {
+  event.preventDefault()
+  event.stopPropagation()
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'copy'
+  }
+  isDragOver.value = true
+}
+
+const handleDragLeaveDropzone = (event: DragEvent) => {
+  event.preventDefault()
+  event.stopPropagation()
+  // Only set dragOver to false if we're actually leaving the dropzone
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+  const x = event.clientX
+  const y = event.clientY
+  if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+    isDragOver.value = false
+  }
+}
+
+const handleDropDropzone = (event: DragEvent) => {
+  event.preventDefault()
+  event.stopPropagation()
+  isDragOver.value = false
+  
+  if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
+    const files = Array.from(event.dataTransfer.files).filter(file => file.type.startsWith('image/'))
+    if (files.length > 0) {
+      handleImageUpload(files)
+    }
+  }
 }
 
 const removeImage = (index: number) => {
@@ -1752,6 +1959,7 @@ const clearDraft = () => {
   modelId: null,
     variant: '',
     fuelType: '',
+    fuelTypeId: null,
     powerHp: null,
     powerKw: null,
     registrationDate: '',
@@ -1892,7 +2100,7 @@ const submitForm = async () => {
       version: form.value.variant || nummerpladeData.version || nummerpladeData.variant, // variant maps to version in Vehicle model
       fuel_type_id: fuelType.id,
       price: toNumberOrNull(form.value.retailPrice) ?? 0,
-      km_driven: toNumberOrNull(form.value.odometer) ?? toNumberOrNull(nummerpladeData.last_inspection_odometer),
+      km_driven: toNumberOrNull(form.value.odometer) ?? 0,
       description: form.value.description,
       images: form.value.images,
       equipment_ids: form.value.equipment.map(id => parseInt(id)), // Convert to numbers - use equipment_ids to match sell-your-car
@@ -2484,6 +2692,23 @@ watch(
   }
 )
 
+// Watch for fuelType changes to update fuelTypeId
+watch(
+  () => form.value.fuelType,
+  (newFuelType) => {
+    if (newFuelType) {
+      const matchedFuelType = fuelTypes.value.find(f => f.name === newFuelType)
+      if (matchedFuelType) {
+        form.value.fuelTypeId = matchedFuelType.id
+      } else {
+        form.value.fuelTypeId = null
+      }
+    } else {
+      form.value.fuelTypeId = null
+    }
+  }
+)
+
 // Auto-update description when relevant fields change (only if not manually edited)
 watch(
   () => [
@@ -2613,5 +2838,174 @@ loadDraft()
 .image-drag-item.drag-over {
   border: 2px dashed rgb(var(--v-theme-primary));
   transform: scale(1.05);
+}
+
+/* Checkbox button field styles - custom button-like checkbox */
+.checkbox-button-field {
+  height: 40px;
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-radius: 4px;
+  padding: 0 12px;
+  background-color: rgb(var(--v-theme-surface));
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.checkbox-button-field:hover {
+  background-color: rgba(var(--v-theme-primary), 0.08);
+  border-color: rgb(var(--v-theme-primary));
+}
+
+.checkbox-button-field--checked {
+  background-color: rgb(var(--v-theme-primary));
+  border-color: rgb(var(--v-theme-primary));
+}
+
+.checkbox-button-field--checked:hover {
+  background-color: rgba(var(--v-theme-primary), 0.9);
+}
+
+.checkbox-button-field__checkbox {
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.checkbox-button-field__checkbox :deep(.v-selection-control) {
+  margin: 0;
+  padding: 0;
+  min-height: auto;
+  height: auto;
+}
+
+.checkbox-button-field__checkbox :deep(.v-selection-control__wrapper) {
+  margin: 0;
+  padding: 0;
+}
+
+.checkbox-button-field__checkbox :deep(.v-label) {
+  display: none;
+}
+
+.checkbox-button-field--checked .checkbox-button-field__label,
+.checkbox-button-field--checked .checkbox-button-field__checkbox :deep(.v-icon) {
+  color: rgb(var(--v-theme-on-primary)) !important;
+}
+
+.checkbox-button-field__label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(var(--v-theme-on-surface), var(--v-high-emphasis-opacity));
+  cursor: pointer;
+  user-select: none;
+  flex: 1;
+  display: block;
+}
+
+/* Image Upload Dropzone Styles - matching sell-your-car.blade.php */
+.image-upload-area {
+  margin-bottom: 1rem;
+}
+
+.image-upload-area.has-images .upload-dropzone {
+  padding: 1rem;
+  border-style: solid;
+}
+
+.image-upload-area.has-images .upload-content {
+  flex-direction: row;
+  gap: 0.75rem;
+}
+
+.image-upload-area.has-images .upload-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.image-upload-area.has-images .upload-text {
+  font-size: 0.75rem;
+  margin: 0;
+}
+
+.image-upload-area.has-images .upload-hint {
+  display: none;
+}
+
+.image-input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.upload-dropzone {
+  border: 2px dashed rgba(var(--v-border-color), var(--v-border-opacity));
+  border-radius: 0.5rem;
+  padding: 2rem 1.25rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: rgba(var(--v-theme-surface), 0.5);
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: auto;
+  display: block;
+  width: 100%;
+  margin: 0;
+}
+
+.upload-dropzone:hover {
+  border-color: rgb(var(--v-theme-primary));
+  background-color: rgba(var(--v-theme-primary), 0.08);
+}
+
+.upload-dropzone.drag-over {
+  border-color: rgb(var(--v-theme-primary));
+  background-color: rgb(var(--v-theme-primary));
+  color: rgb(var(--v-theme-on-primary));
+}
+
+.upload-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.upload-icon {
+  color: rgba(var(--v-theme-on-surface), 0.6);
+  transition: color 0.3s ease;
+}
+
+.upload-dropzone:hover .upload-icon,
+.upload-dropzone.drag-over .upload-icon {
+  color: rgb(var(--v-theme-primary));
+}
+
+.upload-dropzone.drag-over .upload-icon {
+  color: rgb(var(--v-theme-on-primary));
+}
+
+.upload-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgb(var(--v-theme-on-surface));
+  margin: 0;
+}
+
+.upload-hint {
+  font-size: 0.75rem;
+  color: rgba(var(--v-theme-on-surface), 0.6);
+  margin: 0;
+}
+
+.upload-dropzone.drag-over .upload-text,
+.upload-dropzone.drag-over .upload-hint {
+  color: rgb(var(--v-theme-on-primary));
 }
 </style>
