@@ -404,7 +404,9 @@
                   type="number"
                   density="compact"
                   variant="outlined"
-                  :rules="[rules.required, rules.odometer]"
+                  :rules="[rules.odometer]"
+                  hint="Optional"
+                  persistent-hint
                     hide-details="auto"
                 />
               </v-col>
@@ -1499,8 +1501,8 @@ const rules = {
     if (v.length !== 17) return 'VIN must be exactly 17 characters'
     return /^[A-HJ-NPR-Z0-9]+$/i.test(v) || 'VIN can only contain letters (except I, O, Q) and numbers'
   },
-  odometer: (v: number) => {
-    if (v === null || v === undefined) return 'This field is required'
+  odometer: (v: number | null | undefined) => {
+    if (v === null || v === undefined || v === '') return true // Optional field
     return (v >= 0 && v <= 12000000000000) || 'Odometer must be between 0 and 12,000,000,000,000'
   },
   price: (v: number) => {
