@@ -18,16 +18,6 @@
         >
           Draft saved
         </v-chip>
-        <v-btn
-          v-if="showFormFields"
-          variant="outlined"
-          color="warning"
-          size="small"
-          @click="clearDraft"
-        >
-          <v-icon start>mdi-delete-sweep</v-icon>
-          Clear Draft
-        </v-btn>
       </div>
     </div>
 
@@ -101,15 +91,6 @@
             {{ lookupError }}
           </v-alert>
 
-          <v-alert
-            v-if="lookupSuccess"
-            type="success"
-            variant="tonal"
-            density="compact"
-            class="mt-3"
-          >
-            Vehicle data fetched successfully
-          </v-alert>
         </div>
       </v-card-text>
     </v-card>
@@ -148,7 +129,18 @@
                 <v-expand-transition>
                   <div v-if="showFormFields">
                     <div class="mb-6">
-                      <h3 class="text-h6 font-weight-semibold mb-2">Vehicle Information</h3>
+                      <div class="d-flex justify-space-between align-center flex-wrap mb-2">
+                        <h3 class="text-h6 font-weight-semibold mb-0">Vehicle Information</h3>
+                        <v-btn
+                          variant="outlined"
+                          color="warning"
+                          size="small"
+                          @click="clearDraft"
+                        >
+                          <v-icon start>mdi-delete-sweep</v-icon>
+                          Clear Draft
+                        </v-btn>
+                      </div>
                       <p class="text-body-2 text-medium-emphasis mb-0">
                         Complete the vehicle details below
                       </p>
@@ -995,6 +987,65 @@
         </ul>
       </v-alert>
 
+      <!-- Success Dialog -->
+      <v-dialog
+        v-model="showSuccessDialog"
+        max-width="520"
+        persistent
+        scrim="rgba(0, 0, 0, 0.5)"
+      >
+        <v-card class="success-dialog-card" elevation="8">
+          <v-card-text class="pa-0">
+            <!-- Success Icon Section -->
+            <div class="success-icon-container">
+              <div class="success-icon-wrapper">
+                <v-icon 
+                  size="64" 
+                  color="success"
+                  class="success-icon"
+                >
+                  mdi-check-circle
+                </v-icon>
+              </div>
+            </div>
+
+            <!-- Content Section -->
+            <div class="success-content pa-6">
+              <h3 class="text-h5 font-weight-bold text-center mb-2">
+                Vehicle Saved Successfully
+              </h3>
+              <p class="text-body-1 text-center text-medium-emphasis mb-6">
+                Your vehicle has been saved and is ready to be published. What would you like to do next?
+              </p>
+
+              <!-- Action Buttons -->
+              <div class="d-flex flex-column flex-sm-row gap-3">
+                <v-btn
+                  variant="outlined"
+                  color="grey-darken-1"
+                  size="large"
+                  class="flex-grow-1"
+                  @click="goToVehiclesList"
+                >
+                  <v-icon start>mdi-view-list</v-icon>
+                  View Vehicles List
+                </v-btn>
+                <v-btn
+                  color="primary"
+                  variant="elevated"
+                  size="large"
+                  class="flex-grow-1"
+                  @click="addAnotherVehicle"
+                >
+                  <v-icon start>mdi-plus-circle</v-icon>
+                  Add Another Vehicle
+                </v-btn>
+              </div>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+
       <!-- Wizard Navigation -->
       <v-divider class="mt-8 mb-4" />
       <div class="d-flex justify-space-between align-center flex-wrap pa-4">
@@ -1052,7 +1103,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { createVehicle, getLookupConstants, lookupVehicleByRegistration } from '@/api/dealer.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import MonthYearPicker from '@/components/ui/MonthYearPicker.vue'
@@ -1078,6 +1129,9 @@ const submitting = ref(false)
 const draftSaved = ref(false)
 const submitError = ref<string | null>(null)
 const validationErrors = ref<Record<string, string[]>>({})
+const showSuccessDialog = ref(false)
+const hasUnsavedChanges = ref(false)
+const formSuccessfullySaved = ref(false)
 
 // Computed property to check if images are valid
 const imagesValid = computed(() => {
@@ -1474,6 +1528,7 @@ const performLookup = async () => {
   clearDraft()
   manualEntryMode.value = false
   lookupData.value = null
+  formSuccessfullySaved.value = false
 
   lookupLoading.value = true
   lookupError.value = null
@@ -1732,6 +1787,7 @@ const handleKeydown = (event: KeyboardEvent) => {
 // Add keyboard event listener and load lookup data
 onMounted(() => {
   window.addEventListener('keydown', handleKeydown)
+  window.addEventListener('beforeunload', handleBeforeUnload)
   loadLookupData()
 })
 
@@ -1950,6 +2006,10 @@ const saveAsDraft = () => {
 const clearDraft = () => {
   // Clear localStorage draft
   localStorage.removeItem('add-vehicle-form-draft')
+  
+  // Reset unsaved changes flag
+  hasUnsavedChanges.value = false
+  formSuccessfullySaved.value = false
   
   // Reset form to initial state
   form.value = {
@@ -2595,8 +2655,13 @@ const submitForm = async () => {
 
     await createVehicle(vehicleData)
 
+    // Clear draft and mark as saved
     localStorage.removeItem('add-vehicle-form-draft')
-    router.push({ name: 'dealer.vehicles.overview' })
+    hasUnsavedChanges.value = false
+    formSuccessfullySaved.value = true
+    
+    // Show success dialog instead of immediately navigating
+    showSuccessDialog.value = true
   } catch (error: any) {
     console.error('Failed to create vehicle:', error)
     
@@ -2754,11 +2819,35 @@ watch(
   }
 )
 
+// Watch for manual entry mode to reset saved flag
+watch(
+  () => manualEntryMode.value,
+  (isManual) => {
+    if (isManual) {
+      formSuccessfullySaved.value = false
+    }
+  }
+)
+
+// Watch for lookup success to reset saved flag when starting new lookup
+watch(
+  () => lookupSuccess.value,
+  (isSuccess) => {
+    if (isSuccess && !formSuccessfullySaved.value) {
+      // Only reset if we're starting a new lookup (not after save)
+      // This is handled in performLookup already
+    }
+  }
+)
+
 // Auto-save draft on form changes (debounced)
 let autoSaveTimeout: ReturnType<typeof setTimeout> | null = null
 watch(
   () => form.value,
   () => {
+    // Mark as having unsaved changes
+    hasUnsavedChanges.value = checkUnsavedChanges()
+    
     if (autoSaveTimeout) {
       clearTimeout(autoSaveTimeout)
     }
@@ -2770,10 +2859,79 @@ watch(
   { deep: true }
 )
 
+// Success dialog handlers
+const goToVehiclesList = () => {
+  showSuccessDialog.value = false
+  // Form is already saved, allow navigation without confirmation
+  formSuccessfullySaved.value = true
+  router.push({ name: 'dealer.vehicles.overview' })
+}
+
+const addAnotherVehicle = () => {
+  showSuccessDialog.value = false
+  // Reset form and start over
+  clearDraft()
+  lookupSuccess.value = false
+  lookupData.value = null
+  lookupError.value = null
+  manualEntryMode.value = false
+  lookupForm.value.registrationNumber = ''
+  currentStep.value = 0
+  visitedSteps.value = new Set([0])
+  // Reset description manual edit flag
+  isDescriptionManuallyEdited.value = false
+  // Clear any errors
+  submitError.value = null
+  validationErrors.value = {}
+  // Reset saved flag since we're starting fresh
+  formSuccessfullySaved.value = false
+}
+
+// Check if form has unsaved changes
+const checkUnsavedChanges = (): boolean => {
+  // If form was successfully saved, no unsaved changes
+  if (formSuccessfullySaved.value) {
+    return false
+  }
+  
+  // Only check for unsaved changes if the form is actually open
+  if (!showFormFields.value) {
+    return false
+  }
+  
+  // Check if any form field has been filled
+  const hasData = 
+    form.value.make ||
+    form.value.model ||
+    form.value.variant ||
+    form.value.registrationNumber ||
+    form.value.vin ||
+    form.value.odometer !== null ||
+    form.value.retailPrice !== null ||
+    form.value.description ||
+    form.value.images.length > 0 ||
+    form.value.equipment.length > 0
+  
+  return hasData && !showSuccessDialog.value
+}
+
+// Handle beforeunload to warn about unsaved changes
+const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+  if (checkUnsavedChanges()) {
+    event.preventDefault()
+    // Modern browsers ignore custom messages, but we can still trigger the dialog
+    event.returnValue = ''
+    return ''
+  }
+}
+
 // Cleanup on unmount
 onBeforeUnmount(() => {
   // Cleanup keyboard listener
   window.removeEventListener('keydown', handleKeydown)
+  
+  // Cleanup beforeunload listener
+  window.removeEventListener('beforeunload', handleBeforeUnload)
   
   // Cleanup auto-save timeout
   if (autoSaveTimeout) {
@@ -2794,6 +2952,8 @@ const loadDraft = () => {
     try {
       const draftData = JSON.parse(draft)
       Object.assign(form.value, { ...draftData, images: [] })
+      // Mark as having unsaved changes if draft was loaded
+      hasUnsavedChanges.value = checkUnsavedChanges()
     } catch (e) {
       console.error('Failed to load draft:', e)
     }
@@ -2801,6 +2961,25 @@ const loadDraft = () => {
 }
 
 loadDraft()
+
+// Router guard to prevent navigation away with unsaved changes
+onBeforeRouteLeave((to, from, next) => {
+  if (checkUnsavedChanges() && !showSuccessDialog.value) {
+    const confirmed = window.confirm(
+      'You have unsaved changes. Are you sure you want to leave? Your data will be saved as a draft.'
+    )
+    if (confirmed) {
+      // Auto-save draft before leaving
+      const draftData = { ...form.value, images: [] }
+      localStorage.setItem('add-vehicle-form-draft', JSON.stringify(draftData))
+      next()
+    } else {
+      next(false)
+    }
+  } else {
+    next()
+  }
+})
 </script>
 
 <style scoped>
@@ -3007,5 +3186,83 @@ loadDraft()
 .upload-dropzone.drag-over .upload-text,
 .upload-dropzone.drag-over .upload-hint {
   color: rgb(var(--v-theme-on-primary));
+}
+
+/* Success Dialog Styles */
+.success-dialog-card {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.success-icon-container {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+  padding: 2rem 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.success-icon-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.success-icon {
+  animation: successIconPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  filter: drop-shadow(0 4px 8px rgba(16, 185, 129, 0.3));
+}
+
+@keyframes successIconPop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.success-content {
+  background-color: rgb(var(--v-theme-surface));
+}
+
+.success-content h3 {
+  color: rgb(var(--v-theme-on-surface));
+  line-height: 1.3;
+}
+
+.success-content p {
+  line-height: 1.6;
+  max-width: 100%;
+}
+
+.success-dialog-card :deep(.v-btn) {
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  min-height: 44px;
+}
+
+.success-dialog-card :deep(.v-btn--variant-elevated) {
+  box-shadow: 0 4px 12px rgba(0, 74, 173, 0.25);
+}
+
+.success-dialog-card :deep(.v-btn--variant-elevated:hover) {
+  box-shadow: 0 6px 16px rgba(0, 74, 173, 0.35);
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+.success-dialog-card :deep(.v-btn--variant-outlined:hover) {
+  background-color: rgba(var(--v-theme-primary), 0.08);
+  border-color: rgb(var(--v-theme-primary));
+  color: rgb(var(--v-theme-primary));
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
 }
 </style>
