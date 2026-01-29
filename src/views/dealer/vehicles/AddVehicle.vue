@@ -1572,14 +1572,19 @@ const performLookup = async () => {
     }
 
     // Handle model - upsert first, then set form value directly from API if it has an id
-    // Ensure we use the brandId from API or the selected brand
-    const finalBrandId = brandId || selectedBrandId.value
+    // Ensure we use the brandId from API or the selected brand (and never pass null)
+    const finalBrandId: number | undefined =
+      typeof brandId === 'number'
+        ? brandId
+        : typeof selectedBrandId.value === 'number'
+          ? selectedBrandId.value
+          : undefined
     if (apiModel && typeof apiModel === 'object') {
       // Upsert model with correct brand_id
       upsertLookupOption(
         models.value,
         { id: apiModel.id, name: apiModel.name },
-        { brand_id: finalBrandId }
+        finalBrandId !== undefined ? { brand_id: finalBrandId } : undefined
       )
       form.value.model = apiModel.name
       // Wait for reactivity to update filteredModels before setting modelId
@@ -1587,7 +1592,11 @@ const performLookup = async () => {
       form.value.modelId = apiModel.id
     } else if (apiModel) {
       const modelName = typeof apiModel === 'string' ? apiModel : apiModel.name || ''
-      upsertLookupOption(models.value, { name: modelName }, { brand_id: finalBrandId })
+      upsertLookupOption(
+        models.value,
+        { name: modelName },
+        finalBrandId !== undefined ? { brand_id: finalBrandId } : undefined
+      )
       form.value.model = modelName
       // Wait for reactivity to update
       await nextTick()
@@ -2900,17 +2909,18 @@ const checkUnsavedChanges = (): boolean => {
   }
   
   // Check if any form field has been filled
-  const hasData = 
+  const hasData = Boolean(
     form.value.make ||
-    form.value.model ||
-    form.value.variant ||
-    form.value.registrationNumber ||
-    form.value.vin ||
-    form.value.odometer !== null ||
-    form.value.retailPrice !== null ||
-    form.value.description ||
-    form.value.images.length > 0 ||
-    form.value.equipment.length > 0
+      form.value.model ||
+      form.value.variant ||
+      form.value.registrationNumber ||
+      form.value.vin ||
+      form.value.odometer !== null ||
+      form.value.retailPrice !== null ||
+      form.value.description ||
+      form.value.images.length > 0 ||
+      form.value.equipment.length > 0
+  )
   
   return hasData && !showSuccessDialog.value
 }
