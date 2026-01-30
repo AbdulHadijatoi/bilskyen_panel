@@ -3,20 +3,7 @@
     <div
       v-if="loadingStore.isLoading"
       class="loading-overlay"
-      :style="{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 9999,
-        backdropFilter: 'blur(2px)',
-      }"
+      :class="{ 'dark-theme': isDark }"
     >
       <v-progress-circular
         indeterminate
@@ -26,12 +13,7 @@
       />
       <p
         v-if="loadingStore.loadingMessage"
-        :style="{
-          marginTop: '1rem',
-          color: 'white',
-          fontSize: '1rem',
-          fontWeight: 500,
-        }"
+        class="loading-message"
       >
         {{ loadingStore.loadingMessage }}
       </p>
@@ -40,15 +22,50 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useLoadingStore } from '@/stores/loading'
+import { useTheme } from 'vuetify'
 
 const loadingStore = useLoadingStore()
+const theme = useTheme()
+
+const isDark = computed(() => theme.current.value.dark)
 </script>
 
 <style scoped>
-.fade-enter-active,
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(2px);
+  background-color: rgba(0, 0, 0, 0.4);
+  transition: background-color 0.2s ease;
+}
+
+.loading-overlay.dark-theme {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.loading-message {
+  margin-top: 1rem;
+  color: white;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.fade-enter-active {
+  transition: opacity 0.25s ease-in;
+}
+
 .fade-leave-active {
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease-out;
 }
 
 .fade-enter-from,

@@ -251,72 +251,89 @@ router.beforeEach(async (to, from, next) => {
     loadingStore.startLoading('Loading page...')
   }
 
-  // Check if route requires authentication
-  if (to.meta.requiresAuth) {
-    // Check if user is authenticated
-    const isAuthenticated = await checkAuth()
-    
-    if (!isAuthenticated) {
-      // Redirect to login if not authenticated
-      // Encrypt the redirect parameter for security
-      const encryptedRedirect = encryptUrlParam(to.fullPath)
-      loadingStore.stopLoading()
-      isNavigating = false
-      next({ path: '/auth/login', query: { redirect: encryptedRedirect } })
-    } else {
-      // Check if route requires admin role
-      if (to.meta.requiresAdmin && !isAdmin()) {
-        // Non-admin trying to access admin route - redirect to dealer dashboard
+  try {
+    // Check if route requires authentication
+    if (to.meta.requiresAuth) {
+      // Check if user is authenticated
+      const isAuthenticated = await checkAuth()
+      
+      if (!isAuthenticated) {
+        // Redirect to login if not authenticated
+        // Encrypt the redirect parameter for security
+        const encryptedRedirect = encryptUrlParam(to.fullPath)
         loadingStore.stopLoading()
         isNavigating = false
-        next('/')
-      } else if (!to.meta.requiresAdmin && isAdmin() && to.path === '/') {
-        // Admin trying to access dealer dashboard - redirect to admin dashboard
+        next({ path: '/auth/login', query: { redirect: encryptedRedirect } })
+        return
+      } else {
+        // Check if route requires admin role
+        if (to.meta.requiresAdmin && !isAdmin()) {
+          // Non-admin trying to access admin route - redirect to dealer dashboard
+          loadingStore.stopLoading()
+          isNavigating = false
+          next('/')
+          return
+        } else if (!to.meta.requiresAdmin && isAdmin() && to.path === '/') {
+          // Admin trying to access dealer dashboard - redirect to admin dashboard
+          loadingStore.stopLoading()
+          isNavigating = false
+          next('/admin')
+          return
+        } else {
+          next()
+          return
+        }
+      }
+    } else if (
+      to.path === '/auth/login' ||
+      to.path === '/login' ||
+      to.path === '/auth/register' ||
+      to.path === '/auth/forgot-password' ||
+      to.path === '/auth/reset-password'
+    ) {
+      // Prevent authenticated users from accessing auth pages
+      // Check authentication status
+      const isAuthenticated = await checkAuth()
+      
+      if (isAuthenticated) {
+        // Redirect authenticated users to appropriate dashboard based on role
         loadingStore.stopLoading()
         isNavigating = false
-        next('/admin')
+        if (isAdmin()) {
+          next('/admin')
+        } else {
+          next('/')
+        }
+        return
       } else {
         next()
-      }
-    }
-  } else if (
-    to.path === '/auth/login' ||
-    to.path === '/login' ||
-    to.path === '/auth/register' ||
-    to.path === '/auth/forgot-password' ||
-    to.path === '/auth/reset-password'
-  ) {
-    // Prevent authenticated users from accessing auth pages
-    // Check authentication status
-    const isAuthenticated = await checkAuth()
-    
-    if (isAuthenticated) {
-      // Redirect authenticated users to appropriate dashboard based on role
-      loadingStore.stopLoading()
-      isNavigating = false
-      if (isAdmin()) {
-        next('/admin')
-      } else {
-        next('/')
+        return
       }
     } else {
       next()
+      return
     }
-  } else {
+  } catch (error) {
+    // Handle any errors
+    loadingStore.stopLoading()
+    isNavigating = false
     next()
   }
 })
 
-router.afterEach(async () => {
+router.afterEach(() => {
   const loadingStore = useLoadingStore()
   
-  // Only hide loading if we were actually navigating
+  // Always stop loading after navigation completes
   if (isNavigating) {
-    // Wait a bit for the component to render and transition to complete
-    // This ensures the loading indicator stays visible during the actual loading
-    await new Promise(resolve => setTimeout(resolve, 150))
+    // Small delay to ensure smooth transition
+    setTimeout(() => {
+      loadingStore.stopLoading()
+      isNavigating = false
+    }, 150)
+  } else {
+    // Ensure loading is stopped even if we weren't tracking navigation
     loadingStore.stopLoading()
-    isNavigating = false
   }
 })
 
