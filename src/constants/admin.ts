@@ -147,5 +147,21 @@ export const adminSidebarSections: SidebarSection[] = [
       },
     ],
   },
+  {
+    title: 'Settings',
+    items: [
+      {
+        title: 'Constants',
+        url: `${ADMIN_ROUTE_BASE}/constants`,
+        icon: 'mdi-cog',
+        items: [
+          {
+            title: 'Overview',
+            url: `${ADMIN_ROUTE_BASE}/constants`,
+          },
+        ],
+      },
+    ],
+  },
 ]
 

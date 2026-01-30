@@ -18,6 +18,7 @@ import {
   ADMIN_BLOG_ENDPOINTS,
   ADMIN_ANALYTICS_ENDPOINTS,
   ADMIN_AUDIT_ENDPOINTS,
+  ADMIN_CONSTANTS_ENDPOINTS,
 } from './endpoints'
 import type { UserModel } from '@/models/user.model'
 import { mapUserFromApi } from '@/models/user.model'
@@ -1124,3 +1125,1155 @@ export async function getAuditLogs(params?: PaginationParams & {
   }
 }
 
+// ============================================================================
+// CONSTANTS
+// ============================================================================
+
+/**
+ * Constant model (base)
+ */
+export interface ConstantModel {
+  id: number
+  name: string
+}
+
+/**
+ * Vehicle Model (with brand relationship)
+ */
+export interface VehicleModelConstant extends ConstantModel {
+  brand_id: number
+  brand?: ConstantModel
+}
+
+/**
+ * Equipment (with equipment type relationship)
+ */
+export interface EquipmentConstant extends ConstantModel {
+  equipment_type_id: number
+  equipment_type?: ConstantModel
+}
+
+/**
+ * Equipment Type (with equipments relationship)
+ */
+export interface EquipmentTypeConstant extends ConstantModel {
+  equipments?: EquipmentConstant[]
+}
+
+/**
+ * All constants data response
+ */
+export interface ConstantsData {
+  brands: ConstantModel[]
+  model_years: ConstantModel[]
+  fuel_types: ConstantModel[]
+  gear_types: ConstantModel[]
+  listing_types: ConstantModel[]
+  body_types: ConstantModel[]
+  colors: ConstantModel[]
+  variants: ConstantModel[]
+  types: ConstantModel[]
+  conditions: ConstantModel[]
+  sales_types: ConstantModel[]
+  price_types: ConstantModel[]
+  euronorms: ConstantModel[]
+  vehicle_models: VehicleModelConstant[]
+  vehicle_uses: ConstantModel[]
+  vehicle_list_statuses: ConstantModel[]
+  equipment_types: EquipmentTypeConstant[]
+  equipments: EquipmentConstant[]
+}
+
+/**
+ * Get all constants data (cached)
+ */
+export async function getConstantsData(): Promise<ConstantsData> {
+  try {
+    const response = await httpClient.get<{ data: ConstantsData }>(
+      ADMIN_CONSTANTS_ENDPOINTS.GET_ALL
+    )
+    return handleSuccess<ConstantsData>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Create constant data
+ */
+export interface CreateConstantData {
+  name: string
+  brand_id?: number
+  equipment_type_id?: number
+}
+
+/**
+ * Update constant data
+ */
+export interface UpdateConstantData {
+  name?: string
+  brand_id?: number
+  equipment_type_id?: number
+}
+
+// ============================================================================
+// BRANDS
+// ============================================================================
+
+export async function getBrands(params?: PaginationParams): Promise<PaginationModel<ConstantModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<ConstantModel> }>(
+      ADMIN_CONSTANTS_ENDPOINTS.BRANDS.LIST,
+      { params }
+    )
+    return handleSuccess<PaginationModel<ConstantModel>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getBrand(id: number | string): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.get<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.BRANDS.SHOW(id)
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function createBrand(data: CreateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.BRANDS.CREATE,
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function updateBrand(id: number | string, data: UpdateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.BRANDS.UPDATE(id),
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function deleteBrand(id: number | string): Promise<void> {
+  try {
+    await httpClient.post(ADMIN_CONSTANTS_ENDPOINTS.BRANDS.DELETE(id), {})
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// MODEL YEARS
+// ============================================================================
+
+export async function getModelYears(params?: PaginationParams): Promise<PaginationModel<ConstantModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<ConstantModel> }>(
+      ADMIN_CONSTANTS_ENDPOINTS.MODEL_YEARS.LIST,
+      { params }
+    )
+    return handleSuccess<PaginationModel<ConstantModel>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getModelYear(id: number | string): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.get<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.MODEL_YEARS.SHOW(id)
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function createModelYear(data: CreateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.MODEL_YEARS.CREATE,
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function updateModelYear(id: number | string, data: UpdateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.MODEL_YEARS.UPDATE(id),
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function deleteModelYear(id: number | string): Promise<void> {
+  try {
+    await httpClient.post(ADMIN_CONSTANTS_ENDPOINTS.MODEL_YEARS.DELETE(id), {})
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// FUEL TYPES
+// ============================================================================
+
+export async function getFuelTypes(params?: PaginationParams): Promise<PaginationModel<ConstantModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<ConstantModel> }>(
+      ADMIN_CONSTANTS_ENDPOINTS.FUEL_TYPES.LIST,
+      { params }
+    )
+    return handleSuccess<PaginationModel<ConstantModel>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getFuelType(id: number | string): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.get<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.FUEL_TYPES.SHOW(id)
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function createFuelType(data: CreateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.FUEL_TYPES.CREATE,
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function updateFuelType(id: number | string, data: UpdateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.FUEL_TYPES.UPDATE(id),
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function deleteFuelType(id: number | string): Promise<void> {
+  try {
+    await httpClient.post(ADMIN_CONSTANTS_ENDPOINTS.FUEL_TYPES.DELETE(id), {})
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// GEAR TYPES
+// ============================================================================
+
+export async function getGearTypes(params?: PaginationParams): Promise<PaginationModel<ConstantModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<ConstantModel> }>(
+      ADMIN_CONSTANTS_ENDPOINTS.GEAR_TYPES.LIST,
+      { params }
+    )
+    return handleSuccess<PaginationModel<ConstantModel>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getGearType(id: number | string): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.get<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.GEAR_TYPES.SHOW(id)
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function createGearType(data: CreateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.GEAR_TYPES.CREATE,
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function updateGearType(id: number | string, data: UpdateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.GEAR_TYPES.UPDATE(id),
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function deleteGearType(id: number | string): Promise<void> {
+  try {
+    await httpClient.post(ADMIN_CONSTANTS_ENDPOINTS.GEAR_TYPES.DELETE(id), {})
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// LISTING TYPES
+// ============================================================================
+
+export async function getListingTypes(params?: PaginationParams): Promise<PaginationModel<ConstantModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<ConstantModel> }>(
+      ADMIN_CONSTANTS_ENDPOINTS.LISTING_TYPES.LIST,
+      { params }
+    )
+    return handleSuccess<PaginationModel<ConstantModel>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getListingType(id: number | string): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.get<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.LISTING_TYPES.SHOW(id)
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function createListingType(data: CreateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.LISTING_TYPES.CREATE,
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function updateListingType(id: number | string, data: UpdateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.LISTING_TYPES.UPDATE(id),
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function deleteListingType(id: number | string): Promise<void> {
+  try {
+    await httpClient.post(ADMIN_CONSTANTS_ENDPOINTS.LISTING_TYPES.DELETE(id), {})
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// BODY TYPES
+// ============================================================================
+
+export async function getBodyTypes(params?: PaginationParams): Promise<PaginationModel<ConstantModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<ConstantModel> }>(
+      ADMIN_CONSTANTS_ENDPOINTS.BODY_TYPES.LIST,
+      { params }
+    )
+    return handleSuccess<PaginationModel<ConstantModel>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getBodyType(id: number | string): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.get<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.BODY_TYPES.SHOW(id)
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function createBodyType(data: CreateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.BODY_TYPES.CREATE,
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function updateBodyType(id: number | string, data: UpdateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.BODY_TYPES.UPDATE(id),
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function deleteBodyType(id: number | string): Promise<void> {
+  try {
+    await httpClient.post(ADMIN_CONSTANTS_ENDPOINTS.BODY_TYPES.DELETE(id), {})
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// COLORS
+// ============================================================================
+
+export async function getColors(params?: PaginationParams): Promise<PaginationModel<ConstantModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<ConstantModel> }>(
+      ADMIN_CONSTANTS_ENDPOINTS.COLORS.LIST,
+      { params }
+    )
+    return handleSuccess<PaginationModel<ConstantModel>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getColor(id: number | string): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.get<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.COLORS.SHOW(id)
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function createColor(data: CreateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.COLORS.CREATE,
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function updateColor(id: number | string, data: UpdateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.COLORS.UPDATE(id),
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function deleteColor(id: number | string): Promise<void> {
+  try {
+    await httpClient.post(ADMIN_CONSTANTS_ENDPOINTS.COLORS.DELETE(id), {})
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// VARIANTS
+// ============================================================================
+
+export async function getVariants(params?: PaginationParams): Promise<PaginationModel<ConstantModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<ConstantModel> }>(
+      ADMIN_CONSTANTS_ENDPOINTS.VARIANTS.LIST,
+      { params }
+    )
+    return handleSuccess<PaginationModel<ConstantModel>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getVariant(id: number | string): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.get<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.VARIANTS.SHOW(id)
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function createVariant(data: CreateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.VARIANTS.CREATE,
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function updateVariant(id: number | string, data: UpdateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.VARIANTS.UPDATE(id),
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function deleteVariant(id: number | string): Promise<void> {
+  try {
+    await httpClient.post(ADMIN_CONSTANTS_ENDPOINTS.VARIANTS.DELETE(id), {})
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// TYPES
+// ============================================================================
+
+export async function getTypes(params?: PaginationParams): Promise<PaginationModel<ConstantModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<ConstantModel> }>(
+      ADMIN_CONSTANTS_ENDPOINTS.TYPES.LIST,
+      { params }
+    )
+    return handleSuccess<PaginationModel<ConstantModel>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getType(id: number | string): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.get<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.TYPES.SHOW(id)
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function createType(data: CreateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.TYPES.CREATE,
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function updateType(id: number | string, data: UpdateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.TYPES.UPDATE(id),
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function deleteType(id: number | string): Promise<void> {
+  try {
+    await httpClient.post(ADMIN_CONSTANTS_ENDPOINTS.TYPES.DELETE(id), {})
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// CONDITIONS
+// ============================================================================
+
+export async function getConditions(params?: PaginationParams): Promise<PaginationModel<ConstantModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<ConstantModel> }>(
+      ADMIN_CONSTANTS_ENDPOINTS.CONDITIONS.LIST,
+      { params }
+    )
+    return handleSuccess<PaginationModel<ConstantModel>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getCondition(id: number | string): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.get<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.CONDITIONS.SHOW(id)
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function createCondition(data: CreateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.CONDITIONS.CREATE,
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function updateCondition(id: number | string, data: UpdateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.CONDITIONS.UPDATE(id),
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function deleteCondition(id: number | string): Promise<void> {
+  try {
+    await httpClient.post(ADMIN_CONSTANTS_ENDPOINTS.CONDITIONS.DELETE(id), {})
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// SALES TYPES
+// ============================================================================
+
+export async function getSalesTypes(params?: PaginationParams): Promise<PaginationModel<ConstantModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<ConstantModel> }>(
+      ADMIN_CONSTANTS_ENDPOINTS.SALES_TYPES.LIST,
+      { params }
+    )
+    return handleSuccess<PaginationModel<ConstantModel>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getSalesType(id: number | string): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.get<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.SALES_TYPES.SHOW(id)
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function createSalesType(data: CreateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.SALES_TYPES.CREATE,
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function updateSalesType(id: number | string, data: UpdateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.SALES_TYPES.UPDATE(id),
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function deleteSalesType(id: number | string): Promise<void> {
+  try {
+    await httpClient.post(ADMIN_CONSTANTS_ENDPOINTS.SALES_TYPES.DELETE(id), {})
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// PRICE TYPES
+// ============================================================================
+
+export async function getPriceTypes(params?: PaginationParams): Promise<PaginationModel<ConstantModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<ConstantModel> }>(
+      ADMIN_CONSTANTS_ENDPOINTS.PRICE_TYPES.LIST,
+      { params }
+    )
+    return handleSuccess<PaginationModel<ConstantModel>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getPriceType(id: number | string): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.get<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.PRICE_TYPES.SHOW(id)
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function createPriceType(data: CreateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.PRICE_TYPES.CREATE,
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function updatePriceType(id: number | string, data: UpdateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.PRICE_TYPES.UPDATE(id),
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function deletePriceType(id: number | string): Promise<void> {
+  try {
+    await httpClient.post(ADMIN_CONSTANTS_ENDPOINTS.PRICE_TYPES.DELETE(id), {})
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// EURONORMS
+// ============================================================================
+
+export async function getEuronorms(params?: PaginationParams): Promise<PaginationModel<ConstantModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<ConstantModel> }>(
+      ADMIN_CONSTANTS_ENDPOINTS.EURONORMS.LIST,
+      { params }
+    )
+    return handleSuccess<PaginationModel<ConstantModel>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getEuronorm(id: number | string): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.get<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.EURONORMS.SHOW(id)
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function createEuronorm(data: CreateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.EURONORMS.CREATE,
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function updateEuronorm(id: number | string, data: UpdateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.EURONORMS.UPDATE(id),
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function deleteEuronorm(id: number | string): Promise<void> {
+  try {
+    await httpClient.post(ADMIN_CONSTANTS_ENDPOINTS.EURONORMS.DELETE(id), {})
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// VEHICLE MODELS
+// ============================================================================
+
+export async function getVehicleModels(params?: PaginationParams): Promise<PaginationModel<VehicleModelConstant>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<VehicleModelConstant> }>(
+      ADMIN_CONSTANTS_ENDPOINTS.VEHICLE_MODELS.LIST,
+      { params }
+    )
+    return handleSuccess<PaginationModel<VehicleModelConstant>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getVehicleModel(id: number | string): Promise<VehicleModelConstant> {
+  try {
+    const response = await httpClient.get<{ data: VehicleModelConstant }>(
+      ADMIN_CONSTANTS_ENDPOINTS.VEHICLE_MODELS.SHOW(id)
+    )
+    return handleSuccess<VehicleModelConstant>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function createVehicleModel(data: CreateConstantData & { brand_id: number }): Promise<VehicleModelConstant> {
+  try {
+    const response = await httpClient.post<{ data: VehicleModelConstant }>(
+      ADMIN_CONSTANTS_ENDPOINTS.VEHICLE_MODELS.CREATE,
+      data
+    )
+    return handleSuccess<VehicleModelConstant>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function updateVehicleModel(id: number | string, data: UpdateConstantData): Promise<VehicleModelConstant> {
+  try {
+    const response = await httpClient.post<{ data: VehicleModelConstant }>(
+      ADMIN_CONSTANTS_ENDPOINTS.VEHICLE_MODELS.UPDATE(id),
+      data
+    )
+    return handleSuccess<VehicleModelConstant>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function deleteVehicleModel(id: number | string): Promise<void> {
+  try {
+    await httpClient.post(ADMIN_CONSTANTS_ENDPOINTS.VEHICLE_MODELS.DELETE(id), {})
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// VEHICLE USES
+// ============================================================================
+
+export async function getVehicleUses(params?: PaginationParams): Promise<PaginationModel<ConstantModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<ConstantModel> }>(
+      ADMIN_CONSTANTS_ENDPOINTS.VEHICLE_USES.LIST,
+      { params }
+    )
+    return handleSuccess<PaginationModel<ConstantModel>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getVehicleUse(id: number | string): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.get<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.VEHICLE_USES.SHOW(id)
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function createVehicleUse(data: CreateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.VEHICLE_USES.CREATE,
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function updateVehicleUse(id: number | string, data: UpdateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.VEHICLE_USES.UPDATE(id),
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function deleteVehicleUse(id: number | string): Promise<void> {
+  try {
+    await httpClient.post(ADMIN_CONSTANTS_ENDPOINTS.VEHICLE_USES.DELETE(id), {})
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// VEHICLE LIST STATUSES
+// ============================================================================
+
+export async function getVehicleListStatuses(params?: PaginationParams): Promise<PaginationModel<ConstantModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<ConstantModel> }>(
+      ADMIN_CONSTANTS_ENDPOINTS.VEHICLE_LIST_STATUSES.LIST,
+      { params }
+    )
+    return handleSuccess<PaginationModel<ConstantModel>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getVehicleListStatus(id: number | string): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.get<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.VEHICLE_LIST_STATUSES.SHOW(id)
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function createVehicleListStatus(data: CreateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.VEHICLE_LIST_STATUSES.CREATE,
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function updateVehicleListStatus(id: number | string, data: UpdateConstantData): Promise<ConstantModel> {
+  try {
+    const response = await httpClient.post<{ data: ConstantModel }>(
+      ADMIN_CONSTANTS_ENDPOINTS.VEHICLE_LIST_STATUSES.UPDATE(id),
+      data
+    )
+    return handleSuccess<ConstantModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function deleteVehicleListStatus(id: number | string): Promise<void> {
+  try {
+    await httpClient.post(ADMIN_CONSTANTS_ENDPOINTS.VEHICLE_LIST_STATUSES.DELETE(id), {})
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// EQUIPMENT TYPES
+// ============================================================================
+
+export async function getEquipmentTypes(params?: PaginationParams): Promise<PaginationModel<EquipmentTypeConstant>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<EquipmentTypeConstant> }>(
+      ADMIN_CONSTANTS_ENDPOINTS.EQUIPMENT_TYPES.LIST,
+      { params }
+    )
+    return handleSuccess<PaginationModel<EquipmentTypeConstant>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getEquipmentType(id: number | string): Promise<EquipmentTypeConstant> {
+  try {
+    const response = await httpClient.get<{ data: EquipmentTypeConstant }>(
+      ADMIN_CONSTANTS_ENDPOINTS.EQUIPMENT_TYPES.SHOW(id)
+    )
+    return handleSuccess<EquipmentTypeConstant>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function createEquipmentType(data: CreateConstantData): Promise<EquipmentTypeConstant> {
+  try {
+    const response = await httpClient.post<{ data: EquipmentTypeConstant }>(
+      ADMIN_CONSTANTS_ENDPOINTS.EQUIPMENT_TYPES.CREATE,
+      data
+    )
+    return handleSuccess<EquipmentTypeConstant>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function updateEquipmentType(id: number | string, data: UpdateConstantData): Promise<EquipmentTypeConstant> {
+  try {
+    const response = await httpClient.post<{ data: EquipmentTypeConstant }>(
+      ADMIN_CONSTANTS_ENDPOINTS.EQUIPMENT_TYPES.UPDATE(id),
+      data
+    )
+    return handleSuccess<EquipmentTypeConstant>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function deleteEquipmentType(id: number | string): Promise<void> {
+  try {
+    await httpClient.post(ADMIN_CONSTANTS_ENDPOINTS.EQUIPMENT_TYPES.DELETE(id), {})
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// EQUIPMENTS
+// ============================================================================
+
+export async function getEquipments(params?: PaginationParams): Promise<PaginationModel<EquipmentConstant>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<EquipmentConstant> }>(
+      ADMIN_CONSTANTS_ENDPOINTS.EQUIPMENTS.LIST,
+      { params }
+    )
+    return handleSuccess<PaginationModel<EquipmentConstant>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getEquipment(id: number | string): Promise<EquipmentConstant> {
+  try {
+    const response = await httpClient.get<{ data: EquipmentConstant }>(
+      ADMIN_CONSTANTS_ENDPOINTS.EQUIPMENTS.SHOW(id)
+    )
+    return handleSuccess<EquipmentConstant>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function createEquipment(data: CreateConstantData & { equipment_type_id: number }): Promise<EquipmentConstant> {
+  try {
+    const response = await httpClient.post<{ data: EquipmentConstant }>(
+      ADMIN_CONSTANTS_ENDPOINTS.EQUIPMENTS.CREATE,
+      data
+    )
+    return handleSuccess<EquipmentConstant>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function updateEquipment(id: number | string, data: UpdateConstantData): Promise<EquipmentConstant> {
+  try {
+    const response = await httpClient.post<{ data: EquipmentConstant }>(
+      ADMIN_CONSTANTS_ENDPOINTS.EQUIPMENTS.UPDATE(id),
+      data
+    )
+    return handleSuccess<EquipmentConstant>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function deleteEquipment(id: number | string): Promise<void> {
+  try {
+    await httpClient.post(ADMIN_CONSTANTS_ENDPOINTS.EQUIPMENTS.DELETE(id), {})
+  } catch (error) {
+    throw handleError(error)
+  }
+}

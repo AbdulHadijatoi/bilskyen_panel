@@ -233,6 +233,139 @@ export const ADMIN_AUDIT_ENDPOINTS = {
 } as const
 
 /**
+ * Admin constants endpoints
+ */
+export const ADMIN_CONSTANTS_ENDPOINTS = {
+  GET_ALL: '/admin/constants',
+  BRANDS: {
+    LIST: '/admin/brands',
+    SHOW: (id: number | string) => `/admin/brands/show/${id}`,
+    CREATE: '/admin/brands/create',
+    UPDATE: (id: number | string) => `/admin/brands/update/${id}`,
+    DELETE: (id: number | string) => `/admin/brands/delete/${id}`,
+  },
+  MODEL_YEARS: {
+    LIST: '/admin/model-years',
+    SHOW: (id: number | string) => `/admin/model-years/show/${id}`,
+    CREATE: '/admin/model-years/create',
+    UPDATE: (id: number | string) => `/admin/model-years/update/${id}`,
+    DELETE: (id: number | string) => `/admin/model-years/delete/${id}`,
+  },
+  FUEL_TYPES: {
+    LIST: '/admin/fuel-types',
+    SHOW: (id: number | string) => `/admin/fuel-types/show/${id}`,
+    CREATE: '/admin/fuel-types/create',
+    UPDATE: (id: number | string) => `/admin/fuel-types/update/${id}`,
+    DELETE: (id: number | string) => `/admin/fuel-types/delete/${id}`,
+  },
+  GEAR_TYPES: {
+    LIST: '/admin/gear-types',
+    SHOW: (id: number | string) => `/admin/gear-types/show/${id}`,
+    CREATE: '/admin/gear-types/create',
+    UPDATE: (id: number | string) => `/admin/gear-types/update/${id}`,
+    DELETE: (id: number | string) => `/admin/gear-types/delete/${id}`,
+  },
+  LISTING_TYPES: {
+    LIST: '/admin/listing-types',
+    SHOW: (id: number | string) => `/admin/listing-types/show/${id}`,
+    CREATE: '/admin/listing-types/create',
+    UPDATE: (id: number | string) => `/admin/listing-types/update/${id}`,
+    DELETE: (id: number | string) => `/admin/listing-types/delete/${id}`,
+  },
+  BODY_TYPES: {
+    LIST: '/admin/body-types',
+    SHOW: (id: number | string) => `/admin/body-types/show/${id}`,
+    CREATE: '/admin/body-types/create',
+    UPDATE: (id: number | string) => `/admin/body-types/update/${id}`,
+    DELETE: (id: number | string) => `/admin/body-types/delete/${id}`,
+  },
+  COLORS: {
+    LIST: '/admin/colors',
+    SHOW: (id: number | string) => `/admin/colors/show/${id}`,
+    CREATE: '/admin/colors/create',
+    UPDATE: (id: number | string) => `/admin/colors/update/${id}`,
+    DELETE: (id: number | string) => `/admin/colors/delete/${id}`,
+  },
+  VARIANTS: {
+    LIST: '/admin/variants',
+    SHOW: (id: number | string) => `/admin/variants/show/${id}`,
+    CREATE: '/admin/variants/create',
+    UPDATE: (id: number | string) => `/admin/variants/update/${id}`,
+    DELETE: (id: number | string) => `/admin/variants/delete/${id}`,
+  },
+  TYPES: {
+    LIST: '/admin/types',
+    SHOW: (id: number | string) => `/admin/types/show/${id}`,
+    CREATE: '/admin/types/create',
+    UPDATE: (id: number | string) => `/admin/types/update/${id}`,
+    DELETE: (id: number | string) => `/admin/types/delete/${id}`,
+  },
+  CONDITIONS: {
+    LIST: '/admin/conditions',
+    SHOW: (id: number | string) => `/admin/conditions/show/${id}`,
+    CREATE: '/admin/conditions/create',
+    UPDATE: (id: number | string) => `/admin/conditions/update/${id}`,
+    DELETE: (id: number | string) => `/admin/conditions/delete/${id}`,
+  },
+  SALES_TYPES: {
+    LIST: '/admin/sales-types',
+    SHOW: (id: number | string) => `/admin/sales-types/show/${id}`,
+    CREATE: '/admin/sales-types/create',
+    UPDATE: (id: number | string) => `/admin/sales-types/update/${id}`,
+    DELETE: (id: number | string) => `/admin/sales-types/delete/${id}`,
+  },
+  PRICE_TYPES: {
+    LIST: '/admin/price-types',
+    SHOW: (id: number | string) => `/admin/price-types/show/${id}`,
+    CREATE: '/admin/price-types/create',
+    UPDATE: (id: number | string) => `/admin/price-types/update/${id}`,
+    DELETE: (id: number | string) => `/admin/price-types/delete/${id}`,
+  },
+  EURONORMS: {
+    LIST: '/admin/euronorms',
+    SHOW: (id: number | string) => `/admin/euronorms/show/${id}`,
+    CREATE: '/admin/euronorms/create',
+    UPDATE: (id: number | string) => `/admin/euronorms/update/${id}`,
+    DELETE: (id: number | string) => `/admin/euronorms/delete/${id}`,
+  },
+  VEHICLE_MODELS: {
+    LIST: '/admin/vehicle-models',
+    SHOW: (id: number | string) => `/admin/vehicle-models/show/${id}`,
+    CREATE: '/admin/vehicle-models/create',
+    UPDATE: (id: number | string) => `/admin/vehicle-models/update/${id}`,
+    DELETE: (id: number | string) => `/admin/vehicle-models/delete/${id}`,
+  },
+  VEHICLE_USES: {
+    LIST: '/admin/vehicle-uses',
+    SHOW: (id: number | string) => `/admin/vehicle-uses/show/${id}`,
+    CREATE: '/admin/vehicle-uses/create',
+    UPDATE: (id: number | string) => `/admin/vehicle-uses/update/${id}`,
+    DELETE: (id: number | string) => `/admin/vehicle-uses/delete/${id}`,
+  },
+  VEHICLE_LIST_STATUSES: {
+    LIST: '/admin/vehicle-list-statuses',
+    SHOW: (id: number | string) => `/admin/vehicle-list-statuses/show/${id}`,
+    CREATE: '/admin/vehicle-list-statuses/create',
+    UPDATE: (id: number | string) => `/admin/vehicle-list-statuses/update/${id}`,
+    DELETE: (id: number | string) => `/admin/vehicle-list-statuses/delete/${id}`,
+  },
+  EQUIPMENT_TYPES: {
+    LIST: '/admin/equipment-types',
+    SHOW: (id: number | string) => `/admin/equipment-types/show/${id}`,
+    CREATE: '/admin/equipment-types/create',
+    UPDATE: (id: number | string) => `/admin/equipment-types/update/${id}`,
+    DELETE: (id: number | string) => `/admin/equipment-types/delete/${id}`,
+  },
+  EQUIPMENTS: {
+    LIST: '/admin/equipments',
+    SHOW: (id: number | string) => `/admin/equipments/show/${id}`,
+    CREATE: '/admin/equipments/create',
+    UPDATE: (id: number | string) => `/admin/equipments/update/${id}`,
+    DELETE: (id: number | string) => `/admin/equipments/delete/${id}`,
+  },
+} as const
+
+/**
  * Nummerplade proxy endpoints
  */
 export const NUMMERPLADE_ENDPOINTS = {

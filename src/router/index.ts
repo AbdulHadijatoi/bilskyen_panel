@@ -217,6 +217,11 @@ const router = createRouter({
           name: 'admin.audit-logs',
           component: () => import('@/views/admin/audit-logs/AuditLogs.vue'),
         },
+        {
+          path: 'constants',
+          name: 'admin.constants',
+          component: () => import('@/views/admin/constants/ConstantsOverview.vue'),
+        },
       ],
     },
     {
