@@ -445,7 +445,7 @@
                 <v-select
                   v-model="form.transmissionType"
                   :items="fuelTypes.map(f => f.name)"
-                  label="Transmission"
+                  label="Fuel Type"
                   density="compact"
                   variant="outlined"
                   :rules="[rules.required]"
