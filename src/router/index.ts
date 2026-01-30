@@ -261,11 +261,17 @@ router.beforeEach(async (to, from, next) => {
     } else {
       // Check if route requires admin role
       if (to.meta.requiresAdmin && !isAdmin()) {
+        // Non-admin trying to access admin route - redirect to dealer dashboard
         loadingStore.stopLoading()
         isNavigating = false
         next('/')
-    } else {
-      next()
+      } else if (!to.meta.requiresAdmin && isAdmin() && to.path === '/') {
+        // Admin trying to access dealer dashboard - redirect to admin dashboard
+        loadingStore.stopLoading()
+        isNavigating = false
+        next('/admin')
+      } else {
+        next()
       }
     }
   } else if (
@@ -280,10 +286,14 @@ router.beforeEach(async (to, from, next) => {
     const isAuthenticated = await checkAuth()
     
     if (isAuthenticated) {
-      // Redirect authenticated users away from auth pages
+      // Redirect authenticated users to appropriate dashboard based on role
       loadingStore.stopLoading()
       isNavigating = false
-      next('/')
+      if (isAdmin()) {
+        next('/admin')
+      } else {
+        next('/')
+      }
     } else {
       next()
     }

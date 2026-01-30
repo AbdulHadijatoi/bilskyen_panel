@@ -161,6 +161,7 @@ import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { login, type ApiError } from '@/services/auth'
 import { decryptUrlParam } from '@/utils/urlEncryption'
+import { isAdmin } from '@/utils/permissions'
 import AuthLayout from '@/components/auth/AuthLayout.vue'
 
 const router = useRouter()
@@ -197,7 +198,7 @@ const handleSubmit = async () => {
       password: password.value,
     })
     
-    // Redirect to the original destination or dashboard
+    // Redirect to the original destination or dashboard based on role
     const redirectParam = route.query.redirect as string | undefined
     let redirectPath = '/'
     
@@ -206,6 +207,13 @@ const handleSubmit = async () => {
       const decrypted = decryptUrlParam(redirectParam)
       if (decrypted) {
         redirectPath = decrypted
+      }
+    } else {
+      // Redirect to appropriate dashboard based on user role
+      if (isAdmin()) {
+        redirectPath = '/admin'
+      } else {
+        redirectPath = '/'
       }
     }
     
