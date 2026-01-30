@@ -32,9 +32,9 @@
       </div>
       <div class="table-body">
         <div
-          v-for="item in filteredItems"
+          v-for="(item, index) in filteredItems"
           :key="item.id"
-          class="table-row"
+          :class="['table-row', { 'row-even': index % 2 === 1, 'row-odd': index % 2 === 0 }]"
         >
           <div class="table-cell name-cell">
             <span class="cell-content">{{ item.name }}</span>
@@ -183,23 +183,33 @@ const filteredItems = computed(() => {
   flex-direction: column;
 }
 
-.table-row {
+.table-body .table-row {
   display: grid;
   border-bottom: 1px solid rgba(var(--v-border-opacity), 0.5);
   transition: all 0.2s ease;
-  background: rgba(var(--v-theme-on-surface), 0.01);
+  background: transparent;
 }
 
-.table-row:last-child {
+.table-body .table-row:nth-child(odd),
+.table-body .table-row.row-odd {
+  background: rgba(var(--v-theme-on-surface), 0.04);
+}
+
+.table-body .table-row:nth-child(even),
+.table-body .table-row.row-even {
+  background: rgba(var(--v-theme-on-surface), 0.08);
+}
+
+.table-body .table-row:last-child {
   border-bottom: none;
 }
 
-.table-row:hover {
-  background: rgba(var(--v-theme-primary), 0.02);
+.table-body .table-row:hover {
+  background: rgba(var(--v-theme-primary), 0.05) !important;
 }
 
 .table-cell {
-  padding: 1rem 1.25rem;
+  padding: 0.625rem 1rem;
   display: flex;
   align-items: center;
   min-width: 0;
@@ -211,7 +221,7 @@ const filteredItems = computed(() => {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: rgba(var(--v-theme-on-surface), 0.7);
-  padding: 0.875rem 1.25rem;
+  padding: 0.625rem 1rem;
 }
 
 .name-cell {
