@@ -42,7 +42,7 @@
     <div v-else-if="stats">
       <!-- Statistics Cards -->
       <v-row class="mb-6">
-        <v-col cols="12" sm="6" md="3">
+        <v-col cols="12" sm="6" md="4">
           <v-card
             variant="flat"
             class="stat-card stat-card-vehicles"
@@ -74,7 +74,7 @@
           </v-card>
         </v-col>
 
-        <v-col cols="12" sm="6" md="3">
+        <v-col cols="12" sm="6" md="4">
           <v-card
             variant="flat"
             class="stat-card stat-card-leads"
@@ -106,7 +106,7 @@
           </v-card>
         </v-col>
 
-        <v-col cols="12" sm="6" md="3">
+        <v-col cols="12" sm="6" md="4">
           <v-card
             variant="flat"
             class="stat-card stat-card-subscription"
@@ -138,7 +138,7 @@
 
       <!-- Secondary Stats Row -->
       <v-row class="mb-6">
-        <v-col cols="12" sm="6" md="3">
+        <v-col cols="12" sm="6" md="4">
           <v-card variant="flat" class="secondary-stat-card" elevation="1">
             <v-card-text class="pa-3">
               <div class="d-flex align-center gap-2 mb-2">
@@ -151,7 +151,7 @@
           </v-card>
         </v-col>
 
-        <v-col cols="12" sm="6" md="3">
+        <v-col cols="12" sm="6" md="4">
           <v-card variant="flat" class="secondary-stat-card" elevation="1">
             <v-card-text class="pa-3">
               <div class="d-flex align-center gap-2 mb-2">
@@ -164,7 +164,7 @@
           </v-card>
         </v-col>
 
-        <v-col cols="12" sm="6" md="3">
+        <v-col cols="12" sm="6" md="4">
           <v-card variant="flat" class="secondary-stat-card" elevation="1">
             <v-card-text class="pa-3">
               <div class="d-flex align-center gap-2 mb-2">
