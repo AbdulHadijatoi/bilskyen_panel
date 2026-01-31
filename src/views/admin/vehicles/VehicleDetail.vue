@@ -76,7 +76,7 @@
         elevation="0"
       >
         <v-card-text class="pa-4">
-          <div class="d-flex align-center gap-4">
+          <div class="d-flex align-center gap-4 header-content">
             <!-- Vehicle Image -->
             <div class="vehicle-image">
               <v-img
@@ -98,20 +98,24 @@
             </div>
             
             <!-- Vehicle Info -->
-            <div class="flex-grow-1">
-              <h2 class="text-h6 font-weight-bold mb-1">{{ vehicle.title || 'N/A' }}</h2>
-              <div class="d-flex align-center gap-3 flex-wrap">
-                <div class="d-flex align-center gap-1">
+            <div class="flex-grow-1 vehicle-info-section">
+              <h2 class="text-h6 font-weight-bold mb-1 vehicle-title">{{ vehicle.title || '-' }}</h2>
+              <div class="d-flex align-center gap-3 flex-wrap vehicle-metadata">
+                <!-- <div class="d-flex align-center gap-1">
                   <v-icon size="16" color="medium-emphasis">mdi-identifier</v-icon>
                   <span class="text-caption">#{{ vehicle.id }}</span>
-                </div>
+                </div> -->
                 <div v-if="vehicle.registration" class="d-flex align-center gap-1">
                   <v-icon size="16" color="medium-emphasis">mdi-numeric</v-icon>
                   <span class="text-caption">{{ vehicle.registration }}</span>
                 </div>
-                <div v-if="vehicle.price" class="d-flex align-center gap-1">
-                  <v-icon size="16" color="medium-emphasis">mdi-currency-usd</v-icon>
-                  <span class="text-caption font-weight-medium">{{ formatPrice(vehicle.price) }}</span>
+                <div v-if="vehicle.price" class="d-flex align-center gap-1 price-highlight">
+                  <v-icon size="16" color="primary">mdi-currency-usd</v-icon>
+                  <span class="text-caption font-weight-bold price-text">{{ formatPrice(vehicle.price) }}</span>
+                </div>
+                <div v-if="vehicle.viewsCount !== undefined && vehicle.viewsCount !== null" class="d-flex align-center gap-1 views-highlight">
+                  <v-icon size="16" color="info">mdi-eye</v-icon>
+                  <span class="text-caption font-weight-bold views-text">{{ formatNumber(vehicle.viewsCount) }}</span>
                 </div>
                 <div>
                   <v-chip
@@ -120,14 +124,32 @@
                     variant="flat"
                     prepend-icon="mdi-circle"
                   >
-                    {{ vehicle.status || vehicle.vehicleListStatusName || 'N/A' }}
+                    {{ vehicle.status || vehicle.vehicleListStatusName || '-' }}
                   </v-chip>
                 </div>
               </div>
             </div>
 
             <!-- Quick Actions (Read-only mode) -->
-            <div v-if="!editMode" class="quick-actions">
+            <div v-if="!editMode" class="quick-actions d-flex gap-2">
+              <v-btn
+                color="success"
+                variant="outlined"
+                prepend-icon="mdi-check-circle"
+                @click="showMarkAsSoldDialog = true"
+                size="small"
+              >
+                Mark as Sold
+              </v-btn>
+              <v-btn
+                color="primary"
+                variant="outlined"
+                prepend-icon="mdi-update"
+                @click="showStatusDialog = true"
+                size="small"
+              >
+                Change Status
+              </v-btn>
               <v-btn
                 color="error"
                 variant="outlined"
@@ -162,7 +184,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Title</div>
-                    <div class="field-value">{{ vehicle.title || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.title) }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -176,7 +198,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Registration</div>
-                    <div class="field-value">{{ vehicle.registration || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.registration) }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -190,7 +212,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">VIN</div>
-                    <div class="field-value">{{ vehicle.vin || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.vin) }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -204,19 +226,19 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Dealer</div>
-                    <div class="field-value">{{ vehicle.dealer?.name || vehicle.dealer?.cvr || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.dealer?.name || vehicle.dealer?.cvr) }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Created By</div>
-                    <div class="field-value">{{ vehicle.user?.name || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.user?.name) }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Price</div>
-                    <div class="field-value font-weight-medium">{{ vehicle.price ? formatPrice(vehicle.price) : '' }}</div>
+                    <div class="field-value font-weight-medium">{{ vehicle.price ? formatPrice(vehicle.price) : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -231,7 +253,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Version</div>
-                    <div class="field-value">{{ (vehicle as any).version || '' }}</div>
+                    <div class="field-value">{{ displayValue((vehicle as any).version) }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -245,13 +267,13 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Published At</div>
-                    <div class="field-value">{{ vehicle.publishedAt ? formatDate(vehicle.publishedAt) : '' }}</div>
+                    <div class="field-value">{{ vehicle.publishedAt ? formatDate(vehicle.publishedAt) : '-' }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Brand</div>
-                    <div class="field-value">{{ vehicle.brandName || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.brandName) }}</div>
                   </div>
                   <v-select
                     v-else
@@ -269,7 +291,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Model</div>
-                    <div class="field-value">{{ vehicle.modelName || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.modelName) }}</div>
                   </div>
                   <v-select
                     v-else
@@ -287,7 +309,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Model Year</div>
-                    <div class="field-value">{{ vehicle.modelYearName || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.modelYearName) }}</div>
                   </div>
                   <v-select
                     v-else
@@ -304,7 +326,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">KM Driven</div>
-                    <div class="field-value">{{ vehicle.kmDriven ? formatNumber(vehicle.kmDriven) + ' km' : '' }}</div>
+                    <div class="field-value">{{ vehicle.kmDriven ? formatNumber(vehicle.kmDriven) + ' km' : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -319,7 +341,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Fuel Type</div>
-                    <div class="field-value">{{ vehicle.fuelTypeName || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.fuelTypeName) }}</div>
                   </div>
                   <v-select
                     v-else
@@ -335,25 +357,8 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Gear Type</div>
-                    <div class="field-value">{{ vehicle.gearTypeName || '' }}</div>
-                  </div>
-                  <v-select
-                    v-else
-                    v-model="vehicleData.gear_type_id"
-                    :items="gearTypes"
-                    item-title="name"
-                    item-value="id"
-                    label="Gear Type"
-                    variant="outlined"
-                    density="compact"
-                    hide-details="auto"
-                  />
-                </v-col>
-                <v-col cols="12" sm="6" md="4">
-                  <div v-if="!editMode" class="info-field">
                     <div class="field-label">Transmission</div>
-                    <div class="field-value">{{ (vehicle.details as any)?.transmission_name || '' }}</div>
+                    <div class="field-value">{{ displayValue((vehicle.details as any)?.transmission_name) }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -367,7 +372,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Listing Type</div>
-                    <div class="field-value">{{ vehicle.listingTypeName || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.listingTypeName) }}</div>
                   </div>
                   <v-select
                     v-else
@@ -426,7 +431,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Engine Power</div>
-                    <div class="field-value">{{ vehicle.enginePower ? vehicle.enginePower + ' HP' : '' }}</div>
+                    <div class="field-value">{{ vehicle.enginePower ? vehicle.enginePower + ' HP' : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -441,7 +446,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Engine Type</div>
-                    <div class="field-value">{{ vehicle.details?.engine_type || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.engine_type) }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -455,7 +460,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Drivetrain</div>
-                    <div class="field-value">{{ vehicle.details?.drive_axles === 1 ? 'FWD' : (vehicle.details?.drive_axles === 2 ? 'AWD' : '') }}</div>
+                    <div class="field-value">{{ vehicle.details?.drive_axles === 1 ? 'FWD' : (vehicle.details?.drive_axles === 2 ? 'AWD' : '-') }}</div>
                   </div>
                   <v-select
                     v-else
@@ -472,7 +477,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Euro Emission Class</div>
-                    <div class="field-value">{{ vehicle.details?.euronom_name || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.euronom_name) }}</div>
                   </div>
                   <v-select
                     v-else
@@ -489,7 +494,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Previous Usage</div>
-                    <div class="field-value">{{ vehicle.details?.use_name || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.use_name) }}</div>
                   </div>
                   <v-select
                     v-else
@@ -506,7 +511,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Towing Weight</div>
-                    <div class="field-value">{{ vehicle.towingWeight ? formatNumber(vehicle.towingWeight) + ' kg' : '' }}</div>
+                    <div class="field-value">{{ vehicle.towingWeight ? formatNumber(vehicle.towingWeight) + ' kg' : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -521,7 +526,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Battery Capacity</div>
-                    <div class="field-value">{{ vehicle.batteryCapacity ? vehicle.batteryCapacity + ' kWh' : '' }}</div>
+                    <div class="field-value">{{ vehicle.batteryCapacity ? vehicle.batteryCapacity + ' kWh' : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -536,7 +541,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Range (km)</div>
-                    <div class="field-value">{{ vehicle.rangeKm || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.rangeKm) }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -551,7 +556,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Charging Type</div>
-                    <div class="field-value">{{ vehicle.chargingType || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.chargingType) }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -565,7 +570,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Ownership Tax</div>
-                    <div class="field-value">{{ vehicle.ownershipTax ? formatPrice(vehicle.ownershipTax) : '' }}</div>
+                    <div class="field-value">{{ vehicle.ownershipTax ? formatPrice(vehicle.ownershipTax) : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -580,7 +585,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">First Registration</div>
-                    <div class="field-value">{{ vehicle.firstRegistrationDate ? formatDate(vehicle.firstRegistrationDate) : '' }}</div>
+                    <div class="field-value">{{ vehicle.firstRegistrationDate ? formatDate(vehicle.firstRegistrationDate) : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -595,7 +600,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Fuel Efficiency</div>
-                    <div class="field-value">{{ vehicle.fuelEfficiency ? vehicle.fuelEfficiency + ' L/100km' : '' }}</div>
+                    <div class="field-value">{{ vehicle.fuelEfficiency ? vehicle.fuelEfficiency + ' L/100km' : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -627,7 +632,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Wholesale Price</div>
-                    <div class="field-value">{{ (vehicle.details as any)?.wholesale_price ? formatPrice((vehicle.details as any).wholesale_price) : '' }}</div>
+                    <div class="field-value">{{ (vehicle.details as any)?.wholesale_price ? formatPrice((vehicle.details as any).wholesale_price) : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -642,7 +647,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Internal Cost Price</div>
-                    <div class="field-value">{{ (vehicle.details as any)?.internal_cost_price ? formatPrice((vehicle.details as any).internal_cost_price) : '' }}</div>
+                    <div class="field-value">{{ (vehicle.details as any)?.internal_cost_price ? formatPrice((vehicle.details as any).internal_cost_price) : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -657,7 +662,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Price Without Tax</div>
-                    <div class="field-value">{{ (vehicle.details as any)?.price_without_tax ? formatPrice((vehicle.details as any).price_without_tax) : '' }}</div>
+                    <div class="field-value">{{ (vehicle.details as any)?.price_without_tax ? formatPrice((vehicle.details as any).price_without_tax) : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -702,7 +707,7 @@
                 <v-col cols="12">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Description</div>
-                    <div class="field-value">{{ vehicle.details?.description || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.description) }}</div>
                   </div>
                   <v-textarea
                     v-else
@@ -714,22 +719,28 @@
                     hide-details="auto"
                   />
                 </v-col>
+                <v-col cols="12">
+                  <div v-if="!editMode" class="info-field">
+                    <div class="field-label">Description</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.description) }}</div>
+                  </div>
+                </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Views Count</div>
-                    <div class="field-value">{{ vehicle.details?.views_count || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.views_count) }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Vehicle External ID</div>
-                    <div class="field-value">{{ vehicle.details?.vehicle_external_id || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.vehicle_external_id) }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">VIN Location</div>
-                    <div class="field-value">{{ vehicle.details?.vin_location || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.vin_location) }}</div>
                   </div>
                 </v-col>
                 
@@ -737,13 +748,13 @@
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Type</div>
-                    <div class="field-value">{{ vehicle.details?.type_name || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.type_name) }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Category</div>
-                    <div class="field-value">{{ vehicle.details?.category || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.category) }}</div>
                   </div>
                 </v-col>
                 
@@ -751,25 +762,25 @@
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Registration Status</div>
-                    <div class="field-value">{{ vehicle.details?.registration_status || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.registration_status) }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Registration Status Updated Date</div>
-                    <div class="field-value">{{ vehicle.details?.registration_status_updated_date ? formatDate(vehicle.details.registration_status_updated_date) : '' }}</div>
+                    <div class="field-value">{{ vehicle.details?.registration_status_updated_date ? formatDate(vehicle.details.registration_status_updated_date) : '-' }}</div>
                     </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Expire Date</div>
-                    <div class="field-value">{{ vehicle.details?.expire_date ? formatDate(vehicle.details.expire_date) : '' }}</div>
+                    <div class="field-value">{{ vehicle.details?.expire_date ? formatDate(vehicle.details.expire_date) : '-' }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Status Updated Date</div>
-                    <div class="field-value">{{ vehicle.details?.status_updated_date ? formatDate(vehicle.details.status_updated_date) : '' }}</div>
+                    <div class="field-value">{{ vehicle.details?.status_updated_date ? formatDate(vehicle.details.status_updated_date) : '-' }}</div>
                   </div>
                 </v-col>
                 
@@ -777,43 +788,43 @@
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Total Weight</div>
-                    <div class="field-value">{{ vehicle.details?.total_weight ? formatNumber(vehicle.details.total_weight) + ' kg' : '' }}</div>
+                    <div class="field-value">{{ vehicle.details?.total_weight ? formatNumber(vehicle.details.total_weight) + ' kg' : '-' }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Vehicle Weight</div>
-                    <div class="field-value">{{ vehicle.details?.vehicle_weight ? formatNumber(vehicle.details.vehicle_weight) + ' kg' : '' }}</div>
+                    <div class="field-value">{{ vehicle.details?.vehicle_weight ? formatNumber(vehicle.details.vehicle_weight) + ' kg' : '-' }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Technical Total Weight</div>
-                    <div class="field-value">{{ vehicle.details?.technical_total_weight ? formatNumber(vehicle.details.technical_total_weight) + ' kg' : '' }}</div>
+                    <div class="field-value">{{ vehicle.details?.technical_total_weight ? formatNumber(vehicle.details.technical_total_weight) + ' kg' : '-' }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Coupling</div>
-                    <div class="field-value">{{ vehicle.details?.coupling ? formatNumber(vehicle.details.coupling) + ' kg' : '' }}</div>
+                    <div class="field-value">{{ vehicle.details?.coupling ? formatNumber(vehicle.details.coupling) + ' kg' : '-' }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Towing Weight Brakes</div>
-                    <div class="field-value">{{ vehicle.details?.towing_weight_brakes ? formatNumber(vehicle.details.towing_weight_brakes) + ' kg' : '' }}</div>
+                    <div class="field-value">{{ vehicle.details?.towing_weight_brakes ? formatNumber(vehicle.details.towing_weight_brakes) + ' kg' : '-' }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Minimum Weight</div>
-                    <div class="field-value">{{ vehicle.details?.minimum_weight ? formatNumber(vehicle.details.minimum_weight) + ' kg' : '' }}</div>
+                    <div class="field-value">{{ vehicle.details?.minimum_weight ? formatNumber(vehicle.details.minimum_weight) + ' kg' : '-' }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Gross Combination Weight</div>
-                    <div class="field-value">{{ vehicle.details?.gross_combination_weight ? formatNumber(vehicle.details.gross_combination_weight) + ' kg' : '' }}</div>
+                    <div class="field-value">{{ vehicle.details?.gross_combination_weight ? formatNumber(vehicle.details.gross_combination_weight) + ' kg' : '-' }}</div>
                   </div>
                 </v-col>
                 
@@ -821,19 +832,19 @@
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Engine Displacement</div>
-                    <div class="field-value">{{ vehicle.details?.engine_displacement ? vehicle.details.engine_displacement + ' cc' : '' }}</div>
+                    <div class="field-value">{{ vehicle.details?.engine_displacement ? vehicle.details.engine_displacement + ' cc' : '-' }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Engine Cylinders</div>
-                    <div class="field-value">{{ vehicle.details?.engine_cylinders || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.engine_cylinders) }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Engine Code</div>
-                    <div class="field-value">{{ vehicle.details?.engine_code || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.engine_code) }}</div>
                   </div>
                 </v-col>
                 
@@ -841,7 +852,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Last Inspection Date</div>
-                    <div class="field-value">{{ vehicle.details?.last_inspection_date ? formatDate(vehicle.details.last_inspection_date) : '' }}</div>
+                    <div class="field-value">{{ vehicle.details?.last_inspection_date ? formatDate(vehicle.details.last_inspection_date) : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -856,7 +867,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Last Inspection Result</div>
-                    <div class="field-value">{{ vehicle.details?.last_inspection_result || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.last_inspection_result) }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -870,7 +881,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Last Inspection Odometer</div>
-                    <div class="field-value">{{ vehicle.details?.last_inspection_odometer ? formatNumber(vehicle.details.last_inspection_odometer) + ' km' : '' }}</div>
+                    <div class="field-value">{{ vehicle.details?.last_inspection_odometer ? formatNumber(vehicle.details.last_inspection_odometer) + ' km' : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -885,7 +896,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Type Approval Code</div>
-                    <div class="field-value">{{ vehicle.details?.type_approval_code || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.type_approval_code) }}</div>
                   </div>
                 </v-col>
                 
@@ -893,55 +904,55 @@
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Top Speed</div>
-                    <div class="field-value">{{ vehicle.details?.top_speed ? vehicle.details.top_speed + ' km/h' : '' }}</div>
+                    <div class="field-value">{{ vehicle.details?.top_speed ? vehicle.details.top_speed + ' km/h' : '-' }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Doors</div>
-                    <div class="field-value">{{ vehicle.details?.doors || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.doors) }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Minimum Seats</div>
-                    <div class="field-value">{{ vehicle.details?.minimum_seats || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.minimum_seats) }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Maximum Seats</div>
-                    <div class="field-value">{{ vehicle.details?.maximum_seats || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.maximum_seats) }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Wheels</div>
-                    <div class="field-value">{{ vehicle.details?.wheels || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.wheels) }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Axles</div>
-                    <div class="field-value">{{ vehicle.details?.axles || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.axles) }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Drive Axles</div>
-                    <div class="field-value">{{ vehicle.details?.drive_axles || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.drive_axles) }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Wheelbase</div>
-                    <div class="field-value">{{ vehicle.details?.wheelbase ? vehicle.details.wheelbase + ' mm' : '' }}</div>
+                    <div class="field-value">{{ vehicle.details?.wheelbase ? vehicle.details.wheelbase + ' mm' : '-' }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Extra Equipment</div>
-                    <div class="field-value">{{ vehicle.details?.extra_equipment || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.extra_equipment) }}</div>
                   </div>
                 </v-col>
                 
@@ -949,7 +960,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Fuel Consumption WLTP</div>
-                    <div class="field-value">{{ vehicle.details?.fuel_consumption_wltp ? vehicle.details.fuel_consumption_wltp + ' L/100km' : '' }}</div>
+                    <div class="field-value">{{ vehicle.details?.fuel_consumption_wltp ? vehicle.details.fuel_consumption_wltp + ' L/100km' : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -965,7 +976,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Fuel Consumption NEDC</div>
-                    <div class="field-value">{{ vehicle.details?.fuel_consumption_nedc ? vehicle.details.fuel_consumption_nedc + ' L/100km' : '' }}</div>
+                    <div class="field-value">{{ vehicle.details?.fuel_consumption_nedc ? vehicle.details.fuel_consumption_nedc + ' L/100km' : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -981,7 +992,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">CO2 Emissions</div>
-                    <div class="field-value">{{ vehicle.details?.co2_emissions ? vehicle.details.co2_emissions + ' g/km' : '' }}</div>
+                    <div class="field-value">{{ vehicle.details?.co2_emissions ? vehicle.details.co2_emissions + ' g/km' : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -998,25 +1009,25 @@
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">NCAP Five</div>
-                    <div class="field-value">{{ vehicle.details?.ncap_five ? 'Yes' : (vehicle.details?.ncap_five === false ? 'No' : '') }}</div>
+                    <div class="field-value">{{ vehicle.details?.ncap_five ? 'Yes' : (vehicle.details?.ncap_five === false ? 'No' : '-') }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Airbags</div>
-                    <div class="field-value">{{ vehicle.details?.airbags || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.airbags) }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Integrated Child Seats</div>
-                    <div class="field-value">{{ vehicle.details?.integrated_child_seats || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.integrated_child_seats) }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Seat Belt Alarms</div>
-                    <div class="field-value">{{ vehicle.details?.seat_belt_alarms || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.seat_belt_alarms) }}</div>
                   </div>
                 </v-col>
                 
@@ -1024,7 +1035,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Color</div>
-                    <div class="field-value">{{ vehicle.details?.color_name || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.color_name) }}</div>
                   </div>
                   <v-select
                     v-else
@@ -1041,7 +1052,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Body Type</div>
-                    <div class="field-value">{{ vehicle.details?.body_type_name || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.body_type_name) }}</div>
                   </div>
                   <v-select
                     v-else
@@ -1058,7 +1069,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Variant</div>
-                    <div class="field-value">{{ vehicle.details?.variant_name || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.variant_name) }}</div>
                   </div>
                   <v-select
                     v-else
@@ -1075,7 +1086,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Price Type</div>
-                    <div class="field-value">{{ vehicle.details?.price_type_name || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.price_type_name) }}</div>
                   </div>
                   <v-select
                     v-else
@@ -1092,7 +1103,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Condition</div>
-                    <div class="field-value">{{ vehicle.details?.condition_name || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.condition_name) }}</div>
                   </div>
                   <v-select
                     v-else
@@ -1109,7 +1120,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Sales Type</div>
-                    <div class="field-value">{{ vehicle.details?.sales_type_name || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.sales_type_name) }}</div>
                   </div>
                   <v-select
                     v-else
@@ -1128,7 +1139,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Is Import</div>
-                    <div class="field-value">{{ vehicle.details?.is_import ? 'Yes' : (vehicle.details?.is_import === false ? 'No' : '') }}</div>
+                    <div class="field-value">{{ vehicle.details?.is_import ? 'Yes' : (vehicle.details?.is_import === false ? 'No' : '-') }}</div>
                   </div>
                   <v-checkbox
                     v-else
@@ -1141,7 +1152,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Is Factory New</div>
-                    <div class="field-value">{{ vehicle.details?.is_factory_new ? 'Yes' : (vehicle.details?.is_factory_new === false ? 'No' : '') }}</div>
+                    <div class="field-value">{{ vehicle.details?.is_factory_new ? 'Yes' : (vehicle.details?.is_factory_new === false ? 'No' : '-') }}</div>
                   </div>
                   <v-checkbox
                     v-else
@@ -1154,7 +1165,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Servicebog</div>
-                    <div class="field-value">{{ vehicle.details?.servicebog || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.servicebog) }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -1168,7 +1179,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Cover Image Index</div>
-                    <div class="field-value">{{ vehicle.details?.cover_image_index || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.cover_image_index) }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -1185,25 +1196,25 @@
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Seller Phone</div>
-                    <div class="field-value">{{ vehicle.details?.seller_phone || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.seller_phone) }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Seller Address</div>
-                    <div class="field-value">{{ vehicle.details?.seller_address || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.seller_address) }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Seller Postcode</div>
-                    <div class="field-value">{{ vehicle.details?.seller_postcode || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.seller_postcode) }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Annual Tax</div>
-                    <div class="field-value">{{ vehicle.details?.annual_tax ? formatPrice(vehicle.details.annual_tax) : '' }}</div>
+                    <div class="field-value">{{ vehicle.details?.annual_tax ? formatPrice(vehicle.details.annual_tax) : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -1218,7 +1229,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Owners</div>
-                    <div class="field-value">{{ vehicle.details?.owners || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.owners) }}</div>
                   </div>
                 </v-col>
                 
@@ -1226,7 +1237,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Leasing Period Start</div>
-                    <div class="field-value">{{ vehicle.details?.leasing_period_start ? formatDate(vehicle.details.leasing_period_start) : '' }}</div>
+                    <div class="field-value">{{ vehicle.details?.leasing_period_start ? formatDate(vehicle.details.leasing_period_start) : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -1241,7 +1252,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Leasing Period End</div>
-                    <div class="field-value">{{ vehicle.details?.leasing_period_end ? formatDate(vehicle.details.leasing_period_end) : '' }}</div>
+                    <div class="field-value">{{ vehicle.details?.leasing_period_end ? formatDate(vehicle.details.leasing_period_end) : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -1256,7 +1267,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Production Date</div>
-                    <div class="field-value">{{ vehicle.details?.production_date ? formatDate(vehicle.details.production_date) : '' }}</div>
+                    <div class="field-value">{{ vehicle.details?.production_date ? formatDate(vehicle.details.production_date) : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
@@ -1273,13 +1284,13 @@
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Dispensations</div>
-                    <div class="field-value">{{ vehicle.details?.dispensations || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.dispensations) }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Permits</div>
-                    <div class="field-value">{{ vehicle.details?.permits || '' }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.permits) }}</div>
                   </div>
                 </v-col>
               </v-row>
@@ -1403,7 +1414,7 @@
                     Dealer
                   </div>
                   <div class="info-item-value">
-                    {{ vehicle.dealer?.cvr || '' }}
+                    {{ displayValue(vehicle.dealer?.cvr) }}
                   </div>
                 </div>
                 <v-divider class="my-2" />
@@ -1413,7 +1424,7 @@
                     Created By
                   </div>
                   <div class="info-item-value">
-                    {{ vehicle.user?.name || '' }}
+                    {{ displayValue(vehicle.user?.name) }}
                   </div>
                 </div>
                 <v-divider class="my-2" />
@@ -1423,7 +1434,7 @@
                     Created At
                   </div>
                   <div class="info-item-value">
-                    {{ vehicle.createdAt ? formatDate(vehicle.createdAt) : '' }}
+                    {{ vehicle.createdAt ? formatDate(vehicle.createdAt) : '-' }}
                   </div>
                 </div>
                 <v-divider class="my-2" />
@@ -1433,7 +1444,7 @@
                     Updated At
                   </div>
                   <div class="info-item-value">
-                    {{ vehicle.updatedAt ? formatDate(vehicle.updatedAt) : '' }}
+                    {{ vehicle.updatedAt ? formatDate(vehicle.updatedAt) : '-' }}
                   </div>
                 </div>
                 <v-divider class="my-2" v-if="vehicle.details?.created_at || vehicle.details?.updated_at" />
@@ -1456,16 +1467,7 @@
                     {{ formatDate(vehicle.details.updated_at) }}
                   </div>
                 </div>
-                <v-divider class="my-2" />
-                <div class="info-item">
-                  <div class="info-item-label">
-                    <v-icon size="16" class="mr-1">mdi-eye</v-icon>
-                    Views
-                  </div>
-                  <div class="info-item-value">
-                    {{ vehicle.viewsCount || 0 }}
-                  </div>
-                </div>
+                
               </div>
             </v-card-text>
           </v-card>
@@ -1614,6 +1616,71 @@
       </v-card>
     </v-dialog>
 
+    <!-- Mark as Sold Confirmation Dialog -->
+    <v-dialog v-model="showMarkAsSoldDialog" max-width="400">
+      <v-card>
+        <v-card-title class="d-flex align-center text-subtitle-1">
+          <v-icon color="success" size="18" class="mr-2">mdi-check-circle</v-icon>
+          Mark as Sold
+        </v-card-title>
+        <v-card-text class="pa-3">
+          <p class="text-body-2">
+            Are you sure you want to mark <strong>{{ vehicle?.title || `Vehicle #${vehicle?.id}` }}</strong> as sold?
+          </p>
+          <p class="text-caption text-medium-emphasis mt-1">
+            This will update the vehicle status to "Sold". The vehicle will be marked as sold in the system.
+          </p>
+        </v-card-text>
+        <v-card-actions class="pa-3">
+          <v-spacer />
+          <v-btn variant="text" size="small" @click="showMarkAsSoldDialog = false">Cancel</v-btn>
+          <v-btn
+            color="success"
+            size="small"
+            @click="markAsSold"
+            :loading="markingAsSold"
+          >
+            Mark as Sold
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Status Update Dialog -->
+    <v-dialog v-model="showStatusDialog" max-width="500">
+      <v-card>
+        <v-card-title class="d-flex align-center text-subtitle-1">
+          <v-icon color="primary" size="18" class="mr-2">mdi-update</v-icon>
+          Update Vehicle Status
+        </v-card-title>
+        <v-card-text class="pa-3">
+          <v-select
+            v-model="selectedStatus"
+            :items="statusOptions"
+            item-title="label"
+            item-value="value"
+            label="New Status"
+            variant="outlined"
+            density="compact"
+            hide-details="auto"
+          />
+        </v-card-text>
+        <v-card-actions class="pa-3">
+          <v-spacer />
+          <v-btn variant="text" size="small" @click="cancelStatusUpdate">Cancel</v-btn>
+          <v-btn
+            color="primary"
+            size="small"
+            @click="updateStatus"
+            :loading="updatingStatus"
+            :disabled="!selectedStatus || selectedStatus === (vehicle?.status || vehicle?.vehicleListStatusName)?.toLowerCase()"
+          >
+            Update Status
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- Delete Vehicle Confirmation Dialog -->
     <v-dialog v-model="showDeleteDialog" max-width="400">
       <v-card>
@@ -1661,11 +1728,12 @@ import {
   deleteVehicle as deleteVehicleApi,
   getConstantsData,
   type UpdateVehicleData,
+  type UpdateVehicleStatusData,
   type ConstantsData,
 } from '@/api/admin.api'
 import type { VehicleModel } from '@/models/vehicle.model'
 import type { VehicleImageModel } from '@/models/vehicle.model'
-import type { VehicleStatus } from '@/models/vehicle.model'
+import { VehicleStatus } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
 const route = useRoute()
@@ -1697,6 +1765,11 @@ const loadingEquipment = ref(false)
 const selectedEquipment = ref<number[]>([])
 const savingEquipment = ref(false)
 const showDeleteDialog = ref(false)
+const showStatusDialog = ref(false)
+const updatingStatus = ref(false)
+const selectedStatus = ref<VehicleStatus | ''>('')
+const showMarkAsSoldDialog = ref(false)
+const markingAsSold = ref(false)
 
 // Constants data
 const constants = ref<ConstantsData | null>(null)
@@ -1723,6 +1796,27 @@ const equipments = computed(() => constants.value?.equipments || [])
 const filteredModels = computed(() => {
   if (!vehicleData.value.brand_id) return []
   return vehicleModels.value.filter(model => model.brand_id === vehicleData.value.brand_id)
+})
+
+// Status options for status update dialog
+const statusOptions = computed(() => {
+  const validApiStatuses = ['draft', 'published', 'unpublished', 'archived']
+  
+  return vehicleListStatuses.value
+    .map(status => {
+      // Map status name to API format (lowercase)
+      const apiValue = status.name.toLowerCase()
+      
+      // Only include statuses that are valid for the API
+      if (validApiStatuses.includes(apiValue)) {
+        return {
+          label: status.name,
+          value: apiValue
+        }
+      }
+      return null
+    })
+    .filter((option): option is { label: string; value: string } => option !== null)
 })
 
 const loadVehicle = async () => {
@@ -1999,6 +2093,63 @@ const cancelEquipmentEdit = () => {
   selectedEquipment.value = []
 }
 
+const cancelStatusUpdate = () => {
+  showStatusDialog.value = false
+  selectedStatus.value = ''
+}
+
+const updateStatus = async () => {
+  if (!vehicle.value || !selectedStatus.value) return
+
+  try {
+    updatingStatus.value = true
+    error.value = null
+    
+    const statusData: UpdateVehicleStatusData = {
+      status: selectedStatus.value as VehicleStatus
+    }
+    
+    const updatedVehicle = await updateVehicleStatus(vehicle.value.id, statusData)
+    vehicle.value = updatedVehicle
+    
+    showStatusDialog.value = false
+    selectedStatus.value = ''
+    
+    // Reload vehicle to get updated status
+    await loadVehicle()
+  } catch (err) {
+    error.value = (err as ApiErrorModel).message || 'Failed to update vehicle status'
+  } finally {
+    updatingStatus.value = false
+  }
+}
+
+const markAsSold = async () => {
+  if (!vehicle.value) return
+
+  try {
+    markingAsSold.value = true
+    error.value = null
+    
+    // Use 'sold' status for admin API
+    const statusData: UpdateVehicleStatusData = {
+      status: VehicleStatus.SOLD
+    }
+    
+    const updatedVehicle = await updateVehicleStatus(vehicle.value.id, statusData)
+    vehicle.value = updatedVehicle
+    
+    showMarkAsSoldDialog.value = false
+    
+    // Reload vehicle to get updated status
+    await loadVehicle()
+  } catch (err) {
+    error.value = (err as ApiErrorModel).message || 'Failed to mark vehicle as sold'
+  } finally {
+    markingAsSold.value = false
+  }
+}
+
 const confirmDeleteVehicle = () => {
   showDeleteDialog.value = true
 }
@@ -2029,7 +2180,7 @@ const getStatusColor = (status?: string) => {
 }
 
 const formatPrice = (price?: number) => {
-  if (!price) return 'N/A'
+  if (!price) return '-'
   return new Intl.NumberFormat('da-DK', {
     style: 'currency',
     currency: 'DKK',
@@ -2043,7 +2194,7 @@ const formatNumber = (num: number) => {
 }
 
 const formatDate = (date?: string) => {
-  if (!date) return 'N/A'
+  if (!date) return '-'
   try {
     return new Date(date).toLocaleDateString('da-DK', {
       year: 'numeric',
@@ -2053,6 +2204,14 @@ const formatDate = (date?: string) => {
   } catch {
     return date
   }
+}
+
+// Helper function to display "-" for empty values
+const displayValue = (value: any): string => {
+  if (value === null || value === undefined || value === '') {
+    return '-'
+  }
+  return String(value)
 }
 
 // Watch for equipment dialog to load equipment when opened
@@ -2066,6 +2225,15 @@ watch(showEquipmentDialog, (newVal) => {
         .filter((id: any) => id !== null)
     }
     loadingEquipment.value = false
+  }
+})
+
+// Watch for status dialog to initialize selected status
+watch(showStatusDialog, (newVal) => {
+  if (newVal && vehicle.value) {
+    // Initialize with current status (convert to lowercase for API)
+    const currentStatus = (vehicle.value.status || vehicle.value.vehicleListStatusName || '').toLowerCase()
+    selectedStatus.value = currentStatus as VehicleStatus || ''
   }
 })
 
@@ -2220,6 +2388,30 @@ onMounted(async () => {
   flex-shrink: 0;
 }
 
+.price-highlight {
+  background: rgba(var(--v-theme-primary), 0.1);
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(var(--v-theme-primary), 0.2);
+}
+
+.price-text {
+  color: rgb(var(--v-theme-primary));
+  font-size: 0.875rem;
+}
+
+.views-highlight {
+  background: rgba(var(--v-theme-info), 0.1);
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(var(--v-theme-info), 0.2);
+}
+
+.views-text {
+  color: rgb(var(--v-theme-info));
+  font-size: 0.875rem;
+}
+
 @media (max-width: 960px) {
   .vehicle-detail-container {
     padding: 12px;
@@ -2227,6 +2419,74 @@ onMounted(async () => {
 
   .profile-header-card :deep(.v-card-text) {
     padding: 16px !important;
+  }
+
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 16px !important;
+  }
+
+  .vehicle-image {
+    align-self: center;
+  }
+
+  .vehicle-image :deep(.v-img),
+  .vehicle-image .no-image-placeholder {
+    width: 80px !important;
+    height: 80px !important;
+  }
+
+  .vehicle-info-section {
+    width: 100%;
+  }
+
+  .vehicle-title {
+    font-size: 1rem !important;
+    text-align: center;
+    width: 100%;
+  }
+
+  .vehicle-metadata {
+    justify-content: center;
+    gap: 8px !important;
+  }
+
+  .quick-actions {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .quick-actions .v-btn {
+    flex: 1 1 auto;
+    min-width: 120px;
+  }
+
+  .price-highlight,
+  .views-highlight {
+    padding: 3px 6px;
+  }
+
+  .price-text,
+  .views-text {
+    font-size: 0.8125rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .vehicle-metadata {
+    flex-direction: column;
+    align-items: center;
+    gap: 6px !important;
+  }
+
+  .quick-actions {
+    flex-direction: column;
+  }
+
+  .quick-actions .v-btn {
+    width: 100%;
   }
 }
 </style>

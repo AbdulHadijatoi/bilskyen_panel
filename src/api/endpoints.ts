@@ -124,6 +124,13 @@ export const DEALER_SUBSCRIPTION_ENDPOINTS = {
 } as const
 
 /**
+ * Dealer dashboard endpoints
+ */
+export const DEALER_DASHBOARD_ENDPOINTS = {
+  STATS: '/dealer/dashboard',
+} as const
+
+/**
  * Admin user endpoints
  */
 export const ADMIN_USER_ENDPOINTS = {

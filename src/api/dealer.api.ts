@@ -16,6 +16,7 @@ import {
   DEALER_STAFF_ENDPOINTS,
   DEALER_SUBSCRIPTION_ENDPOINTS,
   DEALER_LOOKUP_ENDPOINTS,
+  DEALER_DASHBOARD_ENDPOINTS,
 } from './endpoints'
 import type { VehicleModel } from '@/models/vehicle.model'
 import { mapVehicleFromApi } from '@/models/vehicle.model'
@@ -932,6 +933,70 @@ export async function getSubscriptionHistory(): Promise<any[]> {
       DEALER_SUBSCRIPTION_ENDPOINTS.HISTORY
     )
     return handleSuccess<any[]>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// DASHBOARD
+// ============================================================================
+
+/**
+ * Dashboard statistics data
+ */
+export interface DashboardStats {
+  overview: {
+    vehicles: {
+      total: number
+      published: number
+      draft: number
+      sold: number
+      archived: number
+      new_last_7_days: number
+      new_last_30_days: number
+      new_this_month: number
+      new_last_month: number
+      growth_rate: number
+      total_value: number
+      average_price: number
+    }
+    leads: {
+      total: number
+      new_last_7_days: number
+      new_last_30_days: number
+      new_this_month: number
+      new_last_month: number
+      growth_rate: number
+    }
+    subscription: {
+      has_subscription: boolean
+      plan_name: string
+      status: string
+      is_active: boolean
+    }
+  }
+  trends: {
+    vehicles: Array<{ date: string; count: number }>
+  }
+  distributions: {
+    vehicle_status: Array<{ status: string; count: number; color: string }>
+  }
+  recent: {
+    vehicles: Array<any>
+    leads: Array<any>
+  }
+}
+
+/**
+ * Get dashboard statistics
+ */
+export async function getDashboardStats(): Promise<DashboardStats> {
+  try {
+    const response = await httpClient.get<{ data: DashboardStats }>(
+      DEALER_DASHBOARD_ENDPOINTS.STATS
+    )
+    return handleSuccess<DashboardStats>(response)
   } catch (error) {
     throw handleError(error)
   }
