@@ -259,43 +259,48 @@ export async function updateVehicle(
     // Check if data has File objects (images) that need FormData
     if (data instanceof FormData) {
       requestData = data
-    } else if (data.images && Array.isArray(data.images) && data.images.length > 0 && data.images[0] instanceof File) {
-      // Convert to FormData if images are present
-      const formData = new FormData()
-      
-      // Handle images
-      data.images.forEach((file: File) => {
-        if (file instanceof File) {
-          formData.append('images[]', file, file.name)
-        }
-      })
-      
-      // Handle equipment_ids
-      const equipmentArray = data.equipment_ids || data.equipment
-      if (equipmentArray && Array.isArray(equipmentArray) && equipmentArray.length > 0) {
-        equipmentArray.forEach((equipmentId: number | string) => {
-          formData.append('equipment_ids[]', String(equipmentId))
+    } else {
+      const updateData = data as UpdateVehicleData
+      // Check if images are present and are File objects
+      if (updateData.images && Array.isArray(updateData.images) && updateData.images.length > 0 && updateData.images[0] instanceof File) {
+        // Convert to FormData if images are present
+        const formData = new FormData()
+        
+        // Handle images
+        updateData.images.forEach((file: File) => {
+          if (file instanceof File) {
+            formData.append('images[]', file, file.name)
+          }
         })
-      }
-      
-      // Handle other fields
-      Object.keys(data).forEach((key) => {
-        if (key === 'images' || key === 'equipment' || key === 'equipment_ids') {
-          return
+        
+        // Handle equipment_ids
+        const equipmentArray = updateData.equipment_ids || updateData.equipment
+        if (equipmentArray && Array.isArray(equipmentArray) && equipmentArray.length > 0) {
+          equipmentArray.forEach((equipmentId: number | string) => {
+            formData.append('equipment_ids[]', String(equipmentId))
+          })
         }
         
-        if (data[key] !== undefined && data[key] !== null) {
-          if (Array.isArray(data[key])) {
-            formData.append(key, JSON.stringify(data[key]))
-          } else if (typeof data[key] === 'object') {
-            formData.append(key, JSON.stringify(data[key]))
-          } else {
-            formData.append(key, String(data[key]))
+        // Handle other fields
+        Object.keys(updateData).forEach((key) => {
+          if (key === 'images' || key === 'equipment' || key === 'equipment_ids') {
+            return
           }
-        }
-      })
-      
-      requestData = formData
+          
+          const value = updateData[key as keyof UpdateVehicleData]
+          if (value !== undefined && value !== null) {
+            if (Array.isArray(value)) {
+              formData.append(key, JSON.stringify(value))
+            } else if (typeof value === 'object') {
+              formData.append(key, JSON.stringify(value))
+            } else {
+              formData.append(key, String(value))
+            }
+          }
+        })
+        
+        requestData = formData
+      }
     }
     
     const response = await httpClient.post<{ data: any }>(
