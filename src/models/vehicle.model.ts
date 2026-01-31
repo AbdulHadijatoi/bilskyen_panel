@@ -34,8 +34,19 @@ export interface VehicleModel {
   year?: number
   kmDriven?: number
   fuelTypeId?: number
+  gearTypeId?: number
   enginePower?: number
   towingWeight?: number
+  batteryCapacity?: number
+  rangeKm?: number
+  chargingType?: string
+  ownershipTax?: number
+  firstRegistrationDate?: string
+  fuelEfficiency?: number
+  brandId?: number
+  modelId?: number
+  modelYearId?: number
+  listingTypeId?: number
   transmissionId?: number
   bodyType?: string
   hasCarplay?: boolean
@@ -72,8 +83,11 @@ export interface VehicleImageModel {
   id: number
   vehicleId: number
   url: string
+  thumbnailUrl?: string
   path: string
+  thumbnailPath?: string
   order?: number
+  sortOrder?: number
   isPrimary?: boolean
   createdAt?: string
 }
@@ -99,8 +113,19 @@ export function mapVehicleFromApi(data: any): VehicleModel {
     year: data.year,
     kmDriven: data.km_driven,
     fuelTypeId: data.fuel_type_id,
+    gearTypeId: data.gear_type_id,
     enginePower: data.engine_power,
     towingWeight: data.towing_weight,
+    batteryCapacity: data.battery_capacity,
+    rangeKm: data.range_km,
+    chargingType: data.charging_type,
+    ownershipTax: data.ownership_tax,
+    firstRegistrationDate: data.first_registration_date,
+    fuelEfficiency: data.fuel_efficiency,
+    brandId: data.brand_id,
+    modelId: data.model_id,
+    modelYearId: data.model_year_id,
+    listingTypeId: data.listing_type_id,
     transmissionId: data.transmission_id,
     bodyType: data.body_type,
     hasCarplay: data.has_carplay ?? false,
@@ -127,9 +152,12 @@ export function mapVehicleFromApi(data: any): VehicleModel {
     images: data.images?.map((img: any) => ({
       id: img.id,
       vehicleId: img.vehicle_id,
-      url: img.url ?? img.image_url ?? img.thumbnail_url ?? img.thumbnail_path,
+      url: img.url ?? img.image_url ?? img.thumbnail_url,
+      thumbnailUrl: img.thumbnail_url,
       path: img.path ?? img.image_path ?? img.thumbnail_path,
+      thumbnailPath: img.thumbnail_path,
       order: img.order ?? img.sort_order,
+      sortOrder: img.sort_order,
       isPrimary: img.is_primary,
       createdAt: img.created_at,
     })),

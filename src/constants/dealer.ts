@@ -61,21 +61,6 @@ export const dealerSidebarSections: SidebarSection[] = [
     ],
   },
   {
-    title: 'User Features',
-    items: [
-      {
-        title: 'Favorites',
-        url: `${DEALER_ROUTE_BASE}favorites`,
-        icon: 'mdi-heart',
-      },
-          {
-        title: 'Saved Searches',
-        url: `${DEALER_ROUTE_BASE}saved-searches`,
-        icon: 'mdi-magnify',
-      },
-    ],
-  },
-  {
     title: 'Management',
     items: [
       {
@@ -87,38 +72,6 @@ export const dealerSidebarSections: SidebarSection[] = [
         title: 'Subscription',
         url: `${DEALER_ROUTE_BASE}subscription`,
         icon: 'mdi-crown',
-      },
-    ],
-  },
-  {
-    title: 'Settings',
-    items: [
-      {
-        title: 'Settings',
-        url: `${DEALER_ROUTE_BASE}settings`,
-        icon: 'mdi-cog',
-        items: [
-          {
-            title: 'General',
-            url: `${DEALER_ROUTE_BASE}settings/general`,
-          },
-          {
-            title: 'Profile',
-            url: `${DEALER_ROUTE_BASE}settings/profile`,
-          },
-          {
-            title: 'Sessions',
-            url: `${DEALER_ROUTE_BASE}settings/sessions`,
-          },
-          {
-            title: 'Change Password',
-            url: `${DEALER_ROUTE_BASE}settings/change-password`,
-          },
-          {
-            title: 'Permissions',
-            url: `${DEALER_ROUTE_BASE}settings/permissions`,
-          },
-        ],
       },
     ],
   },

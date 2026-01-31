@@ -1,300 +1,291 @@
 <template>
+  <div class="vehicles-overview-container">
+    <!-- Header Section -->
+    <div class="header-section mb-6">
+      <div class="d-flex justify-space-between align-center">
   <div>
-    <div class="d-flex justify-space-between align-center mb-3">
-      <div>
-        <h2 class="text-h6 font-weight-bold mb-1">Manage Vehicles</h2>
-        <p class="text-caption text-medium-emphasis">
+          <h1 class="text-h4 font-weight-bold mb-1">Vehicle Management</h1>
+          <p class="text-body-2 text-medium-emphasis mb-0">
           View and manage your vehicle inventory
         </p>
       </div>
       <v-btn
         color="primary"
         prepend-icon="mdi-plus"
-        size="small"
+          size="default"
         :to="{ name: 'dealer.vehicles.add' }"
       >
         Add Vehicle
       </v-btn>
     </div>
+    </div>
 
-    <!-- Filters Card -->
+    <!-- Stats Cards -->
+    <v-row class="mb-6">
+      <v-col cols="12" sm="6" md="3">
+        <v-card
+          variant="flat"
+          class="stat-card"
+          elevation="0"
+        >
+          <v-card-text class="pa-4">
+            <div class="d-flex align-center justify-space-between">
+              <div>
+                <div class="stat-label">Total Vehicles</div>
+                <div class="stat-value">{{ vehicles.totalDocs || 0 }}</div>
+              </div>
+              <v-icon size="40" color="primary" class="stat-icon">mdi-car-multiple</v-icon>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+      <v-col cols="12" sm="6" md="3">
+        <v-card
+          variant="flat"
+          class="stat-card"
+          elevation="0"
+        >
+          <v-card-text class="pa-4">
+            <div class="d-flex align-center justify-space-between">
+              <div>
+                <div class="stat-label">Published</div>
+                <div class="stat-value text-success">{{ publishedCount }}</div>
+              </div>
+              <v-icon size="40" color="success" class="stat-icon">mdi-check-circle</v-icon>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+      <v-col cols="12" sm="6" md="3">
+        <v-card
+          variant="flat"
+          class="stat-card"
+          elevation="0"
+        >
+          <v-card-text class="pa-4">
+            <div class="d-flex align-center justify-space-between">
+              <div>
+                <div class="stat-label">Draft</div>
+                <div class="stat-value text-warning">{{ draftCount }}</div>
+              </div>
+              <v-icon size="40" color="warning" class="stat-icon">mdi-file-document-edit</v-icon>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+      <v-col cols="12" sm="6" md="3">
+        <v-card
+          variant="flat"
+          class="stat-card"
+          elevation="0"
+        >
+          <v-card-text class="pa-4">
+            <div class="d-flex align-center justify-space-between">
+              <div>
+                <div class="stat-label">Sold</div>
+                <div class="stat-value text-info">{{ soldCount }}</div>
+              </div>
+              <v-icon size="40" color="info" class="stat-icon">mdi-check-all</v-icon>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <!-- Filters and Search Card -->
     <v-card
       variant="flat"
-      class="filters-card mb-3"
+      class="filters-card mb-4"
       elevation="0"
-      :style="{
-        backgroundColor: 'var(--card)',
-        color: 'var(--card-foreground)',
-        border: '1px solid rgba(0, 0, 0, 0.12)',
-        borderRadius: '8px',
-      }"
     >
-      <v-card-text class="pa-3">
-        <div class="d-flex justify-space-between align-center">
+      <v-card-text class="pa-4">
+        <div class="d-flex align-center gap-4 flex-wrap">
           <v-text-field
             v-model="search"
-            placeholder="Search vehicles..."
-            density="compact"
-            variant="plain"
+            placeholder="Search by title, registration, VIN..."
+            density="comfortable"
+            variant="outlined"
             prepend-inner-icon="mdi-magnify"
-            class="search-field"
+            class="search-field flex-grow-1"
+            style="max-width: 400px;"
             hide-details
-            style="max-width: 300px;"
+            clearable
+            @update:model-value="handleSearch"
           />
-          <div class="d-flex gap-2">
+          <v-select
+            v-model="statusFilter"
+            :items="statusFilterOptions"
+            item-title="label"
+            item-value="value"
+            label="Filter by Status"
+              variant="outlined" 
+            density="comfortable"
+            prepend-inner-icon="mdi-filter"
+            style="max-width: 200px;"
+            hide-details
+            clearable
+            @update:model-value="loadVehicles"
+          />
+          <v-spacer />
             <v-btn 
               variant="outlined" 
-              density="compact" 
-              size="small"
-              prepend-icon="mdi-filter-variant"
-              class="action-btn"
-            >
-              Filter
+            prepend-icon="mdi-refresh"
+            @click="loadVehicles"
+            :loading="loading"
+            size="default"
+          >
+            Refresh
             </v-btn>
-            <v-btn 
-              variant="outlined" 
-              density="compact" 
-              size="small"
-              prepend-icon="mdi-sort"
-              class="action-btn"
-            >
-              Sort
-            </v-btn>
-          </div>
         </div>
       </v-card-text>
     </v-card>
 
-    <v-alert
-      v-if="loadError"
-      type="error"
-      variant="tonal"
-      density="compact"
-      class="mb-3"
-      closable
-      @click:close="loadError = null"
-    >
-      {{ loadError }}
-    </v-alert>
-
-    <!-- Table Card -->
+    <!-- Vehicles Table Card -->
     <v-card
       variant="flat"
-      class="vehicles-table-card"
+      class="table-card"
       elevation="0"
-      :style="{
-        backgroundColor: 'var(--card)',
-        color: 'var(--card-foreground)',
-        border: '1px solid rgba(0, 0, 0, 0.12)',
-        borderRadius: '8px',
-      }"
     >
+      <v-card-title class="card-title">
+        <v-icon class="mr-2">mdi-table</v-icon>
+        Vehicles List
+        <v-spacer />
+        <span class="text-caption text-medium-emphasis">
+          Showing {{ vehicles.docs.length }} of {{ vehicles.totalDocs || 0 }} vehicles
+        </span>
+      </v-card-title>
+
+      <v-card-text class="pa-0">
+        <div v-if="loading" class="loading-container">
+          <v-progress-circular indeterminate color="primary" size="48" />
+          <p class="text-body-2 text-medium-emphasis mt-4">Loading vehicles...</p>
+        </div>
+
+        <div v-else-if="error" class="error-container pa-6">
+          <v-alert type="error" variant="tonal" prominent>
+            <v-alert-title>Error</v-alert-title>
+            {{ error }}
+          </v-alert>
+        </div>
+
       <v-data-table
+          v-else
         :headers="headers"
-        :items="tableVehicles"
-        :search="search"
-        :items-per-page="15"
-        :loading="loading"
-        show-expand
-        item-value="id"
-        density="compact"
+          :items="vehicles.docs"
+          :items-per-page="vehicles.limit"
+          :page="vehicles.page"
+          density="comfortable"
         class="vehicles-table"
         :class="$style.dataTable"
         elevation="0"
+          @update:page="handlePageChange"
       >
-          <template #item.slNo="{ index }">
-            <span style="font-size: 0.75rem;">{{ index + 1 }}</span>
+          <template #item.id="{ item }">
+            <span class="text-medium-emphasis font-weight-medium">#{{ item.id }}</span>
           </template>
           
-          <template #item.inventoryDate="{ item }">
-            <span style="font-size: 0.75rem;">{{ item.inventoryDate }}</span>
+          <template #item.title="{ item }">
+            <div class="d-flex align-center gap-2">
+              <div v-if="item.images && item.images.length > 0 && item.images[0]" class="vehicle-thumbnail">
+                <v-img
+                  :src="item.images[0]?.url || item.images[0]?.thumbnailUrl"
+                  :alt="item.title"
+                  cover
+                  width="40"
+                  height="40"
+                  style="border-radius: 4px;"
+                />
+              </div>
+              <div>
+                <div class="font-weight-medium">{{ item.title || 'N/A' }}</div>
+                <div class="text-caption text-medium-emphasis">
+                  {{ item.registration || 'No registration' }}
+                </div>
+              </div>
+            </div>
           </template>
           
-          <template #item.registrationNumber="{ item }">
-            <span style="font-size: 0.75rem; font-weight: 500;">{{ item.registrationNumber }}</span>
+          <template #item.price="{ item }">
+            <span class="font-weight-medium">
+              {{ formatPrice(item.price) }}
+            </span>
           </template>
           
           <template #item.status="{ item }">
             <v-chip
-              :color="getStatusColor(item.status)"
-              size="x-small"
+              :color="getStatusColor(item.status || item.vehicleListStatusName)"
+              size="small"
               variant="flat"
-              style="font-size: 0.6875rem;"
             >
-              {{ item.status }}
+              {{ item.status || item.vehicleListStatusName || 'N/A' }}
             </v-chip>
           </template>
           
-          <template #item.make="{ item }">
-            <span style="font-size: 0.75rem;">{{ item.make }}</span>
-          </template>
-          
-          <template #item.model="{ item }">
-            <span style="font-size: 0.75rem;">{{ item.model }}</span>
-          </template>
-          
-          <template #item.year="{ item }">
-            <span style="font-size: 0.75rem;">{{ item.year }}</span>
-          </template>
-          
-          <template #item.listedPrice="{ item }">
-            <span style="font-size: 0.75rem; font-weight: 500;">{{ item.listedPrice }}</span>
-          </template>
-          
           <template #item.actions="{ item }">
-            <v-menu>
-              <template #activator="{ props }">
+            <div class="d-flex align-center justify-center gap-2">
                 <v-btn 
                   icon 
                   variant="text" 
-                  size="x-small"
-                  v-bind="props"
-                  class="text-medium-emphasis"
-                >
-                  <v-icon size="16">mdi-dots-vertical</v-icon>
+                size="small"
+                color="primary"
+                @click="viewVehicle(item.id)"
+                title="View"
+              >
+                <v-icon size="20">mdi-eye</v-icon>
                 </v-btn>
-              </template>
-              <v-list density="compact" class="pa-1">
-                <v-list-item
-                  prepend-icon="mdi-image-multiple"
-                  title="Images"
-                  class="text-caption"
-                  @click="openImageGallery(item.original)"
-                />
-                <v-list-item
-                  prepend-icon="mdi-eye"
-                  title="View"
-                  class="text-caption"
-                  @click="viewVehicle(item.original)"
-                />
-                <v-list-item
-                  prepend-icon="mdi-pencil"
-                  title="Edit"
-                  class="text-caption"
-                  @click="editVehicle(item.original)"
-                />
-                <v-list-item
-                  prepend-icon="mdi-delete"
+              <v-btn
+                icon
+                variant="text"
+                size="small"
+                color="error"
+                @click="confirmDelete(item)"
                   title="Delete"
-                  class="text-caption text-error"
-                  @click="deleteVehicle(item.original)"
-                />
-              </v-list>
-            </v-menu>
-          </template>
-          <template #expanded-row="{ columns, item }">
-            <tr>
-              <td :colspan="columns.length">
-                <div class="pa-3 text-body-2">
-                  <div class="mb-2 text-caption text-medium-emphasis">Vehicle Summary</div>
-                  <v-row dense>
-                    <v-col cols="12" md="4">
-                      <div><strong>Vehicle:</strong> {{ item.original.title ?? '-' }}</div>
-                      <div><strong>Make:</strong> {{ item.original.brandName ?? '-' }}</div>
-                      <div><strong>Model:</strong> {{ item.original.modelName ?? '-' }}</div>
-                      <div><strong>Model Year:</strong> {{ item.original.modelYearName ?? '-' }}</div>
-                      <div><strong>Registration:</strong> {{ item.original.registration ?? '-' }}</div>
-                    </v-col>
-                    <v-col cols="12" md="4">
-                      <div><strong>Status:</strong> {{ item.original.vehicleListStatusName ?? item.original.status ?? '-' }}</div>
-                      <div><strong>Price:</strong> {{ formatPrice(item.original.price) }}</div>
-                      <div><strong>Mileage:</strong> {{ item.original.kmDriven ?? '-' }}</div>
-                      <div><strong>Listed On:</strong> {{ formatDateTime(item.original.createdAt) }}</div>
-                      <div><strong>Last Updated:</strong> {{ formatDateTime(item.original.updatedAt) }}</div>
-                    </v-col>
-                    <v-col cols="12" md="4">
-                      <div><strong>Fuel Type:</strong> {{ item.original.fuelType?.name ?? item.original.fuelTypeName ?? '-' }}</div>
-                      <div><strong>Transmission:</strong> {{ item.original.gearTypeName ?? '-' }}</div>
-                      <div><strong>Engine Power:</strong> {{ item.original.enginePower ?? '-' }}</div>
-                      <div><strong>Towing Capacity:</strong> {{ item.original.towingWeight ?? '-' }}</div>
-                      <div><strong>Listing Type:</strong> {{ item.original.listingTypeName ?? '-' }}</div>
-                      <div><strong>Published:</strong> {{ formatDateTime(item.original.publishedAt) }}</div>
-                    </v-col>
-                    <v-col cols="12">
-                      <div class="mt-2"><strong>Description:</strong> {{ item.original.description ?? '-' }}</div>
-                    </v-col>
-                    <v-col cols="12" md="6">
-                      <div class="mt-2"><strong>Equipment:</strong></div>
-                      <div class="text-body-2">
-                        {{
-                          Array.isArray(item.original.equipment) && item.original.equipment.length > 0
-                            ? item.original.equipment.map((eq: any) => eq.name ?? eq).join(', ')
-                            : 'No equipment listed'
-                        }}
-                      </div>
-                    </v-col>
-                    <v-col cols="12" md="6">
-                      <div class="mt-2"><strong>Additional Info:</strong></div>
-                      <div class="text-body-2">
-                        {{
-                          item.original.details
-                            ? [
-                                item.original.details?.color_name ? `Color: ${item.original.details.color_name}` : null,
-                                item.original.details?.body_type_name ? `Body Type: ${item.original.details.body_type_name}` : null,
-                                item.original.details?.fuel_efficiency ? `Fuel Efficiency: ${item.original.details.fuel_efficiency}` : null,
-                                item.original.details?.co2_emissions ? `CO₂: ${item.original.details.co2_emissions}` : null,
-                              ]
-                                .filter(Boolean)
-                                .join(', ') || '-'
-                            : '-'
-                        }}
-                      </div>
-                    </v-col>
-                  </v-row>
+              >
+                <v-icon size="20">mdi-delete</v-icon>
+              </v-btn>
                 </div>
-              </td>
-            </tr>
           </template>
         </v-data-table>
+
+        <div v-if="vehicles.totalPages && vehicles.totalPages > 1" class="d-flex justify-center pa-4">
+          <v-pagination
+            v-model="currentPage"
+            :length="vehicles.totalPages"
+            density="comfortable"
+            @update:model-value="handlePageChange"
+          />
+        </div>
+      </v-card-text>
     </v-card>
 
-    <v-dialog v-model="imageDialog" max-width="900">
+    <!-- Delete Confirmation Dialog -->
+    <v-dialog
+      v-model="showDeleteDialog"
+      max-width="500"
+      persistent
+    >
       <v-card>
-        <v-card-title class="text-subtitle-1 font-weight-semibold">
-          {{ selectedVehicleTitle }}
+        <v-card-title class="text-h6 font-weight-bold">
+          Delete Vehicle
         </v-card-title>
         <v-card-text>
-          <div v-if="selectedVehicleImages.length === 0" class="text-body-2 text-medium-emphasis">
-            No images available for this vehicle.
-          </div>
-          <v-carousel
-            v-else
-            v-model="selectedImageIndex"
-            hide-delimiters
-            height="400"
-          >
-            <v-carousel-item
-              v-for="(image, index) in selectedVehicleImages"
-              :key="image.id ?? index"
-            >
-              <v-img
-                :src="image.url"
-                height="400"
-                cover
-              />
-            </v-carousel-item>
-          </v-carousel>
-          <v-row v-if="selectedVehicleImages.length > 1" dense class="mt-3">
-            <v-col
-              v-for="(image, index) in selectedVehicleImages"
-              :key="`thumb-${image.id ?? index}`"
-              cols="4"
-              sm="3"
-              md="2"
-            >
-              <v-img
-                :src="image.url"
-                height="70"
-                cover
-                class="rounded-sm"
-                style="cursor: pointer;"
-                @click="selectedImageIndex = index"
-              />
-            </v-col>
-          </v-row>
+          <p class="text-body-1">
+            Are you sure you want to delete <strong>{{ vehicleToDelete?.title || `Vehicle #${vehicleToDelete?.id}` }}</strong>?
+          </p>
+          <p class="text-body-2 text-medium-emphasis mt-2">
+            This action will soft delete the vehicle. The vehicle will no longer be visible in the system.
+          </p>
         </v-card-text>
-        <v-card-actions class="justify-end">
-          <v-btn variant="text" @click="imageDialog = false">Close</v-btn>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn variant="text" @click="showDeleteDialog = false">Cancel</v-btn>
+          <v-btn
+            color="error"
+            @click="deleteVehicle"
+            :loading="deleting"
+          >
+            Delete Vehicle
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -302,240 +293,277 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { getVehicles } from '@/api/dealer.api'
-import type { VehicleImageModel, VehicleModel } from '@/models/vehicle.model'
+import { getVehicles, deleteVehicle as deleteVehicleApi } from '@/api/dealer.api'
+import type { PaginationModel } from '@/models/pagination.model'
+import type { VehicleModel } from '@/models/vehicle.model'
+import type { VehicleStatus } from '@/models/vehicle.model'
+import type { ApiErrorModel } from '@/models/api-error.model'
 
 const router = useRouter()
-const search = ref('')
-const loading = ref(false)
-const loadError = ref<string | null>(null)
 
-const headers = [
-  { title: '#', key: 'slNo', sortable: false, width: '60px' },
-  { title: 'Date', key: 'inventoryDate', width: '140px' },
-  { title: 'Registration', key: 'registrationNumber', width: '150px' },
-  { title: 'Status', key: 'status', width: '100px' },
-  { title: 'Make', key: 'make', width: '100px' },
-  { title: 'Model', key: 'model', width: '120px' },
-  { title: 'Year', key: 'year', width: '80px' },
-  { title: 'Price', key: 'listedPrice', width: '120px' },
-  { title: '', key: 'actions', sortable: false, width: '60px', align: 'end' as const },
+const loading = ref(false)
+const error = ref<string | null>(null)
+const search = ref('')
+const statusFilter = ref<VehicleStatus | null>(null)
+const vehicles = ref<PaginationModel<VehicleModel>>({
+  docs: [],
+  limit: 15,
+  page: 1,
+  hasPrevPage: false,
+  hasNextPage: false,
+  prevPage: null,
+  nextPage: null,
+  totalDocs: 0,
+})
+const currentPage = ref(1)
+const showDeleteDialog = ref(false)
+const vehicleToDelete = ref<VehicleModel | null>(null)
+const deleting = ref(false)
+
+const statusFilterOptions = [
+  { label: 'All Statuses', value: null },
+  { label: 'Draft', value: 'draft' as VehicleStatus },
+  { label: 'Published', value: 'published' as VehicleStatus },
+  { label: 'Sold', value: 'sold' as VehicleStatus },
+  { label: 'Archived', value: 'archived' as VehicleStatus },
 ]
 
-const vehicles = ref<VehicleModel[]>([])
-const imageDialog = ref(false)
-const selectedVehicleImages = ref<VehicleImageModel[]>([])
-const selectedVehicleTitle = ref('')
-const selectedImageIndex = ref(0)
+const headers = [
+  { title: 'ID', key: 'id', width: '100px', sortable: false },
+  { title: 'Vehicle', key: 'title', sortable: false },
+  { title: 'Price', key: 'price', width: '120px', sortable: false },
+  { title: 'Status', key: 'status', width: '120px', sortable: false },
+  { title: 'Actions', key: 'actions', sortable: false, width: '120px', align: 'center' as const },
+]
 
-const formatDateTime = (value?: string) => {
-  if (!value) return '-'
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return value
-  return date.toLocaleString()
-}
+// Status counts - fetch all vehicles for accurate counts
+const statusCounts = ref({
+  published: 0,
+  draft: 0,
+  sold: 0,
+  archived: 0,
+})
 
-const formatPrice = (value?: number) => {
-  if (value === null || value === undefined) return '-'
-  return new Intl.NumberFormat('da-DK', {
-    style: 'currency',
-    currency: 'DKK',
-    maximumFractionDigits: 0,
-  }).format(value)
-}
+const publishedCount = computed(() => statusCounts.value.published)
+const draftCount = computed(() => statusCounts.value.draft)
+const soldCount = computed(() => statusCounts.value.sold)
 
-
-const tableVehicles = computed(() =>
-  vehicles.value.map((vehicle, index) => ({
-    id: vehicle.id,
-    slNo: index + 1,
-    inventoryDate: formatDateTime(vehicle.createdAt),
-    registrationNumber: vehicle.registration ?? '-',
-    status: vehicle.vehicleListStatusName ?? vehicle.status ?? '-',
-    make: vehicle.brandName ?? '-',
-    model: vehicle.modelName ?? '-',
-    year: vehicle.modelYearName ?? '-',
-    listedPrice: formatPrice(vehicle.price),
-    images: vehicle.images ?? [],
-    original: vehicle,
-  }))
-)
-
-const openImageGallery = (vehicle: VehicleModel) => {
-  selectedVehicleImages.value = vehicle.images ?? []
-  selectedVehicleTitle.value = vehicle.title ?? 'Vehicle Images'
-  selectedImageIndex.value = 0
-  imageDialog.value = true
+// Load status counts separately
+const loadStatusCounts = async () => {
+  try {
+    // Fetch all vehicles without pagination to get accurate counts
+    const response = await getVehicles({ limit: 1000, page: 1 })
+    
+    // Count vehicles by status
+    statusCounts.value = {
+      published: response.docs.filter(v => {
+        const status = v.status?.toLowerCase() || v.vehicleListStatusName?.toLowerCase() || ''
+        return status === 'published'
+      }).length,
+      draft: response.docs.filter(v => {
+        const status = v.status?.toLowerCase() || v.vehicleListStatusName?.toLowerCase() || ''
+        return status === 'draft'
+      }).length,
+      sold: response.docs.filter(v => {
+        const status = v.status?.toLowerCase() || v.vehicleListStatusName?.toLowerCase() || ''
+        return status === 'sold'
+      }).length,
+      archived: response.docs.filter(v => {
+        const status = v.status?.toLowerCase() || v.vehicleListStatusName?.toLowerCase() || ''
+        return status === 'archived'
+      }).length,
+    }
+  } catch (err) {
+    console.error('Failed to load status counts:', err)
+  }
 }
 
 const loadVehicles = async () => {
   try {
     loading.value = true
-    loadError.value = null
-    const response = await getVehicles({ limit: 50, page: 1, search: search.value || undefined })
-    vehicles.value = response.docs
-  } catch (error: any) {
-    loadError.value = error?.message || 'Failed to load vehicles'
+    error.value = null
+    const params: any = {
+      page: currentPage.value,
+      limit: 15,
+    }
+    if (statusFilter.value) {
+      params.status = statusFilter.value
+    }
+    if (search.value) {
+      params.search = search.value
+    }
+    const response = await getVehicles(params)
+    vehicles.value = response
+  } catch (err) {
+    error.value = (err as ApiErrorModel).message || 'Failed to load vehicles'
   } finally {
     loading.value = false
   }
 }
 
-onMounted(() => {
+const handleSearch = () => {
+  currentPage.value = 1
   loadVehicles()
+}
+
+const handlePageChange = (page: number) => {
+  currentPage.value = page
+  loadVehicles()
+}
+
+const viewVehicle = (id: number) => {
+  router.push({ name: 'dealer.vehicles.detail', params: { id } })
+}
+
+const confirmDelete = (vehicle: VehicleModel) => {
+  vehicleToDelete.value = vehicle
+  showDeleteDialog.value = true
+}
+
+const deleteVehicle = async () => {
+  if (!vehicleToDelete.value) return
+
+  try {
+    deleting.value = true
+    error.value = null
+    await deleteVehicleApi(vehicleToDelete.value.id)
+    showDeleteDialog.value = false
+    vehicleToDelete.value = null
+    await Promise.all([loadVehicles(), loadStatusCounts()])
+  } catch (err) {
+    error.value = (err as ApiErrorModel).message || 'Failed to delete vehicle'
+  } finally {
+    deleting.value = false
+  }
+}
+
+const getStatusColor = (status?: string) => {
+  const colors: Record<string, string> = {
+    draft: 'grey',
+    published: 'success',
+    sold: 'info',
+    archived: 'warning',
+  }
+  return colors[status?.toLowerCase() || ''] || 'grey'
+}
+
+const formatPrice = (price?: number) => {
+  if (!price) return 'N/A'
+  return new Intl.NumberFormat('da-DK', {
+    style: 'currency',
+    currency: 'DKK',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(price)
+}
+
+onMounted(async () => {
+  await Promise.all([loadVehicles(), loadStatusCounts()])
 })
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'Available':
-      return 'success'
-    case 'Pending':
-      return 'warning'
-    case 'Sold':
-      return 'default'
-    default:
-      return 'default'
-  }
-}
-
-const viewVehicle = (item: any) => {
-  // Navigate to vehicle detail page
-  console.log('View vehicle:', item)
-}
-
-const editVehicle = (item: any) => {
-  // Navigate to edit vehicle page
-  console.log('Edit vehicle:', item)
-}
-
-const deleteVehicle = (item: any) => {
-  if (confirm(`Are you sure you want to delete ${item.registrationNumber}?`)) {
-    console.log('Delete vehicle:', item)
-  }
-}
 </script>
+
+<style scoped>
+.vehicles-overview-container {
+  padding: 0;
+}
+
+.header-section {
+  padding: 0;
+}
+
+.stat-card {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: rgba(0, 0, 0, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.stat-icon {
+  opacity: 0.8;
+}
+
+.filters-card {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+}
+
+.table-card {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+}
+
+.card-title {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+.vehicle-thumbnail {
+  flex-shrink: 0;
+}
+
+.search-field :deep(.v-field) {
+  box-shadow: none !important;
+}
+</style>
 
 <style module>
 .dataTable :global(.v-data-table__thead th) {
-  font-size: 0.6875rem !important;
+  font-size: 0.75rem !important;
   font-weight: 600 !important;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  padding: 8px 12px !important;
+  padding: 16px 20px !important;
   background-color: transparent !important;
-  color: var(--muted-foreground);
+  color: rgba(0, 0, 0, 0.6);
 }
 
 .dataTable :global(.v-data-table__tbody td) {
-  font-size: 0.75rem !important;
-  padding: 8px 12px !important;
+  font-size: 0.875rem !important;
+  padding: 16px 20px !important;
   height: auto !important;
   background-color: transparent !important;
 }
 
 .dataTable :global(.v-data-table__tbody tr) {
-  border-bottom: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
   background-color: transparent !important;
 }
 
 .dataTable :global(.v-data-table__tbody tr:hover) {
-  background-color: transparent !important;
+  background-color: rgba(0, 0, 0, 0.02) !important;
 }
 
 .dataTable :global(.v-data-table) {
   background-color: transparent !important;
-}
-</style>
-
-<style scoped>
-.filters-card {
-  box-shadow: none !important;
-}
-
-.vehicles-table-card {
-  box-shadow: none !important;
-  overflow: hidden;
-}
-
-.vehicles-table-card :deep(.v-data-table) {
-  box-shadow: none !important;
-  border: none !important;
-}
-
-.action-btn {
-  border: 1px solid rgba(0, 0, 0, 0.12) !important;
-  border-radius: 6px !important;
-  text-transform: none !important;
-  font-size: 0.75rem !important;
-  font-weight: 500 !important;
-  letter-spacing: 0.025em !important;
-  min-width: auto !important;
-  padding: 6px 12px !important;
-  height: 32px !important;
-}
-
-.action-btn :deep(.v-btn__prepend) {
-  margin-inline-end: 6px !important;
-}
-
-.action-btn :deep(.v-icon) {
-  font-size: 16px !important;
-}
-
-.action-btn:hover {
-  background-color: var(--muted) !important;
-  border-color: rgba(0, 0, 0, 0.2) !important;
-}
-
-.search-field :deep(.v-field) {
-  box-shadow: none !important;
-  border: none !important;
-}
-
-.search-field :deep(.v-field__input) {
-  font-size: 0.8125rem;
-  padding: 4px 8px;
-}
-
-.search-field :deep(.v-field__prepend-inner) {
-  padding: 0 8px;
-}
-
-.vehicles-table :deep(.v-data-table-footer) {
-  font-size: 0.6875rem;
-  padding: 12px 16px;
-  border-top: none !important;
-  background-color: transparent !important;
-}
-
-.vehicles-table :deep(.v-data-table-footer__items-per-page) {
-  font-size: 0.6875rem;
-}
-
-.vehicles-table :deep(.v-data-table-footer__pagination) {
-  font-size: 0.6875rem;
-}
-
-.vehicles-table :deep(.v-data-table__thead) {
-  border-bottom: none !important;
-}
-
-.vehicles-table :deep(.v-data-table__thead th) {
-  padding: 12px 16px !important;
-}
-
-.vehicles-table :deep(.v-data-table__tbody td) {
-  padding: 12px 16px !important;
-}
-
-.details-pre {
-  background-color: rgba(0, 0, 0, 0.04);
-  border-radius: 6px;
-  padding: 8px;
-  white-space: pre-wrap;
-  word-break: break-word;
-  font-size: 0.75rem;
 }
 </style>

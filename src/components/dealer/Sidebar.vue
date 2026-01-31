@@ -128,11 +128,12 @@
             </div>
           </template>
           <v-list>
-            <v-list-item :to="{ name: 'dealer.settings.profile' }" prepend-icon="mdi-account">
-              <v-list-item-title>Profile</v-list-item-title>
+            <v-list-item :to="{ name: 'dealer.profile' }" prepend-icon="mdi-account">
+              <v-list-item-title>View Profile</v-list-item-title>
             </v-list-item>
-            <v-list-item :to="{ name: 'dealer.settings.general' }" prepend-icon="mdi-cog">
-              <v-list-item-title>Settings</v-list-item-title>
+            <v-divider />
+            <v-list-item prepend-icon="mdi-lock-reset" @click="showChangePasswordDialog = true">
+              <v-list-item-title>Change Password</v-list-item-title>
             </v-list-item>
             <v-divider />
             <v-list-item prepend-icon="mdi-logout" @click="handleLogout">
@@ -143,20 +144,25 @@
       </div>
     </template>
   </v-navigation-drawer>
+
+  <!-- Change Password Dialog -->
+  <ChangePasswordDialog v-model="showChangePasswordDialog" />
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSidebarStore } from '@/stores/sidebar'
 import { useAuthStore } from '@/stores/auth'
 import { logout, getCurrentUser } from '@/services/auth'
 import { dealerSidebarSections } from '@/constants/dealer'
 import SidebarItem from './SidebarItem.vue'
+import ChangePasswordDialog from './ChangePasswordDialog.vue'
 
 const sidebarStore = useSidebarStore()
 const authStore = useAuthStore()
 const router = useRouter()
+const showChangePasswordDialog = ref(false)
 
 const userInitials = computed(() => {
   const name = authStore.user?.name || 'User'

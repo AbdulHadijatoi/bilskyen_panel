@@ -128,6 +128,10 @@
             </div>
           </template>
           <v-list>
+            <v-list-item prepend-icon="mdi-lock-reset" @click="showChangePasswordDialog = true">
+              <v-list-item-title>Change Password</v-list-item-title>
+            </v-list-item>
+            <v-divider />
             <v-list-item prepend-icon="mdi-logout" @click="handleLogout">
               <v-list-item-title>Logout</v-list-item-title>
             </v-list-item>
@@ -136,20 +140,25 @@
       </div>
     </template>
   </v-navigation-drawer>
+
+  <!-- Change Password Dialog -->
+  <ChangePasswordDialog v-model="showChangePasswordDialog" />
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSidebarStore } from '@/stores/sidebar'
 import { useAuthStore } from '@/stores/auth.store'
 import { logout } from '@/api/auth.api'
 import { adminSidebarSections } from '@/constants/admin'
 import SidebarItem from './SidebarItem.vue'
+import ChangePasswordDialog from '@/components/dealer/ChangePasswordDialog.vue'
 
 const sidebarStore = useSidebarStore()
 const authStore = useAuthStore()
 const router = useRouter()
+const showChangePasswordDialog = ref(false)
 
 const userInitials = computed(() => {
   const name = authStore.user?.name || 'User'

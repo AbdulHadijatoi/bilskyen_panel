@@ -24,7 +24,6 @@ export type PermissionResource =
   | 'features'
   | 'subscriptions'
   | 'pages'
-  | 'blogs'
   | 'analytics'
   | 'audit-logs'
 

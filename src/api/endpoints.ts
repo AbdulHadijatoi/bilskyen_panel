@@ -44,14 +44,16 @@ export const PUBLIC_LOOKUP_ENDPOINTS = {
  */
 export const DEALER_VEHICLE_ENDPOINTS = {
   LIST: '/dealer/vehicles',
-  SHOW: (id: number | string) => `/dealer/vehicles/${id}`,
+  SHOW: (id: number | string) => `/dealer/vehicles/show/${id}`,
   CREATE: '/dealer/vehicles',
-  UPDATE: (id: number | string) => `/dealer/vehicles/${id}`,
-  DELETE: (id: number | string) => `/dealer/vehicles/${id}`,
+  DRAFT: '/dealer/vehicles/draft',
+  UPDATE: (id: number | string) => `/dealer/vehicles/update/${id}`,
+  DELETE: (id: number | string) => `/dealer/vehicles/delete/${id}`,
   UPLOAD_IMAGES: (id: number | string) => `/dealer/vehicles/${id}/images`,
   DELETE_IMAGE: (vehicleId: number | string, imageId: number | string) =>
     `/dealer/vehicles/${vehicleId}/images/${imageId}`,
-  UPDATE_STATUS: (id: number | string) => `/dealer/vehicles/${id}/status`,
+  UPDATE_STATUS: (id: number | string) => `/dealer/vehicles/update-status/${id}`,
+  UPDATE_EQUIPMENT: (id: number | string) => `/dealer/vehicles/update-equipment/${id}`,
   UPDATE_PRICE: (id: number | string) => `/dealer/vehicles/${id}/price`,
   FETCH_FROM_NUMMERPLADE: '/dealer/vehicles/fetch-from-nummerplade',
 } as const
@@ -99,7 +101,7 @@ export const DEALER_SAVED_SEARCH_ENDPOINTS = {
  */
 export const DEALER_PROFILE_ENDPOINTS = {
   SHOW: '/dealer/profile',
-  UPDATE: '/dealer/profile',
+  UPDATE: '/dealer/profile/update',
 } as const
 
 /**
@@ -126,13 +128,16 @@ export const DEALER_SUBSCRIPTION_ENDPOINTS = {
  */
 export const ADMIN_USER_ENDPOINTS = {
   LIST: '/admin/users',
-  SHOW: (id: number | string) => `/admin/users/${id}`,
-  CREATE: '/admin/users',
-  UPDATE: (id: number | string) => `/admin/users/${id}`,
-  DELETE: (id: number | string) => `/admin/users/${id}`,
-  UPDATE_STATUS: (id: number | string) => `/admin/users/${id}/status`,
-  BAN: (id: number | string) => `/admin/users/${id}/ban`,
-  UNBAN: (id: number | string) => `/admin/users/${id}/unban`,
+  SHOW: (id: number | string) => `/admin/users/show/${id}`,
+  ROLES: '/admin/users/roles',
+  CREATE: '/admin/users/create',
+  UPDATE: (id: number | string) => `/admin/users/update/${id}`,
+  DELETE: (id: number | string) => `/admin/users/delete/${id}`,
+  UPDATE_STATUS: (id: number | string) => `/admin/users/update-status/${id}`,
+  CHANGE_PASSWORD: (id: number | string) => `/admin/users/change-password/${id}`,
+  CHANGE_OWN_PASSWORD: '/admin/change-password',
+  BAN: (id: number | string) => `/admin/users/ban/${id}`,
+  UNBAN: (id: number | string) => `/admin/users/unban/${id}`,
 } as const
 
 /**
@@ -151,10 +156,15 @@ export const ADMIN_DEALER_ENDPOINTS = {
  */
 export const ADMIN_VEHICLE_ENDPOINTS = {
   LIST: '/admin/vehicles',
-  SHOW: (id: number | string) => `/admin/vehicles/${id}`,
-  UPDATE_STATUS: (id: number | string) => `/admin/vehicles/${id}/status`,
-  DELETE: (id: number | string) => `/admin/vehicles/${id}`,
-  HISTORY: (id: number | string) => `/admin/vehicles/${id}/history`,
+  SHOW: (id: number | string) => `/admin/vehicles/show/${id}`,
+  IMAGES: (id: number | string) => `/admin/vehicles/images/${id}`,
+  HISTORY: (id: number | string) => `/admin/vehicles/history/${id}`,
+  UPDATE: (id: number | string) => `/admin/vehicles/update/${id}`,
+  UPDATE_STATUS: (id: number | string) => `/admin/vehicles/update-status/${id}`,
+  UPDATE_IMAGES: (id: number | string) => `/admin/vehicles/update-images/${id}`,
+  DELETE_IMAGE: (id: number | string) => `/admin/vehicles/delete-image/${id}`,
+  UPDATE_EQUIPMENT: (id: number | string) => `/admin/vehicles/update-equipment/${id}`,
+  DELETE: (id: number | string) => `/admin/vehicles/delete/${id}`,
 } as const
 
 /**
@@ -205,17 +215,6 @@ export const ADMIN_PAGE_ENDPOINTS = {
 } as const
 
 /**
- * Admin CMS blog endpoints
- */
-export const ADMIN_BLOG_ENDPOINTS = {
-  LIST: '/admin/blogs',
-  SHOW: (id: number | string) => `/admin/blogs/${id}`,
-  CREATE: '/admin/blogs',
-  UPDATE: (id: number | string) => `/admin/blogs/${id}`,
-  DELETE: (id: number | string) => `/admin/blogs/${id}`,
-} as const
-
-/**
  * Admin analytics endpoints
  */
 export const ADMIN_ANALYTICS_ENDPOINTS = {
@@ -229,6 +228,23 @@ export const ADMIN_ANALYTICS_ENDPOINTS = {
  */
 export const ADMIN_AUDIT_ENDPOINTS = {
   LOGS: '/admin/audit-logs',
+} as const
+
+/**
+ * Admin dashboard endpoints
+ */
+export const ADMIN_DASHBOARD_ENDPOINTS = {
+  STATS: '/admin/dashboard',
+} as const
+
+/**
+ * Admin featured vehicle endpoints
+ */
+export const ADMIN_FEATURED_VEHICLE_ENDPOINTS = {
+  LIST: '/admin/featured-vehicles',
+  CREATE: '/admin/featured-vehicles/create',
+  UPDATE: (id: number | string) => `/admin/featured-vehicles/update/${id}`,
+  DELETE: (id: number | string) => `/admin/featured-vehicles/delete/${id}`,
 } as const
 
 /**

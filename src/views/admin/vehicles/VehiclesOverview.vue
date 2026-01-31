@@ -1,156 +1,328 @@
 <template>
-  <div>
-    <div class="d-flex justify-space-between align-center mb-3">
-      <div>
-        <h2 class="text-h6 font-weight-bold mb-1">Manage Vehicles</h2>
-        <p class="text-caption text-medium-emphasis">
-          View and manage all vehicles from all dealers.
-        </p>
+  <div class="vehicles-overview-container">
+    <!-- Header Section -->
+    <div class="header-section mb-6">
+      <div class="d-flex justify-space-between align-center">
+        <div>
+          <h1 class="text-h4 font-weight-bold mb-1">Vehicle Management</h1>
+          <p class="text-body-2 text-medium-emphasis mb-0">
+            View and manage all vehicles from all dealers
+          </p>
+        </div>
       </div>
     </div>
 
-    <!-- Filters Card -->
+    <!-- Stats Cards -->
+    <v-row class="mb-6">
+      <v-col cols="12" sm="6" md="3">
+        <v-card
+          variant="flat"
+          class="stat-card"
+          elevation="0"
+        >
+          <v-card-text class="pa-4">
+            <div class="d-flex align-center justify-space-between">
+              <div>
+                <div class="stat-label">Total Vehicles</div>
+                <div class="stat-value">{{ vehicles.total || 0 }}</div>
+              </div>
+              <v-icon size="40" color="primary" class="stat-icon">mdi-car-multiple</v-icon>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+      <v-col cols="12" sm="6" md="3">
+        <v-card
+          variant="flat"
+          class="stat-card"
+          elevation="0"
+        >
+          <v-card-text class="pa-4">
+            <div class="d-flex align-center justify-space-between">
+              <div>
+                <div class="stat-label">Published</div>
+                <div class="stat-value text-success">{{ publishedCount }}</div>
+              </div>
+              <v-icon size="40" color="success" class="stat-icon">mdi-check-circle</v-icon>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+      <v-col cols="12" sm="6" md="3">
+        <v-card
+          variant="flat"
+          class="stat-card"
+          elevation="0"
+        >
+          <v-card-text class="pa-4">
+            <div class="d-flex align-center justify-space-between">
+              <div>
+                <div class="stat-label">Draft</div>
+                <div class="stat-value text-warning">{{ draftCount }}</div>
+              </div>
+              <v-icon size="40" color="warning" class="stat-icon">mdi-file-document-edit</v-icon>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+      <v-col cols="12" sm="6" md="3">
+        <v-card
+          variant="flat"
+          class="stat-card"
+          elevation="0"
+        >
+          <v-card-text class="pa-4">
+            <div class="d-flex align-center justify-space-between">
+              <div>
+                <div class="stat-label">Sold</div>
+                <div class="stat-value text-info">{{ soldCount }}</div>
+              </div>
+              <v-icon size="40" color="info" class="stat-icon">mdi-check-all</v-icon>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <!-- Filters and Search Card -->
     <v-card
       variant="flat"
-      class="filters-card mb-3"
+      class="filters-card mb-4"
       elevation="0"
-      :style="{
-        backgroundColor: 'var(--card)',
-        color: 'var(--card-foreground)',
-        border: '1px solid rgba(0, 0, 0, 0.12)',
-        borderRadius: '8px',
-      }"
     >
-      <v-card-text class="pa-3">
-        <div class="d-flex justify-space-between align-center">
+      <v-card-text class="pa-4">
+        <div class="d-flex align-center gap-4 flex-wrap">
           <v-text-field
             v-model="search"
-            placeholder="Search vehicles..."
-            density="compact"
-            variant="plain"
+            placeholder="Search by title, registration, VIN..."
+            density="comfortable"
+            variant="outlined"
             prepend-inner-icon="mdi-magnify"
-            class="search-field"
+            class="search-field flex-grow-1"
+            style="max-width: 400px;"
             hide-details
-            style="max-width: 300px;"
+            clearable
+            @update:model-value="handleSearch"
           />
-          <div class="d-flex gap-2">
-            <v-btn 
-              variant="outlined" 
-              density="compact" 
-              size="small"
-              prepend-icon="mdi-filter-variant"
-              class="action-btn"
-            >
-              Filter
-            </v-btn>
-            <v-btn 
-              variant="outlined" 
-              density="compact" 
-              size="small"
-              prepend-icon="mdi-sort"
-              class="action-btn"
-            >
-              Sort
-            </v-btn>
-          </div>
+          <v-select
+            v-model="statusFilter"
+            :items="statusFilterOptions"
+            item-title="label"
+            item-value="value"
+            label="Filter by Status"
+            variant="outlined"
+            density="comfortable"
+            prepend-inner-icon="mdi-filter"
+            style="max-width: 200px;"
+            hide-details
+            clearable
+            @update:model-value="loadVehicles"
+          />
+          <v-text-field
+            v-model="dealerNameFilter"
+            placeholder="Dealer name..."
+            density="comfortable"
+            variant="outlined"
+            prepend-inner-icon="mdi-store"
+            style="max-width: 200px;"
+            hide-details
+            clearable
+            @update:model-value="handleSearch"
+          />
+          <v-text-field
+            v-model="userNameFilter"
+            placeholder="User name..."
+            density="comfortable"
+            variant="outlined"
+            prepend-inner-icon="mdi-account"
+            style="max-width: 200px;"
+            hide-details
+            clearable
+            @update:model-value="handleSearch"
+          />
+          <v-spacer />
+          <v-btn
+            variant="outlined"
+            prepend-icon="mdi-refresh"
+            @click="loadVehicles"
+            :loading="loading"
+            size="default"
+          >
+            Refresh
+          </v-btn>
         </div>
       </v-card-text>
     </v-card>
 
-    <!-- Table Card -->
+    <!-- Vehicles Table Card -->
     <v-card
       variant="flat"
       class="table-card"
       elevation="0"
-      :style="{
-        backgroundColor: 'var(--card)',
-        color: 'var(--card-foreground)',
-        border: '1px solid rgba(0, 0, 0, 0.12)',
-        borderRadius: '8px',
-      }"
     >
-      <div v-if="loading" class="text-center py-8">
-        <v-progress-circular indeterminate color="primary" />
-      </div>
+      <v-card-title class="card-title">
+        <v-icon class="mr-2">mdi-table</v-icon>
+        Vehicles List
+        <v-spacer />
+        <span class="text-caption text-medium-emphasis">
+          Showing {{ vehicles.docs.length }} of {{ vehicles.total || 0 }} vehicles
+        </span>
+      </v-card-title>
 
-      <div v-else-if="error" class="text-center py-8">
-        <v-alert type="error" variant="tonal">
-          {{ error }}
-        </v-alert>
-      </div>
+      <v-card-text class="pa-0">
+        <div v-if="loading" class="loading-container">
+          <v-progress-circular indeterminate color="primary" size="48" />
+          <p class="text-body-2 text-medium-emphasis mt-4">Loading vehicles...</p>
+        </div>
 
-      <v-data-table
-        v-else
-        :headers="headers"
-        :items="vehicles.docs"
-        :search="search"
-        :items-per-page="vehicles.limit"
-        :page="vehicles.page"
-        density="compact"
-        class="data-table"
-        :class="$style.dataTable"
-        elevation="0"
-        @update:page="() => loadVehicles()"
-      >
-        <template #item.status="{ item }">
-          <v-chip
-            :color="getStatusColor(item.status)"
-            size="x-small"
-            variant="flat"
-            style="font-size: 0.6875rem;"
-          >
-            {{ item.status || 'N/A' }}
-          </v-chip>
-        </template>
-        <template #item.actions="{ item }">
-          <v-menu>
-            <template #activator="{ props }">
-              <v-btn 
-                icon 
-                variant="text" 
-                size="x-small"
-                v-bind="props"
-                class="text-medium-emphasis"
-              >
-                <v-icon size="16">mdi-dots-vertical</v-icon>
-              </v-btn>
-            </template>
-            <v-list density="compact" class="pa-1">
-              <v-list-item
-                prepend-icon="mdi-eye"
-                title="View"
-                class="text-caption"
+        <div v-else-if="error" class="error-container pa-6">
+          <v-alert type="error" variant="tonal" prominent>
+            <v-alert-title>Error</v-alert-title>
+            {{ error }}
+          </v-alert>
+        </div>
+
+        <v-data-table
+          v-else
+          :headers="headers"
+          :items="vehicles.docs"
+          :items-per-page="vehicles.limit"
+          :page="vehicles.page"
+          density="comfortable"
+          class="vehicles-table"
+          :class="$style.dataTable"
+          elevation="0"
+          @update:page="handlePageChange"
+        >
+          <template #item.id="{ item }">
+            <span class="text-medium-emphasis font-weight-medium">#{{ item.id }}</span>
+          </template>
+
+          <template #item.title="{ item }">
+            <div class="d-flex align-center gap-2">
+              <div v-if="item.images && item.images.length > 0" class="vehicle-thumbnail">
+                <v-img
+                  :src="item.images[0].url || item.images[0].thumbnailUrl"
+                  :alt="item.title"
+                  cover
+                  width="40"
+                  height="40"
+                  style="border-radius: 4px;"
+                />
+              </div>
+              <div>
+                <div class="font-weight-medium">{{ item.title || 'N/A' }}</div>
+                <div class="text-caption text-medium-emphasis">
+                  {{ item.registration || 'No registration' }}
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <template #item.dealer="{ item }">
+            <div v-if="item.dealer">
+              <div class="font-weight-medium">{{ item.dealer.cvr || 'N/A' }}</div>
+              <div class="text-caption text-medium-emphasis">
+                {{ item.dealer.city || '' }}
+              </div>
+            </div>
+            <span v-else class="text-medium-emphasis">N/A</span>
+          </template>
+
+          <template #item.price="{ item }">
+            <span class="font-weight-medium">
+              {{ formatPrice(item.price) }}
+            </span>
+          </template>
+
+          <template #item.status="{ item }">
+            <v-chip
+              :color="getStatusColor(item.status)"
+              size="small"
+              variant="flat"
+            >
+              {{ item.status || item.vehicleListStatusName || 'N/A' }}
+            </v-chip>
+          </template>
+
+          <template #item.actions="{ item }">
+            <div class="d-flex align-center justify-center gap-2">
+              <v-btn
+                icon
+                variant="text"
+                size="small"
+                color="primary"
                 @click="viewVehicle(item.id)"
-              />
-              <v-list-item
-                prepend-icon="mdi-delete"
+                title="View"
+              >
+                <v-icon size="20">mdi-eye</v-icon>
+              </v-btn>
+              <v-btn
+                icon
+                variant="text"
+                size="small"
+                color="error"
+                @click="confirmDelete(item)"
                 title="Delete"
-                class="text-caption text-error"
-                @click="deleteVehicle(item.id)"
-              />
-            </v-list>
-          </v-menu>
-        </template>
-      </v-data-table>
+              >
+                <v-icon size="20">mdi-delete</v-icon>
+              </v-btn>
+            </div>
+          </template>
+        </v-data-table>
 
-      <div v-if="vehicles.totalPages && vehicles.totalPages > 1" class="d-flex justify-center pa-3">
-        <v-pagination
-          v-model="currentPage"
-          :length="vehicles.totalPages"
-          density="compact"
-          @update:model-value="loadVehicles"
-        />
-      </div>
+        <div v-if="vehicles.totalPages && vehicles.totalPages > 1" class="d-flex justify-center pa-4">
+          <v-pagination
+            v-model="currentPage"
+            :length="vehicles.totalPages"
+            density="comfortable"
+            @update:model-value="handlePageChange"
+          />
+        </div>
+      </v-card-text>
     </v-card>
+
+    <!-- Delete Confirmation Dialog -->
+    <v-dialog
+      v-model="showDeleteDialog"
+      max-width="500"
+      persistent
+    >
+      <v-card>
+        <v-card-title class="text-h6 font-weight-bold">
+          Delete Vehicle
+        </v-card-title>
+        <v-card-text>
+          <p class="text-body-1">
+            Are you sure you want to delete <strong>{{ vehicleToDelete?.title || `Vehicle #${vehicleToDelete?.id}` }}</strong>?
+          </p>
+          <p class="text-body-2 text-medium-emphasis mt-2">
+            This action will soft delete the vehicle. The vehicle will no longer be visible in the system.
+          </p>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn variant="text" @click="showDeleteDialog = false">Cancel</v-btn>
+          <v-btn
+            color="error"
+            @click="deleteVehicle"
+            :loading="deleting"
+          >
+            Delete Vehicle
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { getVehicles, deleteVehicle as deleteVehicleApi } from '@/api/admin.api'
 import type { PaginationModel } from '@/models/pagination.model'
 import type { VehicleModel } from '@/models/vehicle.model'
+import type { VehicleStatus } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
 const router = useRouter()
@@ -158,6 +330,9 @@ const router = useRouter()
 const loading = ref(false)
 const error = ref<string | null>(null)
 const search = ref('')
+const statusFilter = ref<VehicleStatus | null>(null)
+const dealerNameFilter = ref('')
+const userNameFilter = ref('')
 const vehicles = ref<PaginationModel<VehicleModel>>({
   docs: [],
   limit: 15,
@@ -166,23 +341,63 @@ const vehicles = ref<PaginationModel<VehicleModel>>({
   hasNextPage: false,
   prevPage: null,
   nextPage: null,
+  total: 0,
 })
 const currentPage = ref(1)
+const showDeleteDialog = ref(false)
+const vehicleToDelete = ref<VehicleModel | null>(null)
+const deleting = ref(false)
+
+const statusFilterOptions = [
+  { label: 'All Statuses', value: null },
+  { label: 'Draft', value: 'draft' as VehicleStatus },
+  { label: 'Published', value: 'published' as VehicleStatus },
+  { label: 'Sold', value: 'sold' as VehicleStatus },
+  { label: 'Archived', value: 'archived' as VehicleStatus },
+]
 
 const headers = [
-  { title: 'ID', key: 'id', width: '80px' },
-  { title: 'Title', key: 'title' },
-  { title: 'Registration', key: 'registration' },
-  { title: 'Price', key: 'price', width: '120px' },
-  { title: 'Status', key: 'status', width: '100px' },
-  { title: '', key: 'actions', sortable: false, width: '60px', align: 'end' as const },
+  { title: 'ID', key: 'id', width: '100px', sortable: false },
+  { title: 'Vehicle', key: 'title', sortable: false },
+  { title: 'Dealer', key: 'dealer', sortable: false },
+  { title: 'Price', key: 'price', width: '120px', sortable: false },
+  { title: 'Status', key: 'status', width: '120px', sortable: false },
+  { title: 'Actions', key: 'actions', sortable: false, width: '120px', align: 'center' as const },
 ]
+
+const publishedCount = computed(() => {
+  return vehicles.value.docs.filter(v => v.status === 'published' || v.vehicleListStatusName === 'published').length
+})
+
+const draftCount = computed(() => {
+  return vehicles.value.docs.filter(v => v.status === 'draft' || v.vehicleListStatusName === 'draft').length
+})
+
+const soldCount = computed(() => {
+  return vehicles.value.docs.filter(v => v.status === 'sold' || v.vehicleListStatusName === 'sold').length
+})
 
 const loadVehicles = async () => {
   try {
     loading.value = true
     error.value = null
-    const response = await getVehicles({ page: currentPage.value, limit: 15 })
+    const params: any = {
+      page: currentPage.value,
+      limit: 15,
+    }
+    if (statusFilter.value) {
+      params.status = statusFilter.value
+    }
+    if (search.value) {
+      params.search = search.value
+    }
+    if (dealerNameFilter.value) {
+      params.dealer_name = dealerNameFilter.value
+    }
+    if (userNameFilter.value) {
+      params.user_name = userNameFilter.value
+    }
+    const response = await getVehicles(params)
     vehicles.value = response
   } catch (err) {
     error.value = (err as ApiErrorModel).message || 'Failed to load vehicles'
@@ -191,18 +406,39 @@ const loadVehicles = async () => {
   }
 }
 
+const handleSearch = () => {
+  currentPage.value = 1
+  loadVehicles()
+}
+
+const handlePageChange = (page: number) => {
+  currentPage.value = page
+  loadVehicles()
+}
+
 const viewVehicle = (id: number) => {
   router.push({ name: 'admin.vehicles.detail', params: { id } })
 }
 
-const deleteVehicle = async (id: number | string) => {
-  if (!confirm('Are you sure you want to delete this vehicle?')) return
+const confirmDelete = (vehicle: VehicleModel) => {
+  vehicleToDelete.value = vehicle
+  showDeleteDialog.value = true
+}
+
+const deleteVehicle = async () => {
+  if (!vehicleToDelete.value) return
 
   try {
-    await deleteVehicleApi(id)
+    deleting.value = true
+    error.value = null
+    await deleteVehicleApi(vehicleToDelete.value.id)
+    showDeleteDialog.value = false
+    vehicleToDelete.value = null
     await loadVehicles()
   } catch (err) {
     error.value = (err as ApiErrorModel).message || 'Failed to delete vehicle'
+  } finally {
+    deleting.value = false
   }
 }
 
@@ -216,114 +452,121 @@ const getStatusColor = (status?: string) => {
   return colors[status?.toLowerCase() || ''] || 'grey'
 }
 
+const formatPrice = (price?: number) => {
+  if (!price) return 'N/A'
+  return new Intl.NumberFormat('da-DK', {
+    style: 'currency',
+    currency: 'DKK',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(price)
+}
+
 onMounted(() => {
   loadVehicles()
 })
 </script>
 
+<style scoped>
+.vehicles-overview-container {
+  padding: 0;
+}
+
+.header-section {
+  padding: 0;
+}
+
+.stat-card {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: rgba(0, 0, 0, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.stat-icon {
+  opacity: 0.8;
+}
+
+.filters-card {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+}
+
+.table-card {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+}
+
+.card-title {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+.vehicle-thumbnail {
+  flex-shrink: 0;
+}
+
+.search-field :deep(.v-field) {
+  box-shadow: none !important;
+}
+</style>
+
 <style module>
 .dataTable :global(.v-data-table__thead th) {
-  font-size: 0.6875rem !important;
+  font-size: 0.75rem !important;
   font-weight: 600 !important;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  padding: 12px 16px !important;
+  padding: 16px 20px !important;
   background-color: transparent !important;
-  color: var(--muted-foreground);
+  color: rgba(0, 0, 0, 0.6);
 }
 
 .dataTable :global(.v-data-table__tbody td) {
-  font-size: 0.75rem !important;
-  padding: 12px 16px !important;
+  font-size: 0.875rem !important;
+  padding: 16px 20px !important;
   height: auto !important;
   background-color: transparent !important;
 }
 
 .dataTable :global(.v-data-table__tbody tr) {
-  border-bottom: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
   background-color: transparent !important;
 }
 
 .dataTable :global(.v-data-table__tbody tr:hover) {
-  background-color: transparent !important;
+  background-color: rgba(0, 0, 0, 0.02) !important;
 }
 
 .dataTable :global(.v-data-table) {
   background-color: transparent !important;
-}
-</style>
-
-<style scoped>
-.filters-card {
-  box-shadow: none !important;
-}
-
-.table-card {
-  box-shadow: none !important;
-  overflow: hidden;
-}
-
-.search-field :deep(.v-field) {
-  box-shadow: none !important;
-  border: none !important;
-  background-color: transparent !important;
-}
-
-.search-field :deep(.v-field__input) {
-  font-size: 0.75rem;
-  padding: 4px 8px;
-}
-
-.search-field :deep(.v-field__prepend-inner) {
-  padding: 0 8px;
-}
-
-.action-btn {
-  border-color: rgba(0, 0, 0, 0.12) !important;
-  border-radius: 6px !important;
-  padding: 6px 12px !important;
-  text-transform: none !important;
-  font-size: 0.75rem !important;
-  font-weight: 500 !important;
-  letter-spacing: 0.025em !important;
-  height: 32px !important;
-  min-width: unset !important;
-}
-
-.action-btn :deep(.v-btn__prepend) {
-  margin-inline-end: 6px !important;
-}
-
-.action-btn :deep(.v-icon) {
-  font-size: 16px !important;
-}
-
-.action-btn:hover {
-  background-color: var(--muted) !important;
-  border-color: rgba(0, 0, 0, 0.2) !important;
-}
-
-.data-table :deep(.v-data-table) {
-  box-shadow: none !important;
-  border: none !important;
-}
-
-.data-table :deep(.v-data-table-footer) {
-  font-size: 0.6875rem;
-  padding: 12px 16px;
-  border-top: none !important;
-  background-color: transparent !important;
-}
-
-.data-table :deep(.v-data-table-footer__items-per-page) {
-  font-size: 0.6875rem;
-}
-
-.data-table :deep(.v-data-table-footer__pagination) {
-  font-size: 0.6875rem;
-}
-
-.data-table :deep(.v-data-table__thead) {
-  border-bottom: none !important;
 }
 </style>

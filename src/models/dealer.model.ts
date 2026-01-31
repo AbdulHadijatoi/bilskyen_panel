@@ -16,6 +16,16 @@ export enum SubscriptionStatus {
 }
 
 /**
+ * Dealer user info (from user model)
+ */
+export interface DealerUserInfo {
+  id: number
+  name: string
+  email: string
+  phone?: string
+}
+
+/**
  * Dealer model interface
  */
 export interface DealerModel {
@@ -24,6 +34,10 @@ export interface DealerModel {
   email?: string
   phone?: string
   address?: string
+  city?: string
+  postcode?: string
+  countryCode?: string
+  cvr?: string
   website?: string
   logo?: string
   description?: string
@@ -36,6 +50,7 @@ export interface DealerModel {
   // Relations (if included in response)
   subscription?: SubscriptionModel
   staff?: DealerStaffModel[]
+  user?: DealerUserInfo
 }
 
 /**
@@ -107,6 +122,10 @@ export function mapDealerFromApi(data: any): DealerModel {
     email: data.email,
     phone: data.phone,
     address: data.address,
+    city: data.city,
+    postcode: data.postcode,
+    countryCode: data.country_code,
+    cvr: data.cvr,
     website: data.website,
     logo: data.logo,
     description: data.description,
@@ -117,6 +136,12 @@ export function mapDealerFromApi(data: any): DealerModel {
     deletedAt: data.deleted_at,
     subscription: data.subscription ? mapSubscriptionFromApi(data.subscription) : undefined,
     staff: data.staff?.map(mapDealerStaffFromApi),
+    user: data.user ? {
+      id: data.user.id,
+      name: data.user.name,
+      email: data.user.email,
+      phone: data.user.phone,
+    } : undefined,
   }
 }
 

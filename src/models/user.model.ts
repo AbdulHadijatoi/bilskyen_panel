@@ -47,6 +47,15 @@ export interface UserModel {
  * Map API response (snake_case) to UserModel (camelCase)
  */
 export function mapUserFromApi(data: any): UserModel {
+  // Normalize roles to always be an array of strings (role names)
+  let roles: string[] = []
+  if (data.roles && Array.isArray(data.roles)) {
+    roles = data.roles.map((role: any) => {
+      // If role is an object, extract the name; otherwise use the string value
+      return typeof role === 'string' ? role : (role.name || role)
+    })
+  }
+
   return {
     id: data.id,
     name: data.name,
@@ -58,7 +67,7 @@ export function mapUserFromApi(data: any): UserModel {
     banned: data.banned ?? false,
     statusId: data.status_id,
     status: data.status,
-    roles: data.roles || [],
+    roles,
     createdAt: data.created_at,
     updatedAt: data.updated_at,
     deletedAt: data.deleted_at,

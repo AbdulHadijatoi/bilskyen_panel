@@ -15,10 +15,11 @@ import {
   ADMIN_SUBSCRIPTION_ENDPOINTS,
   ADMIN_FEATURE_ENDPOINTS,
   ADMIN_PAGE_ENDPOINTS,
-  ADMIN_BLOG_ENDPOINTS,
   ADMIN_ANALYTICS_ENDPOINTS,
   ADMIN_AUDIT_ENDPOINTS,
   ADMIN_CONSTANTS_ENDPOINTS,
+  ADMIN_DASHBOARD_ENDPOINTS,
+  ADMIN_FEATURED_VEHICLE_ENDPOINTS,
 } from './endpoints'
 import type { UserModel } from '@/models/user.model'
 import { mapUserFromApi } from '@/models/user.model'
@@ -87,7 +88,8 @@ export interface CreateUserData {
   email: string
   password: string
   phone?: string
-  roles?: string[]
+  status_id: number
+  role_id: number
 }
 
 /**
@@ -124,7 +126,8 @@ export interface UpdateUserData {
   name?: string
   email?: string
   phone?: string
-  roles?: string[]
+  status_id?: number
+  role_id?: number
 }
 
 /**
@@ -135,7 +138,7 @@ export async function updateUser(
   data: UpdateUserData
 ): Promise<UserModel> {
   try {
-    const response = await httpClient.put<{ data: any }>(
+    const response = await httpClient.post<{ data: any }>(
       ADMIN_USER_ENDPOINTS.UPDATE(id),
       data
     )
@@ -151,7 +154,7 @@ export async function updateUser(
  */
 export async function deleteUser(id: number | string): Promise<void> {
   try {
-    await httpClient.delete(ADMIN_USER_ENDPOINTS.DELETE(id))
+    await httpClient.post(ADMIN_USER_ENDPOINTS.DELETE(id))
   } catch (error) {
     throw handleError(error)
   }
@@ -172,7 +175,7 @@ export async function updateUserStatus(
   data: UpdateUserStatusData
 ): Promise<UserModel> {
   try {
-    const response = await httpClient.put<{ data: any }>(
+    const response = await httpClient.post<{ data: any }>(
       ADMIN_USER_ENDPOINTS.UPDATE_STATUS(id),
       data
     )
@@ -184,11 +187,36 @@ export async function updateUserStatus(
 }
 
 /**
+ * Role model interface
+ */
+export interface RoleModel {
+  id: number
+  name: string
+  guard_name: string
+  created_at?: string
+  updated_at?: string
+}
+
+/**
+ * Get all roles (cached forever)
+ */
+export async function getRoles(): Promise<RoleModel[]> {
+  try {
+    const response = await httpClient.get<{ data: RoleModel[] }>(
+      ADMIN_USER_ENDPOINTS.ROLES
+    )
+    return handleSuccess<RoleModel[]>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
  * Ban user
  */
 export async function banUser(id: number | string): Promise<UserModel> {
   try {
-    const response = await httpClient.put<{ data: any }>(
+    const response = await httpClient.post<{ data: any }>(
       ADMIN_USER_ENDPOINTS.BAN(id),
       {}
     )
@@ -204,12 +232,63 @@ export async function banUser(id: number | string): Promise<UserModel> {
  */
 export async function unbanUser(id: number | string): Promise<UserModel> {
   try {
-    const response = await httpClient.put<{ data: any }>(
+    const response = await httpClient.post<{ data: any }>(
       ADMIN_USER_ENDPOINTS.UNBAN(id),
       {}
     )
     const userData = handleSuccess<any>(response)
     return mapUserFromApi(userData)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Change user password data
+ */
+export interface ChangeUserPasswordData {
+  password: string
+}
+
+/**
+ * Change user password (admin can change without current password)
+ */
+export async function changeUserPassword(
+  id: number | string,
+  data: ChangeUserPasswordData
+): Promise<{ message: string }> {
+  try {
+    const response = await httpClient.post<{ data: { message: string } }>(
+      ADMIN_USER_ENDPOINTS.CHANGE_PASSWORD(id),
+      data
+    )
+    return handleSuccess<{ message: string }>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Change admin's own password data
+ */
+export interface ChangeOwnPasswordData {
+  current_password: string
+  password: string
+  password_confirmation: string
+}
+
+/**
+ * Change admin's own password (requires current password verification)
+ */
+export async function changeOwnPassword(
+  data: ChangeOwnPasswordData
+): Promise<{ message: string }> {
+  try {
+    const response = await httpClient.post<{ data: { message: string } }>(
+      ADMIN_USER_ENDPOINTS.CHANGE_OWN_PASSWORD,
+      data
+    )
+    return handleSuccess<{ message: string }>(response)
   } catch (error) {
     throw handleError(error)
   }
@@ -344,6 +423,12 @@ export async function deleteDealer(id: number | string): Promise<void> {
  */
 export async function getVehicles(params?: PaginationParams & {
   dealer_id?: number
+  user_id?: number
+  dealer_name?: string
+  user_name?: string
+  brand_id?: number
+  model_id?: number
+  model_year_id?: number
   status?: VehicleStatus
   search?: string
 }): Promise<PaginationModel<VehicleModel>> {
@@ -378,6 +463,100 @@ export async function getVehicle(id: number | string): Promise<VehicleModel> {
 }
 
 /**
+ * Update vehicle data
+ */
+export interface UpdateVehicleData {
+  // Basic vehicle fields
+  title?: string
+  registration?: string
+  vin?: string
+  brand_id?: number
+  model_id?: number
+  model_year_id?: number
+  km_driven?: number
+  fuel_type_id?: number
+  gear_type_id?: number
+  transmission_id?: number
+  price?: number
+  battery_capacity?: number
+  range_km?: number
+  charging_type?: string
+  engine_power?: number
+  towing_weight?: number
+  ownership_tax?: number
+  first_registration_date?: string
+  fuel_efficiency?: number
+  vehicle_list_status_id?: number
+  listing_type_id?: number
+  published_at?: string
+  version?: string
+  
+  // Vehicle details fields
+  description?: string
+  variant_id?: number
+  color_id?: number
+  body_type_id?: number
+  price_type_id?: number
+  condition_id?: number
+  sales_type_id?: number
+  use_id?: number
+  euronom_id?: number
+  transmission_name?: string
+  
+  // Pricing fields
+  wholesale_price?: number
+  internal_cost_price?: number
+  price_without_tax?: number
+  wholesale_price_includes_delivery?: boolean
+  
+  // Technical fields
+  engine_type?: string
+  drive_axles?: number
+  co2_emissions?: number
+  fuel_consumption_wltp?: number
+  fuel_consumption_nedc?: number
+  
+  // Dates
+  production_date?: string
+  last_inspection_date?: string
+  last_inspection_result?: string
+  last_inspection_odometer?: number
+  
+  // Flags
+  is_import?: boolean
+  is_factory_new?: boolean
+  
+  // Other details
+  servicebog?: string
+  annual_tax?: number
+  cover_image_index?: number
+  leasing_period_start?: string
+  leasing_period_end?: string
+  
+  // Equipment
+  equipment_ids?: number[]
+}
+
+/**
+ * Update vehicle (admin)
+ */
+export async function updateVehicle(
+  id: number | string,
+  data: UpdateVehicleData
+): Promise<VehicleModel> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      ADMIN_VEHICLE_ENDPOINTS.UPDATE(id),
+      data
+    )
+    const vehicleData = handleSuccess<any>(response)
+    return mapVehicleFromApi(vehicleData)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
  * Update vehicle status (admin)
  */
 export interface UpdateVehicleStatusData {
@@ -392,7 +571,7 @@ export async function updateVehicleStatus(
   data: UpdateVehicleStatusData
 ): Promise<VehicleModel> {
   try {
-    const response = await httpClient.put<{ data: any }>(
+    const response = await httpClient.post<{ data: any }>(
       ADMIN_VEHICLE_ENDPOINTS.UPDATE_STATUS(id),
       data
     )
@@ -408,7 +587,7 @@ export async function updateVehicleStatus(
  */
 export async function deleteVehicle(id: number | string): Promise<void> {
   try {
-    await httpClient.delete(ADMIN_VEHICLE_ENDPOINTS.DELETE(id))
+    await httpClient.post(ADMIN_VEHICLE_ENDPOINTS.DELETE(id))
   } catch (error) {
     throw handleError(error)
   }
@@ -417,12 +596,136 @@ export async function deleteVehicle(id: number | string): Promise<void> {
 /**
  * Get vehicle history
  */
-export async function getVehicleHistory(id: number | string): Promise<any[]> {
+export async function getVehicleHistory(id: number | string): Promise<{
+  price_history: any[]
+  view_logs: any[]
+}> {
   try {
-    const response = await httpClient.get<{ data: any[] }>(
+    const response = await httpClient.get<{ data: any }>(
       ADMIN_VEHICLE_ENDPOINTS.HISTORY(id)
     )
-    return handleSuccess<any[]>(response)
+    return handleSuccess<any>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Get vehicle images
+ */
+export async function getVehicleImages(id: number | string): Promise<VehicleImageModel[]> {
+  try {
+    const response = await httpClient.get<{ data: any[] }>(
+      ADMIN_VEHICLE_ENDPOINTS.IMAGES(id)
+    )
+    const data = handleSuccess<any[]>(response)
+    return data.map((img: any) => ({
+      id: img.id,
+      vehicleId: img.vehicle_id,
+      url: img.image_url ?? img.thumbnail_url,
+      path: img.image_path ?? img.thumbnail_path,
+      order: img.sort_order,
+      isPrimary: false,
+      createdAt: img.created_at,
+    }))
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Update vehicle images data
+ */
+export interface UpdateVehicleImagesData {
+  images?: string[] // URLs
+  files?: File[] // File uploads
+}
+
+/**
+ * Update vehicle images
+ */
+export async function updateVehicleImages(
+  id: number | string,
+  data: UpdateVehicleImagesData
+): Promise<VehicleModel> {
+  try {
+    const formData = new FormData()
+    
+    // Append existing image URLs as an array (Laravel expects images[] format)
+    if (data.images && data.images.length > 0) {
+      data.images.forEach((imageUrl) => {
+        formData.append('images[]', imageUrl)
+      })
+    }
+    
+    // Append new file uploads
+    if (data.files && data.files.length > 0) {
+      data.files.forEach((file, index) => {
+        formData.append(`files[${index}]`, file)
+      })
+    }
+    
+    const response = await httpClient.post<{ data: any }>(
+      ADMIN_VEHICLE_ENDPOINTS.UPDATE_IMAGES(id),
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    )
+    const vehicleData = handleSuccess<any>(response)
+    return mapVehicleFromApi(vehicleData)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Delete vehicle image data
+ */
+export interface DeleteVehicleImageData {
+  image_id: number
+}
+
+/**
+ * Delete vehicle image
+ */
+export async function deleteVehicleImage(
+  id: number | string,
+  data: DeleteVehicleImageData
+): Promise<void> {
+  try {
+    await httpClient.post(
+      ADMIN_VEHICLE_ENDPOINTS.DELETE_IMAGE(id),
+      data
+    )
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Update vehicle equipment data
+ */
+export interface UpdateVehicleEquipmentData {
+  equipment_ids: number[]
+}
+
+/**
+ * Update vehicle equipment
+ */
+export async function updateVehicleEquipment(
+  id: number | string,
+  data: UpdateVehicleEquipmentData
+): Promise<VehicleModel> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      ADMIN_VEHICLE_ENDPOINTS.UPDATE_EQUIPMENT(id),
+      data
+    )
+    const vehicleData = handleSuccess<any>(response)
+    return mapVehicleFromApi(vehicleData)
   } catch (error) {
     throw handleError(error)
   }
@@ -907,119 +1210,6 @@ export async function publishPage(id: number | string): Promise<PageModel> {
       {}
     )
     return handleSuccess<PageModel>(response)
-  } catch (error) {
-    throw handleError(error)
-  }
-}
-
-// ============================================================================
-// CMS - BLOGS
-// ============================================================================
-
-/**
- * Blog model
- */
-export interface BlogModel {
-  id: number
-  title: string
-  slug: string
-  content?: string
-  excerpt?: string
-  featured_image?: string
-  createdAt?: string
-  updatedAt?: string
-}
-
-/**
- * Get all blogs
- */
-export async function getBlogs(params?: PaginationParams): Promise<PaginationModel<BlogModel>> {
-  try {
-    const response = await httpClient.get<{ data: PaginationModel<BlogModel> }>(
-      ADMIN_BLOG_ENDPOINTS.LIST,
-      { params }
-    )
-    return handleSuccess<PaginationModel<BlogModel>>(response)
-  } catch (error) {
-    throw handleError(error)
-  }
-}
-
-/**
- * Get blog by ID
- */
-export async function getBlog(id: number | string): Promise<BlogModel> {
-  try {
-    const response = await httpClient.get<{ data: BlogModel }>(
-      ADMIN_BLOG_ENDPOINTS.SHOW(id)
-    )
-    return handleSuccess<BlogModel>(response)
-  } catch (error) {
-    throw handleError(error)
-  }
-}
-
-/**
- * Create blog data
- */
-export interface CreateBlogData {
-  title: string
-  slug: string
-  content?: string
-  excerpt?: string
-  featured_image?: string
-}
-
-/**
- * Create blog
- */
-export async function createBlog(data: CreateBlogData): Promise<BlogModel> {
-  try {
-    const response = await httpClient.post<{ data: BlogModel }>(
-      ADMIN_BLOG_ENDPOINTS.CREATE,
-      data
-    )
-    return handleSuccess<BlogModel>(response)
-  } catch (error) {
-    throw handleError(error)
-  }
-}
-
-/**
- * Update blog data
- */
-export interface UpdateBlogData {
-  title?: string
-  slug?: string
-  content?: string
-  excerpt?: string
-  featured_image?: string
-}
-
-/**
- * Update blog
- */
-export async function updateBlog(
-  id: number | string,
-  data: UpdateBlogData
-): Promise<BlogModel> {
-  try {
-    const response = await httpClient.put<{ data: BlogModel }>(
-      ADMIN_BLOG_ENDPOINTS.UPDATE(id),
-      data
-    )
-    return handleSuccess<BlogModel>(response)
-  } catch (error) {
-    throw handleError(error)
-  }
-}
-
-/**
- * Delete blog
- */
-export async function deleteBlog(id: number | string): Promise<void> {
-  try {
-    await httpClient.delete(ADMIN_BLOG_ENDPOINTS.DELETE(id))
   } catch (error) {
     throw handleError(error)
   }
@@ -2273,6 +2463,196 @@ export async function updateEquipment(id: number | string, data: UpdateConstantD
 export async function deleteEquipment(id: number | string): Promise<void> {
   try {
     await httpClient.post(ADMIN_CONSTANTS_ENDPOINTS.EQUIPMENTS.DELETE(id), {})
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// DASHBOARD
+// ============================================================================
+
+/**
+ * Dashboard statistics data
+ */
+export interface DashboardStats {
+  overview: {
+    users: {
+      total: number
+      new_last_7_days: number
+      new_last_30_days: number
+      new_this_month: number
+      new_last_month: number
+      growth_rate: number
+    }
+    dealers: {
+      total: number
+      new_last_7_days: number
+      new_last_30_days: number
+      new_this_month: number
+      new_last_month: number
+      growth_rate: number
+    }
+    vehicles: {
+      total: number
+      published: number
+      draft: number
+      sold: number
+      archived: number
+      new_last_7_days: number
+      new_last_30_days: number
+      new_this_month: number
+      new_last_month: number
+      growth_rate: number
+      total_value: number
+      average_price: number
+    }
+    leads: {
+      total: number
+      new_last_7_days: number
+      new_last_30_days: number
+      new_this_month: number
+      new_last_month: number
+      growth_rate: number
+    }
+    subscriptions: {
+      total: number
+      active: number
+      trial: number
+      expired: number
+      new_last_7_days: number
+      new_last_30_days: number
+      new_this_month: number
+      new_last_month: number
+      growth_rate: number
+    }
+    plans: {
+      total: number
+      active: number
+    }
+  }
+  trends: {
+    vehicles: Array<{ date: string; count: number }>
+    users: Array<{ date: string; count: number }>
+  }
+  distributions: {
+    vehicle_status: Array<{ status: string; count: number; color: string }>
+    subscription_status: Array<{ status: string; count: number; color: string }>
+  }
+  recent: {
+    vehicles: Array<any>
+    users: Array<any>
+    dealers: Array<any>
+    leads: Array<any>
+  }
+}
+
+/**
+ * Get dashboard statistics
+ */
+export async function getDashboardStats(): Promise<DashboardStats> {
+  try {
+    const response = await httpClient.get<{ data: DashboardStats }>(
+      ADMIN_DASHBOARD_ENDPOINTS.STATS
+    )
+    return handleSuccess<DashboardStats>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// FEATURED VEHICLES
+// ============================================================================
+
+/**
+ * Featured vehicle model
+ */
+export interface FeaturedVehicleModel {
+  id: number
+  vehicle_id: number
+  sort_order: number
+  vehicle?: any // VehicleModel with relationships
+  created_at?: string
+  updated_at?: string
+}
+
+/**
+ * Get all featured vehicles
+ */
+export async function getFeaturedVehicles(
+  params?: PaginationParams & {
+    search?: string
+    status?: string
+  }
+): Promise<PaginationModel<FeaturedVehicleModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<FeaturedVehicleModel> }>(
+      ADMIN_FEATURED_VEHICLE_ENDPOINTS.LIST,
+      { params }
+    )
+    return handleSuccess<PaginationModel<FeaturedVehicleModel>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Create featured vehicle data
+ */
+export interface CreateFeaturedVehicleData {
+  vehicle_id: number
+  sort_order?: number
+}
+
+/**
+ * Add vehicle to featured listings
+ */
+export async function addFeaturedVehicle(
+  data: CreateFeaturedVehicleData
+): Promise<FeaturedVehicleModel> {
+  try {
+    const response = await httpClient.post<{ data: FeaturedVehicleModel }>(
+      ADMIN_FEATURED_VEHICLE_ENDPOINTS.CREATE,
+      data
+    )
+    return handleSuccess<FeaturedVehicleModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Update featured vehicle data
+ */
+export interface UpdateFeaturedVehicleData {
+  sort_order: number
+}
+
+/**
+ * Update featured vehicle sort order
+ */
+export async function updateFeaturedVehicle(
+  id: number | string,
+  data: UpdateFeaturedVehicleData
+): Promise<FeaturedVehicleModel> {
+  try {
+    const response = await httpClient.post<{ data: FeaturedVehicleModel }>(
+      ADMIN_FEATURED_VEHICLE_ENDPOINTS.UPDATE(id),
+      data
+    )
+    return handleSuccess<FeaturedVehicleModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Remove vehicle from featured listings
+ */
+export async function removeFeaturedVehicle(id: number | string): Promise<void> {
+  try {
+    await httpClient.post(ADMIN_FEATURED_VEHICLE_ENDPOINTS.DELETE(id), {})
   } catch (error) {
     throw handleError(error)
   }

@@ -1100,14 +1100,28 @@
       </v-window>
       </v-card>
     </v-expand-transition>
+
+    <!-- Snackbar for notifications -->
+    <v-snackbar
+      v-model="snackbar.show"
+      :color="snackbar.color"
+      timeout="3000"
+      location="top right"
+    >
+      {{ snackbar.message }}
+      <template v-slot:actions>
+        <v-btn variant="text" @click="snackbar.show = false">Close</v-btn>
+      </template>
+    </v-snackbar>
   </v-container>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
-import { createVehicle, getLookupConstants, lookupVehicleByRegistration } from '@/api/dealer.api'
+import { createVehicle, createVehicleDraft, updateVehicle, getLookupConstants, lookupVehicleByRegistration } from '@/api/dealer.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import type { VehicleModel } from '@/models/vehicle.model'
 import MonthYearPicker from '@/components/ui/MonthYearPicker.vue'
 
 const router = useRouter()
@@ -1129,11 +1143,25 @@ const formRef = ref()
 const formValid = ref(false)
 const submitting = ref(false)
 const draftSaved = ref(false)
+const draftVehicleId = ref<number | null>(null) // Track the draft vehicle ID
 const submitError = ref<string | null>(null)
 const validationErrors = ref<Record<string, string[]>>({})
 const showSuccessDialog = ref(false)
 const hasUnsavedChanges = ref(false)
 const formSuccessfullySaved = ref(false)
+
+// Snackbar for notifications
+const snackbar = ref({
+  show: false,
+  message: '',
+  color: 'success' as 'success' | 'error' | 'info' | 'warning'
+})
+
+const showSnackbar = (message: string, color: 'success' | 'error' | 'info' | 'warning' = 'success') => {
+  snackbar.value.message = message
+  snackbar.value.color = color
+  snackbar.value.show = true
+}
 
 // Computed property to check if images are valid
 const imagesValid = computed(() => {
@@ -1409,6 +1437,7 @@ const form = ref({
   // Step 3
   engineType: '',
   transmissionType: '',
+  transmissionId: null as number | null,
   drivetrain: '',
   fuelConsumption: null as number | null,
   euroEmissionClass: '',
@@ -1447,6 +1476,7 @@ const form = ref({
 const brands = ref<Array<{id: number, name: string}>>([])
 const fuelTypes = ref<Array<{id: number, name: string}>>([])
 const gearTypes = ref<Array<{id: number, name: string}>>([])
+const transmissions = ref<Array<{id: number, name: string}>>([])
 const vehicleUses = ref<Array<{id: number, name: string}>>([])
 const salesTypes = ref<Array<{id: number, name: string}>>([])
 const priceTypes = ref<Array<{id: number, name: string}>>([])
@@ -1480,6 +1510,7 @@ const loadLookupData = async () => {
     brands.value = data.brands || []
     fuelTypes.value = data.fuel_types || []
     gearTypes.value = data.gear_types || []
+    transmissions.value = data.transmissions || []
     vehicleUses.value = data.vehicle_uses || []
     salesTypes.value = data.sales_types || []
     priceTypes.value = data.price_types || []
@@ -1684,6 +1715,13 @@ const performLookup = async () => {
         u.name.toLowerCase() === data.use.name.toLowerCase()
       )
       if (use) form.value.previousUsage = use.name
+    }
+
+    // Map transmission - handle transmission object from API
+    if (data.transmission && typeof data.transmission === 'object' && data.transmission.id) {
+      upsertLookupOption(transmissions.value, { id: data.transmission.id, name: data.transmission.name })
+      form.value.transmissionId = data.transmission.id
+      form.value.transmissionType = data.transmission.name
     }
 
     // Map euro emission class - handle both object and string formats
@@ -2005,18 +2043,268 @@ const handleDragEnd = () => {
   dragOverIndex.value = null
 }
 
-const saveAsDraft = () => {
-  const draftData = { ...form.value, images: [] }
-  localStorage.setItem('add-vehicle-form-draft', JSON.stringify(draftData))
-  draftSaved.value = true
-  setTimeout(() => {
+const saveAsDraft = async () => {
+  try {
     draftSaved.value = false
-  }, 3000)
+    submitError.value = null
+    validationErrors.value = {}
+
+    // Convert form data to API format (similar to submitForm but without validation)
+    const nummerpladeData = lookupData.value || {}
+    const vehicleData: any = {}
+
+    // Generate title from make, model, variant (if available)
+    if (form.value.make || form.value.model) {
+      const titleParts = [form.value.make, form.value.model, form.value.variant].filter(Boolean)
+      vehicleData.title = titleParts.join(' ') || `${form.value.make || ''} ${form.value.model || ''}`.trim() || undefined
+    }
+
+    // Optional fields - only include if they have values
+    if (form.value.registrationNumber) {
+      vehicleData.registration = form.value.registrationNumber
+    }
+    if (form.value.vin) {
+      vehicleData.vin = form.value.vin
+    }
+
+    // Find brand_id from make name (if make is provided)
+    if (form.value.make) {
+      const brand = brands.value.find(b => b.name === form.value.make)
+      if (brand) {
+        vehicleData.brand_id = brand.id
+      } else {
+        // If brand not found, try to create it via brand_name
+        vehicleData.brand_name = form.value.make
+      }
+    }
+
+    // Model ID
+    if (form.value.modelId) {
+      vehicleData.model_id = form.value.modelId
+    } else if (form.value.model && vehicleData.brand_id) {
+      // Try to find model by name
+      const model = models.value.find(m => 
+        m.brand_id === vehicleData.brand_id && m.name === form.value.model
+      )
+      if (model) {
+        vehicleData.model_id = model.id
+      } else {
+        vehicleData.model_name = form.value.model
+      }
+    }
+
+    // Variant/Version
+    const variantName = String(
+      form.value.variant ||
+        nummerpladeData.variant?.name ||
+        nummerpladeData.version?.name ||
+        nummerpladeData.version ||
+        nummerpladeData.variant ||
+        ''
+    ).trim()
+    if (variantName) {
+      const matchedVariant = variants.value.find(
+        (variant) => variant.name.toLowerCase() === variantName.toLowerCase()
+      )
+      if (matchedVariant) {
+        vehicleData.variant_id = matchedVariant.id
+      } else {
+        vehicleData.variant = variantName
+      }
+    }
+
+    // Fuel type (optional for draft)
+    if (form.value.fuelType) {
+      const fuelType = fuelTypes.value.find(f => f.name === form.value.fuelType)
+      if (fuelType) {
+        vehicleData.fuel_type_id = fuelType.id
+      }
+    }
+
+    // Price (optional for draft, default to 0 if not provided)
+    if (form.value.retailPrice !== null && form.value.retailPrice !== undefined) {
+      vehicleData.price = toNumberOrNull(form.value.retailPrice) ?? 0
+    } else {
+      vehicleData.price = 0
+    }
+
+    // Odometer
+    if (form.value.odometer !== null && form.value.odometer !== undefined) {
+      const kmDriven = toNumberOrNull(form.value.odometer)
+      if (kmDriven !== null) {
+        vehicleData.km_driven = kmDriven
+      }
+    }
+
+    // Description
+    if (form.value.description) {
+      vehicleData.description = form.value.description
+    }
+
+    // Images (optional for draft)
+    if (form.value.images && form.value.images.length > 0) {
+      vehicleData.images = form.value.images
+    }
+
+    // Equipment
+    if (form.value.equipment && form.value.equipment.length > 0) {
+      vehicleData.equipment_ids = form.value.equipment.map(id => parseInt(id))
+    }
+
+    // Model year from Nummerplade API if available
+    if (nummerpladeData.model_year?.id) {
+      const modelYearId = toNumberOrNull(nummerpladeData.model_year.id)
+      if (modelYearId !== null) {
+        vehicleData.model_year_id = modelYearId
+      }
+    } else if (typeof nummerpladeData.model_year === 'number') {
+      const modelYearId = toNumberOrNull(nummerpladeData.model_year)
+      if (modelYearId !== null) {
+        vehicleData.model_year_id = modelYearId
+      }
+    }
+
+    // Dates
+    if (form.value.firstRegistrationDate) {
+      const [year, month] = form.value.firstRegistrationDate.split('-')
+      vehicleData.first_registration_date = `${year}-${month}-01`
+    } else if (nummerpladeData.first_registration_date) {
+      vehicleData.first_registration_date = nummerpladeData.first_registration_date
+    }
+
+    if (form.value.productionDate) {
+      const [year, month] = form.value.productionDate.split('-')
+      vehicleData.production_date = `${year}-${month}-01`
+    }
+
+    if (form.value.lastInspectionDate) {
+      const [year, month] = form.value.lastInspectionDate.split('-')
+      vehicleData.last_inspection_date = `${year}-${month}-01`
+    } else if (nummerpladeData.last_inspection_date) {
+      vehicleData.last_inspection_date = nummerpladeData.last_inspection_date
+    }
+
+    // Engine power
+    if (form.value.powerKw !== null && form.value.powerKw !== undefined) {
+      const enginePower = toNumberOrNull(form.value.powerKw)
+      if (enginePower !== null) {
+        vehicleData.engine_power = Math.round(enginePower)
+      }
+    }
+
+    // Transmission
+    if (form.value.transmissionId) {
+      vehicleData.transmission_id = form.value.transmissionId
+    } else if (form.value.transmissionType) {
+      const transmission = transmissions.value.find(t => t.name === form.value.transmissionType)
+      if (transmission) {
+        vehicleData.transmission_id = transmission.id
+      }
+      const gearType = gearTypes.value.find(g => g.name === form.value.transmissionType)
+      if (gearType) {
+        vehicleData.gear_type_id = gearType.id
+      }
+    }
+
+    // Previous usage
+    if (form.value.previousUsage) {
+      const vehicleUse = vehicleUses.value.find(u => u.name === form.value.previousUsage)
+      if (vehicleUse) {
+        vehicleData.use_id = vehicleUse.id
+      }
+    } else if (nummerpladeData.use?.id) {
+      vehicleData.use_id = nummerpladeData.use.id
+    }
+
+    // Additional optional fields
+    if (form.value.co2Emissions !== null && form.value.co2Emissions !== undefined) {
+      const co2Emissions = toNumberOrNull(form.value.co2Emissions)
+      if (co2Emissions !== null) {
+        vehicleData.co2_emissions = co2Emissions
+      }
+    }
+
+    if (form.value.fuelConsumption !== null && form.value.fuelConsumption !== undefined) {
+      const fuelEfficiency = toNumberOrNull(form.value.fuelConsumption)
+      if (fuelEfficiency !== null) {
+        vehicleData.fuel_efficiency = fuelEfficiency
+      }
+    } else if (nummerpladeData.fuel_efficiency !== undefined && nummerpladeData.fuel_efficiency !== null) {
+      const fuelEfficiency = toNumberOrNull(nummerpladeData.fuel_efficiency)
+      if (fuelEfficiency !== null) {
+        vehicleData.fuel_efficiency = fuelEfficiency
+      }
+    }
+
+    // Towing weight
+    if (nummerpladeData.towing_weight !== undefined && nummerpladeData.towing_weight !== null) {
+      const towingWeight = toNumberOrNull(nummerpladeData.towing_weight)
+      if (towingWeight !== null) {
+        vehicleData.towing_weight = towingWeight
+      }
+    }
+
+    // Pricing fields
+    if (form.value.priceTypeId) {
+      vehicleData.price_type_id = form.value.priceTypeId
+    }
+    if (form.value.conditionId) {
+      vehicleData.condition_id = form.value.conditionId
+    }
+    if (form.value.salesTypeId) {
+      vehicleData.sales_type_id = form.value.salesTypeId
+    }
+    if (form.value.annualTax !== null && form.value.annualTax !== undefined) {
+      const annualTax = toNumberOrNull(form.value.annualTax)
+      if (annualTax !== null) {
+        vehicleData.annual_tax = annualTax
+      }
+    }
+
+    // Check if we have an existing draft vehicle ID
+    let savedVehicle: VehicleModel
+    let message: string
+
+    if (draftVehicleId.value) {
+      // Update existing draft
+      savedVehicle = await updateVehicle(draftVehicleId.value, vehicleData)
+      message = 'Vehicle draft updated successfully'
+    } else {
+      // Create new draft
+      savedVehicle = await createVehicleDraft(vehicleData)
+      message = (savedVehicle as any).__message || 'Vehicle draft saved successfully'
+      // Store the draft vehicle ID for future updates
+      draftVehicleId.value = savedVehicle.id
+    }
+
+    // Clear localStorage draft since it's now saved to the server
+    localStorage.removeItem('add-vehicle-form-draft')
+    hasUnsavedChanges.value = false
+    
+    // Show success message with API response message
+    showSnackbar(message, 'success')
+    
+    // Also show the chip for visual feedback
+    draftSaved.value = true
+    setTimeout(() => {
+      draftSaved.value = false
+    }, 3000)
+  } catch (error: any) {
+    console.error('Failed to save draft:', error)
+    const apiError = error as ApiErrorModel
+    const errorMessage = apiError.message || 'Failed to save draft. Please try again.'
+    submitError.value = errorMessage
+    showSnackbar(errorMessage, 'error')
+    draftSaved.value = false
+  }
 }
 
 const clearDraft = () => {
   // Clear localStorage draft
   localStorage.removeItem('add-vehicle-form-draft')
+  
+  // Reset draft vehicle ID
+  draftVehicleId.value = null
   
   // Reset unsaved changes flag
   hasUnsavedChanges.value = false
@@ -2052,6 +2340,7 @@ const clearDraft = () => {
     // Step 3
     engineType: '',
     transmissionType: '',
+    transmissionId: null,
     drivetrain: '',
     fuelConsumption: null,
     euroEmissionClass: '',
@@ -2266,8 +2555,16 @@ const submitForm = async () => {
       }
     }
     
-    // Transmission type - find gear_type_id if transmissionType matches a gear type
-    if (form.value.transmissionType) {
+    // Transmission - use transmission_id if available, otherwise try to find from transmissionType
+    if (form.value.transmissionId) {
+      vehicleData.transmission_id = form.value.transmissionId
+    } else if (form.value.transmissionType) {
+      // Try to find transmission by name
+      const transmission = transmissions.value.find(t => t.name === form.value.transmissionType)
+      if (transmission) {
+        vehicleData.transmission_id = transmission.id
+      }
+      // Also try to find gear_type_id if transmissionType matches a gear type (for backward compatibility)
       const gearType = gearTypes.value.find(g => g.name === form.value.transmissionType)
       if (gearType) {
         vehicleData.gear_type_id = gearType.id

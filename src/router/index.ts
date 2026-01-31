@@ -58,6 +58,11 @@ const router = createRouter({
           component: () => import('@/views/dealer/vehicles/AddVehicle.vue'),
         },
         {
+          path: 'vehicles/:id',
+          name: 'dealer.vehicles.detail',
+          component: () => import('@/views/dealer/vehicles/VehicleDetail.vue'),
+        },
+        {
           path: 'leads',
           redirect: '/leads/overview',
         },
@@ -72,16 +77,6 @@ const router = createRouter({
           component: () => import('@/views/dealer/leads/LeadDetail.vue'),
         },
         {
-          path: 'favorites',
-          name: 'dealer.favorites',
-          component: () => import('@/views/dealer/favorites/Favorites.vue'),
-        },
-        {
-          path: 'saved-searches',
-          name: 'dealer.saved-searches',
-          component: () => import('@/views/dealer/saved-searches/SavedSearches.vue'),
-        },
-        {
           path: 'staff',
           name: 'dealer.staff',
           component: () => import('@/views/dealer/staff/StaffManagement.vue'),
@@ -92,33 +87,9 @@ const router = createRouter({
           component: () => import('@/views/dealer/subscription/Subscription.vue'),
         },
         {
-          path: 'settings',
-          redirect: '/settings/general',
-        },
-        {
-          path: 'settings/general',
-          name: 'dealer.settings.general',
-          component: () => import('@/views/dealer/settings/GeneralSettings.vue'),
-        },
-        {
-          path: 'settings/profile',
-          name: 'dealer.settings.profile',
+          path: 'profile',
+          name: 'dealer.profile',
           component: () => import('@/views/dealer/settings/ProfileSettings.vue'),
-        },
-        {
-          path: 'settings/sessions',
-          name: 'dealer.settings.sessions',
-          component: () => import('@/views/dealer/settings/SessionsSettings.vue'),
-        },
-        {
-          path: 'settings/change-password',
-          name: 'dealer.settings.change-password',
-          component: () => import('@/views/dealer/settings/ChangePassword.vue'),
-        },
-        {
-          path: 'settings/permissions',
-          name: 'dealer.settings.permissions',
-          component: () => import('@/views/dealer/settings/PermissionsManagement.vue'),
         },
       ],
     },
@@ -141,16 +112,6 @@ const router = createRouter({
           path: 'users/:id',
           name: 'admin.users.detail',
           component: () => import('@/views/admin/users/UserDetail.vue'),
-        },
-        {
-          path: 'dealers',
-          name: 'admin.dealers',
-          component: () => import('@/views/admin/dealers/DealersOverview.vue'),
-        },
-        {
-          path: 'dealers/:id',
-          name: 'admin.dealers.detail',
-          component: () => import('@/views/admin/dealers/DealerDetail.vue'),
         },
         {
           path: 'vehicles',
@@ -198,14 +159,9 @@ const router = createRouter({
           component: () => import('@/views/admin/pages/PageDetail.vue'),
         },
         {
-          path: 'blogs',
-          name: 'admin.blogs',
-          component: () => import('@/views/admin/blogs/BlogsOverview.vue'),
-        },
-        {
-          path: 'blogs/:id',
-          name: 'admin.blogs.detail',
-          component: () => import('@/views/admin/blogs/BlogDetail.vue'),
+          path: 'featured-vehicles',
+          name: 'admin.featured-vehicles',
+          component: () => import('@/views/admin/featured-vehicles/FeaturedVehicles.vue'),
         },
         {
           path: 'analytics',

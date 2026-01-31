@@ -43,17 +43,6 @@ export const adminSidebarSections: SidebarSection[] = [
           },
         ],
       },
-      {
-        title: 'Dealers',
-        url: `${ADMIN_ROUTE_BASE}/dealers`,
-        icon: 'mdi-store',
-        items: [
-          {
-            title: 'Overview',
-            url: `${ADMIN_ROUTE_BASE}/dealers`,
-          },
-        ],
-      },
     ],
   },
   {
@@ -82,13 +71,13 @@ export const adminSidebarSections: SidebarSection[] = [
         ],
       },
       {
-        title: 'Blogs',
-        url: `${ADMIN_ROUTE_BASE}/blogs`,
-        icon: 'mdi-post',
+        title: 'Featured Vehicles',
+        url: `${ADMIN_ROUTE_BASE}/featured-vehicles`,
+        icon: 'mdi-star',
         items: [
           {
             title: 'Overview',
-            url: `${ADMIN_ROUTE_BASE}/blogs`,
+            url: `${ADMIN_ROUTE_BASE}/featured-vehicles`,
           },
         ],
       },

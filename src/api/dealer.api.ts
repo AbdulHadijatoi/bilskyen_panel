@@ -176,6 +176,71 @@ export async function createVehicle(
 }
 
 /**
+ * Create vehicle draft (no validation)
+ * Allows saving incomplete vehicle data without validation
+ */
+export async function createVehicleDraft(
+  data: CreateVehicleData
+): Promise<VehicleModel> {
+  try {
+    const formData = new FormData()
+    
+    // Handle images separately - append each file individually
+    // Laravel expects images[] to be an array of UploadedFile objects
+    if (data.images && Array.isArray(data.images) && data.images.length > 0) {
+      data.images.forEach((file: File) => {
+        // Ensure it's a File object
+        if (file instanceof File) {
+          formData.append('images[]', file, file.name)
+        }
+      })
+    }
+    
+    // Handle equipment_ids separately - send as equipment_ids[] array for Laravel (matches sell-your-car)
+    // Also support legacy 'equipment' key for backward compatibility
+    const equipmentArray = data.equipment_ids || data.equipment
+    if (equipmentArray && Array.isArray(equipmentArray) && equipmentArray.length > 0) {
+      equipmentArray.forEach((equipmentId: number | string) => {
+        formData.append('equipment_ids[]', String(equipmentId))
+      })
+    }
+    
+    // Handle other fields
+    Object.keys(data).forEach((key) => {
+      // Skip images, equipment, and equipment_ids as we already handled them above
+      if (key === 'images' || key === 'equipment' || key === 'equipment_ids') {
+        return
+      }
+      
+      if (data[key] !== undefined && data[key] !== null) {
+        if (Array.isArray(data[key])) {
+          // For other arrays, send as JSON string
+          formData.append(key, JSON.stringify(data[key]))
+        } else if (typeof data[key] === 'object') {
+          // For objects, send as JSON string
+          formData.append(key, JSON.stringify(data[key]))
+        } else {
+          // For primitives, send as string
+          formData.append(key, String(data[key]))
+        }
+      }
+    })
+
+    const response = await httpClient.post<{ success: boolean; message?: string; data: any }>(
+      DEALER_VEHICLE_ENDPOINTS.DRAFT,
+      formData
+    )
+    const vehicleData = handleSuccess<any>(response)
+    const vehicle = mapVehicleFromApi(vehicleData)
+    // Attach message to vehicle object for access in component
+    ;(vehicle as any).__message = response.data?.message || 'Vehicle draft saved successfully'
+    return vehicle
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
  * Update vehicle data
  */
 export interface UpdateVehicleData extends Partial<CreateVehicleData> {}
@@ -185,12 +250,57 @@ export interface UpdateVehicleData extends Partial<CreateVehicleData> {}
  */
 export async function updateVehicle(
   id: number | string,
-  data: UpdateVehicleData
+  data: UpdateVehicleData | FormData
 ): Promise<VehicleModel> {
   try {
-    const response = await httpClient.put<{ data: any }>(
+    // If data is FormData, send it directly; otherwise convert to FormData if needed
+    let requestData: FormData | UpdateVehicleData = data
+    
+    // Check if data has File objects (images) that need FormData
+    if (data instanceof FormData) {
+      requestData = data
+    } else if (data.images && Array.isArray(data.images) && data.images.length > 0 && data.images[0] instanceof File) {
+      // Convert to FormData if images are present
+      const formData = new FormData()
+      
+      // Handle images
+      data.images.forEach((file: File) => {
+        if (file instanceof File) {
+          formData.append('images[]', file, file.name)
+        }
+      })
+      
+      // Handle equipment_ids
+      const equipmentArray = data.equipment_ids || data.equipment
+      if (equipmentArray && Array.isArray(equipmentArray) && equipmentArray.length > 0) {
+        equipmentArray.forEach((equipmentId: number | string) => {
+          formData.append('equipment_ids[]', String(equipmentId))
+        })
+      }
+      
+      // Handle other fields
+      Object.keys(data).forEach((key) => {
+        if (key === 'images' || key === 'equipment' || key === 'equipment_ids') {
+          return
+        }
+        
+        if (data[key] !== undefined && data[key] !== null) {
+          if (Array.isArray(data[key])) {
+            formData.append(key, JSON.stringify(data[key]))
+          } else if (typeof data[key] === 'object') {
+            formData.append(key, JSON.stringify(data[key]))
+          } else {
+            formData.append(key, String(data[key]))
+          }
+        }
+      })
+      
+      requestData = formData
+    }
+    
+    const response = await httpClient.post<{ data: any }>(
       DEALER_VEHICLE_ENDPOINTS.UPDATE(id),
-      data
+      requestData
     )
     const vehicleData = handleSuccess<any>(response)
     return mapVehicleFromApi(vehicleData)
@@ -204,7 +314,7 @@ export async function updateVehicle(
  */
 export async function deleteVehicle(id: number | string): Promise<void> {
   try {
-    await httpClient.delete(DEALER_VEHICLE_ENDPOINTS.DELETE(id))
+    await httpClient.post(DEALER_VEHICLE_ENDPOINTS.DELETE(id), {})
   } catch (error) {
     throw handleError(error)
   }
@@ -254,7 +364,8 @@ export async function deleteVehicleImage(
  * Update vehicle status
  */
 export interface UpdateVehicleStatusData {
-  status: VehicleStatus
+  status?: VehicleStatus
+  vehicle_list_status_id?: number
 }
 
 /**
@@ -265,8 +376,34 @@ export async function updateVehicleStatus(
   data: UpdateVehicleStatusData
 ): Promise<VehicleModel> {
   try {
-    const response = await httpClient.put<{ data: any }>(
+    const response = await httpClient.post<{ data: any }>(
       DEALER_VEHICLE_ENDPOINTS.UPDATE_STATUS(id),
+      data
+    )
+    const vehicleData = handleSuccess<any>(response)
+    return mapVehicleFromApi(vehicleData)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Update vehicle equipment data
+ */
+export interface UpdateVehicleEquipmentData {
+  equipment_ids: number[]
+}
+
+/**
+ * Update vehicle equipment
+ */
+export async function updateVehicleEquipment(
+  id: number | string,
+  data: UpdateVehicleEquipmentData
+): Promise<VehicleModel> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      DEALER_VEHICLE_ENDPOINTS.UPDATE_EQUIPMENT(id),
       data
     )
     const vehicleData = handleSuccess<any>(response)
@@ -606,13 +743,16 @@ export async function getProfile(): Promise<DealerModel> {
  * Update dealer profile
  */
 export interface UpdateProfileData {
+  // Dealer fields
+  cvr?: string
+  address?: string
+  city?: string
+  postcode?: string
+  country_code?: string
+  // User fields
   name?: string
   email?: string
   phone?: string
-  address?: string
-  website?: string
-  description?: string
-  logo?: File
 }
 
 /**
@@ -620,18 +760,9 @@ export interface UpdateProfileData {
  */
 export async function updateProfile(data: UpdateProfileData): Promise<DealerModel> {
   try {
-    const formData = new FormData()
-    Object.keys(data).forEach((key) => {
-      if (key === 'logo' && data.logo instanceof File) {
-        formData.append('logo', data.logo)
-      } else if (data[key as keyof UpdateProfileData] !== undefined) {
-        formData.append(key, String(data[key as keyof UpdateProfileData]))
-      }
-    })
-
-    const response = await httpClient.put<{ data: any }>(
+    const response = await httpClient.post<{ data: any }>(
       DEALER_PROFILE_ENDPOINTS.UPDATE,
-      formData
+      data
     )
     const dealerData = handleSuccess<any>(response)
     return mapDealerFromApi(dealerData)
@@ -824,6 +955,12 @@ export interface LookupConstantsResponse {
     equipments: Array<{ id: number; name: string }>
   }>
   drivetrain_types: Array<{ value: string; title: string }>
+  colors?: Array<{ id: number; name: string }>
+  body_types?: Array<{ id: number; name: string }>
+  model_years?: Array<{ id: number; name: string }>
+  transmissions?: Array<{ id: number; name: string }>
+  euronorms?: Array<{ id: number; name: string }>
+  vehicle_list_statuses?: Array<{ id: number; name: string }>
 }
 
 /**
