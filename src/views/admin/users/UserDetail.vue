@@ -527,7 +527,8 @@ const loadUser = async () => {
     // Set role_id from first role if available
     if (loadedUser.roles && loadedUser.roles.length > 0 && roles.value.length > 0) {
       const firstRole = loadedUser.roles[0]
-      const roleName = typeof firstRole === 'string' ? firstRole : firstRole.name
+      // Roles are normalized to strings in mapUserFromApi, but handle both cases for safety
+      const roleName = typeof firstRole === 'string' ? firstRole : (firstRole && typeof firstRole === 'object' && 'name' in firstRole ? String((firstRole as any).name) : String(firstRole))
       const role = roles.value.find(r => r.name === roleName)
       if (role) {
         userData.value.role_id = role.id
@@ -554,7 +555,8 @@ const cancelEdit = () => {
   // Reset role_id
   if (user.value.roles && user.value.roles.length > 0 && roles.value.length > 0) {
     const firstRole = user.value.roles[0]
-    const roleName = typeof firstRole === 'string' ? firstRole : firstRole.name
+    // Roles are normalized to strings in mapUserFromApi, but handle both cases for safety
+    const roleName = typeof firstRole === 'string' ? firstRole : (firstRole && typeof firstRole === 'object' && 'name' in firstRole ? String((firstRole as any).name) : String(firstRole))
     const role = roles.value.find(r => r.name === roleName)
     if (role) {
       userData.value.role_id = role.id
@@ -634,9 +636,13 @@ const getStatusLabel = (statusId?: number) => {
 
 const getUserInitials = (name: string): string => {
   if (!name) return 'U'
-  const parts = name.trim().split(' ')
+  const parts = name.trim().split(' ').filter(p => p.length > 0)
   if (parts.length >= 2) {
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+    const first = parts[0]
+    const last = parts[parts.length - 1]
+    if (first && last && first[0] && last[0]) {
+      return (first[0] + last[0]).toUpperCase()
+    }
   }
   return name.substring(0, 2).toUpperCase()
 }
@@ -706,7 +712,8 @@ const setRoleIdFromUser = () => {
   
   if (user.value.roles && user.value.roles.length > 0) {
     const firstRole = user.value.roles[0]
-    const roleName = typeof firstRole === 'string' ? firstRole : firstRole.name
+    // Roles are normalized to strings in mapUserFromApi, but handle both cases for safety
+    const roleName = typeof firstRole === 'string' ? firstRole : (firstRole && typeof firstRole === 'object' && 'name' in firstRole ? String((firstRole as any).name) : String(firstRole))
     const role = roles.value.find(r => r.name === roleName)
     if (role && !userData.value.role_id) {
       userData.value.role_id = role.id

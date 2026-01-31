@@ -33,7 +33,7 @@
             <div class="d-flex align-center justify-space-between">
               <div>
                 <div class="stat-label">Total Users</div>
-                <div class="stat-value">{{ users.total || 0 }}</div>
+                <div class="stat-value">{{ users.totalDocs || 0 }}</div>
               </div>
               <v-icon size="40" color="primary" class="stat-icon">mdi-account-group</v-icon>
             </div>
@@ -167,7 +167,7 @@
         Users List
         <v-spacer />
         <span class="text-caption text-medium-emphasis">
-          Showing {{ users.docs.length }} of {{ users.total || 0 }} users
+          Showing {{ users.docs.length }} of {{ users.totalDocs || 0 }} users
         </span>
       </v-card-title>
 
@@ -223,7 +223,7 @@
                 class="role-chip"
               >
                 <v-icon start size="14">mdi-shield-account</v-icon>
-                {{ typeof role === 'string' ? role : role.name || role }}
+                {{ typeof role === 'string' ? role : (role && typeof role === 'object' && 'name' in role ? String((role as any).name) : String(role)) }}
               </v-chip>
             </div>
           </template>
@@ -446,7 +446,7 @@ const users = ref<PaginationModel<UserModel>>({
   hasNextPage: false,
   prevPage: null,
   nextPage: null,
-  total: 0,
+  totalDocs: 0,
 })
 const currentPage = ref(1)
 const showCreateDialog = ref(false)
@@ -479,7 +479,7 @@ const statusFilterOptions = [
 ]
 
 const roleFilterOptions = computed(() => {
-  const options = [{ label: 'All Roles', value: null }]
+  const options: Array<{ label: string; value: string | null }> = [{ label: 'All Roles', value: null }]
   roles.value.forEach(role => {
     options.push({ label: role.name, value: role.name })
   })
@@ -638,9 +638,13 @@ const getStatusLabel = (statusId?: number) => {
 
 const getUserInitials = (name: string): string => {
   if (!name) return 'U'
-  const parts = name.trim().split(' ')
+  const parts = name.trim().split(' ').filter(p => p.length > 0)
   if (parts.length >= 2) {
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+    const first = parts[0]
+    const last = parts[parts.length - 1]
+    if (first && last && first[0] && last[0]) {
+      return (first[0] + last[0]).toUpperCase()
+    }
   }
   return name.substring(0, 2).toUpperCase()
 }

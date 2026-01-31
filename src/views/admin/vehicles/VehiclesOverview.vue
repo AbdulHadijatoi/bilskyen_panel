@@ -24,7 +24,7 @@
             <div class="d-flex align-center justify-space-between">
               <div>
                 <div class="stat-label">Total Vehicles</div>
-                <div class="stat-value">{{ vehicles.total || 0 }}</div>
+                <div class="stat-value">{{ vehicles.totalDocs || 0 }}</div>
               </div>
               <v-icon size="40" color="primary" class="stat-icon">mdi-car-multiple</v-icon>
             </div>
@@ -165,7 +165,7 @@
         Vehicles List
         <v-spacer />
         <span class="text-caption text-medium-emphasis">
-          Showing {{ vehicles.docs.length }} of {{ vehicles.total || 0 }} vehicles
+          Showing {{ vehicles.docs.length }} of {{ vehicles.totalDocs || 0 }} vehicles
         </span>
       </v-card-title>
 
@@ -200,9 +200,9 @@
 
           <template #item.title="{ item }">
             <div class="d-flex align-center gap-2">
-              <div v-if="item.images && item.images.length > 0" class="vehicle-thumbnail">
+              <div v-if="item.images && item.images.length > 0 && item.images[0]" class="vehicle-thumbnail">
                 <v-img
-                  :src="item.images[0].url || item.images[0].thumbnailUrl"
+                  :src="item.images[0]?.url || item.images[0]?.thumbnailUrl"
                   :alt="item.title"
                   cover
                   width="40"
@@ -341,7 +341,7 @@ const vehicles = ref<PaginationModel<VehicleModel>>({
   hasNextPage: false,
   prevPage: null,
   nextPage: null,
-  total: 0,
+  totalDocs: 0,
 })
 const currentPage = ref(1)
 const showDeleteDialog = ref(false)

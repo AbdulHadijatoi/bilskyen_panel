@@ -23,7 +23,7 @@ import {
 } from './endpoints'
 import type { UserModel } from '@/models/user.model'
 import { mapUserFromApi } from '@/models/user.model'
-import type { VehicleModel } from '@/models/vehicle.model'
+import type { VehicleModel, VehicleImageModel } from '@/models/vehicle.model'
 import { mapVehicleFromApi } from '@/models/vehicle.model'
 import type { DealerModel } from '@/models/dealer.model'
 import { mapDealerFromApi } from '@/models/dealer.model'

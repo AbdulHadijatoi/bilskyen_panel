@@ -32,7 +32,7 @@
             <div class="d-flex align-center justify-space-between">
               <div>
                 <div class="stat-label">Total Featured</div>
-                <div class="stat-value">{{ featuredVehicles.total || 0 }}</div>
+                <div class="stat-value">{{ featuredVehicles.totalDocs || 0 }}</div>
               </div>
               <v-icon size="40" color="warning" class="stat-icon">mdi-star</v-icon>
             </div>
@@ -70,12 +70,12 @@
         >
           <template v-slot:item.image="{ item }">
             <v-avatar
-              v-if="item.vehicle?.images?.[0]?.thumbnail_url || item.vehicle?.images?.[0]?.image_url"
+              v-if="item.vehicle?.images?.[0]?.thumbnailUrl || item.vehicle?.images?.[0]?.url"
               size="60"
               rounded
             >
               <v-img
-                :src="item.vehicle.images[0].thumbnail_url || item.vehicle.images[0].image_url"
+                :src="item.vehicle.images[0].thumbnailUrl || item.vehicle.images[0].url"
                 :alt="item.vehicle.title || 'Vehicle'"
                 cover
               />
@@ -129,7 +129,7 @@
                 icon="mdi-chevron-down"
                 size="x-small"
                 variant="text"
-                :disabled="item.sort_order === featuredVehicles.total || loading"
+                :disabled="item.sort_order === (featuredVehicles.totalDocs || 0) || loading"
                 @click="moveDown(item)"
               />
             </div>
@@ -210,12 +210,12 @@
             >
               <template v-slot:prepend>
                 <v-avatar
-                  v-if="vehicle.images?.[0]?.thumbnail_url || vehicle.images?.[0]?.image_url"
+                  v-if="vehicle.images?.[0]?.thumbnailUrl || vehicle.images?.[0]?.url"
                   size="50"
                   rounded
                 >
                   <v-img
-                    :src="vehicle.images[0].thumbnail_url || vehicle.images[0].image_url"
+                    :src="vehicle.images[0].thumbnailUrl || vehicle.images[0].url"
                     :alt="vehicle.title || 'Vehicle'"
                     cover
                   />
@@ -243,7 +243,7 @@
               </template>
             </v-list-item>
           </v-list>
-          <div v-if="availableVehicles.totalPages > 1" class="d-flex justify-center mt-4">
+          <div v-if="availableVehicles.totalPages && availableVehicles.totalPages > 1" class="d-flex justify-center mt-4">
             <v-pagination
               v-model="vehicleSearchPage"
               :length="availableVehicles.totalPages"
@@ -291,9 +291,9 @@ import {
   removeFeaturedVehicle,
   getVehicles,
   type FeaturedVehicleModel,
-  type VehicleModel,
 } from '@/api/admin.api'
 import { VehicleStatus } from '@/models/vehicle.model'
+import type { VehicleModel } from '@/models/vehicle.model'
 import type { PaginationModel, PaginationParams } from '@/models/pagination.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
@@ -305,7 +305,7 @@ const featuredVehicles = ref<PaginationModel<FeaturedVehicleModel>>({
   docs: [],
   limit: 15,
   page: 1,
-  total: 0,
+  totalDocs: 0,
   totalPages: 0,
   hasPrevPage: false,
   hasNextPage: false,
@@ -322,7 +322,7 @@ const availableVehicles = ref<PaginationModel<VehicleModel>>({
   docs: [],
   limit: 10,
   page: 1,
-  total: 0,
+  totalDocs: 0,
   totalPages: 0,
   hasPrevPage: false,
   hasNextPage: false,
@@ -341,7 +341,7 @@ const headers = [
   { title: 'Status', key: 'status', sortable: false, width: '100px' },
   { title: 'Dealer', key: 'dealer', sortable: false, width: '120px' },
   { title: 'Order', key: 'sort_order', sortable: false, width: '120px' },
-  { title: 'Actions', key: 'actions', sortable: false, width: '120px', align: 'end' },
+  { title: 'Actions', key: 'actions', sortable: false, width: '120px', align: 'end' as const },
 ]
 
 const loadFeaturedVehicles = async () => {
@@ -422,7 +422,7 @@ const moveUp = async (item: FeaturedVehicleModel) => {
 }
 
 const moveDown = async (item: FeaturedVehicleModel) => {
-  if (item.sort_order >= featuredVehicles.value.total) return
+  if (item.sort_order >= (featuredVehicles.value.totalDocs || 0)) return
 
   try {
     loading.value = true
