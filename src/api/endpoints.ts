@@ -79,6 +79,16 @@ export const DEALER_LEAD_ENDPOINTS = {
 } as const
 
 /**
+ * Dealer enquiry endpoints
+ */
+export const DEALER_ENQUIRY_ENDPOINTS = {
+  LIST: '/dealer/enquiries',
+  SHOW: (id: number | string) => `/dealer/enquiries/show/${id}`,
+  UPDATE_STATUS: (id: number | string) => `/dealer/enquiries/status/${id}`,
+  UPDATE_TYPE: (id: number | string) => `/dealer/enquiries/type/${id}`,
+} as const
+
+/**
  * Dealer favorites endpoints
  */
 export const DEALER_FAVORITE_ENDPOINTS = {

@@ -77,6 +77,20 @@ const router = createRouter({
           component: () => import('@/views/dealer/leads/LeadDetail.vue'),
         },
         {
+          path: 'enquiries',
+          redirect: '/enquiries/overview',
+        },
+        {
+          path: 'enquiries/overview',
+          name: 'dealer.enquiries.overview',
+          component: () => import('@/views/dealer/enquiries/EnquiriesOverview.vue'),
+        },
+        {
+          path: 'enquiries/:id',
+          name: 'dealer.enquiries.detail',
+          component: () => import('@/views/dealer/enquiries/EnquiryDetail.vue'),
+        },
+        {
           path: 'staff',
           name: 'dealer.staff',
           component: () => import('@/views/dealer/staff/StaffManagement.vue'),

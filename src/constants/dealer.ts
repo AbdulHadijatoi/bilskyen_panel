@@ -58,6 +58,17 @@ export const dealerSidebarSections: SidebarSection[] = [
           },
         ],
       },
+      {
+        title: 'Enquiries',
+        url: `${DEALER_ROUTE_BASE}enquiries`,
+        icon: 'mdi-email',
+        items: [
+          {
+            title: 'Overview',
+            url: `${DEALER_ROUTE_BASE}enquiries/overview`,
+          },
+        ],
+      },
     ],
   },
   {

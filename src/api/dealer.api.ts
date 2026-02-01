@@ -10,6 +10,7 @@ import { handleSuccess, handleError } from './response'
 import {
   DEALER_VEHICLE_ENDPOINTS,
   DEALER_LEAD_ENDPOINTS,
+  DEALER_ENQUIRY_ENDPOINTS,
   DEALER_FAVORITE_ENDPOINTS,
   DEALER_SAVED_SEARCH_ENDPOINTS,
   DEALER_PROFILE_ENDPOINTS,
@@ -22,6 +23,8 @@ import type { VehicleModel } from '@/models/vehicle.model'
 import { mapVehicleFromApi } from '@/models/vehicle.model'
 import type { LeadModel } from '@/models/lead.model'
 import { mapLeadFromApi } from '@/models/lead.model'
+import type { EnquiryModel } from '@/models/enquiry.model'
+import { mapEnquiryFromApi } from '@/models/enquiry.model'
 import type { DealerModel } from '@/models/dealer.model'
 import { mapDealerFromApi } from '@/models/dealer.model'
 import type { PaginationModel, PaginationParams } from '@/models/pagination.model'
@@ -599,6 +602,101 @@ export async function sendLeadMessage(
       data
     )
     return handleSuccess<any>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// ENQUIRIES
+// ============================================================================
+
+/**
+ * Get dealer's enquiries with pagination
+ */
+export async function getEnquiries(params?: PaginationParams & {
+  status?: string
+  type?: string
+  vehicle_id?: number
+  user_id?: number
+}): Promise<PaginationModel<EnquiryModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<any> }>(
+      DEALER_ENQUIRY_ENDPOINTS.LIST,
+      { params }
+    )
+    const data = handleSuccess<PaginationModel<any>>(response)
+    return {
+      ...data,
+      docs: data.docs.map(mapEnquiryFromApi),
+    }
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Get enquiry by ID
+ */
+export async function getEnquiry(id: number | string): Promise<EnquiryModel> {
+  try {
+    const response = await httpClient.get<{ data: any }>(
+      DEALER_ENQUIRY_ENDPOINTS.SHOW(id)
+    )
+    const data = handleSuccess<any>(response)
+    return mapEnquiryFromApi(data)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Update enquiry status
+ */
+export interface UpdateEnquiryStatusData {
+  status: string
+}
+
+/**
+ * Update enquiry status
+ */
+export async function updateEnquiryStatus(
+  id: number | string,
+  data: UpdateEnquiryStatusData
+): Promise<EnquiryModel> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      DEALER_ENQUIRY_ENDPOINTS.UPDATE_STATUS(id),
+      data
+    )
+    const enquiryData = handleSuccess<any>(response)
+    return mapEnquiryFromApi(enquiryData)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Update enquiry type
+ */
+export interface UpdateEnquiryTypeData {
+  type: string
+}
+
+/**
+ * Update enquiry type
+ */
+export async function updateEnquiryType(
+  id: number | string,
+  data: UpdateEnquiryTypeData
+): Promise<EnquiryModel> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      DEALER_ENQUIRY_ENDPOINTS.UPDATE_TYPE(id),
+      data
+    )
+    const enquiryData = handleSuccess<any>(response)
+    return mapEnquiryFromApi(enquiryData)
   } catch (error) {
     throw handleError(error)
   }
