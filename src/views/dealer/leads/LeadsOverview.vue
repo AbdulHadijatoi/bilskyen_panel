@@ -42,14 +42,14 @@
           v-model="searchQuery"
           prepend-inner-icon="mdi-magnify"
           placeholder="Search by name, email, phone, or vehicle..."
-          variant="outlined"
+      variant="outlined"
           density="compact"
           hide-details
           clearable
           class="search-field"
           @update:model-value="debouncedSearch"
         />
-      </div>
+        </div>
 
       <!-- Filter Chips and Controls -->
       <div class="d-flex flex-wrap align-center gap-2">
@@ -186,8 +186,8 @@
             Clear All
           </v-btn>
         </div>
-      </div>
-    </div>
+            </div>
+                    </div>
 
     <v-row v-if="!loading && !error" class="ma-0">
       <!-- Main Content -->
@@ -320,28 +320,49 @@
                       :ref="(el) => setStageListRef(el, stage.id)"
                       :data-stage-id="stage.id"
                       class="draggable-list"
+                      :class="{ 'empty-list': getLeadsByStage(stage.id).length === 0 }"
                     >
-                      <template v-if="getLeadsByStage(stage.id).length === 0">
+                      <!-- Always present placeholder for SortableJS to use as reference -->
+                      <!-- This prevents "lastElementChild" null errors when dragging over empty lists -->
+                      <!-- The placeholder is always in DOM but hidden when list has items -->
+                      <div 
+                        class="sortable-placeholder"
+                        :style="{
+                          height: getLeadsByStage(stage.id).length === 0 ? '20px' : '1px',
+                          minHeight: getLeadsByStage(stage.id).length === 0 ? '20px' : '1px',
+                          opacity: getLeadsByStage(stage.id).length === 0 ? '0' : '0',
+                          pointerEvents: 'none',
+                          flexShrink: 0,
+                          margin: 0,
+                          padding: 0
+                        }"
+                        aria-hidden="true"
+                      ></div>
+                      <!-- Empty state - not draggable, just visual -->
+                      <div 
+                        v-if="getLeadsByStage(stage.id).length === 0" 
+                        class="empty-state-placeholder"
+                        style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 1;"
+                      >
                         <div class="text-center text-medium-emphasis py-8">
                           <v-icon size="48" color="grey-lighten-1">mdi-inbox-outline</v-icon>
                           <div class="mt-2">No leads in this stage</div>
                         </div>
+                      </div>
+                      <!-- Draggable items -->
+                      <template v-for="lead in getLeadsByStage(stage.id)" :key="`lead-${lead.id}`">
+                        <div :data-lead-id="lead.id" class="draggable-item">
+                          <LeadCard
+                            :lead="lead"
+                            class="mb-2"
+                            @view="viewLead"
+                            @assign="assignLead"
+                            @change-intent="changeIntent"
+                            @change-category="changeCategory"
+                          />
+                        </div>
                       </template>
-                      <template v-else>
-                        <template v-for="lead in getLeadsByStage(stage.id)" :key="`lead-${lead.id}`">
-                          <div :data-lead-id="lead.id" class="draggable-item">
-                            <LeadCard
-                              :lead="lead"
-                              class="mb-2"
-                              @view="viewLead"
-                              @assign="assignLead"
-                              @change-intent="changeIntent"
-                              @change-category="changeCategory"
-                            />
-                          </div>
-                        </template>
-                      </template>
-                    </div>
+                </div>
               </v-card-text>
             </v-card>
           </div>
@@ -616,11 +637,27 @@ const filteredLeads = computed(() => {
 const stageLeads = ref<Record<number, LeadModel[]>>({})
 const sortableInstances = ref<Record<number, Sortable | null>>({})
 const stageListRefs = ref<Record<number, HTMLElement | null>>({})
+const isDragging = ref(false) // Flag to prevent re-initialization during drag
 
 // Set ref for stage list element
 const setStageListRef = (el: any, stageId: number) => {
   if (el) {
     stageListRefs.value[stageId] = el as HTMLElement
+    
+    // Ensure placeholder exists immediately when ref is set
+    // This prevents SortableJS from encountering null elements
+    nextTick(() => {
+      if (el && el.children.length === 0) {
+        const placeholder = document.createElement('div')
+        placeholder.className = 'sortable-placeholder'
+        placeholder.style.height = '20px'
+        placeholder.style.minHeight = '20px'
+        placeholder.style.pointerEvents = 'none'
+        placeholder.style.opacity = '0'
+        placeholder.setAttribute('aria-hidden', 'true')
+        el.appendChild(placeholder)
+      }
+    })
   }
 }
 
@@ -634,7 +671,11 @@ const initializeSortable = async () => {
   // Clean up existing instances
   Object.values(sortableInstances.value).forEach(instance => {
     if (instance) {
-      instance.destroy()
+      try {
+        instance.destroy()
+      } catch (error) {
+        console.warn('Error destroying Sortable instance:', error)
+      }
     }
   })
   sortableInstances.value = {}
@@ -648,8 +689,21 @@ const initializeSortable = async () => {
   stages.forEach(stage => {
     const listEl = stageListRefs.value[stage.id]
     if (listEl && !sortableInstances.value[stage.id]) {
+      // Ensure the list element has at least one child for SortableJS to work with
+      // This prevents "lastElementChild" null errors during drag operations
+      // Check if placeholder exists, if not add it
+      let placeholder = listEl.querySelector('.sortable-placeholder')
+      if (!placeholder) {
+        placeholder = document.createElement('div')
+        placeholder.className = 'sortable-placeholder'
+        placeholder.setAttribute('aria-hidden', 'true')
+        listEl.insertBefore(placeholder, listEl.firstChild)
+      }
+      
       console.log(`Initializing Sortable for stage ${stage.id}`, listEl)
-      sortableInstances.value[stage.id] = Sortable.create(listEl, {
+      
+      try {
+        sortableInstances.value[stage.id] = Sortable.create(listEl, {
         group: {
           name: 'leads',
           pull: true,
@@ -659,8 +713,33 @@ const initializeSortable = async () => {
         ghostClass: 'ghost-card',
         chosenClass: 'chosen-card',
         dragClass: 'drag-card',
-        // Don't specify draggable - let SortableJS handle all direct children (the .draggable-item divs)
+        emptyInsertThreshold: 5, // Distance in pixels before inserting into empty list
+        forceFallback: false, // Use native HTML5 drag if available
+        filter: '.empty-state-placeholder', // Ignore empty state (but keep sortable-placeholder for reference)
+        draggable: '.draggable-item', // Only make .draggable-item elements draggable
+        swapThreshold: 0.65, // Threshold for swap detection
+        invertSwap: false, // Don't invert swap on empty lists
+        onMove: (evt: any) => {
+          // Validate that the target element exists and is valid
+          try {
+            const related = evt.related
+            const to = evt.to
+            if (!to || !related) {
+              return false // Prevent move if target is invalid
+            }
+            // Ensure the target is not the empty state placeholder
+            if (related.classList && related.classList.contains('empty-state-placeholder')) {
+              return false
+            }
+            // Allow sortable-placeholder as it's needed for empty list reference
+            return true // Allow move
+          } catch (error) {
+            console.error('Error in onMove handler:', error)
+            return false // Prevent move on error
+          }
+        },
         onStart: (evt: SortableEvent) => {
+          isDragging.value = true // Set flag to prevent re-initialization
           console.log('Drag started:', {
             item: evt.item,
             from: evt.from,
@@ -672,6 +751,12 @@ const initializeSortable = async () => {
         onEnd: async (evt: SortableEvent) => {
           console.log('Drag ended event:', evt)
           const { from, to, item, oldIndex, newIndex } = evt
+          
+          // Validate that required elements exist
+          if (!from || !to || !item) {
+            console.error('Invalid drag event - missing required elements', { from, to, item })
+            return
+          }
           
           // Debug: Log what we're working with
           console.log('Drag event details:', {
@@ -739,12 +824,25 @@ const initializeSortable = async () => {
             return
           }
 
-          // Get old and new stage IDs
-          const oldStageId = parseInt(from.getAttribute('data-stage-id') || '0')
-          const newStageId = parseInt(to.getAttribute('data-stage-id') || '0')
+          // Get old and new stage IDs - with null checks
+          const fromStageId = from?.getAttribute('data-stage-id')
+          const toStageId = to?.getAttribute('data-stage-id')
           
-          if (!oldStageId || !newStageId) {
-            console.error('Invalid stage IDs', { oldStageId, newStageId })
+          if (!fromStageId || !toStageId) {
+            console.error('Invalid stage IDs - missing data-stage-id', { 
+              from: from, 
+              to: to,
+              fromStageId,
+              toStageId
+            })
+            return
+          }
+          
+          const oldStageId = parseInt(fromStageId)
+          const newStageId = parseInt(toStageId)
+          
+          if (!oldStageId || !newStageId || isNaN(oldStageId) || isNaN(newStageId)) {
+            console.error('Invalid stage IDs - not numbers', { oldStageId, newStageId })
             return
           }
           
@@ -760,6 +858,8 @@ const initializeSortable = async () => {
           console.log(`Moving lead ${leadId} from ${oldStageName} (${oldStageId}) to ${newStageName} (${newStageId})`)
 
           // Optimistically update UI - card is already moved by SortableJS
+          // We update stageLeads arrays directly without changing lead.stageId yet
+          // This prevents Vue from re-rendering and causing a blink
           const oldStageLeads = stageLeads.value[oldStageId] || []
           const newStageLeads = stageLeads.value[newStageId] || []
           
@@ -776,19 +876,21 @@ const initializeSortable = async () => {
             newStageLeads.push(lead)
           }
           
-          // Update lead's stage locally
-          lead.stageId = newStageId
+          // DON'T update lead.stageId yet - this would trigger Vue reactivity and cause blinking
+          // We'll update it after the API call succeeds
 
           // Update backend
           try {
             loading.value = true
             const updatedLead = await updateLeadStage(lead.id, { stage_id: newStageId })
             
-            // Update ONLY the stageId to avoid overwriting any nested data or relations
-            // The backend response might not include all fields (user, messages, vehicle details, etc.)
-            // By only updating stageId, we preserve all existing data including nested objects
+            // Now update the lead's stageId after API call succeeds
+            // This ensures the data is in sync without causing visual blinking
             if (updatedLead && updatedLead.stageId !== undefined) {
               lead.stageId = updatedLead.stageId
+            } else {
+              // Fallback: update stageId even if API doesn't return it
+              lead.stageId = newStageId
             }
             
             // Show success toast
@@ -803,13 +905,23 @@ const initializeSortable = async () => {
           } catch (err) {
             console.error('Failed to update lead stage:', err)
             
-            // Revert UI changes
+            // Revert UI changes - restore to original stage
             const revertIndex = newStageLeads.findIndex(l => l.id === leadId)
             if (revertIndex !== -1) {
               newStageLeads.splice(revertIndex, 1)
             }
-            oldStageLeads.push(lead)
+            // Restore to original position in old stage
+            if (oldIndex !== undefined && oldIndex >= 0 && oldIndex < oldStageLeads.length) {
+              oldStageLeads.splice(oldIndex, 0, lead)
+            } else {
+              oldStageLeads.push(lead)
+            }
+            // Restore original stageId
             lead.stageId = oldStageId
+            
+            // Re-initialize SortableJS to restore the DOM state
+            await nextTick()
+            await initializeSortable()
             
             // Show error toast
             snackbar.value = {
@@ -822,9 +934,14 @@ const initializeSortable = async () => {
             await loadLeads()
           } finally {
             loading.value = false
+            isDragging.value = false // Clear flag after drag operation completes
           }
         },
       })
+      } catch (error) {
+        console.error(`Failed to initialize Sortable for stage ${stage.id}:`, error)
+        // Continue with other stages even if one fails
+      }
     } else if (!listEl) {
       // List element not found - this can happen if the stage column isn't rendered yet
       // This is not necessarily an error, so we'll skip initialization silently
@@ -867,8 +984,11 @@ const initializeStageLeads = async () => {
 }
 
 // Watch filtered leads and update stage leads
+// Skip re-initialization during drag operations to prevent blinking
 watch(filteredLeads, async () => {
-  await initializeStageLeads()
+  if (!isDragging.value) {
+    await initializeStageLeads()
+  }
 }, { deep: true, immediate: true })
 
 // Watch viewMode to initialize Sortable when switching to kanban
@@ -1031,6 +1151,24 @@ const loadVehicles = async () => {
   }
 }
 
+// Global error handler for SortableJS drag operations
+const originalErrorHandler = window.onerror
+window.onerror = function(message, source, lineno, colno, error) {
+  // Suppress SortableJS "lastElementChild" null errors during drag operations
+  if (typeof message === 'string' && (
+    message.includes('lastElementChild') || 
+    message.includes('Cannot read properties of null')
+  ) && source?.includes('sortablejs')) {
+    console.warn('SortableJS drag error suppressed:', message)
+    return true // Suppress the error
+  }
+  // Call original error handler for other errors
+  if (originalErrorHandler) {
+    return originalErrorHandler.call(window, message, source, lineno, colno, error)
+  }
+  return false
+}
+
 onMounted(async () => {
   await Promise.all([loadLeads(), loadStaff(), loadVehicles()])
   // Initialize Sortable after everything is loaded
@@ -1039,10 +1177,19 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
+  // Restore original error handler
+  if (originalErrorHandler) {
+    window.onerror = originalErrorHandler
+  }
+  
   // Clean up Sortable instances
   Object.values(sortableInstances.value).forEach(instance => {
     if (instance) {
-      instance.destroy()
+      try {
+        instance.destroy()
+      } catch (error) {
+        console.warn('Error destroying Sortable instance:', error)
+      }
     }
   })
 })
@@ -1152,6 +1299,21 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  position: relative;
+}
+
+.draggable-list.empty-list {
+  min-height: 200px;
+}
+
+.empty-state-placeholder {
+  pointer-events: none;
+  user-select: none;
+  z-index: 1;
+}
+
+.sortable-placeholder {
+  flex-shrink: 0;
 }
 
 .draggable-item-wrapper {
