@@ -18,6 +18,33 @@ export enum LeadStage {
 }
 
 /**
+ * Lead intent (matches backend LeadIntent constants)
+ */
+export enum LeadIntent {
+  LOW = 1,
+  MEDIUM = 2,
+  HIGH = 3,
+  VERY_HIGH = 4,
+}
+
+/**
+ * Lead intent interface
+ */
+export interface LeadIntentModel {
+  id: number
+  name: string
+}
+
+/**
+ * Lead category interface
+ */
+export interface LeadCategoryModel {
+  id: number
+  name: string
+  description?: string
+}
+
+/**
  * Lead model interface
  */
 export interface LeadModel {
@@ -32,15 +59,21 @@ export interface LeadModel {
   message?: string
   stageId: number
   stage?: LeadStage
+  intentId?: number
+  categoryId?: number
+  intent?: LeadIntentModel
+  category?: LeadCategoryModel
   source?: string
   createdAt?: string
   updatedAt?: string
   deletedAt?: string
+  lastActivityAt?: string
   
   // Relations (if included in response)
   dealer?: any
   vehicle?: any
   user?: any
+  buyerUser?: any
   assignedTo?: any
   messages?: LeadMessageModel[]
 }
@@ -68,22 +101,32 @@ export function mapLeadFromApi(data: any): LeadModel {
     id: data.id,
     dealerId: data.dealer_id,
     vehicleId: data.vehicle_id,
-    userId: data.user_id,
-    assignedToId: data.assigned_to_id,
-    name: data.name,
-    email: data.email,
-    phone: data.phone,
+    userId: data.buyer_user_id || data.user_id,
+    assignedToId: data.assigned_user_id || data.assigned_to_id,
+    name: data.buyer_user?.name || data.user?.name || data.name || 'Unknown',
+    email: data.buyer_user?.email || data.user?.email || data.email,
+    phone: data.buyer_user?.phone || data.user?.phone || data.phone,
     message: data.message,
-    stageId: data.stage_id,
-    stage: data.stage_id as LeadStage,
-    source: data.source,
+    stageId: data.lead_stage_id || data.stage_id,
+    stage: (data.lead_stage_id || data.stage_id) as LeadStage,
+    intentId: data.lead_intent_id || data.intent_id,
+    categoryId: data.lead_category_id || data.category_id,
+    intent: data.lead_intent ? { id: data.lead_intent.id, name: data.lead_intent.name } : undefined,
+    category: data.lead_category ? { 
+      id: data.lead_category.id, 
+      name: data.lead_category.name,
+      description: data.lead_category.description 
+    } : undefined,
+    source: data.source?.name || data.source,
     createdAt: data.created_at,
     updatedAt: data.updated_at,
     deletedAt: data.deleted_at,
+    lastActivityAt: data.last_activity_at,
     dealer: data.dealer,
     vehicle: data.vehicle,
-    user: data.user,
-    assignedTo: data.assigned_to,
+    user: data.buyer_user || data.user,
+    buyerUser: data.buyer_user,
+    assignedTo: data.assigned_user || data.assigned_to,
     messages: data.messages?.map(mapLeadMessageFromApi),
   }
 }

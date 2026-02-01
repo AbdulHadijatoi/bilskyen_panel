@@ -557,8 +557,60 @@ export async function updateLeadStage(
   data: UpdateLeadStageData
 ): Promise<LeadModel> {
   try {
-    const response = await httpClient.put<{ data: any }>(
+    const response = await httpClient.post<{ data: any }>(
       DEALER_LEAD_ENDPOINTS.UPDATE_STAGE(id),
+      data
+    )
+    const leadData = handleSuccess<any>(response)
+    return mapLeadFromApi(leadData)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Update lead intent
+ */
+export interface UpdateLeadIntentData {
+  intent_id: number
+}
+
+/**
+ * Update lead intent
+ */
+export async function updateLeadIntent(
+  id: number | string,
+  data: UpdateLeadIntentData
+): Promise<LeadModel> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      DEALER_LEAD_ENDPOINTS.UPDATE_INTENT(id),
+      data
+    )
+    const leadData = handleSuccess<any>(response)
+    return mapLeadFromApi(leadData)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Update lead category
+ */
+export interface UpdateLeadCategoryData {
+  category_id: number
+}
+
+/**
+ * Update lead category
+ */
+export async function updateLeadCategory(
+  id: number | string,
+  data: UpdateLeadCategoryData
+): Promise<LeadModel> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      DEALER_LEAD_ENDPOINTS.UPDATE_CATEGORY(id),
       data
     )
     const leadData = handleSuccess<any>(response)

@@ -71,11 +71,13 @@ export const DEALER_LOOKUP_ENDPOINTS = {
  */
 export const DEALER_LEAD_ENDPOINTS = {
   LIST: '/dealer/leads',
-  SHOW: (id: number | string) => `/dealer/leads/${id}`,
-  ASSIGN: (id: number | string) => `/dealer/leads/${id}/assign`,
-  UPDATE_STAGE: (id: number | string) => `/dealer/leads/${id}/stage`,
-  GET_MESSAGES: (id: number | string) => `/dealer/leads/${id}/messages`,
-  SEND_MESSAGE: (id: number | string) => `/dealer/leads/${id}/messages`,
+  SHOW: (id: number | string) => `/dealer/leads/show/${id}`,
+  ASSIGN: (id: number | string) => `/dealer/leads/assign/${id}`,
+  UPDATE_STAGE: (id: number | string) => `/dealer/leads/stage/${id}`,
+  UPDATE_INTENT: (id: number | string) => `/dealer/leads/intent/${id}`,
+  UPDATE_CATEGORY: (id: number | string) => `/dealer/leads/category/${id}`,
+  GET_MESSAGES: (id: number | string) => `/dealer/leads/messages/${id}`,
+  SEND_MESSAGE: (id: number | string) => `/dealer/leads/messages/${id}`,
 } as const
 
 /**

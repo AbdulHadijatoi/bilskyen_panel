@@ -24,9 +24,8 @@
     <v-row class="mb-6">
       <v-col cols="12" sm="6" md="3">
         <v-card
-          variant="flat"
           class="stat-card"
-          elevation="0"
+          elevation="1"
         >
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between">
