@@ -1344,6 +1344,14 @@ export interface EquipmentConstant extends ConstantModel {
 }
 
 /**
+ * Variant (with model relationship)
+ */
+export interface VariantConstant extends ConstantModel {
+  model_id?: number
+  model?: VehicleModelConstant
+}
+
+/**
  * Equipment Type (with equipments relationship)
  */
 export interface EquipmentTypeConstant extends ConstantModel {
@@ -1361,7 +1369,7 @@ export interface ConstantsData {
   listing_types: ConstantModel[]
   body_types: ConstantModel[]
   colors: ConstantModel[]
-  variants: ConstantModel[]
+  variants: VariantConstant[]
   types: ConstantModel[]
   conditions: ConstantModel[]
   sales_types: ConstantModel[]
@@ -1395,6 +1403,7 @@ export interface CreateConstantData {
   name: string
   brand_id?: number
   equipment_type_id?: number
+  model_id?: number
 }
 
 /**
@@ -1404,6 +1413,7 @@ export interface UpdateConstantData {
   name?: string
   brand_id?: number
   equipment_type_id?: number
+  model_id?: number
 }
 
 // ============================================================================

@@ -53,6 +53,7 @@
             :search-query="searchQueries[activeTab]"
             :show-brand="getCurrentTab()?.showBrand || false"
             :show-equipment-type="getCurrentTab()?.showEquipmentType || false"
+            :show-model="getCurrentTab()?.showModel || false"
             @edit="(item) => handleEditClick(item)"
             @delete="(id) => handleDeleteClick(id)"
           />
@@ -68,8 +69,10 @@
       :loading="saving"
       :brands="constantsData?.brands || []"
       :equipment-types="constantsData?.equipment_types || []"
+      :vehicle-models="constantsData?.vehicle_models || []"
       :show-brand="currentTab?.showBrand || false"
       :show-equipment-type="currentTab?.showEquipmentType || false"
+      :show-model="currentTab?.showModel || false"
       @submit="handleSubmit"
     />
   </div>
@@ -154,6 +157,7 @@ import {
   type ConstantModel,
   type VehicleModelConstant,
   type EquipmentConstant,
+  type VariantConstant,
   type ConstantsData,
   type CreateConstantData,
 } from '@/api/admin.api'
@@ -166,7 +170,8 @@ interface TabConfig {
   label: string
   showBrand?: boolean
   showEquipmentType?: boolean
-  getItems: (data: ConstantsData) => (ConstantModel | VehicleModelConstant | EquipmentConstant)[]
+  showModel?: boolean
+  getItems: (data: ConstantsData) => (ConstantModel | VehicleModelConstant | EquipmentConstant | VariantConstant)[]
   loadItems: () => Promise<any>
   create: (data: any) => Promise<any>
   update: (id: number | string, data: CreateConstantData) => Promise<any>
@@ -240,6 +245,7 @@ const tabs: TabConfig[] = [
   {
     key: 'variants',
     label: 'Variants',
+    showModel: true,
     getItems: (data) => data.variants,
     loadItems: getVariants,
     create: createVariant,
@@ -348,7 +354,7 @@ const searchQueries = ref<Record<string, string>>({})
 const showDialog = ref(false)
 const saving = ref(false)
 const currentTab = ref<TabConfig | null>(null)
-const editingItem = ref<ConstantModel | VehicleModelConstant | EquipmentConstant | null>(null)
+const editingItem = ref<ConstantModel | VehicleModelConstant | EquipmentConstant | VariantConstant | null>(null)
 
 // Initialize search queries
 tabs.forEach(tab => {
@@ -374,7 +380,7 @@ const handleCreateClick = () => {
   }
 }
 
-const handleEditClick = (item: ConstantModel | VehicleModelConstant | EquipmentConstant) => {
+const handleEditClick = (item: ConstantModel | VehicleModelConstant | EquipmentConstant | VariantConstant) => {
   const tab = getCurrentTab()
   if (tab) {
     openEditDialog(tab, item)
@@ -405,7 +411,7 @@ const openCreateDialog = (tab: TabConfig) => {
   showDialog.value = true
 }
 
-const openEditDialog = (tab: TabConfig, item: ConstantModel | VehicleModelConstant | EquipmentConstant) => {
+const openEditDialog = (tab: TabConfig, item: ConstantModel | VehicleModelConstant | EquipmentConstant | VariantConstant) => {
   currentTab.value = tab
   editingItem.value = item
   showDialog.value = true

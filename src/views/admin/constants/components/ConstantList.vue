@@ -22,11 +22,13 @@
     </div>
 
     <!-- List Items -->
-    <div v-else class="list-table" :class="{ 'has-meta': showBrand || showEquipmentType }">
+    <div v-else class="list-table" :class="{ 'has-meta': showBrand || showEquipmentType || showModel }">
       <div class="table-header">
         <div class="table-cell name-cell">Name</div>
-        <div v-if="showBrand || showEquipmentType" class="table-cell meta-cell">
-          {{ showBrand ? 'Brand' : 'Type' }}
+        <div v-if="showBrand || showEquipmentType || showModel" class="table-cell meta-cell">
+          <template v-if="showBrand">Brand</template>
+          <template v-else-if="showEquipmentType">Type</template>
+          <template v-else-if="showModel">Model</template>
         </div>
         <div class="table-cell actions-cell">Actions</div>
       </div>
@@ -39,13 +41,16 @@
           <div class="table-cell name-cell">
             <span class="cell-content">{{ item.name }}</span>
           </div>
-          <div v-if="showBrand || showEquipmentType" class="table-cell meta-cell">
+          <div v-if="showBrand || showEquipmentType || showModel" class="table-cell meta-cell">
             <span class="cell-content">
               <template v-if="showBrand && 'brand' in item && item.brand">
                 {{ item.brand.name }}
               </template>
               <template v-else-if="showEquipmentType && 'equipment_type' in item && item.equipment_type">
                 {{ item.equipment_type.name }}
+              </template>
+              <template v-else-if="showModel && 'model' in item && item.model">
+                {{ item.model.name }}
               </template>
               <template v-else>
                 <span class="text-muted">—</span>
@@ -78,16 +83,17 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { ConstantModel, VehicleModelConstant, EquipmentConstant } from '@/api/admin.api'
+import type { ConstantModel, VehicleModelConstant, EquipmentConstant, VariantConstant } from '@/api/admin.api'
 
 interface Props {
-  items: (ConstantModel | VehicleModelConstant | EquipmentConstant)[]
+  items: (ConstantModel | VehicleModelConstant | EquipmentConstant | VariantConstant)[]
   loading?: boolean
   error?: string | null
   title: string
   searchQuery?: string
   showBrand?: boolean
   showEquipmentType?: boolean
+  showModel?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -96,10 +102,11 @@ const props = withDefaults(defineProps<Props>(), {
   searchQuery: '',
   showBrand: false,
   showEquipmentType: false,
+  showModel: false,
 })
 
 defineEmits<{
-  edit: [item: ConstantModel | VehicleModelConstant | EquipmentConstant]
+  edit: [item: ConstantModel | VehicleModelConstant | EquipmentConstant | VariantConstant]
   delete: [id: number]
 }>()
 
@@ -111,7 +118,8 @@ const filteredItems = computed(() => {
   return props.items.filter(item => 
     item.name.toLowerCase().includes(query) ||
     (props.showBrand && 'brand' in item && item.brand?.name.toLowerCase().includes(query)) ||
-    (props.showEquipmentType && 'equipment_type' in item && item.equipment_type?.name.toLowerCase().includes(query))
+    (props.showEquipmentType && 'equipment_type' in item && item.equipment_type?.name.toLowerCase().includes(query)) ||
+    (props.showModel && 'model' in item && item.model?.name.toLowerCase().includes(query))
   )
 })
 </script>

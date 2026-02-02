@@ -50,6 +50,21 @@
           />
         </div>
 
+        <div class="form-group" v-if="showModel">
+          <label class="form-label">Model</label>
+          <v-select
+            v-model="formData.model_id"
+            :items="vehicleModels"
+            item-title="name"
+            item-value="id"
+            variant="outlined"
+            density="comfortable"
+            :disabled="loading"
+            hide-details
+            class="form-select"
+          />
+        </div>
+
         <div class="form-group">
           <label class="form-label">
             Name
@@ -100,17 +115,19 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import type { ConstantModel, VehicleModelConstant, EquipmentConstant } from '@/api/admin.api'
+import type { ConstantModel, VehicleModelConstant, EquipmentConstant, VariantConstant } from '@/api/admin.api'
 
 interface Props {
   modelValue: boolean
   title: string
-  editingItem?: ConstantModel | VehicleModelConstant | EquipmentConstant | null
+  editingItem?: ConstantModel | VehicleModelConstant | EquipmentConstant | VariantConstant | null
   loading?: boolean
   brands?: ConstantModel[]
   equipmentTypes?: ConstantModel[]
+  vehicleModels?: VehicleModelConstant[]
   showBrand?: boolean
   showEquipmentType?: boolean
+  showModel?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -118,23 +135,27 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false,
   brands: () => [],
   equipmentTypes: () => [],
+  vehicleModels: () => [],
   showBrand: false,
   showEquipmentType: false,
+  showModel: false,
 })
 
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
-  submit: [data: { name: string; brand_id?: number; equipment_type_id?: number }]
+  submit: [data: { name: string; brand_id?: number; equipment_type_id?: number; model_id?: number }]
 }>()
 
 const formData = ref<{
   name: string
   brand_id?: number
   equipment_type_id?: number
+  model_id?: number
 }>({
   name: '',
   brand_id: undefined,
   equipment_type_id: undefined,
+  model_id: undefined,
 })
 
 const formTouched = ref(false)
@@ -151,6 +172,7 @@ watch(() => props.editingItem, (item) => {
       name: item.name,
       brand_id: 'brand_id' in item ? item.brand_id : undefined,
       equipment_type_id: 'equipment_type_id' in item ? item.equipment_type_id : undefined,
+      model_id: 'model_id' in item ? item.model_id : undefined,
     }
     formTouched.value = false
   } else {
@@ -158,6 +180,7 @@ watch(() => props.editingItem, (item) => {
       name: '',
       brand_id: undefined,
       equipment_type_id: undefined,
+      model_id: undefined,
     }
     formTouched.value = false
   }
@@ -169,6 +192,7 @@ watch(() => props.modelValue, (isOpen) => {
       name: '',
       brand_id: undefined,
       equipment_type_id: undefined,
+      model_id: undefined,
     }
     formTouched.value = false
   }
@@ -177,7 +201,7 @@ watch(() => props.modelValue, (isOpen) => {
 const handleSubmit = () => {
   formTouched.value = true
   if (isValid.value) {
-    const submitData: { name: string; brand_id?: number; equipment_type_id?: number } = {
+    const submitData: { name: string; brand_id?: number; equipment_type_id?: number; model_id?: number } = {
       name: formData.value.name,
     }
     if (props.showBrand && formData.value.brand_id) {
@@ -185,6 +209,9 @@ const handleSubmit = () => {
     }
     if (props.showEquipmentType && formData.value.equipment_type_id) {
       submitData.equipment_type_id = formData.value.equipment_type_id
+    }
+    if (props.showModel && formData.value.model_id) {
+      submitData.model_id = formData.value.model_id
     }
     emit('submit', submitData)
   }
