@@ -1,7 +1,7 @@
 /**
  * Permission Utilities
  * 
- * Role and permission helpers that mirror backend permission matrix exactly
+ * Role and permission helpers that check actual permissions from user object
  */
 
 import { getUser, getUserRole, isAdmin, isDealer } from './user'
@@ -41,10 +41,42 @@ export type PermissionAction =
   | 'ban'
   | 'unban'
   | 'publish'
+  | 'manage'
+  | 'status'
+  | 'media'
+  | 'messages'
+
+/**
+ * Check if user has a specific permission string
+ * @param permission Permission string (e.g., 'dealer.vehicles.view', 'admin.users.create')
+ * @returns boolean
+ */
+export function hasPermission(permission: string): boolean {
+  const user = getUser()
+  if (!user) {
+    return false
+  }
+
+  // Admin has all permissions
+  if (isAdmin()) {
+    return true
+  }
+
+  // Check if user has the permission in their permissions array
+  if (user.permissions && Array.isArray(user.permissions)) {
+    return user.permissions.includes(permission)
+  }
+
+  return false
+}
 
 /**
  * Check if user has permission for resource and action
- * Mirrors backend permission:resource,action middleware
+ * Maps resource and action to permission string format: {role}.{resource}.{action}
+ * 
+ * @param resource Permission resource (e.g., 'vehicles', 'leads')
+ * @param action Permission action (e.g., 'view', 'create', 'update')
+ * @returns boolean
  */
 export function can(resource: PermissionResource, action: PermissionAction): boolean {
   const user = getUser()
@@ -59,29 +91,29 @@ export function can(resource: PermissionResource, action: PermissionAction): boo
     return true
   }
 
-  // Dealer permissions (matches backend permission matrix)
+  // Build permission string based on role and resource/action
+  let permission: string
+
   if (isDealer()) {
-    const dealerPermissions: Record<string, PermissionAction[]> = {
-      vehicles: ['create', 'read', 'update', 'delete'],
-      leads: ['read', 'update', 'assign'],
-      staff: ['read', 'create', 'update', 'delete'],
-      profile: ['read', 'update'],
-      subscription: ['read'],
-      favorites: ['read', 'create', 'delete'],
-      'saved-searches': ['read', 'create', 'delete'],
+    // Dealer permissions follow pattern: dealer.{resource}.{action}
+    // Map some actions to specific permission names
+    const actionMap: Record<string, string> = {
+      'read': 'view',
+      'list': 'view',
+      'manage': 'manage',
     }
-
-    const allowedActions = dealerPermissions[resource]
-    return allowedActions ? allowedActions.includes(action) : false
-  }
-
-  // Seller permissions (if any)
-  if (role === UserRole.SELLER) {
-    // Add seller-specific permissions here if needed
+    
+    const mappedAction = actionMap[action] || action
+    permission = `dealer.${resource}.${mappedAction}`
+  } else if (role === UserRole.SELLER) {
+    // Seller permissions (if any)
+    return false
+  } else {
+    // Unknown role
     return false
   }
 
-  return false
+  return hasPermission(permission)
 }
 
 /**
@@ -95,4 +127,3 @@ export { isAdmin } from './user'
  * Re-exported from user.ts for convenience
  */
 export { isDealer } from './user'
-

@@ -30,6 +30,7 @@ export interface DealerUserInfo {
  */
 export interface DealerModel {
   id: number
+  userId?: number // Owner user ID
   name: string
   email?: string
   phone?: string
@@ -50,7 +51,7 @@ export interface DealerModel {
   // Relations (if included in response)
   subscription?: SubscriptionModel
   staff?: DealerStaffModel[]
-  user?: DealerUserInfo
+  owner?: DealerUserInfo // Owner user info
 }
 
 /**
@@ -104,8 +105,7 @@ export interface DealerStaffModel {
   id: number
   dealerId: number
   userId: number
-  roleId?: number
-  role?: string
+  username: string
   createdAt?: string
   updatedAt?: string
   
@@ -118,6 +118,7 @@ export interface DealerStaffModel {
 export function mapDealerFromApi(data: any): DealerModel {
   return {
     id: data.id,
+    userId: data.user_id,
     name: data.name,
     email: data.email,
     phone: data.phone,
@@ -136,11 +137,11 @@ export function mapDealerFromApi(data: any): DealerModel {
     deletedAt: data.deleted_at,
     subscription: data.subscription ? mapSubscriptionFromApi(data.subscription) : undefined,
     staff: data.staff?.map(mapDealerStaffFromApi),
-    user: data.user ? {
-      id: data.user.id,
-      name: data.user.name,
-      email: data.user.email,
-      phone: data.user.phone,
+    owner: data.owner ? {
+      id: data.owner.id,
+      name: data.owner.name,
+      email: data.owner.email,
+      phone: data.owner.phone,
     } : undefined,
   }
 }
@@ -202,8 +203,7 @@ export function mapDealerStaffFromApi(data: any): DealerStaffModel {
     id: data.id,
     dealerId: data.dealer_id,
     userId: data.user_id,
-    roleId: data.role_id,
-    role: data.role,
+    username: data.username,
     createdAt: data.created_at,
     updatedAt: data.updated_at,
     user: data.user,

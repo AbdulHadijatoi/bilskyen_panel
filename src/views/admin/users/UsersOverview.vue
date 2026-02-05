@@ -10,6 +10,7 @@
           </p>
         </div>
         <v-btn
+          v-if="hasPermission('admin.users.create')"
           color="primary"
           prepend-icon="mdi-plus"
           size="default"
@@ -241,7 +242,7 @@
 
           <template #item.actions="{ item }">
             <div class="d-flex gap-1 align-center">
-              <v-tooltip text="View Details" location="top">
+              <v-tooltip v-if="hasPermission('admin.users.view')" text="View Details" location="top">
                 <template #activator="{ props }">
                   <v-btn
                     icon
@@ -256,7 +257,7 @@
                   </v-btn>
                 </template>
               </v-tooltip>
-              <v-tooltip text="Delete User" location="top">
+              <v-tooltip v-if="hasPermission('admin.users.delete')" text="Delete User" location="top">
                 <template #activator="{ props }">
                   <v-btn
                     icon
@@ -427,6 +428,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { getUsers, createUser as createUserApi, deleteUser as deleteUserApi, getRoles, type CreateUserData, type RoleModel } from '@/api/admin.api'
+import { hasPermission } from '@/utils/permissions'
 import type { PaginationModel } from '@/models/pagination.model'
 import type { UserModel } from '@/models/user.model'
 import type { ApiErrorModel } from '@/models/api-error.model'

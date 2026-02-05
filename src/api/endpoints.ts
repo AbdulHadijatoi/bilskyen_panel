@@ -11,6 +11,9 @@
 export const AUTH_ENDPOINTS = {
   REGISTER: '/auth/register',
   LOGIN: '/auth/login',
+  PANEL_LOGIN: '/auth/panel-login', // For Vue.js admin panel (dealer/staff/admin only)
+  PANEL_REFRESH: '/auth/panel-refresh', // For Vue.js admin panel token refresh
+  STAFF_LOGIN: '/auth/staff-login', // For dealer staff members (username-based)
   LOGOUT: '/auth/logout',
   ME: '/auth/me',
   SIGN_OUT: '/auth/sign-out',
@@ -133,6 +136,8 @@ export const DEALER_SUBSCRIPTION_ENDPOINTS = {
   SHOW: '/dealer/subscription',
   FEATURES: '/dealer/subscription/features',
   HISTORY: '/dealer/subscription/history',
+  PLANS: '/dealer/plans',
+  CREATE: '/dealer/subscription',
 } as const
 
 /**
@@ -140,6 +145,13 @@ export const DEALER_SUBSCRIPTION_ENDPOINTS = {
  */
 export const DEALER_DASHBOARD_ENDPOINTS = {
   STATS: '/dealer/dashboard',
+} as const
+
+/**
+ * Dealer audit endpoints
+ */
+export const DEALER_AUDIT_ENDPOINTS = {
+  LOGS: '/dealer/audit-logs',
 } as const
 
 /**
@@ -199,6 +211,10 @@ export const ADMIN_PLAN_ENDPOINTS = {
   ASSIGN_FEATURE: (id: number | string) => `/admin/plans/${id}/features`,
   REMOVE_FEATURE: (planId: number | string, featureId: number | string) =>
     `/admin/plans/${planId}/features/${featureId}`,
+  AVAILABILITY: (id: number | string) => `/admin/plans/${id}/availability`,
+  SYNC_AVAILABILITY: (id: number | string) => `/admin/plans/${id}/availability`,
+  PRICING: (id: number | string) => `/admin/plans/${id}/pricing`,
+  UPDATE_PRICING: (id: number | string) => `/admin/plans/${id}/pricing`,
 } as const
 
 /**
@@ -206,8 +222,13 @@ export const ADMIN_PLAN_ENDPOINTS = {
  */
 export const ADMIN_SUBSCRIPTION_ENDPOINTS = {
   LIST: '/admin/subscriptions',
+  SHOW: (id: number | string) => `/admin/subscriptions/${id}`,
   CREATE: '/admin/subscriptions',
+  UPDATE: (id: number | string) => `/admin/subscriptions/${id}`,
   UPDATE_STATUS: (id: number | string) => `/admin/subscriptions/${id}/status`,
+  CANCEL: (id: number | string) => `/admin/subscriptions/${id}/cancel`,
+  RENEW: (id: number | string) => `/admin/subscriptions/${id}/renew`,
+  DEALER_SUBSCRIPTIONS: (dealerId: number | string) => `/admin/subscriptions/dealer/${dealerId}`,
 } as const
 
 /**

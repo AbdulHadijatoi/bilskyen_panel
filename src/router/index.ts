@@ -13,6 +13,12 @@ const router = createRouter({
       name: 'auth.login',
       component: () => import('@/views/auth/Login.vue'),
     },
+    // Staff login route - hidden for now
+    // {
+    //   path: '/auth/staff-login',
+    //   name: 'auth.staff-login',
+    //   component: () => import('@/views/auth/StaffLogin.vue'),
+    // },
     {
       path: '/auth/register',
       name: 'auth.register',
@@ -101,6 +107,12 @@ const router = createRouter({
           component: () => import('@/views/dealer/subscription/Subscription.vue'),
         },
         {
+          path: 'audit-logs',
+          name: 'dealer.audit-logs',
+          component: () => import('@/views/dealer/audit-logs/AuditLogs.vue'),
+          meta: { requiresAuth: true, permission: 'dealer.audit.view' },
+        },
+        {
           path: 'profile',
           name: 'dealer.profile',
           component: () => import('@/views/dealer/settings/ProfileSettings.vue'),
@@ -153,15 +165,21 @@ const router = createRouter({
           component: () => import('@/views/admin/subscriptions/SubscriptionsOverview.vue'),
         },
         {
-          path: 'features',
-          name: 'admin.features',
-          component: () => import('@/views/admin/features/FeaturesOverview.vue'),
+          path: 'subscriptions/:id',
+          name: 'admin.subscriptions.detail',
+          component: () => import('@/views/admin/subscriptions/SubscriptionDetail.vue'),
         },
-        {
-          path: 'features/:id',
-          name: 'admin.features.detail',
-          component: () => import('@/views/admin/features/FeatureDetail.vue'),
-        },
+        // Features routes hidden - managed through backend/migrations only
+        // {
+        //   path: 'features',
+        //   name: 'admin.features',
+        //   component: () => import('@/views/admin/features/FeaturesOverview.vue'),
+        // },
+        // {
+        //   path: 'features/:id',
+        //   name: 'admin.features.detail',
+        //   component: () => import('@/views/admin/features/FeatureDetail.vue'),
+        // },
         {
           path: 'pages',
           name: 'admin.pages',
@@ -191,6 +209,21 @@ const router = createRouter({
           path: 'constants',
           name: 'admin.constants',
           component: () => import('@/views/admin/constants/ConstantsOverview.vue'),
+        },
+        {
+          path: 'permissions',
+          name: 'admin.permissions',
+          component: () => import('@/views/admin/permissions/PermissionsManagement.vue'),
+        },
+        {
+          path: 'translations',
+          name: 'admin.translations',
+          component: () => import('@/views/admin/translations/TranslationsManagement.vue'),
+        },
+        {
+          path: 'translations/import',
+          name: 'admin.translations.import',
+          component: () => import('@/views/admin/translations/TranslationsImport.vue'),
         },
       ],
     },

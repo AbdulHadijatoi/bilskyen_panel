@@ -23,6 +23,14 @@ export interface LoginCredentials {
 }
 
 /**
+ * Staff login credentials (uses username instead of email)
+ */
+export interface StaffLoginCredentials {
+  username: string
+  password: string
+}
+
+/**
  * Register credentials
  */
 export interface RegisterCredentials {
@@ -71,13 +79,40 @@ export async function register(credentials: RegisterCredentials): Promise<UserMo
 }
 
 /**
- * Login user
+ * Login user (for Vue.js admin panel)
+ * Only allows dealer, staff, or admin roles
  * Returns normalized UserModel
  */
 export async function login(credentials: LoginCredentials): Promise<UserModel> {
   try {
     const response = await httpClient.post<{ data: AuthResponseData }>(
-      AUTH_ENDPOINTS.LOGIN,
+      AUTH_ENDPOINTS.PANEL_LOGIN,
+      credentials
+    )
+    
+    const data = handleSuccess<AuthResponseData>(response)
+    const authStore = useAuthStore()
+    
+    // Normalize user data
+    const user = normalizeUser(data.user)
+    
+    // Store user and access token
+    authStore.setAuth(user, data.access_token)
+    
+    return user
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Staff login (for dealer staff members using username)
+ * Returns normalized UserModel
+ */
+export async function staffLogin(credentials: StaffLoginCredentials): Promise<UserModel> {
+  try {
+    const response = await httpClient.post<{ data: AuthResponseData }>(
+      AUTH_ENDPOINTS.STAFF_LOGIN,
       credentials
     )
     

@@ -148,9 +148,16 @@
         </button>
       </form>
 
-      <div class="mt-4 text-center text-sm">
-        Don't have an account?
-        <router-link to="/auth/register" class="underline">Sign up</router-link>
+      <div class="mt-4 text-center text-sm space-y-2">
+        <div>
+          Don't have an account?
+          <router-link to="/auth/register" class="underline">Sign up</router-link>
+        </div>
+        <!-- Staff login link - hidden for now -->
+        <!-- <div>
+          Staff member?
+          <router-link to="/auth/staff-login" class="underline">Staff login</router-link>
+        </div> -->
       </div>
     </div>
   </AuthLayout>

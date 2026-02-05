@@ -38,6 +38,7 @@ export interface UserModel {
   statusId?: number
   status?: UserStatus
   roles?: string[]
+  permissions?: string[]
   createdAt?: string
   updatedAt?: string
   deletedAt?: string
@@ -56,6 +57,14 @@ export function mapUserFromApi(data: any): UserModel {
     })
   }
 
+  // Normalize permissions to always be an array of strings
+  let permissions: string[] = []
+  if (data.permissions && Array.isArray(data.permissions)) {
+    permissions = data.permissions.map((permission: any) => {
+      return typeof permission === 'string' ? permission : (permission.name || permission)
+    })
+  }
+
   return {
     id: data.id,
     name: data.name,
@@ -68,6 +77,7 @@ export function mapUserFromApi(data: any): UserModel {
     statusId: data.status_id,
     status: data.status,
     roles,
+    permissions,
     createdAt: data.created_at,
     updatedAt: data.updated_at,
     deletedAt: data.deleted_at,

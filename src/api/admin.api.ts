@@ -741,10 +741,51 @@ export async function updateVehicleEquipment(
 export interface PlanModel {
   id: number
   name: string
+  slug: string
   description?: string
-  price: number
+  is_active?: boolean
+  trial_days?: number
+  price?: number
   interval?: string
   features?: any[]
+  price_history?: Array<{
+    id: number
+    price: number
+    currency: string
+    billing_cycle: 'monthly' | 'yearly'
+    starts_at: string
+    ends_at?: string | null
+  }>
+  priceHistory?: Array<{
+    id: number
+    price: number
+    currency: string
+    billing_cycle: 'monthly' | 'yearly'
+    starts_at: string
+    ends_at?: string | null
+  }>
+  availability?: Array<{
+    id: number
+    allowed_role_id?: number | null
+    dealer_id?: number | null
+    is_enabled: boolean
+    allowed_role?: {
+      id: number
+      name: string
+    }
+    allowedRole?: {
+      id: number
+      name: string
+    }
+    dealer?: {
+      id: number
+      cvr: string
+      city?: string
+    } | null
+  }>
+  created_at?: string
+  updated_at?: string
+  deleted_at?: string | null
   createdAt?: string
   updatedAt?: string
 }
@@ -754,10 +795,16 @@ export interface PlanModel {
  */
 export async function getPlans(): Promise<PlanModel[]> {
   try {
-    const response = await httpClient.get<{ data: PlanModel[] }>(
+    const response = await httpClient.get<{ data: PaginationModel<PlanModel> | PlanModel[] }>(
       ADMIN_PLAN_ENDPOINTS.LIST
     )
-    return handleSuccess<PlanModel[]>(response)
+    const data = handleSuccess<PaginationModel<PlanModel> | PlanModel[]>(response)
+    // Handle paginated response
+    if (data && typeof data === 'object' && 'docs' in data) {
+      return (data as PaginationModel<PlanModel>).docs
+    }
+    // Handle direct array response
+    return Array.isArray(data) ? data : []
   } catch (error) {
     throw handleError(error)
   }
@@ -782,9 +829,17 @@ export async function getPlan(id: number | string): Promise<PlanModel> {
  */
 export interface CreatePlanData {
   name: string
+  slug: string
   description?: string
-  price: number
-  interval?: string
+  is_active?: boolean
+  trial_days?: number | null
+  role_ids?: number[]
+  dealer_ids?: number[]
+  pricing?: {
+    monthly_price?: number
+    yearly_price?: number
+    currency?: string
+  }
 }
 
 /**
@@ -818,9 +873,17 @@ export async function createPlan(
  */
 export interface UpdatePlanData {
   name?: string
+  slug?: string
   description?: string
-  price?: number
-  interval?: string
+  is_active?: boolean
+  trial_days?: number | null
+  role_ids?: number[]
+  dealer_ids?: number[]
+  pricing?: {
+    monthly_price?: number
+    yearly_price?: number
+    currency?: string
+  }
 }
 
 /**
@@ -871,6 +934,7 @@ export async function getPlanFeatures(id: number | string): Promise<any[]> {
  */
 export interface AssignFeatureData {
   feature_id: number
+  value?: string | null
 }
 
 /**
@@ -907,17 +971,113 @@ export async function removeFeature(
 }
 
 /**
+ * Get plan availability (roles and dealers)
+ */
+export async function getPlanAvailability(id: number | string): Promise<any> {
+  try {
+    const response = await httpClient.get<{ data: any }>(
+      ADMIN_PLAN_ENDPOINTS.AVAILABILITY(id)
+    )
+    return handleSuccess<any>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Sync plan availability data
+ */
+export interface SyncPlanAvailabilityData {
+  role_ids?: number[]
+  dealer_ids?: number[]
+}
+
+/**
+ * Sync plan availability
+ */
+export async function syncPlanAvailability(
+  id: number | string,
+  data: SyncPlanAvailabilityData
+): Promise<void> {
+  try {
+    await httpClient.post(
+      ADMIN_PLAN_ENDPOINTS.SYNC_AVAILABILITY(id),
+      data
+    )
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Get plan pricing
+ */
+export async function getPlanPricing(id: number | string): Promise<any> {
+  try {
+    const response = await httpClient.get<{ data: any }>(
+      ADMIN_PLAN_ENDPOINTS.PRICING(id)
+    )
+    return handleSuccess<any>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Update plan pricing data
+ */
+export interface UpdatePlanPricingData {
+  monthly_price?: number
+  yearly_price?: number
+  currency?: string
+}
+
+/**
+ * Update plan pricing
+ */
+export async function updatePlanPricing(
+  id: number | string,
+  data: UpdatePlanPricingData
+): Promise<void> {
+  try {
+    await httpClient.post(
+      ADMIN_PLAN_ENDPOINTS.UPDATE_PRICING(id),
+      data
+    )
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
  * Subscription model
  */
 export interface SubscriptionModel {
   id: number
   dealer_id: number
   plan_id: number
-  status: SubscriptionStatus
-  start_date?: string
-  end_date?: string
-  createdAt?: string
-  updatedAt?: string
+  subscription_status_id: number
+  subscriptionStatus?: {
+    id: number
+    name: string
+  }
+  starts_at?: string
+  ends_at?: string
+  auto_renew?: boolean
+  created_at?: string
+  dealer?: {
+    id: number
+    cvr: string
+    city?: string
+    address?: string
+  }
+  plan?: {
+    id: number
+    name: string
+    slug: string
+    description?: string
+    features?: any[]
+  }
 }
 
 /**
@@ -941,8 +1101,11 @@ export async function getSubscriptions(params?: PaginationParams): Promise<Pagin
 export interface CreateSubscriptionData {
   dealer_id: number
   plan_id: number
-  start_date?: string
-  end_date?: string
+  subscription_status_id: number
+  starts_at: string
+  ends_at?: string
+  auto_renew?: boolean
+  billing_cycle?: 'monthly' | 'yearly'
 }
 
 /**
@@ -952,6 +1115,48 @@ export async function createSubscription(data: CreateSubscriptionData): Promise<
   try {
     const response = await httpClient.post<{ data: SubscriptionModel }>(
       ADMIN_SUBSCRIPTION_ENDPOINTS.CREATE,
+      data
+    )
+    return handleSuccess<SubscriptionModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Get subscription by ID
+ */
+export async function getSubscription(id: number | string): Promise<SubscriptionModel> {
+  try {
+    const response = await httpClient.get<{ data: SubscriptionModel }>(
+      ADMIN_SUBSCRIPTION_ENDPOINTS.SHOW(id)
+    )
+    return handleSuccess<SubscriptionModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Update subscription data
+ */
+export interface UpdateSubscriptionData {
+  subscription_status_id?: number
+  starts_at?: string
+  ends_at?: string
+  auto_renew?: boolean
+}
+
+/**
+ * Update subscription
+ */
+export async function updateSubscription(
+  id: number | string,
+  data: UpdateSubscriptionData
+): Promise<SubscriptionModel> {
+  try {
+    const response = await httpClient.put<{ data: SubscriptionModel }>(
+      ADMIN_SUBSCRIPTION_ENDPOINTS.UPDATE(id),
       data
     )
     return handleSuccess<SubscriptionModel>(response)
@@ -985,6 +1190,50 @@ export async function updateSubscriptionStatus(
   }
 }
 
+/**
+ * Cancel subscription
+ */
+export async function cancelSubscription(id: number | string): Promise<SubscriptionModel> {
+  try {
+    const response = await httpClient.post<{ data: SubscriptionModel }>(
+      ADMIN_SUBSCRIPTION_ENDPOINTS.CANCEL(id),
+      {}
+    )
+    return handleSuccess<SubscriptionModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Renew subscription
+ */
+export async function renewSubscription(id: number | string): Promise<SubscriptionModel> {
+  try {
+    const response = await httpClient.post<{ data: SubscriptionModel }>(
+      ADMIN_SUBSCRIPTION_ENDPOINTS.RENEW(id),
+      {}
+    )
+    return handleSuccess<SubscriptionModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Get dealer subscriptions
+ */
+export async function getDealerSubscriptions(dealerId: number | string): Promise<SubscriptionModel[]> {
+  try {
+    const response = await httpClient.get<{ data: SubscriptionModel[] }>(
+      ADMIN_SUBSCRIPTION_ENDPOINTS.DEALER_SUBSCRIPTIONS(dealerId)
+    )
+    return handleSuccess<SubscriptionModel[]>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
 // ============================================================================
 // FEATURES
 // ============================================================================
@@ -994,11 +1243,14 @@ export async function updateSubscriptionStatus(
  */
 export interface FeatureModel {
   id: number
-  name: string
-  description?: string
   key: string
-  createdAt?: string
-  updatedAt?: string
+  feature_value_type_id: number
+  feature_value_type?: {
+    id: number
+    name: string
+  }
+  description: string
+  created_at?: string
 }
 
 /**
@@ -1006,10 +1258,16 @@ export interface FeatureModel {
  */
 export async function getFeatures(): Promise<FeatureModel[]> {
   try {
-    const response = await httpClient.get<{ data: FeatureModel[] }>(
+    const response = await httpClient.get<{ data: PaginationModel<FeatureModel> | FeatureModel[] }>(
       ADMIN_FEATURE_ENDPOINTS.LIST
     )
-    return handleSuccess<FeatureModel[]>(response)
+    const data = handleSuccess<PaginationModel<FeatureModel> | FeatureModel[]>(response)
+    // Handle paginated response
+    if (data && typeof data === 'object' && 'docs' in data) {
+      return (data as PaginationModel<FeatureModel>).docs
+    }
+    // Handle direct array response
+    return Array.isArray(data) ? data : []
   } catch (error) {
     throw handleError(error)
   }
@@ -1033,9 +1291,9 @@ export async function getFeature(id: number | string): Promise<FeatureModel> {
  * Create feature data
  */
 export interface CreateFeatureData {
-  name: string
-  description?: string
   key: string
+  feature_value_type_id: number
+  description: string
 }
 
 /**
@@ -1057,9 +1315,9 @@ export async function createFeature(data: CreateFeatureData): Promise<FeatureMod
  * Update feature data
  */
 export interface UpdateFeatureData {
-  name?: string
-  description?: string
   key?: string
+  feature_value_type_id?: number
+  description?: string
 }
 
 /**

@@ -10,6 +10,7 @@
         </p>
       </div>
       <v-btn
+        v-if="hasPermission('dealer.vehicles.create')"
         color="primary"
         prepend-icon="mdi-plus"
           size="default"
@@ -296,6 +297,7 @@
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { getVehicles, deleteVehicle as deleteVehicleApi } from '@/api/dealer.api'
+import { hasPermission } from '@/utils/permissions'
 import type { PaginationModel } from '@/models/pagination.model'
 import type { VehicleModel } from '@/models/vehicle.model'
 import type { VehicleStatus } from '@/models/vehicle.model'

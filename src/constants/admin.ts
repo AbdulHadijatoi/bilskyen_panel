@@ -4,11 +4,13 @@ export interface SidebarSectionItem {
   icon?: string
   badge?: string
   shortcut?: string[]
+  permission?: string
   items?: {
     title: string
     url: string
     icon?: string
     badge?: string
+    permission?: string
   }[]
 }
 
@@ -26,6 +28,7 @@ export const adminSidebarSections: SidebarSection[] = [
         title: 'Dashboard',
         url: ADMIN_ROUTE_BASE,
         icon: 'mdi-view-dashboard',
+        permission: 'admin.dashboard.view',
       },
     ],
   },
@@ -36,10 +39,12 @@ export const adminSidebarSections: SidebarSection[] = [
         title: 'Users',
         url: `${ADMIN_ROUTE_BASE}/users`,
         icon: 'mdi-account-group',
+        permission: 'admin.users.view',
         items: [
           {
             title: 'Overview',
             url: `${ADMIN_ROUTE_BASE}/users`,
+            permission: 'admin.users.view',
           },
         ],
       },
@@ -52,10 +57,12 @@ export const adminSidebarSections: SidebarSection[] = [
         title: 'Vehicles',
         url: `${ADMIN_ROUTE_BASE}/vehicles`,
         icon: 'mdi-car',
+        permission: 'admin.vehicles.view',
         items: [
           {
             title: 'Overview',
             url: `${ADMIN_ROUTE_BASE}/vehicles`,
+            permission: 'admin.vehicles.view',
           },
         ],
       },
@@ -63,10 +70,12 @@ export const adminSidebarSections: SidebarSection[] = [
         title: 'Pages',
         url: `${ADMIN_ROUTE_BASE}/pages`,
         icon: 'mdi-file-document',
+        permission: 'admin.pages.view',
         items: [
           {
             title: 'Overview',
             url: `${ADMIN_ROUTE_BASE}/pages`,
+            permission: 'admin.pages.view',
           },
         ],
       },
@@ -74,10 +83,12 @@ export const adminSidebarSections: SidebarSection[] = [
         title: 'Featured Vehicles',
         url: `${ADMIN_ROUTE_BASE}/featured-vehicles`,
         icon: 'mdi-star',
+        permission: 'admin.featured-vehicles.view',
         items: [
           {
             title: 'Overview',
             url: `${ADMIN_ROUTE_BASE}/featured-vehicles`,
+            permission: 'admin.featured-vehicles.view',
           },
         ],
       },
@@ -90,10 +101,12 @@ export const adminSidebarSections: SidebarSection[] = [
         title: 'Plans',
         url: `${ADMIN_ROUTE_BASE}/plans`,
         icon: 'mdi-package-variant',
+        permission: 'admin.plans.view',
         items: [
           {
             title: 'Overview',
             url: `${ADMIN_ROUTE_BASE}/plans`,
+            permission: 'admin.plans.view',
           },
         ],
       },
@@ -101,24 +114,27 @@ export const adminSidebarSections: SidebarSection[] = [
         title: 'Subscriptions',
         url: `${ADMIN_ROUTE_BASE}/subscriptions`,
         icon: 'mdi-crown',
+        permission: 'admin.subscriptions.view',
         items: [
           {
             title: 'Overview',
             url: `${ADMIN_ROUTE_BASE}/subscriptions`,
+            permission: 'admin.subscriptions.view',
           },
         ],
       },
-      {
-        title: 'Features',
-        url: `${ADMIN_ROUTE_BASE}/features`,
-        icon: 'mdi-star',
-        items: [
-          {
-            title: 'Overview',
-            url: `${ADMIN_ROUTE_BASE}/features`,
-          },
-        ],
-      },
+      // Features menu item hidden - managed through backend/migrations only
+      // {
+      //   title: 'Features',
+      //   url: `${ADMIN_ROUTE_BASE}/features`,
+      //   icon: 'mdi-star',
+      //   items: [
+      //     {
+      //       title: 'Overview',
+      //       url: `${ADMIN_ROUTE_BASE}/features`,
+      //     },
+      //   ],
+      // },
     ],
   },
   {
@@ -128,11 +144,13 @@ export const adminSidebarSections: SidebarSection[] = [
         title: 'Analytics',
         url: `${ADMIN_ROUTE_BASE}/analytics`,
         icon: 'mdi-chart-line',
+        permission: 'admin.analytics.view',
       },
       {
         title: 'Audit Logs',
         url: `${ADMIN_ROUTE_BASE}/audit-logs`,
         icon: 'mdi-file-document-outline',
+        permission: 'admin.audit-logs.view',
       },
     ],
   },
@@ -143,10 +161,38 @@ export const adminSidebarSections: SidebarSection[] = [
         title: 'Constants',
         url: `${ADMIN_ROUTE_BASE}/constants`,
         icon: 'mdi-cog',
+        permission: 'admin.constants.view',
         items: [
           {
             title: 'Overview',
             url: `${ADMIN_ROUTE_BASE}/constants`,
+            permission: 'admin.constants.view',
+          },
+        ],
+      },
+      {
+        title: 'Permissions',
+        url: `${ADMIN_ROUTE_BASE}/permissions`,
+        icon: 'mdi-shield-lock',
+        permission: 'admin.permissions.view',
+      },
+    ],
+  },
+  {
+    title: 'Localization',
+    items: [
+      {
+        title: 'Translations',
+        url: `${ADMIN_ROUTE_BASE}/translations`,
+        icon: 'mdi-translate',
+        items: [
+          {
+            title: 'Manage Translations',
+            url: `${ADMIN_ROUTE_BASE}/translations`,
+          },
+          {
+            title: 'Import Translations',
+            url: `${ADMIN_ROUTE_BASE}/translations/import`,
           },
         ],
       },

@@ -10,6 +10,7 @@
           </p>
         </div>
         <v-btn
+          v-if="hasPermission('admin.featured-vehicles.create')"
           color="primary"
           prepend-icon="mdi-plus"
           @click="showAddDialog = true"
@@ -283,6 +284,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { hasPermission } from '@/utils/permissions'
 import {
   getFeaturedVehicles,
   addFeaturedVehicle,

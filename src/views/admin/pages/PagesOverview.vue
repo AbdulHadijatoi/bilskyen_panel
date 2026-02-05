@@ -8,6 +8,7 @@
         </p>
       </div>
       <v-btn
+        v-if="hasPermission('admin.pages.create')"
         color="primary"
         prepend-icon="mdi-plus"
         size="small"
@@ -195,6 +196,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { hasPermission } from '@/utils/permissions'
 import { getPages, createPage as createPageApi, deletePage as deletePageApi, type CreatePageData, type PageModel } from '@/api/admin.api'
 import type { PaginationModel } from '@/models/pagination.model'
 import type { ApiErrorModel } from '@/models/api-error.model'

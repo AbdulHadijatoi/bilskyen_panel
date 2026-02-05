@@ -84,11 +84,12 @@ export async function register(credentials: RegisterCredentials): Promise<Regist
 }
 
 /**
- * Login user with email and password
+ * Login user with email and password (for Vue.js admin panel)
+ * Only allows dealer, staff, or admin roles
  */
 export async function login(credentials: LoginCredentials): Promise<LoginResponse> {
   try {
-    const response = await apiClient.post<{ data: LoginResponse['data'] }>('/auth/login', credentials)
+    const response = await apiClient.post<{ data: LoginResponse['data'] }>('/auth/panel-login', credentials)
     const authStore = useAuthStore()
 
     // Backend returns { data: { user, access_token, ... } } for success

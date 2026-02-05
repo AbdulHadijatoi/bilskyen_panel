@@ -27,6 +27,7 @@ export function getUser(): UserModel | null {
     image: authStore.user.image,
     banned: authStore.user.banned ?? false,
     roles: authStore.user.roles,
+    permissions: authStore.user.permissions,
     createdAt: authStore.user.created_at,
   }
 }

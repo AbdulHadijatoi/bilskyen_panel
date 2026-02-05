@@ -16,6 +16,7 @@ export interface PaginationModel<T> {
   prevPage: number | null
   nextPage: number | null
   totalDocs?: number
+  total?: number
   totalPages?: number
 }
 

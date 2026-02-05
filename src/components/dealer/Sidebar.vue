@@ -60,7 +60,7 @@
       }"
       style="flex: 1 1 0%; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 0.5rem;"
     >
-      <template v-for="(section, sectionIndex) in dealerSidebarSections" :key="sectionIndex">
+      <template v-for="(section, sectionIndex) in filteredSidebarSections" :key="sectionIndex">
         <div 
           class="sidebar-group" 
           :class="{ 'sidebar-group-collapsed': sidebarStore.isCollapsed && !sidebarStore.isMobile }"
@@ -155,7 +155,8 @@ import { useRouter } from 'vue-router'
 import { useSidebarStore } from '@/stores/sidebar'
 import { useAuthStore } from '@/stores/auth'
 import { logout, getCurrentUser } from '@/services/auth'
-import { dealerSidebarSections } from '@/constants/dealer'
+import { dealerSidebarSections, type SidebarSection } from '@/constants/dealer'
+import { hasPermission } from '@/utils/permissions'
 import SidebarItem from './SidebarItem.vue'
 import ChangePasswordDialog from './ChangePasswordDialog.vue'
 
@@ -177,6 +178,51 @@ const userInitials = computed(() => {
     }
   }
   return name.substring(0, 2).toUpperCase()
+})
+
+// Filter sidebar sections based on user permissions
+const filteredSidebarSections = computed((): SidebarSection[] => {
+  return dealerSidebarSections
+    .map((section) => {
+      // Filter items based on permissions
+      const filteredItems = section.items.filter((item) => {
+        // If item has no permission requirement, show it
+        if (!item.permission) {
+          // Filter sub-items if they have permissions
+          if (item.items && item.items.length > 0) {
+            item.items = item.items.filter((subItem) => {
+              return !subItem.permission || hasPermission(subItem.permission)
+            })
+            // Show parent if at least one sub-item is visible
+            return item.items.length > 0
+          }
+          return true
+        }
+        
+        // Check if user has permission for this item
+        if (!hasPermission(item.permission)) {
+          return false
+        }
+        
+        // Filter sub-items if they have permissions
+        if (item.items && item.items.length > 0) {
+          item.items = item.items.filter((subItem) => {
+            return !subItem.permission || hasPermission(subItem.permission)
+          })
+          // Show parent if at least one sub-item is visible
+          return item.items.length > 0
+        }
+        
+        return true
+      })
+      
+      // Return section only if it has visible items
+      return {
+        ...section,
+        items: filteredItems,
+      }
+    })
+    .filter((section) => section.items.length > 0) // Remove empty sections
 })
 
 const handleLogout = async () => {
