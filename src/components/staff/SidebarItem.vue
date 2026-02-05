@@ -232,7 +232,7 @@ watch(
       }
       
       // Only auto-expand if a sub-item is active, don't force collapse
-      const shouldBeExpanded = props.item.items.some((subItem) =>
+      const shouldBeExpanded = props.item.items.some((subItem: { url: string }) =>
         newPath.startsWith(subItem.url)
       )
       if (shouldBeExpanded && !isExpanded.value) {
@@ -255,7 +255,7 @@ watch(
       isExpanded.value = false
     } else if (!isCollapsed && !sidebarStore.isMobile) {
       // When sidebar expands, check if any sub-item is active and re-expand
-      const hasActiveSubItem = props.item.items.some((subItem) =>
+      const hasActiveSubItem = props.item.items.some((subItem: { url: string }) =>
         route.path.startsWith(subItem.url)
       )
       if (hasActiveSubItem && !isExpanded.value) {

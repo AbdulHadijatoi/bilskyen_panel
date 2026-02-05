@@ -97,8 +97,8 @@ import { removeStaff } from '@/api/staff.api'
 export interface StaffMember {
   id: number
   name: string
-  email: string
-  membership_role_id: number
+  email?: string
+  membership_role_id?: number
 }
 
 const props = defineProps<{

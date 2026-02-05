@@ -966,6 +966,7 @@ export interface StaffMember {
   email?: string
   username: string
   phone?: string
+  membership_role_id?: number
   created_at?: string
 }
 

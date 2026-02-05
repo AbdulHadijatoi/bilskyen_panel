@@ -155,7 +155,7 @@ import { useRouter } from 'vue-router'
 import { useSidebarStore } from '@/stores/sidebar'
 import { useAuthStore } from '@/stores/auth'
 import { logout, getCurrentUser } from '@/services/auth'
-import { staffSidebarSections, type SidebarSection } from '@/constants/staff'
+import { staffSidebarSections, type SidebarSection, type SidebarSectionItem } from '@/constants/staff'
 import { hasPermission } from '@/utils/permissions'
 import SidebarItem from './SidebarItem.vue'
 import ChangePasswordDialog from './ChangePasswordDialog.vue'
@@ -183,14 +183,14 @@ const userInitials = computed(() => {
 // Filter sidebar sections based on user permissions
 const filteredSidebarSections = computed((): SidebarSection[] => {
   return staffSidebarSections
-    .map((section) => {
+    .map((section: SidebarSection) => {
       // Filter items based on permissions
-      const filteredItems = section.items.filter((item) => {
+      const filteredItems = section.items.filter((item: SidebarSectionItem) => {
         // If item has no permission requirement, show it
         if (!item.permission) {
           // Filter sub-items if they have permissions
           if (item.items && item.items.length > 0) {
-            item.items = item.items.filter((subItem) => {
+            item.items = item.items.filter((subItem: { permission?: string }) => {
               return !subItem.permission || hasPermission(subItem.permission)
             })
             // Show parent if at least one sub-item is visible
@@ -206,7 +206,7 @@ const filteredSidebarSections = computed((): SidebarSection[] => {
         
         // Filter sub-items if they have permissions
         if (item.items && item.items.length > 0) {
-          item.items = item.items.filter((subItem) => {
+          item.items = item.items.filter((subItem: { permission?: string }) => {
             return !subItem.permission || hasPermission(subItem.permission)
           })
           // Show parent if at least one sub-item is visible
@@ -222,7 +222,7 @@ const filteredSidebarSections = computed((): SidebarSection[] => {
         items: filteredItems,
       }
     })
-    .filter((section) => section.items.length > 0) // Remove empty sections
+    .filter((section: SidebarSection) => section.items.length > 0) // Remove empty sections
 })
 
 const handleLogout = async () => {

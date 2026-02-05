@@ -501,7 +501,7 @@ const loadRolesList = async () => {
     rolesList.value = response.data.models
     
     // Auto-select the first role if available and no role is currently selected
-    if (rolesList.value.length > 0 && !selectedModel.value) {
+    if (rolesList.value.length > 0 && !selectedModel.value && rolesList.value[0]) {
       await handleRoleSelect(rolesList.value[0])
     }
   } catch (error: any) {

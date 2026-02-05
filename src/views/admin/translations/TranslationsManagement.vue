@@ -53,7 +53,7 @@
               variant="outlined"
               density="compact"
               clearable
-              @update:model-value="loadTranslations"
+              @update:model-value="() => loadTranslations()"
               hide-details
             />
           </v-col>
@@ -225,7 +225,7 @@ const headers = [
   { title: 'Default Value', key: 'default_value', sortable: false },
   { title: 'English', key: 'en', sortable: false },
   { title: 'Danish', key: 'da', sortable: false },
-  { title: 'Actions', key: 'actions', sortable: false, align: 'end' },
+  { title: 'Actions', key: 'actions', sortable: false, align: 'end' as const },
 ]
 
 const translations = ref<TranslationKey[]>([])

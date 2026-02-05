@@ -298,7 +298,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { getProfile, updateProfile, type UpdateProfileData } from '@/api/staff.api'
 import { getCurrentUser } from '@/api/auth.api'
 import { useAuthStore } from '@/stores/auth'
-import type { DealerModel } from '@/models/staff.model'
+import type { DealerModel } from '@/models/dealer.model'
 
 const authStore = useAuthStore()
 
@@ -371,11 +371,11 @@ const loadProfile = async () => {
     const data = await getProfile()
     profile.value = data
 
-    // Populate form with existing data (user fields)
-    if (data.user) {
-      form.name = data.user.name || ''
-      form.email = data.user.email || ''
-      form.phone = data.user.phone || ''
+    // Populate form with existing data (owner fields - dealer himself is the owner)
+    if (data.owner) {
+      form.name = data.owner.name || ''
+      form.email = data.owner.email || ''
+      form.phone = data.owner.phone || ''
     }
 
     // Populate form with existing data (dealer fields)
@@ -395,10 +395,10 @@ const loadProfile = async () => {
 // Reset form to original values
 const resetForm = () => {
   if (profile.value) {
-    if (profile.value.user) {
-      form.name = profile.value.user.name || ''
-      form.email = profile.value.user.email || ''
-      form.phone = profile.value.user.phone || ''
+    if (profile.value.owner) {
+      form.name = profile.value.owner.name || ''
+      form.email = profile.value.owner.email || ''
+      form.phone = profile.value.owner.phone || ''
     }
     form.cvr = profile.value.cvr || ''
     form.address = profile.value.address || ''
@@ -437,11 +437,11 @@ const handleSubmit = async () => {
     const updatedProfile = await updateProfile(updateData)
     profile.value = updatedProfile
 
-    // Update form with new values (user fields)
-    if (updatedProfile.user) {
-      form.name = updatedProfile.user.name || ''
-      form.email = updatedProfile.user.email || ''
-      form.phone = updatedProfile.user.phone || ''
+    // Update form with new values (owner fields - dealer himself is the owner)
+    if (updatedProfile.owner) {
+      form.name = updatedProfile.owner.name || ''
+      form.email = updatedProfile.owner.email || ''
+      form.phone = updatedProfile.owner.phone || ''
     }
 
     // Update form with new values (dealer fields)

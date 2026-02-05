@@ -35,7 +35,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { DEALER_ROUTE_BASE } from '@/constants/staff'
+import { STAFF_ROUTE_BASE } from '@/constants/staff'
 
 const route = useRoute()
 
@@ -45,14 +45,14 @@ const LABEL_OVERRIDES: Record<string, string> = {
   account: 'Account',
 }
 
-const base = DEALER_ROUTE_BASE
+const base = STAFF_ROUTE_BASE
 const label = 'Dashboard'
 
 const visibleSegments = computed(() => {
   const path = route.path
-  if (!path.startsWith(DEALER_ROUTE_BASE)) return []
+  if (!path.startsWith(STAFF_ROUTE_BASE)) return []
   
-  const relativePath = path.replace(DEALER_ROUTE_BASE, '').replace(/^\//, '')
+  const relativePath = path.replace(STAFF_ROUTE_BASE, '').replace(/^\//, '')
   if (!relativePath) return []
   
   return relativePath.split('/').filter(Boolean)
