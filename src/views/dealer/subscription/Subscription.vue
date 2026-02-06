@@ -174,10 +174,11 @@
               color="primary"
               variant="flat"
               size="small"
+              class="py-6"
               @click="openSubscriptionDialog(plan)"
               block
             >
-              Select Plan
+              {{ currentSubscription ? 'Change Plan' : 'Select Plan' }}
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -189,6 +190,7 @@
       :plan="selectedPlan"
       :show="showSubscriptionDialog"
       :loading="creatingSubscription"
+      :has-active-subscription="!!currentSubscription"
       @confirm="handleSubscriptionConfirm"
       @close="closeSubscriptionDialog"
     />

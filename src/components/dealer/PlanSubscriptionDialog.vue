@@ -1,12 +1,41 @@
 <template>
   <v-dialog v-model="showDialog" max-width="600" persistent>
     <v-card class="subscription-dialog">
-      <v-card-text class="pa-6">
+      <!-- Card Header with Close Button -->
+      <v-card-title class="d-flex justify-space-between align-center pa-4 pb-2">
+        <div class="flex-grow-1"></div>
+        <v-btn
+          icon
+          variant="text"
+          size="small"
+          @click="handleClose"
+          class="ml-auto"
+        >
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </v-card-title>
+
+      <v-card-text class="pa-6 pt-2">
         <!-- Header -->
         <div class="text-center mb-6">
           <h2 class="text-h5 font-weight-medium mb-2">Select your plan</h2>
           <p class="text-body-2 text-medium-emphasis">Pick your preferred plan below</p>
         </div>
+
+        <!-- Warning Alert -->
+        <v-alert
+          v-if="props.hasActiveSubscription"
+          type="warning"
+          variant="tonal"
+          density="compact"
+          class="mb-6"
+          icon="mdi-alert"
+        >
+          <div class="font-weight-medium mb-1">Warning: Changing your plan</div>
+          <div class="text-body-2">
+            Changing your plan will override your existing subscription. Your current plan will be canceled and replaced with the selected plan.
+          </div>
+        </v-alert>
 
         <!-- Plan Options -->
         <div class="d-flex flex-column gap-3 mb-6">
@@ -94,19 +123,20 @@
           </v-card>
         </div>
 
-        <!-- Confirm Button -->
-        <v-btn
-          color="primary"
-          variant="flat"
-          block
-          size="large"
-          :disabled="!selectedCycle || props.loading"
-          :loading="props.loading || confirming"
-          @click="handleConfirm"
-          class="mb-4"
-        >
-          Confirm your purchase at {{ selectedCycle ? formatPrice(getSelectedPrice()) : '' }}
-        </v-btn>
+        <!-- Action Buttons -->
+        <div class="d-flex gap-3 mb-4">
+          <v-btn
+            color="primary"
+            variant="flat"
+            size="large"
+            :disabled="!selectedCycle || props.loading"
+            :loading="props.loading || confirming"
+            @click="handleConfirm"
+            class="flex-grow-1"
+          >
+            Confirm your purchase at {{ selectedCycle ? formatPrice(getSelectedPrice()) : '' }}
+          </v-btn>
+        </div>
 
         <!-- Security Footer -->
         <div class="text-center">
@@ -126,6 +156,7 @@ interface Props {
   plan: PlanModel | null
   show: boolean
   loading?: boolean
+  hasActiveSubscription?: boolean
 }
 
 const props = defineProps<Props>()
@@ -224,6 +255,11 @@ const formatPrice = (priceInCents: number) => {
 const handleConfirm = () => {
   if (!selectedCycle.value || props.loading) return
   emit('confirm', selectedCycle.value)
+}
+
+const handleClose = () => {
+  if (props.loading) return
+  emit('close')
 }
 </script>
 

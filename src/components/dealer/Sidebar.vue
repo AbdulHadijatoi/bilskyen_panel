@@ -157,7 +157,7 @@ import { useAuthStore } from '@/stores/auth'
 import { logout, getCurrentUser } from '@/services/auth'
 import { dealerSidebarSections, type SidebarSection } from '@/constants/dealer'
 import { hasPermission } from '@/utils/permissions'
-import { hasFeature } from '@/utils/subscriptionFeatures'
+import { hasFeature, getSubscriptionFeatures } from '@/utils/subscriptionFeatures'
 import SidebarItem from './SidebarItem.vue'
 import ChangePasswordDialog from './ChangePasswordDialog.vue'
 
@@ -183,6 +183,8 @@ const userInitials = computed(() => {
 
 // Filter sidebar sections based on user permissions and subscription features
 const filteredSidebarSections = computed((): SidebarSection[] => {
+  const features = getSubscriptionFeatures()
+  
   return dealerSidebarSections
     .map((section) => {
       // Filter items based on permissions and subscription features
@@ -193,8 +195,15 @@ const filteredSidebarSections = computed((): SidebarSection[] => {
         }
         
         // Check subscription feature if required
-        if (item.feature && !hasFeature(item.feature)) {
-          return false
+        if (item.feature) {
+          const featureValue = features[item.feature]
+          const hasFeatureValue = featureValue !== undefined && featureValue !== null && (
+            String(featureValue).toLowerCase() === 'true' || 
+            String(featureValue) === '1'
+          )
+          if (!hasFeatureValue) {
+            return false
+          }
         }
         
         // Filter sub-items if they have permissions or features
@@ -205,8 +214,15 @@ const filteredSidebarSections = computed((): SidebarSection[] => {
               return false
             }
             // Check subscription feature
-            if (subItem.feature && !hasFeature(subItem.feature)) {
-              return false
+            if (subItem.feature) {
+              const featureValue = features[subItem.feature]
+              const hasFeatureValue = featureValue !== undefined && featureValue !== null && (
+                String(featureValue).toLowerCase() === 'true' || 
+                String(featureValue) === '1'
+              )
+              if (!hasFeatureValue) {
+                return false
+              }
             }
             return true
           })

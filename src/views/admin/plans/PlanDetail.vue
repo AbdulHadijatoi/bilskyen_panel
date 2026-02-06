@@ -512,6 +512,19 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
+
+      <!-- Success Snackbar -->
+      <v-snackbar
+        v-model="snackbar.show"
+        :color="snackbar.color"
+        timeout="3000"
+        location="top right"
+      >
+        {{ snackbar.message }}
+        <template v-slot:actions>
+          <v-btn variant="text" @click="snackbar.show = false">Close</v-btn>
+        </template>
+      </v-snackbar>
     </div>
   </div>
 </template>
@@ -585,6 +598,13 @@ const editingFeatureValue = ref('')
 const addingFeature = ref(false)
 const updatingFeatureValue = ref(false)
 const loadingAllFeatures = ref(false)
+
+// Snackbar for notifications
+const snackbar = ref({
+  show: false,
+  message: '',
+  color: 'success'
+})
 
 const booleanOptions = [
   { label: 'True', value: 'true' },
@@ -753,11 +773,19 @@ const updateAvailability = async () => {
     await syncPlanAvailability(planId, data)
     error.value = null
     await loadAvailability()
+    showSnackbar('Plan availability updated successfully', 'success')
   } catch (err) {
     error.value = (err as ApiErrorModel).message || 'Failed to update availability'
+    showSnackbar((err as ApiErrorModel).message || 'Failed to update availability', 'error')
   } finally {
     updatingAvailability.value = false
   }
+}
+
+const showSnackbar = (message: string, color: 'success' | 'error' | 'info' = 'success') => {
+  snackbar.value.message = message
+  snackbar.value.color = color
+  snackbar.value.show = true
 }
 
 const updatePricing = async () => {

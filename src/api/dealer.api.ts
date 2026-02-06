@@ -1073,7 +1073,7 @@ export async function getSubscription(): Promise<any> {
 }
 
 /**
- * Get available features
+ * Get available features (returns array of feature objects)
  */
 export async function getFeatures(): Promise<any[]> {
   try {
@@ -1081,6 +1081,28 @@ export async function getFeatures(): Promise<any[]> {
       DEALER_SUBSCRIPTION_ENDPOINTS.FEATURES
     )
     return handleSuccess<any[]>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Get subscription features as key-value pairs
+ * This loads features into the auth store
+ */
+export async function loadSubscriptionFeatures(): Promise<Record<string, string>> {
+  try {
+    const response = await httpClient.get<{ data: Record<string, string> }>(
+      DEALER_SUBSCRIPTION_ENDPOINTS.FEATURES
+    )
+    const features = handleSuccess<Record<string, string>>(response)
+    
+    // Update auth store with features
+    const { useAuthStore } = await import('@/stores/auth')
+    const authStore = useAuthStore()
+    authStore.setSubscriptionFeatures(features)
+    
+    return features
   } catch (error) {
     throw handleError(error)
   }

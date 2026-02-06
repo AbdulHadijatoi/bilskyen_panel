@@ -4,7 +4,8 @@ import { useLoadingStore } from '@/stores/loading'
 import { checkAuth } from '@/api/auth.api'
 import { encryptUrlParam } from '@/utils/urlEncryption'
 import { isAdmin, isDealer } from '@/utils/permissions'
-import { hasFeature } from '@/utils/subscriptionFeatures'
+import { hasFeature, getSubscriptionFeatures } from '@/utils/subscriptionFeatures'
+import { loadSubscriptionFeatures } from '@/api/dealer.api'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -289,6 +290,15 @@ router.beforeEach(async (to, from, next) => {
             next('/admin')
             return
           } else {
+            // Load subscription features if missing (for dealer/staff users)
+            if (!isAdmin() && Object.keys(getSubscriptionFeatures()).length === 0) {
+              try {
+                await loadSubscriptionFeatures()
+              } catch (error) {
+                // Continue anyway - features might not be available
+              }
+            }
+            
             // Check subscription feature if required (only for dealer routes)
             if (to.meta.feature && !isAdmin()) {
               if (!hasFeature(to.meta.feature as string)) {

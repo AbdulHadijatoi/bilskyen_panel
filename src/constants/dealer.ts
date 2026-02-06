@@ -74,13 +74,11 @@ export const dealerSidebarSections: SidebarSection[] = [
         title: 'Enquiries',
         url: `${DEALER_ROUTE_BASE}enquiries`,
         icon: 'mdi-email',
-        permission: 'dealer.enquiries.view',
         feature: 'enquiry_management',
         items: [
           {
             title: 'Overview',
             url: `${DEALER_ROUTE_BASE}enquiries/overview`,
-            permission: 'dealer.enquiries.view',
             feature: 'enquiry_management',
           },
         ],
