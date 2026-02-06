@@ -1153,7 +1153,16 @@ export async function createSubscription(data: CreateDealerSubscriptionData): Pr
       DEALER_SUBSCRIPTION_ENDPOINTS.CREATE,
       data
     )
-    return handleSuccess<any>(response)
+    const result = handleSuccess<any>(response)
+    
+    // Update subscription features in auth store if provided
+    if (result.subscription_features) {
+      const { useAuthStore } = await import('@/stores/auth')
+      const authStore = useAuthStore()
+      authStore.setSubscriptionFeatures(result.subscription_features)
+    }
+    
+    return result
   } catch (error) {
     throw handleError(error)
   }

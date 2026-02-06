@@ -4,6 +4,7 @@ import { useLoadingStore } from '@/stores/loading'
 import { checkAuth } from '@/api/auth.api'
 import { encryptUrlParam } from '@/utils/urlEncryption'
 import { isAdmin, isDealer } from '@/utils/permissions'
+import { hasFeature } from '@/utils/subscriptionFeatures'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -76,11 +77,13 @@ const router = createRouter({
           path: 'leads/overview',
           name: 'dealer.leads.overview',
           component: () => import('@/views/dealer/leads/LeadsOverview.vue'),
+          meta: { requiresAuth: true, feature: 'lead_management' },
         },
         {
           path: 'leads/:id',
           name: 'dealer.leads.detail',
           component: () => import('@/views/dealer/leads/LeadDetail.vue'),
+          meta: { requiresAuth: true, feature: 'lead_management' },
         },
         {
           path: 'enquiries',
@@ -90,16 +93,19 @@ const router = createRouter({
           path: 'enquiries/overview',
           name: 'dealer.enquiries.overview',
           component: () => import('@/views/dealer/enquiries/EnquiriesOverview.vue'),
+          meta: { requiresAuth: true, feature: 'enquiry_management' },
         },
         {
           path: 'enquiries/:id',
           name: 'dealer.enquiries.detail',
           component: () => import('@/views/dealer/enquiries/EnquiryDetail.vue'),
+          meta: { requiresAuth: true, feature: 'enquiry_management' },
         },
         {
           path: 'staff',
           name: 'dealer.staff',
           component: () => import('@/views/dealer/staff/StaffManagement.vue'),
+          meta: { requiresAuth: true, feature: 'staff_management' },
         },
         {
           path: 'subscription',
@@ -110,7 +116,7 @@ const router = createRouter({
           path: 'audit-logs',
           name: 'dealer.audit-logs',
           component: () => import('@/views/dealer/audit-logs/AuditLogs.vue'),
-          meta: { requiresAuth: true, permission: 'dealer.audit.view' },
+          meta: { requiresAuth: true, permission: 'dealer.audit.view', feature: 'audit_logs' },
         },
         {
           path: 'profile',
@@ -268,25 +274,35 @@ router.beforeEach(async (to, from, next) => {
         isNavigating = false
         next({ path: '/auth/login', query: { redirect: encryptedRedirect } })
         return
-      } else {
-        // Check if route requires admin role
-        if (to.meta.requiresAdmin && !isAdmin()) {
-          // Non-admin trying to access admin route - redirect to dealer dashboard
-          loadingStore.stopLoading()
-          isNavigating = false
-          next('/')
-          return
-        } else if (!to.meta.requiresAdmin && isAdmin() && to.path === '/') {
-          // Admin trying to access dealer dashboard - redirect to admin dashboard
-          loadingStore.stopLoading()
-          isNavigating = false
-          next('/admin')
-          return
         } else {
-          next()
-          return
+          // Check if route requires admin role
+          if (to.meta.requiresAdmin && !isAdmin()) {
+            // Non-admin trying to access admin route - redirect to dealer dashboard
+            loadingStore.stopLoading()
+            isNavigating = false
+            next('/')
+            return
+          } else if (!to.meta.requiresAdmin && isAdmin() && to.path === '/') {
+            // Admin trying to access dealer dashboard - redirect to admin dashboard
+            loadingStore.stopLoading()
+            isNavigating = false
+            next('/admin')
+            return
+          } else {
+            // Check subscription feature if required (only for dealer routes)
+            if (to.meta.feature && !isAdmin()) {
+              if (!hasFeature(to.meta.feature as string)) {
+                // Feature not available - redirect to subscription page or dashboard
+                loadingStore.stopLoading()
+                isNavigating = false
+                next({ name: 'dealer.subscription', query: { feature: to.meta.feature } })
+                return
+              }
+            }
+            next()
+            return
+          }
         }
-      }
     } else if (
       to.path === '/auth/login' ||
       to.path === '/login' ||

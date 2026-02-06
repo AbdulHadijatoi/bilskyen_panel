@@ -157,6 +157,7 @@ import { useAuthStore } from '@/stores/auth'
 import { logout, getCurrentUser } from '@/services/auth'
 import { dealerSidebarSections, type SidebarSection } from '@/constants/dealer'
 import { hasPermission } from '@/utils/permissions'
+import { hasFeature } from '@/utils/subscriptionFeatures'
 import SidebarItem from './SidebarItem.vue'
 import ChangePasswordDialog from './ChangePasswordDialog.vue'
 
@@ -180,34 +181,34 @@ const userInitials = computed(() => {
   return name.substring(0, 2).toUpperCase()
 })
 
-// Filter sidebar sections based on user permissions
+// Filter sidebar sections based on user permissions and subscription features
 const filteredSidebarSections = computed((): SidebarSection[] => {
   return dealerSidebarSections
     .map((section) => {
-      // Filter items based on permissions
+      // Filter items based on permissions and subscription features
       const filteredItems = section.items.filter((item) => {
-        // If item has no permission requirement, show it
-        if (!item.permission) {
-          // Filter sub-items if they have permissions
-          if (item.items && item.items.length > 0) {
-            item.items = item.items.filter((subItem) => {
-              return !subItem.permission || hasPermission(subItem.permission)
-            })
-            // Show parent if at least one sub-item is visible
-            return item.items.length > 0
-          }
-          return true
-        }
-        
-        // Check if user has permission for this item
-        if (!hasPermission(item.permission)) {
+        // Check permission if required
+        if (item.permission && !hasPermission(item.permission)) {
           return false
         }
         
-        // Filter sub-items if they have permissions
+        // Check subscription feature if required
+        if (item.feature && !hasFeature(item.feature)) {
+          return false
+        }
+        
+        // Filter sub-items if they have permissions or features
         if (item.items && item.items.length > 0) {
           item.items = item.items.filter((subItem) => {
-            return !subItem.permission || hasPermission(subItem.permission)
+            // Check permission
+            if (subItem.permission && !hasPermission(subItem.permission)) {
+              return false
+            }
+            // Check subscription feature
+            if (subItem.feature && !hasFeature(subItem.feature)) {
+              return false
+            }
+            return true
           })
           // Show parent if at least one sub-item is visible
           return item.items.length > 0

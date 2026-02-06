@@ -5,12 +5,14 @@ export interface SidebarSectionItem {
   badge?: string
   shortcut?: string[]
   permission?: string
+  feature?: string // Subscription feature key (e.g., 'enquiry_management', 'lead_management')
   items?: {
     title: string
     url: string
     icon?: string
     badge?: string
     permission?: string
+    feature?: string // Subscription feature key
   }[]
 }
 
@@ -58,11 +60,13 @@ export const dealerSidebarSections: SidebarSection[] = [
         url: `${DEALER_ROUTE_BASE}leads`,
         icon: 'mdi-account-group',
         permission: 'dealer.leads.view',
+        feature: 'lead_management',
         items: [
           {
             title: 'Overview',
             url: `${DEALER_ROUTE_BASE}leads/overview`,
             permission: 'dealer.leads.view',
+            feature: 'lead_management',
           },
         ],
       },
@@ -71,11 +75,13 @@ export const dealerSidebarSections: SidebarSection[] = [
         url: `${DEALER_ROUTE_BASE}enquiries`,
         icon: 'mdi-email',
         permission: 'dealer.enquiries.view',
+        feature: 'enquiry_management',
         items: [
           {
             title: 'Overview',
             url: `${DEALER_ROUTE_BASE}enquiries/overview`,
             permission: 'dealer.enquiries.view',
+            feature: 'enquiry_management',
           },
         ],
       },
@@ -84,13 +90,13 @@ export const dealerSidebarSections: SidebarSection[] = [
   {
     title: 'Management',
     items: [
-      // Staff management - hidden for now
-      // {
-      //   title: 'Staff',
-      //   url: `${DEALER_ROUTE_BASE}staff`,
-      //   icon: 'mdi-account-multiple',
-      //   permission: 'dealer.staff.manage',
-      // },
+      {
+        title: 'Staff',
+        url: `${DEALER_ROUTE_BASE}staff`,
+        icon: 'mdi-account-multiple',
+        permission: 'dealer.staff.manage',
+        feature: 'staff_management',
+      },
       {
         title: 'Subscription',
         url: `${DEALER_ROUTE_BASE}subscription`,
@@ -102,6 +108,7 @@ export const dealerSidebarSections: SidebarSection[] = [
         url: `${DEALER_ROUTE_BASE}audit-logs`,
         icon: 'mdi-file-document-outline',
         permission: 'dealer.audit.view',
+        feature: 'audit_logs',
       },
     ],
   },

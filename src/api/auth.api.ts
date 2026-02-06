@@ -50,6 +50,7 @@ interface AuthResponseData {
   access_token: string
   token_type: string
   expires_in: number
+  subscription_features?: Record<string, string>
 }
 
 /**
@@ -96,8 +97,8 @@ export async function login(credentials: LoginCredentials): Promise<UserModel> {
     // Normalize user data
     const user = normalizeUser(data.user)
     
-    // Store user and access token
-    authStore.setAuth(user, data.access_token)
+    // Store user, access token, and subscription features
+    authStore.setAuth(user, data.access_token, data.subscription_features || {})
     
     return user
   } catch (error) {
@@ -122,8 +123,8 @@ export async function staffLogin(credentials: StaffLoginCredentials): Promise<Us
     // Normalize user data
     const user = normalizeUser(data.user)
     
-    // Store user and access token
-    authStore.setAuth(user, data.access_token)
+    // Store user, access token, and subscription features
+    authStore.setAuth(user, data.access_token, data.subscription_features || {})
     
     return user
   } catch (error) {

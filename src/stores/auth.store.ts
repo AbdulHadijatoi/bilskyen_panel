@@ -15,6 +15,7 @@ export const useAuthStore = defineStore('auth', () => {
   // State - Restore token from localStorage on initialization
   const user = ref<UserModel | null>(null)
   const accessToken = ref<string | null>(getStoredAccessToken())
+  const subscriptionFeatures = ref<Record<string, string>>({})
 
   // Computed
   const isAuthenticated = computed(() => {
@@ -65,18 +66,24 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  const setAuth = (userData: UserModel, token: string) => {
+  const setAuth = (userData: UserModel, token: string, features?: Record<string, string>) => {
     user.value = userData
     accessToken.value = token
+    subscriptionFeatures.value = features || {}
     // Persist to localStorage
     if (typeof window !== 'undefined') {
       localStorage.setItem('access_token', token)
     }
   }
 
+  const setSubscriptionFeatures = (features: Record<string, string>) => {
+    subscriptionFeatures.value = features
+  }
+
   const logout = () => {
     user.value = null
     accessToken.value = null
+    subscriptionFeatures.value = {}
     // Clear from localStorage
     if (typeof window !== 'undefined') {
       localStorage.removeItem('access_token')
@@ -86,6 +93,7 @@ export const useAuthStore = defineStore('auth', () => {
   const clearAuth = () => {
     user.value = null
     accessToken.value = null
+    subscriptionFeatures.value = {}
     // Clear from localStorage
     if (typeof window !== 'undefined') {
       localStorage.removeItem('access_token')
@@ -96,6 +104,7 @@ export const useAuthStore = defineStore('auth', () => {
     // State
     user,
     accessToken,
+    subscriptionFeatures,
     // Computed
     isAuthenticated,
     role,
@@ -106,6 +115,7 @@ export const useAuthStore = defineStore('auth', () => {
     setUser,
     setAccessToken,
     setAuth,
+    setSubscriptionFeatures,
     logout,
     clearAuth,
   }
