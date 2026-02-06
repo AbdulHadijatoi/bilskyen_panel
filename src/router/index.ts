@@ -305,7 +305,8 @@ router.beforeEach(async (to, from, next) => {
                 // Feature not available - redirect to subscription page or dashboard
                 loadingStore.stopLoading()
                 isNavigating = false
-                next({ name: 'dealer.subscription', query: { feature: to.meta.feature } })
+                const feature = to.meta.feature as string
+                next(`/subscription?feature=${encodeURIComponent(feature)}`)
                 return
               }
             }

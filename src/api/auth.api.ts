@@ -8,7 +8,7 @@
 import httpClient from './http'
 import { handleSuccess, handleError } from './response'
 import { AUTH_ENDPOINTS } from './endpoints'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@/stores/auth.store'
 import { normalizeUser } from '@/utils/user'
 import type { UserModel } from '@/models/user.model'
 import type { ApiErrorModel } from '@/models/api-error.model'

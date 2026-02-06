@@ -153,7 +153,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSidebarStore } from '@/stores/sidebar'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@/stores/auth.store'
 import { logout, getCurrentUser } from '@/services/auth'
 import { dealerSidebarSections, type SidebarSection } from '@/constants/dealer'
 import { hasPermission } from '@/utils/permissions'

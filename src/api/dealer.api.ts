@@ -1098,7 +1098,7 @@ export async function loadSubscriptionFeatures(): Promise<Record<string, string>
     const features = handleSuccess<Record<string, string>>(response)
     
     // Update auth store with features
-    const { useAuthStore } = await import('@/stores/auth')
+    const { useAuthStore } = await import('@/stores/auth.store')
     const authStore = useAuthStore()
     authStore.setSubscriptionFeatures(features)
     
@@ -1179,7 +1179,7 @@ export async function createSubscription(data: CreateDealerSubscriptionData): Pr
     
     // Update subscription features in auth store if provided
     if (result.subscription_features) {
-      const { useAuthStore } = await import('@/stores/auth')
+      const { useAuthStore } = await import('@/stores/auth.store')
       const authStore = useAuthStore()
       authStore.setSubscriptionFeatures(result.subscription_features)
     }

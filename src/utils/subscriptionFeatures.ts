@@ -4,7 +4,7 @@
  * Helper functions to check subscription features for dealers
  */
 
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@/stores/auth.store'
 
 /**
  * Subscription features type
