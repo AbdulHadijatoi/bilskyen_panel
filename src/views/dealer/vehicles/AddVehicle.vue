@@ -1449,7 +1449,7 @@ const form = ref({
   
   // Step 5
   priceTypeId: null as number | null,
-  conditionId: null as number | null,
+  conditionId: 2 as number | null,
   salesTypeId: null as number | null,
   retailPrice: null as number | null,
   wholesalePrice: null as number | null,
@@ -2352,7 +2352,7 @@ const clearDraft = () => {
     
   // Step 5
   priceTypeId: null,
-  conditionId: null,
+  conditionId: 2,
   salesTypeId: null,
     retailPrice: null,
     wholesalePrice: null,

@@ -120,6 +120,12 @@ const router = createRouter({
           meta: { requiresAuth: true, permission: 'dealer.audit.view', feature: 'audit_logs' },
         },
         {
+          path: 'analytics',
+          name: 'dealer.analytics',
+          component: () => import('@/views/dealer/analytics/Analytics.vue'),
+          meta: { requiresAuth: true, permission: 'dealer.analytics.view' },
+        },
+        {
           path: 'profile',
           name: 'dealer.profile',
           component: () => import('@/views/dealer/settings/ProfileSettings.vue'),

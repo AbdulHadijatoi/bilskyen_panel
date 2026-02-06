@@ -14,7 +14,7 @@
     <div class="audit-logs-layout">
       <!-- Top Row: Filters -->
       <div class="filters-row">
-        <v-card variant="flat" :style="{ border: '1px solid #f5f5f5' }">
+        <v-card variant="flat" >
           <v-card-text class="pa-4">
             <div class="filters-grid">
               <!-- Search -->
@@ -28,7 +28,6 @@
                   hide-details
                   prepend-inner-icon="mdi-magnify"
                   clearable
-                  :style="{ border: '1px solid #f5f5f5' }"
                   @update:model-value="handleFilterChange"
                 />
               </div>
@@ -43,7 +42,7 @@
                   density="compact"
                   hide-details
                   clearable
-                  :style="{ border: '1px solid #f5f5f5' }"
+                  
                   @update:model-value="handleFilterChange"
                 />
               </div>
@@ -58,7 +57,7 @@
                   density="compact"
                   hide-details
                   clearable
-                  :style="{ border: '1px solid #f5f5f5' }"
+                  
                   @update:model-value="handleFilterChange"
                 />
               </div>
@@ -73,7 +72,7 @@
                   density="compact"
                   hide-details
                   clearable
-                  :style="{ border: '1px solid #f5f5f5' }"
+                  
                   @update:model-value="handleFilterChange"
                 />
               </div>
@@ -88,7 +87,7 @@
                   density="compact"
                   hide-details
                   clearable
-                  :style="{ border: '1px solid #f5f5f5' }"
+                  
                   @update:model-value="handleFilterChange"
                 />
               </div>
@@ -103,7 +102,7 @@
                   density="compact"
                   hide-details
                   clearable
-                  :style="{ border: '1px solid #f5f5f5' }"
+                  
                   @update:model-value="handleTimePeriodChange"
                 />
               </div>
@@ -114,7 +113,8 @@
                   variant="outlined"
                   density="compact"
                   prepend-icon="mdi-filter-off"
-                  :style="{ border: '1px solid #f5f5f5', height: '40px' }"
+                  :style="{ height: '40px' }"
+                  class="border border-grey-100"
                   @click="clearFilters"
                 >
                   Clear Filters
@@ -146,7 +146,7 @@
       <!-- Bottom Row: Audit Logs Table -->
       <div class="audit-logs-row">
         <!-- Audit Logs Table -->
-        <v-card variant="flat" :style="{ border: '1px solid #f5f5f5' }">
+        <v-card variant="flat" >
           <v-card-text class="pa-4">
             <div v-if="loading" class="text-center py-8">
               <v-progress-circular indeterminate color="primary" size="32"></v-progress-circular>
@@ -219,9 +219,23 @@
               </template>
 
               <template #item.description="{ item }">
-                <span class="text-caption" :title="item.description">
+                <span class="text-caption" :title="item.description || undefined">
                   {{ truncateText(item.description || '-', 50) }}
                 </span>
+              </template>
+
+              <template #item.actions="{ item }">
+                <div class="d-flex justify-center">
+                  <v-btn
+                    icon
+                    size="small"
+                    variant="text"
+                    color="primary"
+                    @click="openDetailDialog(item.id)"
+                  >
+                    <v-icon size="small">mdi-eye</v-icon>
+                  </v-btn>
+                </div>
               </template>
             </v-data-table>
 
@@ -240,6 +254,196 @@
       </div>
     </div>
 
+    <!-- Audit Log Detail Dialog -->
+    <v-dialog v-model="detailDialog.show" max-width="800" scrollable>
+      <v-card>
+        <v-card-title class="d-flex align-center justify-space-between pa-4" style="background-color: #fafafa;">
+          <span class="text-h6">Audit Log Details</span>
+          <v-btn icon="mdi-close" variant="text" size="small" @click="detailDialog.show = false" />
+        </v-card-title>
+
+        <v-card-text v-if="detailDialog.loading" class="text-center py-8">
+          <v-progress-circular indeterminate color="primary" />
+        </v-card-text>
+
+        <v-card-text v-else-if="detailDialog.error" class="text-center py-8">
+          <v-icon color="error" size="large">mdi-alert-circle</v-icon>
+            {{ detailDialog.error }}
+        </v-card-text>
+
+        <v-card-text v-else-if="detailDialog.log" class="pa-6">
+          <!-- Basic Info -->
+          <div class="detail-section mb-4">
+            <h3 class="text-subtitle-1 font-weight-bold mb-3">Basic Information</h3>
+            <div class="detail-grid">
+              <div class="detail-item mb-3">
+                <span class="text-caption text-medium-emphasis font-weight-bold">ID:</span>
+                  <span class="text-body-2 ml-2">{{ detailDialog.log.id }}</span>
+              </div>
+              <div class="detail-item mb-3">
+                <span class="text-caption text-medium-emphasis font-weight-bold">Action:</span>
+                <v-chip
+                  size="small"
+                  variant="flat"
+                    :color="getActionColor(detailDialog.log.action)"
+                    :style="{ backgroundColor: getActionColor(detailDialog.log.action) + '20' }"
+                  class="ml-2"
+                >
+                    {{ detailDialog.log.action }}
+                </v-chip>
+              </div>
+              <div class="detail-item mb-3">
+                <span class="text-caption text-medium-emphasis font-weight-bold">Target Type:</span>
+                  <span class="text-body-2 ml-2">{{ detailDialog.log.target_type }}</span>
+              </div>
+              <div class="detail-item mb-3">
+                <span class="text-caption text-medium-emphasis font-weight-bold">Target ID:</span>
+                  <span class="text-body-2 ml-2">{{ detailDialog.log.target_id }}</span>
+              </div>
+            </div>
+            <div class="detail-grid mt-3">
+              <div class="detail-item mb-3">
+                <span class="text-caption text-medium-emphasis font-weight-bold">Actor Type:</span>
+                  <span class="text-body-2 ml-2">{{ detailDialog.log.actor_type }}</span>
+              </div>
+              <div class="detail-item mb-3">
+                <span class="text-caption text-medium-emphasis font-weight-bold">Actor ID:</span>
+                  <span class="text-body-2 ml-2">{{ detailDialog.log.actor_id }}</span>
+              </div>
+              <div class="detail-item mb-3" v-if="detailDialog.log.dealer_id">
+                <span class="text-caption text-medium-emphasis font-weight-bold">Dealer ID:</span>
+                  <span class="text-body-2 ml-2">{{ detailDialog.log.dealer_id }}</span>
+              </div>
+              <div class="detail-item mb-3">
+                <span class="text-caption text-medium-emphasis font-weight-bold">Created At:</span>
+                  <span class="text-body-2 ml-2">{{ formatDate(detailDialog.log.created_at) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <v-divider class="my-4" />
+
+          <!-- Status & Severity -->
+          <div class="detail-section mb-4">
+            <h3 class="text-subtitle-1 font-weight-bold mb-3">Status & Severity</h3>
+            <div class="detail-grid">
+              <div class="detail-item mb-3">
+                <span class="text-caption text-medium-emphasis font-weight-bold">Status:</span>
+                <v-chip
+                    v-if="detailDialog.log.status"
+                  size="small"
+                  variant="flat"
+                    :color="getStatusColor(detailDialog.log.status)"
+                    :style="{ backgroundColor: getStatusColor(detailDialog.log.status) + '20' }"
+                  class="ml-2"
+                >
+                    {{ detailDialog.log.status }}
+                </v-chip>
+                <span v-else class="text-body-2 ml-2">-</span>
+              </div>
+              <div class="detail-item mb-3">
+                <span class="text-caption text-medium-emphasis font-weight-bold">Severity:</span>
+                <v-chip
+                    v-if="detailDialog.log.severity"
+                  size="small"
+                  variant="flat"
+                    :color="getSeverityColor(detailDialog.log.severity)"
+                    :style="{ backgroundColor: getSeverityColor(detailDialog.log.severity) + '20' }"
+                  class="ml-2"
+                >
+                    {{ detailDialog.log.severity }}
+                </v-chip>
+                <span v-else class="text-body-2 ml-2">-</span>
+              </div>
+            </div>
+          </div>
+
+          <v-divider class="my-4" v-if="detailDialog.log.description" />
+
+          <div class="detail-section" v-if="detailDialog.log.description">
+            <h3 class="text-subtitle-1 font-weight-bold mb-3">Description</h3>
+            <p class="text-body-2">{{ detailDialog.log.description }}</p>
+          </div>
+
+          <v-divider class="my-4" v-if="detailDialog.log.metadata || detailDialog.log.tags" />
+
+          <div class="detail-section" v-if="detailDialog.log.metadata || detailDialog.log.tags">
+            <h3 class="text-subtitle-1 font-weight-bold mb-3">Metadata & Tags</h3>
+            <div v-if="detailDialog.log.tags" class="mb-3">
+              <span class="text-caption text-medium-emphasis font-weight-bold">Tags:</span>
+              <span class="text-body-2 ml-2">{{ detailDialog.log.tags }}</span>
+            </div>
+            <div v-if="detailDialog.log.metadata">
+              <span class="text-caption text-medium-emphasis font-weight-bold">Metadata:</span>
+              <pre class="text-body-2 mt-2 pa-3" style="background-color: #f5f5f5; border-radius: 4px; overflow-x: auto;">{{ JSON.stringify(detailDialog.log.metadata, null, 2) }}</pre>
+            </div>
+          </div>
+
+          <v-divider class="my-4" v-if="detailDialog.log.request_method || detailDialog.log.request_url || detailDialog.log.ip_address" />
+
+          <div class="detail-section" v-if="detailDialog.log.request_method || detailDialog.log.request_url || detailDialog.log.ip_address">
+            <h3 class="text-subtitle-1 font-weight-bold mb-3">Request Information</h3>
+            <div class="detail-grid">
+              <div class="detail-column">
+                <div class="detail-item mb-3" v-if="detailDialog.log.request_method">
+                  <span class="text-caption text-medium-emphasis font-weight-bold">Method:</span>
+                  <span class="text-body-2 ml-2">{{ detailDialog.log.request_method }}</span>
+                </div>
+                <div class="detail-item mb-3" v-if="detailDialog.log.ip_address">
+                  <span class="text-caption text-medium-emphasis font-weight-bold">IP Address:</span>
+                  <span class="text-body-2 ml-2">{{ detailDialog.log.ip_address }}</span>
+                </div>
+              </div>
+              <div class="detail-column">
+                <div class="detail-item mb-3" v-if="detailDialog.log.user_agent">
+                  <span class="text-caption text-medium-emphasis font-weight-bold">User Agent:</span>
+                  <span class="text-body-2 ml-2" style="word-break: break-all;">{{ detailDialog.log.user_agent }}</span>
+                </div>
+                <div class="detail-item mb-3" v-if="detailDialog.log.duration_ms">
+                  <span class="text-caption text-medium-emphasis font-weight-bold">Duration:</span>
+                  <span class="text-body-2 ml-2">{{ detailDialog.log.duration_ms }} ms</span>
+                </div>
+              </div>
+            </div>
+            <div class="detail-item mb-3" v-if="detailDialog.log.request_url">
+              <span class="text-caption text-medium-emphasis font-weight-bold">URL:</span>
+              <span class="text-body-2 ml-2" style="word-break: break-all;">{{ detailDialog.log.request_url }}</span>
+            </div>
+          </div>
+
+          <v-divider class="my-4" v-if="detailDialog.log.error_message" />
+
+          <div class="detail-section" v-if="detailDialog.log.error_message">
+            <h3 class="text-subtitle-1 font-weight-bold mb-3">Error Message</h3>
+            <v-alert type="error" variant="tonal" density="compact">
+              {{ detailDialog.log.error_message }}
+            </v-alert>
+          </div>
+
+          <v-divider class="my-4" v-if="detailDialog.log.related_target_type" />
+
+          <div class="detail-section" v-if="detailDialog.log.related_target_type">
+            <h3 class="text-subtitle-1 font-weight-bold mb-3">Related Target</h3>
+            <div class="detail-grid">
+              <div class="detail-item mb-3">
+                <span class="text-caption text-medium-emphasis font-weight-bold">Related Target Type:</span>
+                  <span class="text-body-2 ml-2">{{ detailDialog.log.related_target_type }}</span>
+              </div>
+              <div class="detail-item mb-3">
+                <span class="text-caption text-medium-emphasis font-weight-bold">Related Target ID:</span>
+                  <span class="text-body-2 ml-2">{{ detailDialog.log.related_target_id }}</span>
+              </div>
+            </div>
+          </div>
+        </v-card-text>
+
+        <v-card-actions class="pa-4" style="background-color: #fafafa;">
+          <v-spacer />
+          <v-btn variant="text" @click="detailDialog.show = false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- Snackbar -->
     <v-snackbar
       v-model="snackbar.show"
@@ -257,7 +461,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import { getAuditLogs, type DealerAuditLogModel } from '@/api/dealer.api'
+import { getAuditLogs, getAuditLog, type DealerAuditLogModel } from '@/api/dealer.api'
 import type { PaginationModel } from '@/models/pagination.model'
 
 // State
@@ -294,6 +498,13 @@ const filters = ref({
   date_to: '',
 })
 
+// Detail Dialog State
+const detailDialog = ref({
+  show: false,
+  loading: false,
+  error: null as string | null,
+  log: null as DealerAuditLogModel | null,
+})
 
 // Filter Options
 const actionOptions = [
@@ -358,6 +569,7 @@ const headers = [
   { title: 'Severity', key: 'severity', sortable: true },
   { title: 'Status', key: 'status', sortable: true },
   { title: 'Created At', key: 'created_at', sortable: true },
+  { title: 'Actions', key: 'actions', sortable: false, width: '100px', align: 'center' as const },
 ]
 
 // Computed
@@ -568,6 +780,23 @@ const showSnackbar = (message: string, color: 'success' | 'error' | 'info' = 'su
   snackbar.value.message = message
   snackbar.value.color = color
   snackbar.value.show = true
+}
+
+const openDetailDialog = async (id: number) => {
+  detailDialog.value.show = true
+  detailDialog.value.loading = true
+  detailDialog.value.error = null
+  detailDialog.value.log = null
+
+  try {
+    const log = await getAuditLog(id)
+    detailDialog.value.log = log
+  } catch (err: any) {
+    detailDialog.value.error = err.message || 'Failed to load audit log details'
+    showSnackbar('Failed to load audit log details', 'error')
+  } finally {
+    detailDialog.value.loading = false
+  }
 }
 
 // Lifecycle

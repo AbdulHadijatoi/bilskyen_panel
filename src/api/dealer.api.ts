@@ -19,6 +19,7 @@ import {
   DEALER_LOOKUP_ENDPOINTS,
   DEALER_DASHBOARD_ENDPOINTS,
   DEALER_AUDIT_ENDPOINTS,
+  DEALER_ANALYTICS_ENDPOINTS,
 } from './endpoints'
 import type { VehicleModel } from '@/models/vehicle.model'
 import { mapVehicleFromApi } from '@/models/vehicle.model'
@@ -42,20 +43,26 @@ export interface DealerAuditLogModel {
   actor_type: string
   dealer_id: number
   action: string
+  status: string
+  error_message?: string | null
+  duration_ms?: number | null
+  request_method?: string | null
+  request_url?: string | null
   target_type: string
   target_id: number
-  related_target_type?: string
-  related_target_id?: number
-  description?: string
-  status?: string
-  severity?: string
-  tags?: string[]
-  metadata?: any
-  ip_address?: string
-  user_agent?: string
-  request_method?: string
-  request_url?: string
-  created_at: string
+  related_target_type?: string | null
+  related_target_id?: number | null
+  description?: string | null
+  tags?: string | null
+  severity?: string | null
+  metadata?: Record<string, any> | null
+  payload_before?: Record<string, any> | null
+  payload_after?: Record<string, any> | null
+  ip_address?: string | null
+  user_agent?: string | null
+  session_id?: string | null
+  request_id?: string | null
+  created_at?: string
 }
 
 /**
@@ -1354,6 +1361,98 @@ export async function getAuditLogs(params?: PaginationParams & {
     )
     const data = handleSuccess<PaginationModel<DealerAuditLogModel>>(response)
     return data
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Get a single audit log by ID
+ */
+export async function getAuditLog(id: number): Promise<DealerAuditLogModel> {
+  try {
+    const response = await httpClient.get<{ data: DealerAuditLogModel }>(
+      `${DEALER_AUDIT_ENDPOINTS.LOGS}/${id}`
+    )
+    return handleSuccess<DealerAuditLogModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// ANALYTICS
+// ============================================================================
+
+/**
+ * Get analytics overview
+ */
+export async function getAnalyticsOverview(dateRange?: string): Promise<import('@/models/analytics.model').DealerAnalyticsOverview> {
+  try {
+    const response = await httpClient.get<{ data: import('@/models/analytics.model').DealerAnalyticsOverview }>(
+      DEALER_ANALYTICS_ENDPOINTS.OVERVIEW,
+      { params: { date_range: dateRange } }
+    )
+    return handleSuccess(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Get lead analytics
+ */
+export async function getAnalyticsLeads(dateRange?: string): Promise<import('@/models/analytics.model').DealerLeadAnalytics> {
+  try {
+    const response = await httpClient.get<{ data: import('@/models/analytics.model').DealerLeadAnalytics }>(
+      DEALER_ANALYTICS_ENDPOINTS.LEADS,
+      { params: { date_range: dateRange } }
+    )
+    return handleSuccess(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Get vehicle analytics
+ */
+export async function getAnalyticsVehicles(dateRange?: string): Promise<import('@/models/analytics.model').DealerVehicleAnalytics> {
+  try {
+    const response = await httpClient.get<{ data: import('@/models/analytics.model').DealerVehicleAnalytics }>(
+      DEALER_ANALYTICS_ENDPOINTS.VEHICLES,
+      { params: { date_range: dateRange } }
+    )
+    return handleSuccess(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Get marketing analytics
+ */
+export async function getAnalyticsMarketing(dateRange?: string): Promise<import('@/models/analytics.model').MarketingAnalytics> {
+  try {
+    const response = await httpClient.get<{ data: import('@/models/analytics.model').MarketingAnalytics }>(
+      DEALER_ANALYTICS_ENDPOINTS.MARKETING,
+      { params: { date_range: dateRange } }
+    )
+    return handleSuccess(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Get subscription usage analytics
+ */
+export async function getAnalyticsSubscription(): Promise<import('@/models/analytics.model').SubscriptionUsage> {
+  try {
+    const response = await httpClient.get<{ data: import('@/models/analytics.model').SubscriptionUsage }>(
+      DEALER_ANALYTICS_ENDPOINTS.SUBSCRIPTION
+    )
+    return handleSuccess(response)
   } catch (error) {
     throw handleError(error)
   }

@@ -1478,19 +1478,60 @@ export async function publishPage(id: number | string): Promise<PageModel> {
 // ============================================================================
 
 /**
+ * Get analytics overview
+ */
+export async function getAnalyticsOverview(dateRange?: string): Promise<import('@/models/analytics.model').AnalyticsOverview> {
+  try {
+    const response = await httpClient.get<{ data: import('@/models/analytics.model').AnalyticsOverview }>(
+      ADMIN_ANALYTICS_ENDPOINTS.OVERVIEW,
+      { params: { date_range: dateRange } }
+    )
+    return handleSuccess(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Get revenue analytics
+ */
+export async function getAnalyticsRevenue(dateRange?: string): Promise<import('@/models/analytics.model').RevenueAnalytics> {
+  try {
+    const response = await httpClient.get<{ data: import('@/models/analytics.model').RevenueAnalytics }>(
+      ADMIN_ANALYTICS_ENDPOINTS.REVENUE,
+      { params: { date_range: dateRange } }
+    )
+    return handleSuccess(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Get dealer performance analytics
+ */
+export async function getAnalyticsDealers(dateRange?: string): Promise<import('@/models/analytics.model').DealerPerformance> {
+  try {
+    const response = await httpClient.get<{ data: import('@/models/analytics.model').DealerPerformance }>(
+      ADMIN_ANALYTICS_ENDPOINTS.DEALERS,
+      { params: { date_range: dateRange } }
+    )
+    return handleSuccess(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
  * Get vehicle analytics
  */
-export async function getVehicleAnalytics(params?: {
-  date_from?: string
-  date_to?: string
-  dealer_id?: number
-}): Promise<any> {
+export async function getAnalyticsVehicles(dateRange?: string): Promise<import('@/models/analytics.model').VehicleAnalytics> {
   try {
-    const response = await httpClient.get<{ data: any }>(
+    const response = await httpClient.get<{ data: import('@/models/analytics.model').VehicleAnalytics }>(
       ADMIN_ANALYTICS_ENDPOINTS.VEHICLES,
-      { params }
+      { params: { date_range: dateRange } }
     )
-    return handleSuccess<any>(response)
+    return handleSuccess(response)
   } catch (error) {
     throw handleError(error)
   }
@@ -1499,35 +1540,28 @@ export async function getVehicleAnalytics(params?: {
 /**
  * Get lead analytics
  */
-export async function getLeadAnalytics(params?: {
-  date_from?: string
-  date_to?: string
-  dealer_id?: number
-}): Promise<any> {
+export async function getAnalyticsLeads(dateRange?: string): Promise<import('@/models/analytics.model').LeadAnalytics> {
   try {
-    const response = await httpClient.get<{ data: any }>(
+    const response = await httpClient.get<{ data: import('@/models/analytics.model').LeadAnalytics }>(
       ADMIN_ANALYTICS_ENDPOINTS.LEADS,
-      { params }
+      { params: { date_range: dateRange } }
     )
-    return handleSuccess<any>(response)
+    return handleSuccess(response)
   } catch (error) {
     throw handleError(error)
   }
 }
 
 /**
- * Get subscription analytics
+ * Get user activity analytics
  */
-export async function getSubscriptionAnalytics(params?: {
-  date_from?: string
-  date_to?: string
-}): Promise<any> {
+export async function getAnalyticsActivity(dateRange?: string): Promise<import('@/models/analytics.model').UserActivityAnalytics> {
   try {
-    const response = await httpClient.get<{ data: any }>(
-      ADMIN_ANALYTICS_ENDPOINTS.SUBSCRIPTIONS,
-      { params }
+    const response = await httpClient.get<{ data: import('@/models/analytics.model').UserActivityAnalytics }>(
+      ADMIN_ANALYTICS_ENDPOINTS.ACTIVITY,
+      { params: { date_range: dateRange } }
     )
-    return handleSuccess<any>(response)
+    return handleSuccess(response)
   } catch (error) {
     throw handleError(error)
   }
@@ -1542,25 +1576,44 @@ export async function getSubscriptionAnalytics(params?: {
  */
 export interface AuditLogModel {
   id: number
-  user_id: number
+  actor_id: number
+  actor_type: string
+  dealer_id?: number
   action: string
-  resource_type: string
-  resource_id: number
-  changes?: Record<string, any>
+  target_type: string
+  target_id: number
+  related_target_type?: string
+  related_target_id?: number
+  description?: string
+  status?: string
+  severity?: string
+  tags?: string
+  metadata?: Record<string, any>
   ip_address?: string
   user_agent?: string
-  createdAt?: string
+  request_method?: string
+  request_url?: string
+  error_message?: string
+  duration_ms?: number
+  session_id?: string
+  request_id?: string
+  created_at?: string
 }
 
 /**
  * Get audit logs
  */
 export async function getAuditLogs(params?: PaginationParams & {
-  user_id?: number
-  resource_type?: string
+  actor_id?: number
+  target_type?: string
   action?: string
+  severity?: string
+  status?: string
+  search?: string
   date_from?: string
   date_to?: string
+  sort?: string
+  order?: 'asc' | 'desc'
 }): Promise<PaginationModel<AuditLogModel>> {
   try {
     const response = await httpClient.get<{ data: PaginationModel<AuditLogModel> }>(
@@ -1568,6 +1621,20 @@ export async function getAuditLogs(params?: PaginationParams & {
       { params }
     )
     return handleSuccess<PaginationModel<AuditLogModel>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Get audit log details by ID
+ */
+export async function getAuditLog(id: number): Promise<AuditLogModel> {
+  try {
+    const response = await httpClient.get<{ data: AuditLogModel }>(
+      `${ADMIN_AUDIT_ENDPOINTS.LOGS}/${id}`
+    )
+    return handleSuccess<AuditLogModel>(response)
   } catch (error) {
     throw handleError(error)
   }

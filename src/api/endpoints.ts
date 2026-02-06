@@ -155,6 +155,17 @@ export const DEALER_AUDIT_ENDPOINTS = {
 } as const
 
 /**
+ * Dealer analytics endpoints
+ */
+export const DEALER_ANALYTICS_ENDPOINTS = {
+  OVERVIEW: '/dealer/analytics/overview',
+  LEADS: '/dealer/analytics/leads',
+  VEHICLES: '/dealer/analytics/vehicles',
+  MARKETING: '/dealer/analytics/marketing',
+  SUBSCRIPTION: '/dealer/analytics/subscription',
+} as const
+
+/**
  * Admin user endpoints
  */
 export const ADMIN_USER_ENDPOINTS = {
@@ -258,9 +269,12 @@ export const ADMIN_PAGE_ENDPOINTS = {
  * Admin analytics endpoints
  */
 export const ADMIN_ANALYTICS_ENDPOINTS = {
+  OVERVIEW: '/admin/analytics/overview',
+  REVENUE: '/admin/analytics/revenue',
+  DEALERS: '/admin/analytics/dealers',
   VEHICLES: '/admin/analytics/vehicles',
   LEADS: '/admin/analytics/leads',
-  SUBSCRIPTIONS: '/admin/analytics/subscriptions',
+  ACTIVITY: '/admin/analytics/activity',
 } as const
 
 /**
