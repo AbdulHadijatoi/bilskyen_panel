@@ -193,10 +193,10 @@ const router = createRouter({
         //   name: 'admin.features.detail',
         //   component: () => import('@/views/admin/features/FeatureDetail.vue'),
         // },
+        // Pages overview route removed - redirect to home page content management
         {
           path: 'pages',
-          name: 'admin.pages',
-          component: () => import('@/views/admin/pages/PagesOverview.vue'),
+          redirect: '/admin/pages/home-page-content',
         },
         {
           path: 'pages/:id',

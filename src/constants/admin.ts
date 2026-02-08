@@ -68,15 +68,10 @@ export const adminSidebarSections: SidebarSection[] = [
       },
       {
         title: 'Pages',
-        url: `${ADMIN_ROUTE_BASE}/pages`,
+        url: `${ADMIN_ROUTE_BASE}/pages/home-page-content`,
         icon: 'mdi-file-document',
         permission: 'admin.pages.view',
         items: [
-          {
-            title: 'Overview',
-            url: `${ADMIN_ROUTE_BASE}/pages`,
-            permission: 'admin.pages.view',
-          },
           {
             title: 'Home Page Content',
             url: `${ADMIN_ROUTE_BASE}/pages/home-page-content`,
