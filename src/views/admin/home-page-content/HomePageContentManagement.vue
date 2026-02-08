@@ -935,10 +935,21 @@ function handleContentChange(event: Event) {
 }
 
 /**
- * Handle input event
+ * Handle input event - update formData in real-time
  */
 function handleInput(event: Event) {
-  // Input is handled, just prevent default behavior if needed
+  const target = event.target as HTMLElement
+  const key = target.getAttribute('data-key')
+  if (key) {
+    const text = target.innerText.trim()
+    const placeholder = getPlaceholder(key)
+    // Update formData immediately as user types
+    if (text && text !== placeholder) {
+      formData[key] = text
+    } else if (!text) {
+      formData[key] = ''
+    }
+  }
 }
 
 /**
@@ -1001,10 +1012,16 @@ async function updateContenteditableElements() {
 }
 
 // Watch formData changes to update contenteditable elements (when not focused)
+// But only update if no element is currently focused to avoid overwriting user input
 watch(
   () => formData,
   () => {
-    updateContenteditableElements()
+    // Only update DOM if no contenteditable element is focused
+    const activeElement = document.activeElement
+    const isContenteditableFocused = activeElement && activeElement.hasAttribute('contenteditable')
+    if (!isContenteditableFocused) {
+      updateContenteditableElements()
+    }
   },
   { deep: true }
 )
@@ -1099,6 +1116,27 @@ async function loadContent() {
 }
 
 /**
+ * Read current values from all contenteditable elements
+ * This ensures we capture any unsaved changes that haven't been blurred yet
+ */
+function readCurrentValuesFromDOM(): void {
+  const elements = document.querySelectorAll('[contenteditable][data-key]')
+  elements.forEach((el) => {
+    const key = el.getAttribute('data-key')
+    if (key) {
+      const text = (el as HTMLElement).innerText.trim()
+      const placeholder = getPlaceholder(key)
+      // Update formData with current DOM value
+      if (text && text !== placeholder) {
+        formData[key] = text
+      } else if (!text) {
+        formData[key] = ''
+      }
+    }
+  })
+}
+
+/**
  * Save all sections
  */
 async function saveAllSections() {
@@ -1107,6 +1145,12 @@ async function saveAllSections() {
   showError.value = false
 
   try {
+    // First, read all current values from DOM to capture any unsaved changes
+    readCurrentValuesFromDOM()
+    
+    // Wait a tick to ensure formData is updated
+    await nextTick()
+    
     // Prepare sections data (only include non-empty or existing sections)
     const sectionsToUpdate: HomePageContentMap = {}
     
@@ -1120,17 +1164,33 @@ async function saveAllSections() {
 
     const updatedSections = await bulkUpdateHomePageContent(sectionsToUpdate, 'home')
     
-    // Update local state with the response instead of making another API call
+    // Update local state with the response
     sections.value = updatedSections
     
-    // Update form data with the response (in case any fields were modified server-side)
+    // Read current DOM values again to capture any changes user made during save
+    readCurrentValuesFromDOM()
+    await nextTick()
+    
+    // Update form data with the response values
+    // Note: We've already read DOM values above, so formData should be up-to-date
+    // We update with response to sync with server, but DOM values take precedence
     updatedSections.forEach((section) => {
       if (formData.hasOwnProperty(section.sectionKey)) {
-        formData[section.sectionKey] = section.content || ''
+        const domElement = document.querySelector(`[contenteditable][data-key="${section.sectionKey}"]`) as HTMLElement
+        const currentDomValue = domElement ? domElement.innerText.trim() : ''
+        const placeholder = getPlaceholder(section.sectionKey)
+        
+        // If DOM has a value different from placeholder, use DOM value (user's latest input)
+        // Otherwise, use response value (what server saved)
+        if (currentDomValue && currentDomValue !== placeholder) {
+          formData[section.sectionKey] = currentDomValue
+        } else {
+          formData[section.sectionKey] = section.content || ''
+        }
       }
     })
     
-    // Update contenteditable elements after save
+    // Update contenteditable elements after save (only non-focused ones)
     await updateContenteditableElements()
     
     showSuccess.value = true
