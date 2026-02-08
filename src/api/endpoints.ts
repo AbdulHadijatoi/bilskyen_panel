@@ -266,6 +266,22 @@ export const ADMIN_PAGE_ENDPOINTS = {
 } as const
 
 /**
+ * Admin home page content endpoints
+ */
+export const ADMIN_HOME_PAGE_ENDPOINTS = {
+  LIST: '/admin/home-page-content',
+  UPDATE: (sectionKey: string) => `/admin/home-page-content/${sectionKey}`,
+  BULK_UPDATE: '/admin/home-page-content/bulk-update',
+} as const
+
+/**
+ * Public home page content endpoints
+ */
+export const PUBLIC_HOME_PAGE_ENDPOINTS = {
+  GET: '/home-page-content',
+} as const
+
+/**
  * Admin analytics endpoints
  */
 export const ADMIN_ANALYTICS_ENDPOINTS = {

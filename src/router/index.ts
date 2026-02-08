@@ -204,6 +204,11 @@ const router = createRouter({
           component: () => import('@/views/admin/pages/PageDetail.vue'),
         },
         {
+          path: 'pages/home-page-content',
+          name: 'admin.home-page-content',
+          component: () => import('@/views/admin/home-page-content/HomePageContentManagement.vue'),
+        },
+        {
           path: 'featured-vehicles',
           name: 'admin.featured-vehicles',
           component: () => import('@/views/admin/featured-vehicles/FeaturedVehicles.vue'),

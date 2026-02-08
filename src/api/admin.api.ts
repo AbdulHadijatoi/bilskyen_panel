@@ -15,6 +15,7 @@ import {
   ADMIN_SUBSCRIPTION_ENDPOINTS,
   ADMIN_FEATURE_ENDPOINTS,
   ADMIN_PAGE_ENDPOINTS,
+  ADMIN_HOME_PAGE_ENDPOINTS,
   ADMIN_ANALYTICS_ENDPOINTS,
   ADMIN_AUDIT_ENDPOINTS,
   ADMIN_CONSTANTS_ENDPOINTS,
@@ -30,6 +31,8 @@ import { mapDealerFromApi } from '@/models/dealer.model'
 import type { PaginationModel, PaginationParams } from '@/models/pagination.model'
 import type { VehicleStatus } from '@/models/vehicle.model'
 import type { SubscriptionStatus } from '@/models/dealer.model'
+import type { HomePageSectionModel, HomePageContentMap } from '@/models/home-page-content.model'
+import { mapHomePageSectionsFromApi } from '@/models/home-page-content.model'
 
 /**
  * Generate idempotency key header
@@ -1468,6 +1471,102 @@ export async function publishPage(id: number | string): Promise<PageModel> {
       {}
     )
     return handleSuccess<PageModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// HOME PAGE CONTENT
+// ============================================================================
+
+/**
+ * Get all home page sections
+ */
+export async function getHomePageContent(
+  pageName?: string
+): Promise<HomePageSectionModel[]> {
+  try {
+    const response = await httpClient.get<{ data: any[] }>(
+      ADMIN_HOME_PAGE_ENDPOINTS.LIST,
+      { params: pageName ? { page_name: pageName } : {} }
+    )
+    const sections = handleSuccess<any[]>(response)
+    return mapHomePageSectionsFromApi(sections)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Update single home page section
+ */
+export async function updateHomePageSection(
+  sectionKey: string,
+  content: string | null,
+  pageName?: string
+): Promise<HomePageSectionModel> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      ADMIN_HOME_PAGE_ENDPOINTS.UPDATE(sectionKey),
+      {
+        content,
+        ...(pageName ? { page_name: pageName } : {}),
+      }
+    )
+    const sectionData = handleSuccess<any>(response)
+    return {
+      id: sectionData.id,
+      sectionKey: sectionData.section_key,
+      content: sectionData.content,
+      pageName: sectionData.page_name,
+      createdAt: sectionData.created_at,
+      updatedAt: sectionData.updated_at,
+    }
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Bulk update home page sections
+ */
+export async function bulkUpdateHomePageContent(
+  sections: HomePageContentMap,
+  pageName?: string
+): Promise<HomePageSectionModel[]> {
+  try {
+    const response = await httpClient.post<{ data: any[] }>(
+      ADMIN_HOME_PAGE_ENDPOINTS.BULK_UPDATE,
+      {
+        sections,
+        ...(pageName ? { page_name: pageName } : {}),
+      }
+    )
+    
+    // Use handleSuccess to extract data from response
+    const sectionsData = handleSuccess<any>(response)
+    
+    // Ensure sectionsData is an array before mapping
+    if (!Array.isArray(sectionsData)) {
+      // If it's a single object, wrap it in an array
+      if (sectionsData && typeof sectionsData === 'object' && sectionsData !== null) {
+        const singleSection = {
+          id: sectionsData.id,
+          sectionKey: sectionsData.section_key || sectionsData.sectionKey,
+          content: sectionsData.content,
+          pageName: sectionsData.page_name || sectionsData.pageName,
+          createdAt: sectionsData.created_at || sectionsData.createdAt,
+          updatedAt: sectionsData.updated_at || sectionsData.updatedAt,
+        }
+        return [singleSection]
+      }
+      // If it's null, undefined, or not an object, return empty array
+      console.warn('bulkUpdateHomePageContent: sectionsData is not an array', sectionsData)
+      return []
+    }
+    
+    return mapHomePageSectionsFromApi(sectionsData)
   } catch (error) {
     throw handleError(error)
   }

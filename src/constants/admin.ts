@@ -77,6 +77,11 @@ export const adminSidebarSections: SidebarSection[] = [
             url: `${ADMIN_ROUTE_BASE}/pages`,
             permission: 'admin.pages.view',
           },
+          {
+            title: 'Home Page Content',
+            url: `${ADMIN_ROUTE_BASE}/pages/home-page-content`,
+            permission: 'admin.pages.update',
+          },
         ],
       },
       {
