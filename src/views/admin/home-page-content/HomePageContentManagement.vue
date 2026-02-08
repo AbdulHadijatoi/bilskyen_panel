@@ -833,9 +833,8 @@ import { ref, onMounted, reactive, nextTick, watch } from 'vue'
 import {
   getHomePageContent,
   bulkUpdateHomePageContent,
-  type HomePageSectionModel,
 } from '@/api/admin.api'
-import type { HomePageContentMap } from '@/models/home-page-content.model'
+import type { HomePageContentMap, HomePageSectionModel } from '@/models/home-page-content.model'
 
 // Section definitions for placeholder lookup
 const sectionDefinitions: Record<string, { placeholder: string }> = {

@@ -580,8 +580,8 @@ import { ref, onMounted, reactive, nextTick, watch } from 'vue'
 import {
   getPrivacyPageContent,
   bulkUpdatePrivacyPageContent,
-  type HomePageSectionModel,
 } from '@/api/admin.api'
+import type { HomePageSectionModel } from '@/models/home-page-content.model'
 
 // Section definitions for placeholder lookup
 const sectionDefinitions: Record<string, { placeholder: string }> = {

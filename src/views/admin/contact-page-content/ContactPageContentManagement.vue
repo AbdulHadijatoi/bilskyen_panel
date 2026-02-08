@@ -371,9 +371,8 @@ import {
   bulkUpdateContactPageContent,
   uploadContactPageImage,
   deleteContactPageImage,
-  type HomePageSectionModel,
 } from '@/api/admin.api'
-import type { ContactPageContentMap, PageImageModel, PageImagesMap } from '@/models/home-page-content.model'
+import type { ContactPageContentMap, PageImageModel, PageImagesMap, HomePageSectionModel } from '@/models/home-page-content.model'
 
 // Section definitions for placeholder lookup
 const sectionDefinitions: Record<string, { placeholder: string }> = {
@@ -427,7 +426,7 @@ function getPlaceholder(key: string): string {
 function getImageForSection(sectionKey: string): PageImageModel | null {
   const sectionImages = images.value[sectionKey]
   if (sectionImages && sectionImages.length > 0) {
-    return sectionImages[0]
+    return sectionImages[0] ?? null
   }
   return null
 }
@@ -435,11 +434,14 @@ function getImageForSection(sectionKey: string): PageImageModel | null {
 /**
  * Handle image file selection
  */
-async function handleImageFileSelect(sectionKey: string, file: File | null) {
+async function handleImageFileSelect(sectionKey: string, file: File | File[] | null) {
   if (!file) return
+  // Handle array case - take first file
+  const fileToUpload = Array.isArray(file) ? file[0] : file
+  if (!fileToUpload) return
 
   try {
-    const uploadedImage = await uploadContactPageImage(sectionKey, file, undefined, 0, 'contact')
+    const uploadedImage = await uploadContactPageImage(sectionKey, fileToUpload, undefined, 0, 'contact')
     
     // Update images map
     if (!images.value[sectionKey]) {
@@ -480,7 +482,9 @@ async function deleteImage() {
     
     // Remove from images map
     Object.keys(images.value).forEach((key) => {
-      images.value[key] = images.value[key].filter(img => img.id !== imageToDelete.value)
+      if (images.value[key]) {
+        images.value[key] = images.value[key].filter(img => img.id !== imageToDelete.value)
+      }
     })
     
     showDeleteImageDialog.value = false
