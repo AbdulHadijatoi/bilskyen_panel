@@ -209,6 +209,26 @@ const router = createRouter({
           component: () => import('@/views/admin/home-page-content/HomePageContentManagement.vue'),
         },
         {
+          path: 'pages/about-page-content',
+          name: 'admin.about-page-content',
+          component: () => import('@/views/admin/about-page-content/AboutPageContentManagement.vue'),
+        },
+        {
+          path: 'pages/contact-page-content',
+          name: 'admin.contact-page-content',
+          component: () => import('@/views/admin/contact-page-content/ContactPageContentManagement.vue'),
+        },
+        {
+          path: 'pages/privacy-page-content',
+          name: 'admin.privacy-page-content',
+          component: () => import('@/views/admin/privacy-page-content/PrivacyPageContentManagement.vue'),
+        },
+        {
+          path: 'pages/terms-page-content',
+          name: 'admin.terms-page-content',
+          component: () => import('@/views/admin/terms-page-content/TermsPageContentManagement.vue'),
+        },
+        {
           path: 'featured-vehicles',
           name: 'admin.featured-vehicles',
           component: () => import('@/views/admin/featured-vehicles/FeaturedVehicles.vue'),

@@ -16,6 +16,10 @@ import {
   ADMIN_FEATURE_ENDPOINTS,
   ADMIN_PAGE_ENDPOINTS,
   ADMIN_HOME_PAGE_ENDPOINTS,
+  ADMIN_ABOUT_PAGE_ENDPOINTS,
+  ADMIN_CONTACT_PAGE_ENDPOINTS,
+  ADMIN_PRIVACY_PAGE_ENDPOINTS,
+  ADMIN_TERMS_PAGE_ENDPOINTS,
   ADMIN_ANALYTICS_ENDPOINTS,
   ADMIN_AUDIT_ENDPOINTS,
   ADMIN_CONSTANTS_ENDPOINTS,
@@ -31,8 +35,19 @@ import { mapDealerFromApi } from '@/models/dealer.model'
 import type { PaginationModel, PaginationParams } from '@/models/pagination.model'
 import type { VehicleStatus } from '@/models/vehicle.model'
 import type { SubscriptionStatus } from '@/models/dealer.model'
-import type { HomePageSectionModel, HomePageContentMap } from '@/models/home-page-content.model'
-import { mapHomePageSectionsFromApi } from '@/models/home-page-content.model'
+import type { 
+  HomePageSectionModel, 
+  HomePageContentMap,
+  AboutPageContentMap,
+  ContactPageContentMap,
+  PageImageModel,
+  PageImagesMap,
+} from '@/models/home-page-content.model'
+import { 
+  mapHomePageSectionsFromApi,
+  mapPageImageFromApi,
+  mapPageImagesFromApi,
+} from '@/models/home-page-content.model'
 
 /**
  * Generate idempotency key header
@@ -1563,6 +1578,476 @@ export async function bulkUpdateHomePageContent(
       }
       // If it's null, undefined, or not an object, return empty array
       console.warn('bulkUpdateHomePageContent: sectionsData is not an array', sectionsData)
+      return []
+    }
+    
+    return mapHomePageSectionsFromApi(sectionsData)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// ABOUT PAGE CONTENT
+// ============================================================================
+
+/**
+ * Get all about page sections and images
+ */
+export async function getAboutPageContent(
+  pageName?: string
+): Promise<{ sections: HomePageSectionModel[], images: PageImagesMap }> {
+  try {
+    const response = await httpClient.get<{ data: { sections: any[], images: any } }>(
+      ADMIN_ABOUT_PAGE_ENDPOINTS.LIST,
+      { params: pageName ? { page_name: pageName } : {} }
+    )
+    const data = handleSuccess<{ sections: any[], images: any }>(response)
+    return {
+      sections: mapHomePageSectionsFromApi(data.sections || []),
+      images: Object.keys(data.images || {}).reduce((acc, key) => {
+        acc[key] = mapPageImagesFromApi(data.images[key] || [])
+        return acc
+      }, {} as PageImagesMap),
+    }
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Update single about page section
+ */
+export async function updateAboutPageSection(
+  sectionKey: string,
+  content: string | null,
+  pageName?: string
+): Promise<HomePageSectionModel> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      ADMIN_ABOUT_PAGE_ENDPOINTS.UPDATE(sectionKey),
+      {
+        content,
+        ...(pageName ? { page_name: pageName } : {}),
+      }
+    )
+    const sectionData = handleSuccess<any>(response)
+    return {
+      id: sectionData.id,
+      sectionKey: sectionData.section_key,
+      content: sectionData.content,
+      pageName: sectionData.page_name,
+      createdAt: sectionData.created_at,
+      updatedAt: sectionData.updated_at,
+    }
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Bulk update about page sections
+ */
+export async function bulkUpdateAboutPageContent(
+  sections: AboutPageContentMap,
+  pageName?: string
+): Promise<HomePageSectionModel[]> {
+  try {
+    const response = await httpClient.post<{ data: any[] }>(
+      ADMIN_ABOUT_PAGE_ENDPOINTS.BULK_UPDATE,
+      {
+        sections,
+        ...(pageName ? { page_name: pageName } : {}),
+      }
+    )
+    
+    const sectionsData = handleSuccess<any>(response)
+    
+    if (!Array.isArray(sectionsData)) {
+      if (sectionsData && typeof sectionsData === 'object' && sectionsData !== null) {
+        const singleSection = {
+          id: sectionsData.id,
+          sectionKey: sectionsData.section_key || sectionsData.sectionKey,
+          content: sectionsData.content,
+          pageName: sectionsData.page_name || sectionsData.pageName,
+          createdAt: sectionsData.created_at || sectionsData.createdAt,
+          updatedAt: sectionsData.updated_at || sectionsData.updatedAt,
+        }
+        return [singleSection]
+      }
+      console.warn('bulkUpdateAboutPageContent: sectionsData is not an array', sectionsData)
+      return []
+    }
+    
+    return mapHomePageSectionsFromApi(sectionsData)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Upload image for about page
+ */
+export async function uploadAboutPageImage(
+  sectionKey: string,
+  image: File,
+  altText?: string,
+  sortOrder?: number,
+  pageName?: string
+): Promise<PageImageModel> {
+  try {
+    const formData = new FormData()
+    formData.append('section_key', sectionKey)
+    formData.append('image', image)
+    if (altText) formData.append('alt_text', altText)
+    if (sortOrder !== undefined) formData.append('sort_order', sortOrder.toString())
+    if (pageName) formData.append('page_name', pageName)
+
+    const response = await httpClient.post<{ data: any }>(
+      ADMIN_ABOUT_PAGE_ENDPOINTS.UPLOAD_IMAGE,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    )
+    const imageData = handleSuccess<any>(response)
+    return mapPageImageFromApi(imageData)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Delete about page image
+ */
+export async function deleteAboutPageImage(imageId: number | string): Promise<void> {
+  try {
+    await httpClient.delete(ADMIN_ABOUT_PAGE_ENDPOINTS.DELETE_IMAGE(imageId))
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// CONTACT PAGE CONTENT
+// ============================================================================
+
+/**
+ * Get all contact page sections and images
+ */
+export async function getContactPageContent(
+  pageName?: string
+): Promise<{ sections: HomePageSectionModel[], images: PageImagesMap }> {
+  try {
+    const response = await httpClient.get<{ data: { sections: any[], images: any } }>(
+      ADMIN_CONTACT_PAGE_ENDPOINTS.LIST,
+      { params: pageName ? { page_name: pageName } : {} }
+    )
+    const data = handleSuccess<{ sections: any[], images: any }>(response)
+    return {
+      sections: mapHomePageSectionsFromApi(data.sections || []),
+      images: Object.keys(data.images || {}).reduce((acc, key) => {
+        acc[key] = mapPageImagesFromApi(data.images[key] || [])
+        return acc
+      }, {} as PageImagesMap),
+    }
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Update single contact page section
+ */
+export async function updateContactPageSection(
+  sectionKey: string,
+  content: string | null,
+  pageName?: string
+): Promise<HomePageSectionModel> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      ADMIN_CONTACT_PAGE_ENDPOINTS.UPDATE(sectionKey),
+      {
+        content,
+        ...(pageName ? { page_name: pageName } : {}),
+      }
+    )
+    const sectionData = handleSuccess<any>(response)
+    return {
+      id: sectionData.id,
+      sectionKey: sectionData.section_key,
+      content: sectionData.content,
+      pageName: sectionData.page_name,
+      createdAt: sectionData.created_at,
+      updatedAt: sectionData.updated_at,
+    }
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Bulk update contact page sections
+ */
+export async function bulkUpdateContactPageContent(
+  sections: ContactPageContentMap,
+  pageName?: string
+): Promise<HomePageSectionModel[]> {
+  try {
+    const response = await httpClient.post<{ data: any[] }>(
+      ADMIN_CONTACT_PAGE_ENDPOINTS.BULK_UPDATE,
+      {
+        sections,
+        ...(pageName ? { page_name: pageName } : {}),
+      }
+    )
+    
+    const sectionsData = handleSuccess<any>(response)
+    
+    if (!Array.isArray(sectionsData)) {
+      if (sectionsData && typeof sectionsData === 'object' && sectionsData !== null) {
+        const singleSection = {
+          id: sectionsData.id,
+          sectionKey: sectionsData.section_key || sectionsData.sectionKey,
+          content: sectionsData.content,
+          pageName: sectionsData.page_name || sectionsData.pageName,
+          createdAt: sectionsData.created_at || sectionsData.createdAt,
+          updatedAt: sectionsData.updated_at || sectionsData.updatedAt,
+        }
+        return [singleSection]
+      }
+      console.warn('bulkUpdateContactPageContent: sectionsData is not an array', sectionsData)
+      return []
+    }
+    
+    return mapHomePageSectionsFromApi(sectionsData)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Upload image for contact page
+ */
+export async function uploadContactPageImage(
+  sectionKey: string,
+  image: File,
+  altText?: string,
+  sortOrder?: number,
+  pageName?: string
+): Promise<PageImageModel> {
+  try {
+    const formData = new FormData()
+    formData.append('section_key', sectionKey)
+    formData.append('image', image)
+    if (altText) formData.append('alt_text', altText)
+    if (sortOrder !== undefined) formData.append('sort_order', sortOrder.toString())
+    if (pageName) formData.append('page_name', pageName)
+
+    const response = await httpClient.post<{ data: any }>(
+      ADMIN_CONTACT_PAGE_ENDPOINTS.UPLOAD_IMAGE,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    )
+    const imageData = handleSuccess<any>(response)
+    return mapPageImageFromApi(imageData)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Delete contact page image
+ */
+export async function deleteContactPageImage(imageId: number | string): Promise<void> {
+  try {
+    await httpClient.delete(ADMIN_CONTACT_PAGE_ENDPOINTS.DELETE_IMAGE(imageId))
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// PRIVACY PAGE CONTENT
+// ============================================================================
+
+/**
+ * Get all privacy page sections
+ */
+export async function getPrivacyPageContent(
+  pageName?: string
+): Promise<HomePageSectionModel[]> {
+  try {
+    const response = await httpClient.get<{ data: any[] }>(
+      ADMIN_PRIVACY_PAGE_ENDPOINTS.LIST,
+      { params: pageName ? { page_name: pageName } : {} }
+    )
+    const sections = handleSuccess<any[]>(response)
+    return mapHomePageSectionsFromApi(sections)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Update single privacy page section
+ */
+export async function updatePrivacyPageContent(
+  sectionKey: string,
+  content: string | null,
+  pageName?: string
+): Promise<HomePageSectionModel> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      ADMIN_PRIVACY_PAGE_ENDPOINTS.UPDATE(sectionKey),
+      {
+        content,
+        ...(pageName ? { page_name: pageName } : {}),
+      }
+    )
+    const sectionData = handleSuccess<any>(response)
+    return {
+      id: sectionData.id,
+      sectionKey: sectionData.section_key,
+      content: sectionData.content,
+      pageName: sectionData.page_name,
+      createdAt: sectionData.created_at,
+      updatedAt: sectionData.updated_at,
+    }
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Bulk update privacy page sections
+ */
+export async function bulkUpdatePrivacyPageContent(
+  sections: Record<string, string | null>,
+  pageName?: string
+): Promise<HomePageSectionModel[]> {
+  try {
+    const response = await httpClient.post<{ data: any[] }>(
+      ADMIN_PRIVACY_PAGE_ENDPOINTS.BULK_UPDATE,
+      {
+        sections,
+        ...(pageName ? { page_name: pageName } : {}),
+      }
+    )
+    
+    const sectionsData = handleSuccess<any>(response)
+    
+    if (!Array.isArray(sectionsData)) {
+      if (sectionsData && typeof sectionsData === 'object' && sectionsData !== null) {
+        const singleSection = {
+          id: sectionsData.id,
+          sectionKey: sectionsData.section_key || sectionsData.sectionKey,
+          content: sectionsData.content,
+          pageName: sectionsData.page_name || sectionsData.pageName,
+          createdAt: sectionsData.created_at || sectionsData.createdAt,
+          updatedAt: sectionsData.updated_at || sectionsData.updatedAt,
+        }
+        return [singleSection]
+      }
+      console.warn('bulkUpdatePrivacyPageContent: sectionsData is not an array', sectionsData)
+      return []
+    }
+    
+    return mapHomePageSectionsFromApi(sectionsData)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// TERMS PAGE CONTENT
+// ============================================================================
+
+/**
+ * Get all terms page sections
+ */
+export async function getTermsPageContent(
+  pageName?: string
+): Promise<HomePageSectionModel[]> {
+  try {
+    const response = await httpClient.get<{ data: any[] }>(
+      ADMIN_TERMS_PAGE_ENDPOINTS.LIST,
+      { params: pageName ? { page_name: pageName } : {} }
+    )
+    const sections = handleSuccess<any[]>(response)
+    return mapHomePageSectionsFromApi(sections)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Update single terms page section
+ */
+export async function updateTermsPageContent(
+  sectionKey: string,
+  content: string | null,
+  pageName?: string
+): Promise<HomePageSectionModel> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      ADMIN_TERMS_PAGE_ENDPOINTS.UPDATE(sectionKey),
+      {
+        content,
+        ...(pageName ? { page_name: pageName } : {}),
+      }
+    )
+    const sectionData = handleSuccess<any>(response)
+    return {
+      id: sectionData.id,
+      sectionKey: sectionData.section_key,
+      content: sectionData.content,
+      pageName: sectionData.page_name,
+      createdAt: sectionData.created_at,
+      updatedAt: sectionData.updated_at,
+    }
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Bulk update terms page sections
+ */
+export async function bulkUpdateTermsPageContent(
+  sections: Record<string, string | null>,
+  pageName?: string
+): Promise<HomePageSectionModel[]> {
+  try {
+    const response = await httpClient.post<{ data: any[] }>(
+      ADMIN_TERMS_PAGE_ENDPOINTS.BULK_UPDATE,
+      {
+        sections,
+        ...(pageName ? { page_name: pageName } : {}),
+      }
+    )
+    
+    const sectionsData = handleSuccess<any>(response)
+    
+    if (!Array.isArray(sectionsData)) {
+      if (sectionsData && typeof sectionsData === 'object' && sectionsData !== null) {
+        const singleSection = {
+          id: sectionsData.id,
+          sectionKey: sectionsData.section_key || sectionsData.sectionKey,
+          content: sectionsData.content,
+          pageName: sectionsData.page_name || sectionsData.pageName,
+          createdAt: sectionsData.created_at || sectionsData.createdAt,
+          updatedAt: sectionsData.updated_at || sectionsData.updatedAt,
+        }
+        return [singleSection]
+      }
+      console.warn('bulkUpdateTermsPageContent: sectionsData is not an array', sectionsData)
       return []
     }
     

@@ -275,6 +275,46 @@ export const ADMIN_HOME_PAGE_ENDPOINTS = {
 } as const
 
 /**
+ * Admin about page content endpoints
+ */
+export const ADMIN_ABOUT_PAGE_ENDPOINTS = {
+  LIST: '/admin/about-page-content',
+  UPDATE: (sectionKey: string) => `/admin/about-page-content/${sectionKey}`,
+  BULK_UPDATE: '/admin/about-page-content/bulk-update',
+  UPLOAD_IMAGE: '/admin/about-page-content/images/upload',
+  DELETE_IMAGE: (imageId: number | string) => `/admin/about-page-content/images/${imageId}`,
+} as const
+
+/**
+ * Admin contact page content endpoints
+ */
+export const ADMIN_CONTACT_PAGE_ENDPOINTS = {
+  LIST: '/admin/contact-page-content',
+  UPDATE: (sectionKey: string) => `/admin/contact-page-content/${sectionKey}`,
+  BULK_UPDATE: '/admin/contact-page-content/bulk-update',
+  UPLOAD_IMAGE: '/admin/contact-page-content/images/upload',
+  DELETE_IMAGE: (imageId: number | string) => `/admin/contact-page-content/images/${imageId}`,
+} as const
+
+/**
+ * Admin privacy page content endpoints
+ */
+export const ADMIN_PRIVACY_PAGE_ENDPOINTS = {
+  LIST: '/admin/privacy-page-content',
+  UPDATE: (sectionKey: string) => `/admin/privacy-page-content/${sectionKey}`,
+  BULK_UPDATE: '/admin/privacy-page-content/bulk-update',
+} as const
+
+/**
+ * Admin terms page content endpoints
+ */
+export const ADMIN_TERMS_PAGE_ENDPOINTS = {
+  LIST: '/admin/terms-page-content',
+  UPDATE: (sectionKey: string) => `/admin/terms-page-content/${sectionKey}`,
+  BULK_UPDATE: '/admin/terms-page-content/bulk-update',
+} as const
+
+/**
  * Public home page content endpoints
  */
 export const PUBLIC_HOME_PAGE_ENDPOINTS = {

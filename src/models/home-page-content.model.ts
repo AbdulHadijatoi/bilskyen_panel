@@ -48,3 +48,67 @@ export function mapHomePageSectionsFromApi(data: any[]): HomePageSectionModel[] 
 export interface HomePageContentMap {
   [sectionKey: string]: string | null
 }
+
+/**
+ * Page image model interface
+ */
+export interface PageImageModel {
+  id: number
+  pageName: string
+  sectionKey: string
+  imagePath: string
+  imageUrl: string
+  altText: string | null
+  sortOrder: number
+  createdAt: string
+  updatedAt: string
+}
+
+/**
+ * Map API response (snake_case) to PageImageModel (camelCase)
+ */
+export function mapPageImageFromApi(data: any): PageImageModel {
+  return {
+    id: data.id,
+    pageName: data.page_name,
+    sectionKey: data.section_key,
+    imagePath: data.image_path,
+    imageUrl: data.image_url,
+    altText: data.alt_text,
+    sortOrder: data.sort_order,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+  }
+}
+
+/**
+ * Map array of API responses to PageImageModel array
+ */
+export function mapPageImagesFromApi(data: any[]): PageImageModel[] {
+  if (!Array.isArray(data)) {
+    console.error('mapPageImagesFromApi: data is not an array', data)
+    return []
+  }
+  return data.map(mapPageImageFromApi)
+}
+
+/**
+ * Page images map (section_key => PageImageModel[])
+ */
+export interface PageImagesMap {
+  [sectionKey: string]: PageImageModel[]
+}
+
+/**
+ * About page content map (section_key => content)
+ */
+export interface AboutPageContentMap {
+  [sectionKey: string]: string | null
+}
+
+/**
+ * Contact page content map (section_key => content)
+ */
+export interface ContactPageContentMap {
+  [sectionKey: string]: string | null
+}

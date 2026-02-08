@@ -82,6 +82,26 @@ export const adminSidebarSections: SidebarSection[] = [
             url: `${ADMIN_ROUTE_BASE}/pages/home-page-content`,
             permission: 'admin.pages.update',
           },
+          {
+            title: 'About Page Content',
+            url: `${ADMIN_ROUTE_BASE}/pages/about-page-content`,
+            permission: 'admin.pages.update',
+          },
+          {
+            title: 'Contact Page Content',
+            url: `${ADMIN_ROUTE_BASE}/pages/contact-page-content`,
+            permission: 'admin.pages.update',
+          },
+          {
+            title: 'Privacy Page Content',
+            url: `${ADMIN_ROUTE_BASE}/pages/privacy-page-content`,
+            permission: 'admin.pages.update',
+          },
+          {
+            title: 'Terms Page Content',
+            url: `${ADMIN_ROUTE_BASE}/pages/terms-page-content`,
+            permission: 'admin.pages.update',
+          },
         ],
       },
       {
