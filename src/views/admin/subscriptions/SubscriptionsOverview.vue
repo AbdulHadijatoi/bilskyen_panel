@@ -152,11 +152,11 @@
                   <v-list-item-title>All dealers</v-list-item-title>
                 </v-list-item>
                 <v-list-item
-                  v-for="dealer in dealersList"
+                  v-for="dealer in dealersForCreate"
                   :key="dealer.id"
                   @click="filters.dealer_id = dealer.id; loadSubscriptions()"
                 >
-                  <v-list-item-title>{{ getDealerTitle(dealer) }}</v-list-item-title>
+                  <v-list-item-title>{{ dealer.name }}</v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-menu>
@@ -410,16 +410,30 @@
           <v-form ref="createFormRef" v-model="createFormValid">
             <v-autocomplete
               v-model="newSubscription.dealer_id"
-              :items="dealersList"
-              :item-title="getDealerTitle"
+              :items="dealersForCreate"
+              item-title="name"
               item-value="id"
               label="Dealer *"
               variant="outlined"
               :rules="[v => !!v || 'Required']"
               class="mb-4"
-              :loading="loadingDealers"
+              :loading="loadingDealersForCreate"
               density="compact"
-            />
+              clearable
+            >
+              <template #item="{ props, item }">
+                <v-list-item v-bind="props" :title="undefined">
+                  <v-list-item-title>{{ item.raw.name }}</v-list-item-title>
+                  <v-list-item-subtitle v-if="item.raw.email" class="text-medium-emphasis">
+                    {{ item.raw.email }}
+                  </v-list-item-subtitle>
+                </v-list-item>
+              </template>
+              <template #selection="{ item }">
+                <span>{{ item.raw.name }}</span>
+                <span v-if="item.raw.email" class="text-medium-emphasis text-caption ml-1">({{ item.raw.email }})</span>
+              </template>
+            </v-autocomplete>
             <v-autocomplete
               v-model="newSubscription.plan_id"
               :items="plansList"
@@ -497,6 +511,26 @@
             size="small"
           >
             Create
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Override existing subscription confirmation -->
+    <v-dialog v-model="showOverrideConfirmDialog" max-width="500" persistent>
+      <v-card>
+        <v-card-title class="d-flex align-center">
+          <v-icon color="warning" class="mr-2">mdi-alert</v-icon>
+          Replace existing subscription?
+        </v-card-title>
+        <v-card-text>
+          This dealer already has an existing subscription. Creating this new subscription will replace it and the previous subscription will be removed. Do you want to continue?
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn variant="text" @click="showOverrideConfirmDialog = false">Cancel</v-btn>
+          <v-btn color="primary" @click="confirmOverrideAndCreate" :loading="creating">
+            Continue
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -581,7 +615,8 @@ import {
   updateSubscription,
   cancelSubscription,
   renewSubscription,
-  getDealers,
+  getDealersMinimal,
+  getDealerSubscriptions,
   getPlans,
   type CreateSubscriptionData,
   type UpdateSubscriptionData,
@@ -593,7 +628,7 @@ import type { ApiErrorModel } from '@/models/api-error.model'
 const router = useRouter()
 
 const loading = ref(false)
-const loadingDealers = ref(false)
+const loadingDealersForCreate = ref(false)
 const loadingPlans = ref(false)
 const loadingStats = ref(false)
 const error = ref<string | null>(null)
@@ -611,9 +646,8 @@ const subscriptions = ref<PaginationModel<SubscriptionModel>>({
 })
 const allSubscriptionsForStats = ref<SubscriptionModel[]>([])
 const currentPage = ref(1)
-const dealers = ref<any[]>([])
+const dealersForCreate = ref<Array<{ id: number; name: string; email?: string }>>([])
 const plans = ref<any[]>([])
-const dealersList = computed(() => Array.isArray(dealers.value) ? dealers.value : [])
 const plansList = computed(() => Array.isArray(plans.value) ? plans.value : [])
 const showCreateDialog = ref(false)
 const showEditDialog = ref(false)
@@ -641,8 +675,8 @@ const billingCycleOptions = [
   { label: 'Monthly', value: 'monthly' },
   { label: 'Yearly', value: 'yearly' }
 ]
-const newSubscription = ref<CreateSubscriptionData>({
-  dealer_id: 0,
+const newSubscription = ref<Omit<CreateSubscriptionData, 'dealer_id'> & { dealer_id: number | null }>({
+  dealer_id: null,
   plan_id: 0,
   subscription_status_id: 2,
   starts_at: new Date().toISOString().slice(0, 16),
@@ -650,6 +684,7 @@ const newSubscription = ref<CreateSubscriptionData>({
   auto_renew: false,
   billing_cycle: 'monthly'
 })
+const showOverrideConfirmDialog = ref(false)
 
 const searchQuery = ref('')
 const showMoreFilters = ref(false)
@@ -719,13 +754,9 @@ const getStatusIcon = (statusId: number) => {
   return icons[statusId] || 'mdi-help-circle'
 }
 
-const getDealerTitle = (item: any) => {
-  return `${item.cvr || 'N/A'} - ${item.city || 'N/A'}`
-}
-
 const getDealerName = (dealerId: number) => {
-  const dealer = dealers.value.find(d => d.id === dealerId)
-  return dealer ? `${dealer.cvr || 'N/A'} - ${dealer.city || 'N/A'}` : `Dealer #${dealerId}`
+  const dealer = dealersForCreate.value.find(d => d.id === dealerId)
+  return dealer?.name ?? `Dealer #${dealerId}`
 }
 
 const getPlanName = (planId: number) => {
@@ -805,16 +836,16 @@ const loadStats = async () => {
   }
 }
 
-const loadDealers = async () => {
+const loadDealersForCreate = async () => {
   try {
-    loadingDealers.value = true
-    const response = await getDealers({ limit: 100 })
-    dealers.value = Array.isArray(response?.docs) ? response.docs : (Array.isArray(response) ? response : [])
+    loadingDealersForCreate.value = true
+    const list = await getDealersMinimal()
+    dealersForCreate.value = list
   } catch (err) {
     console.error('Failed to load dealers:', err)
-    dealers.value = []
+    dealersForCreate.value = []
   } finally {
-    loadingDealers.value = false
+    loadingDealersForCreate.value = false
   }
 }
 
@@ -839,9 +870,9 @@ const loadPlans = async () => {
   }
 }
 
-const openCreateDialog = () => {
+const openCreateDialog = async () => {
   newSubscription.value = {
-    dealer_id: 0,
+    dealer_id: null,
     plan_id: 0,
     subscription_status_id: 2,
     starts_at: new Date().toISOString().slice(0, 16),
@@ -850,6 +881,7 @@ const openCreateDialog = () => {
     billing_cycle: 'monthly'
   }
   showCreateDialog.value = true
+  await loadDealersForCreate()
 }
 
 const closeCreateDialog = () => {
@@ -857,18 +889,41 @@ const closeCreateDialog = () => {
   createFormRef.value?.reset()
 }
 
-const createSubscription = async () => {
-  if (!createFormValid.value) return
+const doCreateSubscription = async () => {
+  const payload: CreateSubscriptionData = {
+    ...newSubscription.value,
+    dealer_id: newSubscription.value.dealer_id!
+  }
   try {
     creating.value = true
-    await createSubscriptionApi(newSubscription.value)
+    await createSubscriptionApi(payload)
     showCreateDialog.value = false
+    showOverrideConfirmDialog.value = false
     await Promise.all([loadSubscriptions(), loadStats()])
   } catch (err) {
     error.value = (err as ApiErrorModel).message || 'Failed to create subscription'
   } finally {
     creating.value = false
   }
+}
+
+const createSubscription = async () => {
+  if (!createFormValid.value || newSubscription.value.dealer_id == null) return
+  const dealerId = newSubscription.value.dealer_id
+  try {
+    const existing = await getDealerSubscriptions(dealerId)
+    if (existing.length > 0) {
+      showOverrideConfirmDialog.value = true
+      return
+    }
+  } catch {
+    // proceed with create if check fails
+  }
+  await doCreateSubscription()
+}
+
+const confirmOverrideAndCreate = () => {
+  doCreateSubscription()
 }
 
 const viewSubscription = (event: any, row: { item: SubscriptionModel }) => {
@@ -921,7 +976,7 @@ const renewSubscriptionAction = async (id: number | string) => {
 }
 
 onMounted(async () => {
-  await Promise.all([loadSubscriptions(), loadDealers(), loadPlans(), loadStats()])
+  await Promise.all([loadSubscriptions(), loadDealersForCreate(), loadPlans(), loadStats()])
 })
 </script>
 

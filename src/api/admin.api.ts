@@ -338,6 +338,26 @@ export async function getDealers(params?: PaginationParams & {
   }
 }
 
+export interface DealerMinimalItem {
+  id: number
+  name: string
+  email?: string
+}
+
+/**
+ * Get dealers for dropdowns (id and name only)
+ */
+export async function getDealersMinimal(): Promise<DealerMinimalItem[]> {
+  try {
+    const response = await httpClient.get<{ data: DealerMinimalItem[] }>(
+      ADMIN_DEALER_ENDPOINTS.LIST_MINIMAL
+    )
+    return handleSuccess<DealerMinimalItem[]>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
 /**
  * Get dealer by ID
  */

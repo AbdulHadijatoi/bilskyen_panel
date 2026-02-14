@@ -187,6 +187,7 @@ export const ADMIN_USER_ENDPOINTS = {
  */
 export const ADMIN_DEALER_ENDPOINTS = {
   LIST: '/admin/dealers',
+  LIST_MINIMAL: '/admin/dealers/list',
   SHOW: (id: number | string) => `/admin/dealers/${id}`,
   CREATE: '/admin/dealers',
   UPDATE: (id: number | string) => `/admin/dealers/${id}`,

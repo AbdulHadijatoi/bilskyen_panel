@@ -365,7 +365,7 @@
             />
             <v-select
               v-model="newUser.role_id"
-              :items="roles"
+              :items="createDialogRoles"
               item-title="name"
               item-value="id"
               label="User Role"
@@ -479,6 +479,12 @@ const statusFilterOptions = [
   { label: 'All Statuses', value: null },
   ...statusOptions,
 ]
+
+/** Roles shown in the create-user dialog: only seller and dealer */
+const createDialogRoles = computed(() => {
+  const allowed = ['seller', 'dealer']
+  return roles.value.filter(r => allowed.includes((r.name || '').toLowerCase()))
+})
 
 const roleFilterOptions = computed(() => {
   const options: Array<{ label: string; value: string | null }> = [{ label: 'All Roles', value: null }]
