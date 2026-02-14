@@ -591,6 +591,7 @@ const createUser = async () => {
 }
 
 const cancelCreate = () => {
+  showCreateDialog.value = false
   newUser.value = {
     name: '',
     email: '',
