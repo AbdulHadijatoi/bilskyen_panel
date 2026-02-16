@@ -1108,6 +1108,11 @@ export interface SubscriptionModel {
     cvr: string
     city?: string
     address?: string
+    owner?: {
+      id: number
+      name: string
+      email: string
+    }
   }
   plan?: {
     id: number

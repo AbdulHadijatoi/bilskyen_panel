@@ -289,8 +289,8 @@
                 <v-icon color="white" size="18">mdi-store</v-icon>
               </v-avatar>
               <div>
-                <div class="text-body-2 font-weight-medium">{{ item.dealer?.cvr || `Dealer #${item.dealer_id}` }}</div>
-                <div class="text-caption text-medium-emphasis">{{ item.dealer?.city || 'N/A' }}</div>
+                <div class="text-body-2 font-weight-medium">{{ item.dealer?.owner?.name || item.dealer?.cvr || `Dealer #${item.dealer_id}` }}</div>
+                <div class="text-caption text-medium-emphasis">{{ item.dealer?.owner?.email || item.dealer?.city || 'N/A' }}</div>
               </div>
             </div>
           </template>
