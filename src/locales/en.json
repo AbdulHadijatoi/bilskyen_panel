@@ -63,6 +63,41 @@
     "allStatuses": "All statuses",
     "today": "Today"
   },
+  "auth": {
+    "login": {
+      "title": "Login into your account",
+      "subtitle": "Enter your email and password to login to your account.",
+      "errorTitle": "Login Error",
+      "email": "Email",
+      "emailPlaceholder": "johndoe@mail.com",
+      "password": "Password",
+      "passwordPlaceholder": "Your Password",
+      "forgotPassword": "Forgot password?",
+      "loggingIn": "Logging in...",
+      "login": "Login",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up",
+      "staffLogin": "Staff login",
+      "staffMember": "Staff member?",
+      "fillAllFields": "Please fill in all fields.",
+      "validEmail": "Please enter a valid email address.",
+      "failedLogin": "Failed to login."
+    },
+    "staffLogin": {
+      "title": "Staff Login",
+      "subtitle": "Enter your username and password to login to your staff account.",
+      "errorTitle": "Login Error",
+      "username": "Username",
+      "usernamePlaceholder": "staff_1_001",
+      "password": "Password",
+      "passwordPlaceholder": "Your Password",
+      "loggingIn": "Logging in...",
+      "login": "Login",
+      "dealerLoginInstead": "Dealer login instead?",
+      "fillAllFields": "Please fill in all fields.",
+      "failedLogin": "Failed to login."
+    }
+  },
   "admin": {
     "nav": {
       "dashboard": "Dashboard",

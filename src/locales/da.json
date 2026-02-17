@@ -63,6 +63,41 @@
     "allStatuses": "Alle status",
     "today": "I dag"
   },
+  "auth": {
+    "login": {
+      "title": "Log ind på din konto",
+      "subtitle": "Indtast din e-mail og adgangskode for at logge ind.",
+      "errorTitle": "Loginfejl",
+      "email": "E-mail",
+      "emailPlaceholder": "johndoe@mail.com",
+      "password": "Adgangskode",
+      "passwordPlaceholder": "Din adgangskode",
+      "forgotPassword": "Glemt adgangskode?",
+      "loggingIn": "Logger ind...",
+      "login": "Log ind",
+      "noAccount": "Har du ikke en konto?",
+      "signUp": "Tilmeld dig",
+      "staffLogin": "Medarbejderlogin",
+      "staffMember": "Medarbejder?",
+      "fillAllFields": "Udfyld venligst alle felter.",
+      "validEmail": "Indtast en gyldig e-mailadresse.",
+      "failedLogin": "Kunne ikke logge ind."
+    },
+    "staffLogin": {
+      "title": "Medarbejderlogin",
+      "subtitle": "Indtast dit brugernavn og adgangskode for at logge ind på din medarbejderkonto.",
+      "errorTitle": "Loginfejl",
+      "username": "Brugernavn",
+      "usernamePlaceholder": "staff_1_001",
+      "password": "Adgangskode",
+      "passwordPlaceholder": "Din adgangskode",
+      "loggingIn": "Logger ind...",
+      "login": "Log ind",
+      "dealerLoginInstead": "Forhandlerlogin i stedet?",
+      "fillAllFields": "Udfyld venligst alle felter.",
+      "failedLogin": "Kunne ikke logge ind."
+    }
+  },
   "admin": {
     "nav": {
       "dashboard": "Dashboard",

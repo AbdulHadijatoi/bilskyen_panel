@@ -3,10 +3,10 @@
     <div class="flex h-full w-full flex-col items-center justify-center gap-4">
       <div class="flex w-full flex-col space-y-2">
         <h1 class="text-2xl font-semibold tracking-tight">
-          Staff Login
+          {{ t('auth.staffLogin.title') }}
         </h1>
         <p class="text-sm text-muted-foreground">
-          Enter your username and password to login to your staff account.
+          {{ t('auth.staffLogin.subtitle') }}
         </p>
       </div>
 
@@ -32,7 +32,7 @@
             <line x1="12" x2="12.01" y1="16" y2="16"></line>
           </svg>
           <div>
-            <h3 class="font-semibold">Login Error</h3>
+            <h3 class="font-semibold">{{ t('auth.staffLogin.errorTitle') }}</h3>
             <p class="mt-1 text-sm">{{ error }}</p>
           </div>
         </div>
@@ -44,13 +44,13 @@
             for="username"
             class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
-            Username
+            {{ t('auth.staffLogin.username') }}
           </label>
           <input
             id="username"
             v-model="username"
             type="text"
-            placeholder="staff_1_001"
+            :placeholder="t('auth.staffLogin.usernamePlaceholder')"
             autocomplete="username"
             tabindex="1"
             required
@@ -66,7 +66,7 @@
               for="password"
               class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
-              Password
+              {{ t('auth.staffLogin.password') }}
             </label>
           </div>
           <div class="relative">
@@ -74,7 +74,7 @@
               id="password"
               v-model="password"
               :type="showPassword ? 'text' : 'password'"
-              placeholder="Your Password"
+              :placeholder="t('auth.staffLogin.passwordPlaceholder')"
               autocomplete="current-password"
               tabindex="2"
               required
@@ -135,13 +135,13 @@
           :disabled="loading"
           class="inline-flex h-10 w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
         >
-          {{ loading ? 'Logging in...' : 'Login' }}
+          {{ loading ? t('auth.staffLogin.loggingIn') : t('auth.staffLogin.login') }}
         </button>
       </form>
 
       <div class="mt-4 text-center text-sm">
         <router-link to="/auth/login" class="text-muted-foreground hover:text-foreground underline underline-offset-4">
-          Dealer login instead?
+          {{ t('auth.staffLogin.dealerLoginInstead') }}
         </router-link>
       </div>
     </div>
@@ -151,12 +151,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { staffLogin } from '@/api/auth.api'
 import { decryptUrlParam } from '@/utils/urlEncryption'
 import AuthLayout from '@/components/auth/AuthLayout.vue'
 
 const router = useRouter()
 const route = useRoute()
+const { t } = useI18n()
 
 const username = ref('')
 const password = ref('')
@@ -171,7 +173,7 @@ const togglePassword = () => {
 const handleSubmit = async () => {
   // Basic validation
   if (!username.value || !password.value) {
-    error.value = 'Please fill in all fields.'
+    error.value = t('auth.staffLogin.fillAllFields')
     return
   }
 
@@ -204,9 +206,9 @@ const handleSubmit = async () => {
     if (err?.errors) {
       // Handle validation errors
       const errorMessages = Object.values(err.errors).flat()
-      error.value = errorMessages.join(', ') || err.message || 'Failed to login.'
+      error.value = errorMessages.join(', ') || err.message || t('auth.staffLogin.failedLogin')
     } else {
-      error.value = err.message || 'Failed to login.'
+      error.value = err.message || t('auth.staffLogin.failedLogin')
     }
   } finally {
     loading.value = false

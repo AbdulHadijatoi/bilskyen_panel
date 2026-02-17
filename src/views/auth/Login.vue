@@ -3,10 +3,10 @@
     <div class="flex h-full w-full flex-col items-center justify-center gap-4">
       <div class="flex w-full flex-col space-y-2">
         <h1 class="text-2xl font-semibold tracking-tight">
-          Login into your account
+          {{ t('auth.login.title') }}
         </h1>
         <p class="text-sm text-muted-foreground">
-          Enter your email and password to login to your account.
+          {{ t('auth.login.subtitle') }}
         </p>
       </div>
 
@@ -32,7 +32,7 @@
             <line x1="12" x2="12.01" y1="16" y2="16"></line>
           </svg>
           <div>
-            <h3 class="font-semibold">Login Error</h3>
+            <h3 class="font-semibold">{{ t('auth.login.errorTitle') }}</h3>
             <p class="mt-1 text-sm">{{ error }}</p>
           </div>
         </div>
@@ -44,13 +44,13 @@
             for="email"
             class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
-            Email
+            {{ t('auth.login.email') }}
           </label>
           <input
             id="email"
             v-model="email"
             type="email"
-            placeholder="johndoe@mail.com"
+            :placeholder="t('auth.login.emailPlaceholder')"
             autocomplete="email"
             tabindex="1"
             required
@@ -66,7 +66,7 @@
               for="password"
               class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
-              Password
+              {{ t('auth.login.password') }}
             </label>
           </div>
           <div class="relative">
@@ -74,7 +74,7 @@
               id="password"
               v-model="password"
               :type="showPassword ? 'text' : 'password'"
-              placeholder="Your Password"
+              :placeholder="t('auth.login.passwordPlaceholder')"
               autocomplete="current-password"
               tabindex="2"
               required
@@ -135,7 +135,7 @@
             to="/auth/forgot-password"
             class="text-muted-foreground hover:text-foreground underline underline-offset-4"
           >
-            Forgot password?
+            {{ t('auth.login.forgotPassword') }}
           </router-link>
         </div>
 
@@ -144,14 +144,14 @@
           :disabled="loading"
           class="inline-flex h-10 w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
         >
-          {{ loading ? 'Logging in...' : 'Login' }}
+          {{ loading ? t('auth.login.loggingIn') : t('auth.login.login') }}
         </button>
       </form>
 
       <div class="mt-4 text-center text-sm space-y-2">
         <div>
-          Don't have an account?
-          <router-link to="/auth/register" class="underline">Sign up</router-link>
+          {{ t('auth.login.noAccount') }}
+          <router-link to="/auth/register" class="underline">{{ t('auth.login.signUp') }}</router-link>
         </div>
         <!-- Staff login link - hidden for now -->
         <!-- <div>
@@ -166,6 +166,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { login, type ApiError } from '@/services/auth'
 import { decryptUrlParam } from '@/utils/urlEncryption'
 import { isAdmin } from '@/utils/permissions'
@@ -173,6 +174,7 @@ import AuthLayout from '@/components/auth/AuthLayout.vue'
 
 const router = useRouter()
 const route = useRoute()
+const { t } = useI18n()
 
 const email = ref('')
 const password = ref('')
@@ -187,12 +189,12 @@ const togglePassword = () => {
 const handleSubmit = async () => {
   // Basic validation
   if (!email.value || !password.value) {
-    error.value = 'Please fill in all fields.'
+    error.value = t('auth.login.fillAllFields')
     return
   }
 
   if (!/.+@.+\..+/.test(email.value)) {
-    error.value = 'Please enter a valid email address.'
+    error.value = t('auth.login.validEmail')
     return
   }
 
@@ -230,9 +232,9 @@ const handleSubmit = async () => {
     if (apiError.errors) {
       // Handle validation errors
       const errorMessages = Object.values(apiError.errors).flat()
-      error.value = errorMessages.join(', ') || apiError.message || 'Failed to login.'
+      error.value = errorMessages.join(', ') || apiError.message || t('auth.login.failedLogin')
     } else {
-      error.value = apiError.message || 'Failed to login.'
+      error.value = apiError.message || t('auth.login.failedLogin')
     }
   } finally {
     loading.value = false
