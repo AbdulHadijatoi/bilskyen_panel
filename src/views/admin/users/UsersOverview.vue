@@ -375,6 +375,21 @@
               :loading="loadingRoles"
               :rules="[v => !!v || 'Role is required']"
             />
+            <v-file-input
+              v-if="isDealerRoleInCreate"
+              v-model="newUserLogoFile"
+              label="Dealer logo (optional)"
+              variant="outlined"
+              density="comfortable"
+              prepend-inner-icon="mdi-image"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              clearable
+              show-size
+              class="mt-3"
+              :rules="[
+                (files: File[] | null) => !files?.length || (files[0] && files[0].size <= 2 * 1024 * 1024) || 'Logo must be 2MB or less'
+              ]"
+            />
           </v-form>
         </v-card-text>
         <v-card-actions class="pa-4">
@@ -470,6 +485,7 @@ const newUser = ref<CreateUserData>({
   status_id: 1, // Default to ACTIVE
   role_id: 0,
 })
+const newUserLogoFile = ref<File[] | null>(null)
 
 const statusOptions = [
   { label: 'Active', value: 1 },
@@ -486,6 +502,11 @@ const statusFilterOptions = [
 const createDialogRoles = computed(() => {
   const allowed = ['seller', 'dealer']
   return roles.value.filter(r => allowed.includes((r.name || '').toLowerCase()))
+})
+
+const isDealerRoleInCreate = computed(() => {
+  const role = createDialogRoles.value.find(r => r.id === newUser.value.role_id)
+  return (role?.name || '').toLowerCase() === 'dealer'
 })
 
 const roleFilterOptions = computed(() => {
@@ -581,7 +602,8 @@ const createUser = async () => {
   try {
     creating.value = true
     error.value = null
-    await createUserApi(newUser.value)
+    const logoFile = isDealerRoleInCreate.value && newUserLogoFile.value?.[0] ? newUserLogoFile.value[0] : null
+    await createUserApi(newUser.value, undefined, logoFile ?? undefined)
     showCreateDialog.value = false
     cancelCreate()
     await loadUsers()
@@ -602,6 +624,7 @@ const cancelCreate = () => {
     status_id: 1,
     role_id: 0,
   }
+  newUserLogoFile.value = null
   if (createFormRef.value) {
     createFormRef.value.resetValidation()
   }

@@ -111,11 +111,13 @@ export interface CreateUserData {
 }
 
 /**
- * Create user (with idempotency)
+ * Create user (with idempotency).
+ * If logoFile is provided (for dealer role), sends multipart/form-data.
  */
 export async function createUser(
   data: CreateUserData,
-  idempotencyKey?: string
+  idempotencyKey?: string,
+  logoFile?: File | null
 ): Promise<UserModel> {
   try {
     const headers: Record<string, string> = {}
@@ -125,9 +127,22 @@ export async function createUser(
       headers['Idempotency-Key'] = getIdempotencyKey()
     }
 
+    let body: FormData | CreateUserData = data
+    if (logoFile) {
+      const formData = new FormData()
+      formData.append('name', data.name)
+      formData.append('email', data.email)
+      formData.append('password', data.password)
+      formData.append('status_id', String(data.status_id))
+      formData.append('role_id', String(data.role_id))
+      if (data.phone) formData.append('phone', data.phone)
+      formData.append('logo', logoFile)
+      body = formData
+    }
+
     const response = await httpClient.post<{ data: any }>(
       ADMIN_USER_ENDPOINTS.CREATE,
-      data,
+      body,
       { headers }
     )
     const userData = handleSuccess<any>(response)

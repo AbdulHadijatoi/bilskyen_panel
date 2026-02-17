@@ -117,6 +117,7 @@ export const DEALER_SAVED_SEARCH_ENDPOINTS = {
 export const DEALER_PROFILE_ENDPOINTS = {
   SHOW: '/dealer/profile',
   UPDATE: '/dealer/profile/update',
+  LOGO: '/dealer/profile/logo',
 } as const
 
 /**

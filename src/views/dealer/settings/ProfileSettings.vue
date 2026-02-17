@@ -105,6 +105,59 @@
 
           <v-divider class="my-6" />
 
+          <!-- Dealer logo -->
+          <div class="mb-6">
+            <h3 class="text-h6 font-weight-semibold mb-1">
+              <v-icon size="20" class="mr-2">mdi-image</v-icon>
+              Dealer logo
+            </h3>
+            <p class="text-body-2 text-medium-emphasis mb-4">
+              Upload or update your dealer logo. Used on your public dealer page.
+            </p>
+            <div class="d-flex align-center gap-4 flex-wrap">
+              <div class="logo-preview rounded overflow-hidden" style="width: 100px; height: 100px; background: var(--v-border-color); flex-shrink: 0;">
+                <img
+                  v-if="profile?.logo"
+                  :src="profile.logo"
+                  alt="Dealer logo"
+                  class="w-100 h-100 object-fit-cover"
+                />
+                <div v-else class="w-100 h-100 d-flex align-center justify-center text-medium-emphasis">
+                  <v-icon size="40">mdi-storefront</v-icon>
+                </div>
+              </div>
+              <div class="flex-grow-1" style="min-width: 200px;">
+                <v-file-input
+                  v-model="logoFile"
+                  label="Choose logo image"
+                  variant="outlined"
+                  density="compact"
+                  prepend-inner-icon="mdi-upload"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  hide-details
+                  show-size
+                  clearable
+                  @update:model-value="onLogoFileSelected"
+                />
+                <v-btn
+                  v-if="logoFile?.length"
+                  color="primary"
+                  size="small"
+                  class="mt-2"
+                  :loading="uploadingLogo"
+                  @click="uploadLogo"
+                >
+                  Upload logo
+                </v-btn>
+              </div>
+            </div>
+            <v-alert v-if="logoUploadError" type="error" variant="tonal" density="compact" class="mt-2" closable @click:close="logoUploadError = null">
+              {{ logoUploadError }}
+            </v-alert>
+          </div>
+
+          <v-divider class="my-6" />
+
           <div class="mb-6">
             <h3 class="text-h6 font-weight-semibold mb-1">
               <v-icon size="20" class="mr-2">mdi-office-building</v-icon>
@@ -296,7 +349,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { getProfile, updateProfile, type UpdateProfileData } from '@/api/dealer.api'
+import { getProfile, updateProfile, uploadLogo as uploadLogoApi, type UpdateProfileData } from '@/api/dealer.api'
 import { getCurrentUser } from '@/api/auth.api'
 import { useAuthStore } from '@/stores/auth'
 import type { DealerModel } from '@/models/dealer.model'
@@ -315,6 +368,9 @@ const submitError = ref<string | null>(null)
 const validationErrors = ref<Record<string, string[]>>({})
 const showSuccess = ref(false)
 const profile = ref<DealerModel | null>(null)
+const logoFile = ref<File[] | null>(null)
+const uploadingLogo = ref(false)
+const logoUploadError = ref<string | null>(null)
 
 // Form data
 const form = reactive<UpdateProfileData>({
@@ -480,6 +536,32 @@ const handleSubmit = async () => {
     }
   } finally {
     submitting.value = false
+  }
+}
+
+function onLogoFileSelected() {
+  logoUploadError.value = null
+}
+
+async function uploadLogo() {
+  const file = logoFile.value?.[0]
+  if (!file) return
+  if (file.size > 2 * 1024 * 1024) {
+    logoUploadError.value = 'Logo must be 2MB or less'
+    return
+  }
+  try {
+    uploadingLogo.value = true
+    logoUploadError.value = null
+    const updated = await uploadLogoApi(file)
+    profile.value = updated
+    logoFile.value = null
+    showSuccess.value = true
+    setTimeout(() => { showSuccess.value = false }, 3000)
+  } catch (err: any) {
+    logoUploadError.value = err?.message || 'Failed to upload logo'
+  } finally {
+    uploadingLogo.value = false
   }
 }
 

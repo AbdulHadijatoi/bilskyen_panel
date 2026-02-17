@@ -128,7 +128,7 @@ export function mapDealerFromApi(data: any): DealerModel {
     countryCode: data.country_code,
     cvr: data.cvr,
     website: data.website,
-    logo: data.logo,
+    logo: data.logo_url ?? data.logo,
     description: data.description,
     subscriptionId: data.subscription_id,
     subscriptionStatus: data.subscription_status,

@@ -960,6 +960,29 @@ export async function updateProfile(data: UpdateProfileData): Promise<DealerMode
   }
 }
 
+/**
+ * Upload dealer logo
+ */
+export async function uploadLogo(file: File): Promise<DealerModel> {
+  try {
+    const formData = new FormData()
+    formData.append('logo', file)
+    const response = await httpClient.post<{ data: any }>(
+      DEALER_PROFILE_ENDPOINTS.LOGO,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    )
+    const dealerData = handleSuccess<any>(response)
+    return mapDealerFromApi(dealerData)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
 // ============================================================================
 // STAFF
 // ============================================================================
