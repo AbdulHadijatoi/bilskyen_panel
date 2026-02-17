@@ -3,9 +3,9 @@
     <!-- Header with Actions -->
     <div class="d-flex justify-space-between align-center flex-wrap mb-4">
       <div>
-        <h2 class="text-h5 font-weight-bold mb-1">Add Vehicle</h2>
+        <h2 class="text-h5 font-weight-bold mb-1">{{ t('dealer.views.addVehicle.title') }}</h2>
         <p class="text-body-2 text-medium-emphasis mb-0">
-          Complete all tabs to add a new vehicle to your inventory
+          {{ t('dealer.views.addVehicle.subtitle') }}
         </p>
       </div>
       <div class="d-flex align-center gap-2">
@@ -16,7 +16,7 @@
           variant="tonal"
           prepend-icon="mdi-content-save"
         >
-          Draft saved
+          {{ t('dealer.views.addVehicle.draftSaved') }}
         </v-chip>
       </div>
     </div>
@@ -1091,7 +1091,7 @@
             @click="submitForm"
           >
             <v-icon start>{{ submitting ? 'mdi-loading' : 'mdi-check-circle' }}</v-icon>
-            {{ submitting ? 'Saving...' : 'Save Vehicle' }}
+            {{ submitting ? t('dealer.views.addVehicle.saving') : t('dealer.views.addVehicle.saveVehicle') }}
           </v-btn>
         </div>
       </div>
@@ -1110,7 +1110,7 @@
     >
       {{ snackbar.message }}
       <template v-slot:actions>
-        <v-btn variant="text" @click="snackbar.show = false">Close</v-btn>
+        <v-btn variant="text" @click="snackbar.show = false">{{ t('dealer.views.addVehicle.close') }}</v-btn>
       </template>
     </v-snackbar>
   </v-container>
@@ -1119,12 +1119,14 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { createVehicle, createVehicleDraft, updateVehicle, getLookupConstants, lookupVehicleByRegistration } from '@/api/dealer.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import type { VehicleModel } from '@/models/vehicle.model'
 import MonthYearPicker from '@/components/ui/MonthYearPicker.vue'
 
 const router = useRouter()
+const { t } = useI18n()
 
 // Wizard state
 const currentStep = ref(0)
@@ -1553,7 +1555,7 @@ const rules = {
 // Methods
 const performLookup = async () => {
   if (!lookupForm.value.registrationNumber) {
-    lookupError.value = 'Please enter a license plate number'
+    lookupError.value = t('dealer.views.addVehicle.licensePlateRequired')
     return
   }
 
@@ -1780,7 +1782,7 @@ const performLookup = async () => {
   } catch (error: any) {
     // Clear success flag on error
     lookupSuccess.value = false
-    lookupError.value = error.response?.data?.message || error.message || 'Failed to fetch vehicle data. Please check the license plate and try again.'
+    lookupError.value = error.response?.data?.message || error.message || t('dealer.views.addVehicle.failedFetchVehicleData')
   } finally {
     lookupLoading.value = false
   }
@@ -2292,7 +2294,7 @@ const saveAsDraft = async () => {
   } catch (error: any) {
     console.error('Failed to save draft:', error)
     const apiError = error as ApiErrorModel
-    const errorMessage = apiError.message || 'Failed to save draft. Please try again.'
+    const errorMessage = apiError.message || t('dealer.views.addVehicle.failedSaveDraft')
     submitError.value = errorMessage
     showSnackbar(errorMessage, 'error')
     draftSaved.value = false
@@ -2416,7 +2418,7 @@ const submitForm = async () => {
   if (!allValid) return
 
   if (!imagesValid.value) {
-    submitError.value = 'Please upload at least 1 image (maximum 20 images)'
+    submitError.value = t('dealer.views.addVehicle.minImagesRequired')
     // Scroll to media step
     currentStep.value = 5
     return
@@ -2431,7 +2433,7 @@ const submitForm = async () => {
     // Find brand_id from make name
     const brand = brands.value.find(b => b.name === form.value.make)
     if (!brand) {
-      submitError.value = 'Please select a valid make/brand'
+      submitError.value = t('dealer.views.addVehicle.selectValidMake')
       currentStep.value = 0
       return
     }
@@ -2439,7 +2441,7 @@ const submitForm = async () => {
     // Find fuel_type_id from fuel type name
     const fuelType = fuelTypes.value.find(f => f.name === form.value.fuelType)
     if (!fuelType) {
-      submitError.value = 'Please select a valid fuel type'
+      submitError.value = t('dealer.views.addVehicle.selectValidFuelType')
       currentStep.value = 0
       return
     }
@@ -3015,7 +3017,7 @@ const submitForm = async () => {
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } else {
       // General error
-      submitError.value = apiError.message || 'Failed to create vehicle. Please try again.'
+      submitError.value = apiError.message || t('dealer.views.addVehicle.failedCreateVehicle')
       
       // Scroll to top to show error
       window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -3275,7 +3277,7 @@ loadDraft()
 onBeforeRouteLeave((to, from, next) => {
   if (checkUnsavedChanges() && !showSuccessDialog.value) {
     const confirmed = window.confirm(
-      'You have unsaved changes. Are you sure you want to leave? Your data will be saved as a draft.'
+      t('dealer.views.addVehicle.unsavedChanges')
     )
     if (confirmed) {
       // Auto-save draft before leaving

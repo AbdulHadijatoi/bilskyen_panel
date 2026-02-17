@@ -2,9 +2,9 @@
   <div>
     <div class="d-flex justify-space-between align-center mb-4">
       <div>
-        <h2 class="text-h5 font-weight-bold mb-1">Saved Searches</h2>
+        <h2 class="text-h5 font-weight-bold mb-1">{{ t('dealer.views.savedSearches.title') }}</h2>
         <p class="text-body-2 text-medium-emphasis">
-          Manage your saved search filters for quick access.
+          {{ t('dealer.views.savedSearches.subtitle') }}
         </p>
       </div>
       <v-btn
@@ -12,7 +12,7 @@
         prepend-icon="mdi-plus"
         @click="showCreateDialog = true"
       >
-        Save Search
+        {{ t('dealer.views.savedSearches.saveSearch') }}
       </v-btn>
     </div>
 
@@ -36,7 +36,7 @@
         </div>
 
         <div v-else-if="savedSearches.length === 0" class="text-center py-8">
-          <p class="text-medium-emphasis">No saved searches yet</p>
+          <p class="text-medium-emphasis">{{ t('dealer.views.savedSearches.noSearchesYet') }}</p>
         </div>
 
         <div v-else class="d-flex flex-column gap-2">
@@ -57,7 +57,7 @@
                     {{ formatFilters(search.filters) }}
                   </div>
                   <div v-if="search.createdAt" class="text-caption text-medium-emphasis mt-1">
-                    Saved {{ formatDate(search.createdAt) }}
+                    {{ t('dealer.views.savedSearches.savedOn', { date: formatDate(search.createdAt) }) }}
                   </div>
                 </div>
                 <div class="d-flex gap-2">
@@ -66,7 +66,7 @@
                     color="primary"
                     @click="applySearch(search)"
                   >
-                    Apply
+                    {{ t('dealer.views.savedSearches.apply') }}
                   </v-btn>
                   <v-btn
                     icon
@@ -87,32 +87,32 @@
     <!-- Create Saved Search Dialog -->
     <v-dialog v-model="showCreateDialog" max-width="500">
       <v-card>
-        <v-card-title>Save Search</v-card-title>
+        <v-card-title>{{ t('dealer.views.savedSearches.saveSearch') }}</v-card-title>
         <v-card-text>
           <v-text-field
             v-model="newSearchName"
-            label="Search Name"
+            :label="t('dealer.views.savedSearches.searchName')"
             variant="outlined"
             class="mb-2"
           />
           <v-textarea
             v-model="newSearchFilters"
-            label="Filters (JSON)"
+            :label="t('dealer.views.savedSearches.filtersJson')"
             variant="outlined"
             rows="5"
-            hint="Enter search filters as JSON"
+            :hint="t('dealer.views.savedSearches.filtersHint')"
           />
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="showCreateDialog = false">Cancel</v-btn>
+          <v-btn variant="text" @click="showCreateDialog = false">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="primary"
             @click="createSearch"
             :loading="creating"
             :disabled="!newSearchName.trim()"
           >
-            Save
+            {{ t('common.save') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -123,6 +123,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import {
   getSavedSearches,
   saveSearch,
@@ -133,6 +134,7 @@ import {
 import type { ApiErrorModel } from '@/models/api-error.model'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const loading = ref(false)
 const error = ref<string | null>(null)

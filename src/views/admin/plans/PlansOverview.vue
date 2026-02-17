@@ -3,9 +3,9 @@
     <!-- Header -->
     <div class="d-flex justify-space-between align-center mb-6">
       <div>
-        <h1 class="text-h5 font-weight-medium mb-1">Subscription Plans</h1>
+        <h1 class="text-h5 font-weight-medium mb-1">{{ t('admin.views.plans.title') }}</h1>
         <p class="text-body-2 text-medium-emphasis">
-          Manage subscription plans and pricing for dealers
+          {{ t('admin.views.plans.subtitle') }}
         </p>
       </div>
       <v-btn
@@ -16,7 +16,7 @@
         size="default"
         variant="flat"
       >
-        Create Plan
+        {{ t('admin.views.plans.createPlan') }}
       </v-btn>
     </div>
 
@@ -149,32 +149,32 @@
     <v-dialog v-model="showCreateDialog" max-width="600" scrollable persistent>
       <v-card>
         <v-card-title class="pa-3 text-subtitle-1">
-          Create New Plan
+          {{ t('admin.views.plans.createPlan') }}
         </v-card-title>
         <v-divider />
         <v-card-text class="pa-4">
           <v-form ref="createFormRef" v-model="createFormValid">
             <v-text-field
               v-model="newPlan.name"
-              label="Plan Name *"
+              :label="t('admin.views.plans.planName')"
               variant="outlined"
               density="compact"
               class="mb-2"
-              :rules="[v => !!v || 'Required']"
+              :rules="[v => !!v || t('common.required')]"
             />
             <v-text-field
               v-model="newPlan.slug"
-              label="Slug *"
+              :label="t('admin.views.plans.slug')"
               variant="outlined"
               density="compact"
               hint="URL-friendly identifier"
               persistent-hint
               class="mb-2"
-              :rules="[v => !!v || 'Required', v => !v || /^[a-z0-9-]+$/.test(v) || 'Invalid format']"
+              :rules="[v => !!v || t('common.required'), v => !v || /^[a-z0-9-]+$/.test(v) || t('common.invalidFormat')]"
             />
             <v-textarea
               v-model="newPlan.description"
-              label="Description"
+              :label="t('admin.views.plans.description')"
               variant="outlined"
               density="compact"
               rows="2"
@@ -182,14 +182,14 @@
             />
             <v-switch
               v-model="newPlan.is_active"
-              label="Active"
+              :label="t('admin.views.plans.active')"
               density="compact"
               color="primary"
               class="mb-2"
             />
             <v-text-field
               v-model.number="newPlan.trial_days"
-              label="Trial Days"
+              :label="t('admin.views.plans.trialDays')"
               type="number"
               variant="outlined"
               density="compact"
@@ -203,7 +203,7 @@
               :items="rolesList"
               item-title="name"
               item-value="id"
-              label="Roles *"
+              :label="t('admin.views.plans.roles')"
               variant="outlined"
               density="compact"
               multiple
@@ -217,7 +217,7 @@
               :items="dealersList"
               :item-title="(item) => `${item.cvr || 'N/A'} - ${item.city || 'N/A'}`"
               item-value="id"
-              label="Specific Dealers"
+              :label="t('admin.views.plans.specificDealers')"
               variant="outlined"
               density="compact"
               multiple
@@ -235,12 +235,12 @@
             >
               At least one role or dealer must be selected
             </v-alert>
-            <div class="text-caption text-medium-emphasis mb-2">Pricing (Optional - in cents)</div>
+            <div class="text-caption text-medium-emphasis mb-2">{{ t('admin.views.plans.pricingOptional') }}</div>
             <v-row dense>
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model.number="newPlan.pricing!.monthly_price"
-                  label="Monthly"
+                  :label="t('admin.views.plans.monthly')"
                   type="number"
                   variant="outlined"
                   density="compact"
@@ -249,7 +249,7 @@
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model.number="newPlan.pricing!.yearly_price"
-                  label="Yearly"
+                  :label="t('admin.views.plans.yearly')"
                   type="number"
                   variant="outlined"
                   density="compact"
@@ -258,7 +258,7 @@
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model="newPlan.pricing!.currency"
-                  label="Currency"
+                  :label="t('admin.views.plans.currency')"
                   variant="outlined"
                   density="compact"
                   maxlength="3"
@@ -270,7 +270,7 @@
         <v-divider />
         <v-card-actions class="pa-3">
           <v-spacer />
-          <v-btn variant="text" size="small" @click="closeCreateDialog">Cancel</v-btn>
+          <v-btn variant="text" size="small" @click="closeCreateDialog">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="primary"
             variant="flat"
@@ -290,6 +290,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { hasPermission } from '@/utils/permissions'
 import {
   getPlans,
@@ -303,6 +304,7 @@ import {
 import type { ApiErrorModel } from '@/models/api-error.model'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const loading = ref(false)
 const loadingRoles = ref(false)

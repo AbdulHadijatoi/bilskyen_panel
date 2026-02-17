@@ -4,9 +4,9 @@
     <div class="header-section mb-6">
       <div class="d-flex justify-space-between align-center">
         <div>
-          <h1 class="text-h4 font-weight-bold mb-1">User Management</h1>
+          <h1 class="text-h4 font-weight-bold mb-1">{{ t('admin.views.users.title') }}</h1>
           <p class="text-body-2 text-medium-emphasis mb-0">
-            View and manage all system users, roles, and permissions
+            {{ t('admin.views.users.subtitle') }}
           </p>
         </div>
         <v-btn
@@ -17,7 +17,7 @@
           @click="showCreateDialog = true"
           elevation="2"
         >
-          Create User
+          {{ t('admin.views.users.createUser') }}
         </v-btn>
       </div>
     </div>
@@ -33,7 +33,7 @@
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between">
               <div>
-                <div class="stat-label">Total Users</div>
+                <div class="stat-label">{{ t('admin.views.users.totalUsers') }}</div>
                 <div class="stat-value">{{ users.totalDocs || 0 }}</div>
               </div>
               <v-icon size="40" color="primary" class="stat-icon">mdi-account-group</v-icon>
@@ -50,7 +50,7 @@
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between">
               <div>
-                <div class="stat-label">Active Users</div>
+                <div class="stat-label">{{ t('admin.views.users.activeUsers') }}</div>
                 <div class="stat-value text-success">{{ activeUsersCount }}</div>
               </div>
               <v-icon size="40" color="success" class="stat-icon">mdi-account-check</v-icon>
@@ -67,7 +67,7 @@
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between">
               <div>
-                <div class="stat-label">Inactive Users</div>
+                <div class="stat-label">{{ t('admin.views.users.inactiveUsers') }}</div>
                 <div class="stat-value text-warning">{{ inactiveUsersCount }}</div>
               </div>
               <v-icon size="40" color="warning" class="stat-icon">mdi-account-off</v-icon>
@@ -84,7 +84,7 @@
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between">
               <div>
-                <div class="stat-label">Suspended</div>
+                <div class="stat-label">{{ t('admin.views.users.suspended') }}</div>
                 <div class="stat-value text-error">{{ suspendedUsersCount }}</div>
               </div>
               <v-icon size="40" color="error" class="stat-icon">mdi-account-remove</v-icon>
@@ -104,7 +104,7 @@
         <div class="d-flex align-center gap-4 flex-wrap">
           <v-text-field
             v-model="search"
-            placeholder="Search users by name, email..."
+            :placeholder="t('admin.views.users.searchPlaceholder')"
             density="comfortable"
             variant="outlined"
             prepend-inner-icon="mdi-magnify"
@@ -119,7 +119,7 @@
             :items="statusFilterOptions"
             item-title="label"
             item-value="value"
-            label="Filter by Status"
+            :label="t('admin.views.users.filterByStatus')"
             variant="outlined"
             density="comfortable"
             prepend-inner-icon="mdi-account-status"
@@ -133,7 +133,7 @@
             :items="roleFilterOptions"
             item-title="label"
             item-value="value"
-            label="Filter by Role"
+            :label="t('admin.views.users.filterByRole')"
             variant="outlined"
             density="comfortable"
             prepend-inner-icon="mdi-shield-account"
@@ -151,7 +151,7 @@
             :loading="loading"
             size="default"
           >
-            Refresh
+            {{ t('common.refresh') }}
           </v-btn>
         </div>
       </v-card-text>
@@ -165,22 +165,22 @@
     >
       <v-card-title class="card-title">
         <v-icon class="mr-2">mdi-table</v-icon>
-        Users List
+        {{ t('admin.views.users.usersList') }}
         <v-spacer />
         <span class="text-caption text-medium-emphasis">
-          Showing {{ users.docs.length }} of {{ users.totalDocs || 0 }} users
+          {{ t('admin.views.users.showingOf', { count: users.docs.length, total: users.totalDocs || 0 }) }}
         </span>
       </v-card-title>
 
       <v-card-text class="pa-0">
         <div v-if="loading" class="loading-container">
           <v-progress-circular indeterminate color="primary" size="48" />
-          <p class="text-body-2 text-medium-emphasis mt-4">Loading users...</p>
+          <p class="text-body-2 text-medium-emphasis mt-4">{{ t('admin.views.users.loadingUsers') }}</p>
         </div>
 
         <div v-else-if="error" class="error-container pa-6">
           <v-alert type="error" variant="tonal" prominent>
-            <v-alert-title>Error</v-alert-title>
+            <v-alert-title>{{ t('admin.views.users.error') }}</v-alert-title>
             {{ error }}
           </v-alert>
         </div>
@@ -242,7 +242,7 @@
 
           <template #item.actions="{ item }">
             <div class="d-flex gap-1 align-center">
-              <v-tooltip v-if="hasPermission('admin.users.view')" text="View Details" location="top">
+              <v-tooltip v-if="hasPermission('admin.users.view')" :text="t('admin.views.users.viewDetails')" location="top">
                 <template #activator="{ props }">
                   <v-btn
                     icon
@@ -310,7 +310,7 @@
           <v-form ref="createFormRef">
             <v-text-field
               v-model="newUser.name"
-              label="Full Name"
+              :label="t('admin.views.users.fullName')"
               variant="outlined"
               density="comfortable"
               prepend-inner-icon="mdi-account"
@@ -319,7 +319,7 @@
             />
             <v-text-field
               v-model="newUser.email"
-              label="Email Address"
+              :label="t('admin.views.users.emailAddress')"
               type="email"
               variant="outlined"
               density="comfortable"
@@ -332,7 +332,7 @@
             />
             <v-text-field
               v-model="newUser.password"
-              label="Password"
+              :label="t('admin.views.users.password')"
               type="password"
               variant="outlined"
               density="comfortable"
@@ -345,7 +345,7 @@
             />
             <v-text-field
               v-model="newUser.phone"
-              label="Phone Number (Optional)"
+              :label="t('admin.views.users.phoneOptional')"
               variant="outlined"
               density="comfortable"
               prepend-inner-icon="mdi-phone"
@@ -356,7 +356,7 @@
               :items="statusOptions"
               item-title="label"
               item-value="value"
-              label="Account Status"
+              :label="t('admin.views.users.accountStatus')"
               variant="outlined"
               density="comfortable"
               prepend-inner-icon="mdi-account-status"
@@ -368,7 +368,7 @@
               :items="createDialogRoles"
               item-title="name"
               item-value="id"
-              label="User Role"
+              :label="t('admin.views.users.userRole')"
               variant="outlined"
               density="comfortable"
               prepend-inner-icon="mdi-shield-account"
@@ -379,7 +379,7 @@
         </v-card-text>
         <v-card-actions class="pa-4">
           <v-spacer />
-          <v-btn variant="text" @click="cancelCreate">Cancel</v-btn>
+          <v-btn variant="text" @click="cancelCreate">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="primary"
             prepend-icon="mdi-content-save"
@@ -410,7 +410,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="showDeleteDialog = false">Cancel</v-btn>
+          <v-btn variant="text" @click="showDeleteDialog = false">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="error"
             @click="deleteUser"
@@ -427,6 +427,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { getUsers, createUser as createUserApi, deleteUser as deleteUserApi, getRoles, type CreateUserData, type RoleModel } from '@/api/admin.api'
 import { hasPermission } from '@/utils/permissions'
 import type { PaginationModel } from '@/models/pagination.model'
@@ -434,6 +435,7 @@ import type { UserModel } from '@/models/user.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const loading = ref(false)
 const error = ref<string | null>(null)

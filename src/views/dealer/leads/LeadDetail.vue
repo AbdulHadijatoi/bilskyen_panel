@@ -10,9 +10,9 @@
         >
           <v-icon>mdi-arrow-left</v-icon>
         </v-btn>
-        <h2 class="text-h5 font-weight-bold mb-1">Lead Details</h2>
+        <h2 class="text-h5 font-weight-bold mb-1">{{ t('dealer.views.leadsDetail.title') }}</h2>
         <p class="text-body-2 text-medium-emphasis">
-          View and manage lead information, messages, and status.
+          {{ t('dealer.views.leadsDetail.subtitle') }}
         </p>
       </div>
     </div>
@@ -42,7 +42,7 @@
             }"
           >
             <v-card-title class="d-flex justify-space-between align-center">
-              <span>Customer Information</span>
+              <span>{{ t('dealer.views.leadsDetail.customerInformation') }}</span>
               <div class="d-flex gap-2">
                 <v-btn
                   v-if="lead.phone"
@@ -51,7 +51,7 @@
                   size="small"
                   color="success"
                   :href="`tel:${lead.phone}`"
-                  title="Call"
+                  :title="t('dealer.views.leadsDetail.call')"
                 >
                   <v-icon>mdi-phone</v-icon>
                 </v-btn>
@@ -62,7 +62,7 @@
                   size="small"
                   color="primary"
                   :href="`mailto:${lead.email}`"
-                  title="Email"
+                  :title="t('dealer.views.leadsDetail.emailAction')"
                 >
                   <v-icon>mdi-email</v-icon>
                 </v-btn>
@@ -74,7 +74,7 @@
                   color="success"
                   :href="`https://wa.me/${lead.phone.replace(/[^0-9]/g, '')}`"
                   target="_blank"
-                  title="WhatsApp"
+                  :title="t('dealer.views.leadsDetail.whatsApp')"
                 >
                   <v-icon>mdi-whatsapp</v-icon>
                 </v-btn>
@@ -84,13 +84,13 @@
               <v-row>
                 <v-col cols="12" md="6">
                   <div class="mb-3">
-                    <div class="text-caption text-medium-emphasis mb-1">Name</div>
+                    <div class="text-caption text-medium-emphasis mb-1">{{ t('dealer.views.leadsDetail.name') }}</div>
                     <div class="font-weight-medium text-h6">{{ lead.name || 'N/A' }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" md="6">
                   <div class="mb-3">
-                    <div class="text-caption text-medium-emphasis mb-1">Email</div>
+                    <div class="text-caption text-medium-emphasis mb-1">{{ t('dealer.views.leadsDetail.email') }}</div>
                     <div class="font-weight-medium">
                       <a v-if="lead.email" :href="`mailto:${lead.email}`" class="text-primary">
                         {{ lead.email }}
@@ -101,7 +101,7 @@
                 </v-col>
                 <v-col cols="12" md="6">
                   <div class="mb-3">
-                    <div class="text-caption text-medium-emphasis mb-1">Phone</div>
+                    <div class="text-caption text-medium-emphasis mb-1">{{ t('dealer.views.leadsDetail.phone') }}</div>
                     <div class="font-weight-medium">
                       <a v-if="lead.phone" :href="`tel:${lead.phone}`" class="text-primary">
                         {{ lead.phone }}
@@ -112,7 +112,7 @@
                 </v-col>
                 <v-col cols="12" md="6">
                   <div class="mb-3">
-                    <div class="text-caption text-medium-emphasis mb-1">Source</div>
+                    <div class="text-caption text-medium-emphasis mb-1">{{ t('dealer.views.leadsDetail.source') }}</div>
                     <div class="font-weight-medium">{{ lead.source || 'N/A' }}</div>
                   </div>
                 </v-col>
@@ -136,12 +136,12 @@
               borderColor: 'var(--border)',
             }"
           >
-            <v-card-title>Lead Properties</v-card-title>
+            <v-card-title>{{ t('dealer.views.leadsDetail.leadProperties') }}</v-card-title>
             <v-card-text>
               <v-row>
                 <v-col cols="12" md="4">
                   <div class="mb-3">
-                    <div class="text-caption text-medium-emphasis mb-1">Stage</div>
+                    <div class="text-caption text-medium-emphasis mb-1">{{ t('dealer.views.leadsDetail.stage') }}</div>
                     <v-select
                       v-model="selectedStage"
                       :items="stageOptions"
@@ -165,7 +165,7 @@
                 </v-col>
                 <v-col cols="12" md="4">
                   <div class="mb-3">
-                    <div class="text-caption text-medium-emphasis mb-1">Intent</div>
+                    <div class="text-caption text-medium-emphasis mb-1">{{ t('dealer.views.leadsDetail.intent') }}</div>
                     <v-select
                       v-model="selectedIntent"
                       :items="intentOptions"
@@ -189,7 +189,7 @@
                 </v-col>
                 <v-col cols="12" md="4">
                   <div class="mb-3">
-                    <div class="text-caption text-medium-emphasis mb-1">Category</div>
+                    <div class="text-caption text-medium-emphasis mb-1">{{ t('dealer.views.leadsDetail.category') }}</div>
                     <v-select
                       v-model="selectedCategory"
                       :items="categoryOptions"
@@ -203,13 +203,13 @@
                 </v-col>
                 <v-col cols="12" md="6">
                   <div class="mb-3">
-                    <div class="text-caption text-medium-emphasis mb-1">Created</div>
+                    <div class="text-caption text-medium-emphasis mb-1">{{ t('dealer.views.leadsDetail.created') }}</div>
                     <div class="font-weight-medium">{{ formatLeadDateFull(lead.createdAt) }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" md="6">
                   <div class="mb-3">
-                    <div class="text-caption text-medium-emphasis mb-1">Last Activity</div>
+                    <div class="text-caption text-medium-emphasis mb-1">{{ t('dealer.views.leadsDetail.lastActivity') }}</div>
                     <div class="font-weight-medium">{{ formatLeadDateFull(lead.lastActivityAt || lead.createdAt) }}</div>
                   </div>
                 </v-col>
@@ -229,7 +229,7 @@
             }"
           >
             <v-card-title class="d-flex justify-space-between align-center">
-              <span>Vehicle Information</span>
+              <span>{{ t('dealer.views.leadsDetail.vehicleInformation') }}</span>
               <v-btn
                 v-if="lead.vehicleId"
                 variant="text"
@@ -237,26 +237,26 @@
                 prepend-icon="mdi-open-in-new"
                 @click="viewVehicle(lead.vehicleId)"
               >
-                View Vehicle
+                {{ t('dealer.views.leadsDetail.viewVehicle') }}
               </v-btn>
             </v-card-title>
             <v-card-text>
               <v-row>
                 <v-col cols="12" md="6">
                   <div class="mb-2">
-                    <div class="text-caption text-medium-emphasis">Title</div>
+                    <div class="text-caption text-medium-emphasis">{{ t('dealer.views.leadsDetail.titleLabel') }}</div>
                     <div class="font-weight-medium">{{ lead.vehicle.title || 'N/A' }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" md="6">
                   <div class="mb-2">
-                    <div class="text-caption text-medium-emphasis">Registration</div>
+                    <div class="text-caption text-medium-emphasis">{{ t('dealer.views.leadsDetail.registration') }}</div>
                     <div class="font-weight-medium">{{ lead.vehicle.registration || 'N/A' }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" md="6" v-if="lead.vehicle.price">
                   <div class="mb-2">
-                    <div class="text-caption text-medium-emphasis">Price</div>
+                    <div class="text-caption text-medium-emphasis">{{ t('dealer.views.leadsDetail.price') }}</div>
                     <div class="font-weight-medium">{{ formatPrice(lead.vehicle.price) }}</div>
                   </div>
                 </v-col>
@@ -273,11 +273,11 @@
               borderColor: 'var(--border)',
             }"
           >
-            <v-card-title>Messages</v-card-title>
+            <v-card-title>{{ t('dealer.views.leadsDetail.messages') }}</v-card-title>
             <v-card-text>
               <div v-if="messages.length === 0" class="text-center text-medium-emphasis py-4">
                 <v-icon size="48" color="grey-lighten-1">mdi-message-outline</v-icon>
-                <div class="mt-2">No messages yet</div>
+                <div class="mt-2">{{ t('dealer.views.leadsDetail.noMessagesYet') }}</div>
               </div>
               <div v-else class="d-flex flex-column gap-2 mb-4" style="max-height: 400px; overflow-y: auto;">
                 <v-card
@@ -308,11 +308,11 @@
               <!-- Send Message -->
               <v-textarea
                 v-model="newMessage"
-                label="Send a message"
+                :label="t('dealer.views.leadsDetail.sendMessage')"
                 variant="outlined"
                 rows="3"
                 class="mb-2"
-                placeholder="Type your message here..."
+                :placeholder="t('dealer.views.leadsDetail.messagePlaceholder')"
               />
               <v-btn
                 color="primary"
@@ -339,7 +339,7 @@
               borderColor: 'var(--border)',
             }"
           >
-            <v-card-title>Quick Actions</v-card-title>
+            <v-card-title>{{ t('dealer.views.leadsDetail.quickActions') }}</v-card-title>
             <v-card-text>
               <div class="d-flex flex-column gap-2">
                 <v-btn
@@ -405,7 +405,7 @@
               borderColor: 'var(--border)',
             }"
           >
-            <v-card-title>Assigned To</v-card-title>
+            <v-card-title>{{ t('dealer.views.leadsDetail.assignedTo') }}</v-card-title>
             <v-card-text>
               <div class="d-flex align-center gap-2">
                 <v-avatar size="40" color="primary">
@@ -425,21 +425,21 @@
     <!-- Assign Lead Dialog -->
     <v-dialog v-model="assignDialog" max-width="500">
       <v-card>
-        <v-card-title>Assign Lead</v-card-title>
+        <v-card-title>{{ t('dealer.views.leadsDetail.assignLead') }}</v-card-title>
         <v-card-text>
           <v-select
             v-model="selectedStaffId"
             :items="staffMembers"
             item-title="name"
             item-value="id"
-            label="Assign to Staff Member"
+            :label="t('dealer.views.leadsDetail.assignToStaff')"
             variant="outlined"
           />
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="assignDialog = false">Cancel</v-btn>
-          <v-btn color="primary" @click="handleAssignLead">Assign</v-btn>
+          <v-btn variant="text" @click="assignDialog = false">{{ t('common.cancel') }}</v-btn>
+          <v-btn color="primary" @click="handleAssignLead">{{ t('dealer.views.leadsDetail.assign') }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -449,6 +449,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { getLead, updateLeadStage, updateLeadIntent, updateLeadCategory, getLeadMessages, sendLeadMessage, assignLead as assignLeadApi, getStaff } from '@/api/dealer.api'
 import type { LeadModel, LeadMessageModel } from '@/models/lead.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
@@ -466,6 +467,7 @@ import {
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -503,7 +505,7 @@ const updateStage = async () => {
     await updateLeadStage(lead.value.id, { stage_id: selectedStage.value })
     await loadLead()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update stage'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.leadsDetail.failedUpdateStage')
   } finally {
     updating.value = false
   }
@@ -517,7 +519,7 @@ const updateIntent = async () => {
     await updateLeadIntent(lead.value.id, { intent_id: selectedIntent.value })
     await loadLead()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update intent'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.leadsDetail.failedUpdateIntent')
   } finally {
     updating.value = false
   }
@@ -531,7 +533,7 @@ const updateCategory = async () => {
     await updateLeadCategory(lead.value.id, { category_id: selectedCategory.value })
     await loadLead()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update category'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.leadsDetail.failedUpdateCategory')
   } finally {
     updating.value = false
   }
@@ -546,7 +548,7 @@ const sendMessage = async () => {
     newMessage.value = ''
     await loadMessages()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to send message'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.leadsDetail.failedSendMessage')
   } finally {
     sending.value = false
   }
@@ -566,7 +568,7 @@ const handleAssignLead = async () => {
     assignDialog.value = false
     selectedStaffId.value = null
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to assign lead'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.leadsDetail.failedAssignLead')
   } finally {
     updating.value = false
   }
@@ -586,7 +588,7 @@ const loadLead = async () => {
     const loadedLead = await getLead(leadId)
     lead.value = loadedLead
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load lead'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.leadsDetail.failedLoadLead')
   } finally {
     loading.value = false
   }

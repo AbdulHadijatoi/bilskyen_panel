@@ -78,7 +78,7 @@
               letterSpacing: '0.05em',
             }"
           >
-            {{ section.title }}
+            {{ getSectionTitle(section.title) }}
           </div>
 
           <div class="sidebar-menu" style="display: flex; flex-direction: column; gap: 0.125rem;">
@@ -129,11 +129,11 @@
           </template>
           <v-list>
             <v-list-item prepend-icon="mdi-lock-reset" @click="showChangePasswordDialog = true">
-              <v-list-item-title>Change Password</v-list-item-title>
+              <v-list-item-title>{{ t('nav.changePassword') }}</v-list-item-title>
             </v-list-item>
             <v-divider />
             <v-list-item prepend-icon="mdi-logout" @click="handleLogout">
-              <v-list-item-title>Logout</v-list-item-title>
+              <v-list-item-title>{{ t('nav.logout') }}</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
@@ -148,6 +148,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useSidebarStore } from '@/stores/sidebar'
 import { useAuthStore } from '@/stores/auth.store'
 import { logout } from '@/api/auth.api'
@@ -156,10 +157,26 @@ import { hasPermission } from '@/utils/permissions'
 import SidebarItem from './SidebarItem.vue'
 import ChangePasswordDialog from '@/components/dealer/ChangePasswordDialog.vue'
 
+const { t } = useI18n()
 const sidebarStore = useSidebarStore()
 const authStore = useAuthStore()
 const router = useRouter()
 const showChangePasswordDialog = ref(false)
+
+const SECTION_TITLE_KEYS: Record<string, string> = {
+  'User Management': 'admin.navSection.userManagement',
+  'Content Management': 'admin.navSection.contentManagement',
+  Subscriptions: 'admin.navSection.subscriptions',
+  'Analytics & Logs': 'admin.navSection.analyticsLogs',
+  Settings: 'admin.navSection.settings',
+  Localization: 'admin.navSection.localization',
+}
+
+function getSectionTitle(title: string | undefined): string {
+  if (!title) return ''
+  const key = SECTION_TITLE_KEYS[title]
+  return key ? t(key) : title
+}
 
 const userInitials = computed(() => {
   const name = authStore.user?.name || 'User'

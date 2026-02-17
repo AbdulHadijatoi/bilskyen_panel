@@ -25,7 +25,7 @@
             <v-icon :size="20" class="icon">{{ item.icon }}</v-icon>
           </div>
           <div class="flex min-w-0 grow items-center gap-2.5">
-            <div class="truncate">{{ item.title }}</div>
+            <div class="truncate">{{ translatedItemTitle }}</div>
             <span v-if="item.badge" class="__menu-item-badge">{{ item.badge }}</span>
           </div>
         </div>
@@ -38,7 +38,7 @@
         </div>
       </component>
     </template>
-    <span>{{ item.title }}</span>
+    <span>{{ translatedItemTitle }}</span>
   </v-tooltip>
   <component
     v-else-if="!item.items || item.items.length === 0"
@@ -60,7 +60,7 @@
         <v-icon :size="20" class="icon">{{ item.icon }}</v-icon>
       </div>
       <div class="flex min-w-0 grow items-center gap-2.5">
-        <div class="truncate">{{ item.title }}</div>
+        <div class="truncate">{{ translatedItemTitle }}</div>
         <span v-if="item.badge" class="__menu-item-badge">{{ item.badge }}</span>
       </div>
     </div>
@@ -101,7 +101,7 @@
               <v-icon :size="20" class="icon">{{ item.icon }}</v-icon>
             </div>
             <div class="flex min-w-0 grow items-center gap-2.5">
-              <div class="truncate">{{ item.title }}</div>
+              <div class="truncate">{{ translatedItemTitle }}</div>
               <span v-if="item.badge" class="__menu-item-badge">{{ item.badge }}</span>
             </div>
           </div>
@@ -118,7 +118,7 @@
           </div>
         </div>
       </template>
-      <span>{{ item.title }}</span>
+      <span>{{ translatedItemTitle }}</span>
     </v-tooltip>
     <div
       v-else
@@ -141,7 +141,7 @@
           <v-icon :size="20" class="icon">{{ item.icon }}</v-icon>
         </div>
         <div class="flex min-w-0 grow items-center gap-2.5">
-          <div class="truncate">{{ item.title }}</div>
+          <div class="truncate">{{ translatedItemTitle }}</div>
           <span v-if="item.badge" class="__menu-item-badge">{{ item.badge }}</span>
         </div>
       </div>
@@ -188,7 +188,7 @@
               <v-icon :size="20" class="icon">{{ subItem.icon || 'mdi-circle-small' }}</v-icon>
             </div>
             <div class="flex min-w-0 grow items-center gap-2.5">
-              <div class="truncate">{{ subItem.title }}</div>
+              <div class="truncate">{{ getSubItemTitle(subItem.title) }}</div>
               <span v-if="subItem.badge" class="__menu-item-badge">{{ subItem.badge }}</span>
             </div>
           </div>
@@ -201,16 +201,51 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useSidebarStore } from '@/stores/sidebar'
 import type { SidebarSectionItem } from '@/constants/admin'
+
+const ADMIN_NAV_TITLE_KEYS: Record<string, string> = {
+  Dashboard: 'admin.nav.dashboard',
+  Users: 'admin.nav.users',
+  Overview: 'admin.nav.overview',
+  Vehicles: 'admin.nav.vehicles',
+  Pages: 'admin.nav.pages',
+  'Home Page Content': 'admin.nav.homePageContent',
+  'About Page Content': 'admin.nav.aboutPageContent',
+  'Contact Page Content': 'admin.nav.contactPageContent',
+  'Privacy Page Content': 'admin.nav.privacyPageContent',
+  'Terms Page Content': 'admin.nav.termsPageContent',
+  'Featured Vehicles': 'admin.nav.featuredVehicles',
+  Plans: 'admin.nav.plans',
+  Subscriptions: 'admin.nav.subscriptions',
+  Analytics: 'admin.nav.analytics',
+  'Audit Logs': 'admin.nav.auditLogs',
+  Constants: 'admin.nav.constants',
+  Permissions: 'admin.nav.permissions',
+  Translations: 'admin.nav.translations',
+  'Manage Translations': 'admin.nav.manageTranslations',
+  'Import Translations': 'admin.nav.importTranslations',
+}
 
 interface Props {
   item: SidebarSectionItem
 }
 
 const props = defineProps<Props>()
+const { t } = useI18n()
 const route = useRoute()
 const sidebarStore = useSidebarStore()
+
+const translatedItemTitle = computed(() => {
+  const key = ADMIN_NAV_TITLE_KEYS[props.item.title]
+  return key ? t(key) : props.item.title
+})
+
+function getSubItemTitle(title: string): string {
+  const key = ADMIN_NAV_TITLE_KEYS[title]
+  return key ? t(key) : title
+}
 
 const isActive = computed(() => {
   return (

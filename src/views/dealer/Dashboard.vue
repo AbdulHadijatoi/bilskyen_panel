@@ -3,9 +3,9 @@
     <!-- Header -->
     <div class="dashboard-header mb-6">
       <div>
-        <h1 class="text-h4 font-weight-bold mb-2">Dealer Dashboard</h1>
+        <h1 class="text-h4 font-weight-bold mb-2">{{ t('dealer.views.dashboard.title') }}</h1>
         <p class="text-body-1 text-medium-emphasis">
-          Overview of your vehicles, leads, and key metrics
+          {{ t('dealer.views.dashboard.subtitle') }}
         </p>
       </div>
       <v-btn
@@ -16,14 +16,14 @@
         size="small"
         variant="outlined"
       >
-        Refresh
+        {{ t('common.refresh') }}
       </v-btn>
     </div>
 
     <!-- Loading State -->
     <div v-if="loading && !stats" class="loading-container">
       <v-progress-circular indeterminate color="primary" size="64" />
-      <p class="text-body-1 text-medium-emphasis mt-4">Loading dashboard data...</p>
+      <p class="text-body-1 text-medium-emphasis mt-4">{{ t('dealer.views.dashboard.loadingData') }}</p>
     </div>
 
     <!-- Error State -->
@@ -34,7 +34,7 @@
       prominent
       class="mb-4"
     >
-      <v-alert-title>Error Loading Dashboard</v-alert-title>
+      <v-alert-title>{{ t('dealer.views.dashboard.errorLoading') }}</v-alert-title>
       {{ error }}
     </v-alert>
 
@@ -65,10 +65,10 @@
               <div class="text-h4 font-weight-bold mb-1">
                 {{ formatNumber(stats.overview.vehicles.total) }}
               </div>
-              <div class="text-caption text-medium-emphasis mb-2">Total Vehicles</div>
+              <div class="text-caption text-medium-emphasis mb-2">{{ t('dealer.views.dashboard.totalVehicles') }}</div>
               <div class="text-caption">
                 <v-icon size="12" class="mr-1">mdi-check-circle</v-icon>
-                {{ stats.overview.vehicles.published }} published
+                {{ stats.overview.vehicles.published }} {{ t('dealer.views.dashboard.published') }}
               </div>
             </v-card-text>
           </v-card>
@@ -97,10 +97,10 @@
               <div class="text-h4 font-weight-bold mb-1">
                 {{ formatNumber(stats.overview.leads.total) }}
               </div>
-              <div class="text-caption text-medium-emphasis mb-2">Total Leads</div>
+              <div class="text-caption text-medium-emphasis mb-2">{{ t('dealer.views.dashboard.totalLeads') }}</div>
               <div class="text-caption">
                 <v-icon size="12" class="mr-1">mdi-calendar-week</v-icon>
-                {{ stats.overview.leads.new_last_7_days }} new this week
+                {{ stats.overview.leads.new_last_7_days }} {{ t('dealer.views.dashboard.newThisWeek') }}
               </div>
             </v-card-text>
           </v-card>
@@ -120,13 +120,13 @@
                   size="x-small"
                   variant="flat"
                 >
-                  {{ stats.overview.subscription.is_active ? 'Active' : 'Inactive' }}
+                  {{ stats.overview.subscription.is_active ? t('dealer.views.dashboard.active') : t('dealer.views.dashboard.inactive') }}
                 </v-chip>
               </div>
               <div class="text-h4 font-weight-bold mb-1">
                 {{ stats.overview.subscription.plan_name }}
               </div>
-              <div class="text-caption text-medium-emphasis mb-2">Subscription Plan</div>
+              <div class="text-caption text-medium-emphasis mb-2">{{ t('dealer.views.dashboard.subscriptionPlan') }}</div>
               <div class="text-caption">
                 <v-icon size="12" class="mr-1">mdi-check-circle</v-icon>
                 {{ stats.overview.subscription.status }}
@@ -143,7 +143,7 @@
             <v-card-text class="pa-3">
               <div class="d-flex align-center gap-2 mb-2">
                 <v-icon size="20" color="success">mdi-car-plus</v-icon>
-                <span class="text-caption text-medium-emphasis">New Vehicles</span>
+                <span class="text-caption text-medium-emphasis">{{ t('dealer.views.dashboard.newVehicles') }}</span>
               </div>
               <div class="text-h6 font-weight-bold">{{ stats.overview.vehicles.new_last_30_days }}</div>
               <div class="text-caption text-medium-emphasis">Last 30 days</div>
@@ -156,7 +156,7 @@
             <v-card-text class="pa-3">
               <div class="d-flex align-center gap-2 mb-2">
                 <v-icon size="20" color="primary">mdi-phone-in-talk</v-icon>
-                <span class="text-caption text-medium-emphasis">New Leads</span>
+                <span class="text-caption text-medium-emphasis">{{ t('dealer.views.dashboard.newLeads') }}</span>
               </div>
               <div class="text-h6 font-weight-bold">{{ stats.overview.leads.new_last_30_days }}</div>
               <div class="text-caption text-medium-emphasis">Last 30 days</div>
@@ -169,7 +169,7 @@
             <v-card-text class="pa-3">
               <div class="d-flex align-center gap-2 mb-2">
                 <v-icon size="20" color="warning">mdi-currency-usd</v-icon>
-                <span class="text-caption text-medium-emphasis">Avg Vehicle Price</span>
+                <span class="text-caption text-medium-emphasis">{{ t('dealer.views.dashboard.avgVehiclePrice') }}</span>
               </div>
               <div class="text-h6 font-weight-bold">{{ formatPrice(stats.overview.vehicles.average_price) }}</div>
               <div class="text-caption text-medium-emphasis">Total value: {{ formatPrice(stats.overview.vehicles.total_value) }}</div>
@@ -185,7 +185,7 @@
           <v-card variant="flat" class="chart-card" elevation="1">
             <v-card-title class="d-flex align-center">
               <v-icon size="20" class="mr-2">mdi-chart-pie</v-icon>
-              <span>Vehicle Status Distribution</span>
+              <span>{{ t('dealer.views.dashboard.vehicleStatusDistribution') }}</span>
             </v-card-title>
             <v-card-text>
               <div class="distribution-chart">
@@ -236,12 +236,12 @@
                     :key="index"
                     class="trend-bar-item"
                     :style="{ height: `${Math.max((day.count / Math.max(...stats.trends.vehicles.map(d => d.count), 1)) * 100, 5)}%` }"
-                    :title="`${day.date}: ${day.count} vehicles`"
+                    :title="t('dealer.views.dashboard.dayCountVehicles', { date: day.date, count: day.count })"
                   />
                 </div>
                 <div class="trend-labels">
                   <span class="text-caption text-medium-emphasis">30 days ago</span>
-                  <span class="text-caption text-medium-emphasis">Today</span>
+                  <span class="text-caption text-medium-emphasis">{{ t('dealer.views.dashboard.today') }}</span>
                 </div>
               </div>
             </v-card-text>
@@ -263,7 +263,7 @@
           <v-card variant="flat" class="recent-card" elevation="1">
             <v-card-title class="d-flex align-center">
               <v-icon size="18" class="mr-2">mdi-car</v-icon>
-              <span class="text-subtitle-1">Recent Vehicles</span>
+              <span class="text-subtitle-1">{{ t('dealer.views.dashboard.recentVehicles') }}</span>
               <v-spacer />
               <v-btn
                 variant="text"
@@ -288,7 +288,7 @@
                     {{ vehicle.title || `Vehicle #${vehicle.id}` }}
                   </v-list-item-title>
                   <v-list-item-subtitle class="text-caption">
-                    {{ vehicle.registration || 'No registration' }} • {{ formatPrice(vehicle.price) }}
+                    {{ vehicle.registration || t('common.noRegistration') }} • {{ formatPrice(vehicle.price) }}
                   </v-list-item-subtitle>
                   <template v-slot:append>
                     <v-chip
@@ -301,7 +301,7 @@
                   </template>
                 </v-list-item>
                 <v-list-item v-if="stats.recent.vehicles.length === 0" class="text-center py-4">
-                  <span class="text-caption text-medium-emphasis">No recent vehicles</span>
+                  <span class="text-caption text-medium-emphasis">{{ t('dealer.views.dashboard.noRecentVehicles') }}</span>
                 </v-list-item>
               </v-list>
             </v-card-text>
@@ -313,7 +313,7 @@
           <v-card variant="flat" class="recent-card" elevation="1">
             <v-card-title class="d-flex align-center">
               <v-icon size="18" class="mr-2">mdi-phone-in-talk</v-icon>
-              <span class="text-subtitle-1">Recent Leads</span>
+              <span class="text-subtitle-1">{{ t('dealer.views.dashboard.recentLeads') }}</span>
               <v-spacer />
               <v-btn
                 variant="text"
@@ -342,7 +342,7 @@
                   </v-list-item-subtitle>
                 </v-list-item>
                 <v-list-item v-if="stats.recent.leads.length === 0" class="text-center py-4">
-                  <span class="text-caption text-medium-emphasis">No recent leads</span>
+                  <span class="text-caption text-medium-emphasis">{{ t('dealer.views.dashboard.noRecentLeads') }}</span>
                 </v-list-item>
               </v-list>
             </v-card-text>
@@ -356,11 +356,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { getDashboardStats, type DashboardStats } from '@/api/dealer.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import FinancialOverviewChart from '@/components/dealer/dashboard/FinancialOverviewChart.vue'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -372,7 +374,7 @@ const loadDashboard = async () => {
     error.value = null
     stats.value = await getDashboardStats()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load dashboard data'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.dashboard.failedLoadData')
   } finally {
     loading.value = false
   }

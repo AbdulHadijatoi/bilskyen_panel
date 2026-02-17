@@ -2,9 +2,9 @@
   <div>
     <div class="d-flex justify-space-between align-center mb-4">
       <div>
-        <h2 class="text-h5 font-weight-bold mb-1">Favorites</h2>
+        <h2 class="text-h5 font-weight-bold mb-1">{{ t('dealer.views.favorites.title') }}</h2>
         <p class="text-body-2 text-medium-emphasis">
-          View and manage your favorite vehicles.
+          {{ t('dealer.views.favorites.subtitle') }}
         </p>
       </div>
     </div>
@@ -29,7 +29,7 @@
         </div>
 
         <div v-else-if="favorites.docs.length === 0" class="text-center py-8">
-          <p class="text-medium-emphasis">No favorite vehicles yet</p>
+          <p class="text-medium-emphasis">{{ t('dealer.views.favorites.noFavoritesYet') }}</p>
         </div>
 
         <div v-else class="d-flex flex-column gap-4">
@@ -51,15 +51,15 @@
                 <v-card-title>{{ vehicle.title || vehicle.registration || 'Untitled' }}</v-card-title>
                 <v-card-text>
                   <div class="mb-2">
-                    <div class="text-caption text-medium-emphasis">Price</div>
+                    <div class="text-caption text-medium-emphasis">{{ t('dealer.views.favorites.price') }}</div>
                     <div class="font-weight-medium">{{ formatPrice(vehicle.price) }}</div>
                   </div>
                   <div v-if="vehicle.year" class="mb-2">
-                    <div class="text-caption text-medium-emphasis">Year</div>
+                    <div class="text-caption text-medium-emphasis">{{ t('dealer.views.favorites.year') }}</div>
                     <div>{{ vehicle.year }}</div>
                   </div>
                   <div v-if="vehicle.mileage" class="mb-2">
-                    <div class="text-caption text-medium-emphasis">Mileage</div>
+                    <div class="text-caption text-medium-emphasis">{{ t('dealer.views.favorites.mileage') }}</div>
                     <div>{{ formatMileage(vehicle.mileage) }}</div>
                   </div>
                 </v-card-text>
@@ -70,7 +70,7 @@
                     prepend-icon="mdi-heart-remove"
                     @click="removeFavorite(vehicle.id)"
                   >
-                    Remove
+                    {{ t('dealer.views.favorites.remove') }}
                   </v-btn>
                   <v-spacer />
                   <v-btn
@@ -78,7 +78,7 @@
                     color="primary"
                     @click="viewVehicle(vehicle.id)"
                   >
-                    View
+                    {{ t('dealer.views.favorites.view') }}
                   </v-btn>
                 </v-card-actions>
               </v-card>
@@ -102,12 +102,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { getFavorites, removeFavorite as removeFavoriteApi } from '@/api/dealer.api'
 import type { PaginationModel } from '@/models/pagination.model'
 import type { VehicleModel } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -129,7 +131,7 @@ const loadFavorites = async () => {
     const response = await getFavorites({ page: currentPage.value, limit: 15 })
     favorites.value = response
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load favorites'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.favorites.failedLoadFavorites')
   } finally {
     loading.value = false
   }
@@ -140,7 +142,7 @@ const removeFavorite = async (vehicleId: number) => {
     await removeFavoriteApi(vehicleId)
     await loadFavorites()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to remove favorite'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.favorites.failedRemoveFavorite')
   }
 }
 

@@ -4,9 +4,9 @@
     <div class="header-section mb-6">
       <div class="d-flex justify-space-between align-center">
         <div>
-          <h1 class="text-h4 font-weight-bold mb-1">Permissions Management</h1>
+          <h1 class="text-h4 font-weight-bold mb-1">{{ t('admin.views.permissions.title') }}</h1>
           <p class="text-body-2 text-medium-emphasis">
-            Manage permissions for users and roles. Assign or revoke permissions to control access.
+            {{ t('admin.views.permissions.subtitle') }}
           </p>
         </div>
         <v-btn
@@ -18,7 +18,7 @@
           @click="handleClearCache"
           :style="{ border: '1px solid #f5f5f5' }"
         >
-          Clear Cache
+          {{ t('admin.views.common.clearCache') }}
         </v-btn>
       </div>
     </div>
@@ -40,8 +40,8 @@
               @keydown.enter.prevent="handleModelSearch"
               item-title="name"
               item-value="id"
-              label="Search roles"
-              placeholder="Type to search..."
+              :label="t('admin.views.permissions.searchRoles')"
+              :placeholder="t('admin.views.permissions.searchPlaceholder')"
               clearable
               return-object
               :no-filter="true"
@@ -65,7 +65,7 @@
 
             <!-- Roles List -->
             <div v-if="rolesList.length > 0" class="roles-list">
-              <div class="text-caption text-medium-emphasis mb-2 px-2">Roles</div>
+              <div class="text-caption text-medium-emphasis mb-2 px-2">{{ t('admin.views.permissions.roles') }}</div>
               <v-list density="compact" class="pa-0">
                 <v-list-item
                   v-for="role in rolesList"
@@ -113,8 +113,8 @@
                 :style="{ border: '1px solid #f5f5f5' }"
               >
                 <v-btn value="all" size="small">All</v-btn>
-                <v-btn value="assigned" size="small">Assigned</v-btn>
-                <v-btn value="unassigned" size="small">Unassigned</v-btn>
+                <v-btn value="assigned" size="small">{{ t('admin.views.permissions.assigned') }}</v-btn>
+                <v-btn value="unassigned" size="small">{{ t('admin.views.permissions.unassigned') }}</v-btn>
               </v-btn-toggle>
             </div>
           </v-card-text>
@@ -199,7 +199,7 @@
           <v-card-text class="pa-8">
             <div class="text-center">
               <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-shield-lock-outline</v-icon>
-              <p class="text-h6 mb-2">Select a Role</p>
+              <p class="text-h6 mb-2">{{ t('admin.views.permissions.selectRole') }}</p>
               <p class="text-body-2 text-medium-emphasis">
                 Choose a role from the left sidebar to view and manage their permissions.
               </p>
@@ -218,7 +218,7 @@
     >
       {{ snackbar.message }}
       <template v-slot:actions>
-        <v-btn variant="text" size="small" @click="snackbar.show = false">Close</v-btn>
+        <v-btn variant="text" size="small" @click="snackbar.show = false">{{ t('common.close') }}</v-btn>
       </template>
     </v-snackbar>
   </div>
@@ -226,7 +226,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import apiClient from '@/utils/axios'
+
+const { t } = useI18n()
 
 interface PermissionAction {
   id: number

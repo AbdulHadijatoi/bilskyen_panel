@@ -2,9 +2,9 @@
   <div class="flex w-full flex-col gap-4">
     <!-- Header -->
     <div>
-      <h2 class="text-xl font-bold">Profile Settings</h2>
+      <h2 class="text-xl font-bold">{{ t('dealer.views.profile.title') }}</h2>
       <p class="text-muted-foreground max-w-2xl">
-        Update your dealer profile information including business details and location.
+        {{ t('dealer.views.profile.subtitle') }}
       </p>
     </div>
 
@@ -25,7 +25,7 @@
         <!-- Loading State -->
         <div v-if="loading" class="text-center py-12">
           <v-progress-circular indeterminate color="primary" size="48" />
-          <p class="text-body-2 text-medium-emphasis mt-4">Loading profile information...</p>
+          <p class="text-body-2 text-medium-emphasis mt-4">{{ t('dealer.views.profile.loadingProfile') }}</p>
         </div>
 
         <!-- Error State -->
@@ -52,10 +52,10 @@
           <div class="mb-6">
             <h3 class="text-h6 font-weight-semibold mb-1">
               <v-icon size="20" class="mr-2">mdi-account</v-icon>
-              Account Information
+              {{ t('dealer.views.profile.accountInformation') }}
             </h3>
             <p class="text-body-2 text-medium-emphasis mb-4">
-              Update your personal account details
+              {{ t('dealer.views.profile.accountDetails') }}
             </p>
           </div>
 
@@ -64,8 +64,8 @@
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="form.name"
-                label="Full Name"
-                placeholder="Enter your full name"
+                :label="t('dealer.views.profile.fullName')"
+                :placeholder="t('dealer.views.profile.placeholderFullName')"
                 density="compact"
                 variant="outlined"
                 :rules="[rules.name]"
@@ -78,8 +78,8 @@
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="form.email"
-                label="Email"
-                placeholder="Enter your email"
+                :label="t('dealer.views.profile.email')"
+                :placeholder="t('dealer.views.profile.placeholderEmail')"
                 type="email"
                 density="compact"
                 variant="outlined"
@@ -93,8 +93,8 @@
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="form.phone"
-                label="Phone Number"
-                placeholder="Enter your phone number"
+                :label="t('dealer.views.profile.phone')"
+                :placeholder="t('dealer.views.profile.placeholderPhone')"
                 density="compact"
                 variant="outlined"
                 hide-details="auto"
@@ -108,10 +108,10 @@
           <div class="mb-6">
             <h3 class="text-h6 font-weight-semibold mb-1">
               <v-icon size="20" class="mr-2">mdi-office-building</v-icon>
-              Business Information
+              {{ t('dealer.views.profile.businessInformation') }}
             </h3>
             <p class="text-body-2 text-medium-emphasis mb-4">
-              Update your business registration and contact details
+              {{ t('dealer.views.profile.businessDetails') }}
             </p>
           </div>
 
@@ -120,12 +120,12 @@
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="form.cvr"
-                label="CVR Number"
-                placeholder="Enter your CVR number"
+                :label="t('dealer.views.profile.cvr')"
+                :placeholder="t('dealer.views.profile.placeholderCvr')"
                 density="compact"
                 variant="outlined"
                 :rules="[rules.cvr]"
-                hint="Company registration number (max 20 characters)"
+                :hint="t('dealer.views.profile.hintCvr')"
                 persistent-hint
                 hide-details="auto"
                 prepend-inner-icon="mdi-identifier"
@@ -150,8 +150,8 @@
             <v-col cols="12">
               <v-text-field
                 v-model="form.address"
-                label="Street Address"
-                placeholder="Enter your street address"
+                :label="t('dealer.views.profile.streetAddress')"
+                :placeholder="t('dealer.views.profile.placeholderStreet')"
                 density="compact"
                 variant="outlined"
                 hide-details="auto"
@@ -163,8 +163,8 @@
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="form.city"
-                label="City"
-                placeholder="Enter your city"
+                :label="t('dealer.views.profile.city')"
+                :placeholder="t('dealer.views.profile.placeholderCity')"
                 density="compact"
                 variant="outlined"
                 hide-details="auto"
@@ -176,8 +176,8 @@
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="form.postcode"
-                label="Postcode"
-                placeholder="Enter your postcode"
+                :label="t('dealer.views.profile.postcode')"
+                :placeholder="t('dealer.views.profile.placeholderPostcode')"
                 density="compact"
                 variant="outlined"
                 hide-details="auto"
@@ -190,8 +190,8 @@
               <v-autocomplete
                 v-model="form.country_code"
                 :items="countryCodes"
-                label="Country Code"
-                placeholder="Select country code"
+                :label="t('dealer.views.profile.countryCode')"
+                :placeholder="t('dealer.views.profile.placeholderCountry')"
                 density="compact"
                 variant="outlined"
                 hide-details="auto"
@@ -242,7 +242,7 @@
             @click:close="validationErrors = {}"
           >
             <div class="mb-2">
-              <strong>Please fix the following errors:</strong>
+              <strong>{{ t('dealer.views.profile.fixErrors') }}</strong>
             </div>
             <ul class="mb-0 pl-4">
               <li v-for="(errors, field) in validationErrors" :key="field">
@@ -284,7 +284,7 @@
               @click="handleSubmit"
             >
               <v-icon start>{{ submitting ? 'mdi-loading' : 'mdi-content-save' }}</v-icon>
-              {{ submitting ? 'Saving...' : 'Save Changes' }}
+              {{ submitting ? t('dealer.views.profile.saving') : t('dealer.views.profile.saveChanges') }}
             </v-btn>
           </div>
         </v-form>
@@ -295,10 +295,13 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { getProfile, updateProfile, type UpdateProfileData } from '@/api/dealer.api'
 import { getCurrentUser } from '@/api/auth.api'
 import { useAuthStore } from '@/stores/auth'
 import type { DealerModel } from '@/models/dealer.model'
+
+const { t } = useI18n()
 
 const authStore = useAuthStore()
 
@@ -345,14 +348,14 @@ const countryCodes = [
 const rules = {
   name: (value: string) => {
     if (!value) return true
-    if (value.length < 2) return 'Name must be at least 2 characters'
-    if (value.length > 100) return 'Name must be 100 characters or less'
+    if (value.length < 2) return t('dealer.views.profile.validationNameMin')
+    if (value.length > 100) return t('dealer.views.profile.validationNameMax')
     return true
   },
   email: (value: string) => {
     if (!value) return true
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(value)) return 'Please enter a valid email address'
+    if (!emailRegex.test(value)) return t('dealer.views.profile.validationEmail')
     return true
   },
   cvr: (value: string) => {
@@ -386,7 +389,7 @@ const loadProfile = async () => {
     form.country_code = data.countryCode || ''
   } catch (error: any) {
     console.error('Failed to load profile:', error)
-    loadError.value = error?.message || 'Failed to load profile information. Please try again.'
+    loadError.value = error?.message || t('dealer.views.profile.failedLoadProfile')
   } finally {
     loading.value = false
   }
@@ -473,7 +476,7 @@ const handleSubmit = async () => {
     if (error?.errors && typeof error.errors === 'object') {
       validationErrors.value = error.errors
     } else {
-      submitError.value = error?.message || 'Failed to update profile. Please try again.'
+      submitError.value = error?.message || t('dealer.views.profile.failedUpdateProfile')
     }
   } finally {
     submitting.value = false

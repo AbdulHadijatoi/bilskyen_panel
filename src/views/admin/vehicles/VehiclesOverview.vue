@@ -4,9 +4,9 @@
     <div class="header-section mb-6">
       <div class="d-flex justify-space-between align-center">
         <div>
-          <h1 class="text-h4 font-weight-bold mb-1">Vehicle Management</h1>
+          <h1 class="text-h4 font-weight-bold mb-1">{{ t('admin.views.vehicles.title') }}</h1>
           <p class="text-body-2 text-medium-emphasis mb-0">
-            View and manage all vehicles from all dealers
+            {{ t('admin.views.vehicles.subtitle') }}
           </p>
         </div>
       </div>
@@ -23,7 +23,7 @@
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between">
               <div>
-                <div class="stat-label">Total Vehicles</div>
+                <div class="stat-label">{{ t('admin.views.vehicles.totalVehicles') }}</div>
                 <div class="stat-value">{{ vehicles.totalDocs || 0 }}</div>
               </div>
               <v-icon size="40" color="primary" class="stat-icon">mdi-car-multiple</v-icon>
@@ -40,7 +40,7 @@
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between">
               <div>
-                <div class="stat-label">Published</div>
+                <div class="stat-label">{{ t('admin.views.vehicles.published') }}</div>
                 <div class="stat-value text-success">{{ publishedCount }}</div>
               </div>
               <v-icon size="40" color="success" class="stat-icon">mdi-check-circle</v-icon>
@@ -57,7 +57,7 @@
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between">
               <div>
-                <div class="stat-label">Draft</div>
+                <div class="stat-label">{{ t('admin.views.vehicles.draft') }}</div>
                 <div class="stat-value text-warning">{{ draftCount }}</div>
               </div>
               <v-icon size="40" color="warning" class="stat-icon">mdi-file-document-edit</v-icon>
@@ -74,7 +74,7 @@
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between">
               <div>
-                <div class="stat-label">Sold</div>
+                <div class="stat-label">{{ t('admin.views.vehicles.sold') }}</div>
                 <div class="stat-value text-info">{{ soldCount }}</div>
               </div>
               <v-icon size="40" color="info" class="stat-icon">mdi-check-all</v-icon>
@@ -94,7 +94,7 @@
         <div class="d-flex align-center gap-4 flex-wrap">
           <v-text-field
             v-model="search"
-            placeholder="Search by title, registration, VIN..."
+            :placeholder="t('admin.views.vehicles.searchPlaceholder')"
             density="comfortable"
             variant="outlined"
             prepend-inner-icon="mdi-magnify"
@@ -109,7 +109,7 @@
             :items="statusFilterOptions"
             item-title="label"
             item-value="value"
-            label="Filter by Status"
+            :label="t('admin.views.vehicles.filterByStatus')"
             variant="outlined"
             density="comfortable"
             prepend-inner-icon="mdi-filter"
@@ -120,7 +120,7 @@
           />
           <v-text-field
             v-model="dealerNameFilter"
-            placeholder="Dealer name..."
+            :placeholder="t('admin.views.vehicles.dealerNamePlaceholder')"
             density="comfortable"
             variant="outlined"
             prepend-inner-icon="mdi-store"
@@ -131,7 +131,7 @@
           />
           <v-text-field
             v-model="userNameFilter"
-            placeholder="User name..."
+            :placeholder="t('admin.views.vehicles.userNamePlaceholder')"
             density="comfortable"
             variant="outlined"
             prepend-inner-icon="mdi-account"
@@ -172,12 +172,12 @@
       <v-card-text class="pa-0">
         <div v-if="loading" class="loading-container">
           <v-progress-circular indeterminate color="primary" size="48" />
-          <p class="text-body-2 text-medium-emphasis mt-4">Loading vehicles...</p>
+          <p class="text-body-2 text-medium-emphasis mt-4">{{ t('admin.views.vehicles.loadingVehicles') }}</p>
         </div>
 
         <div v-else-if="error" class="error-container pa-6">
           <v-alert type="error" variant="tonal" prominent>
-            <v-alert-title>Error</v-alert-title>
+            <v-alert-title>{{ t('admin.views.users.error') }}</v-alert-title>
             {{ error }}
           </v-alert>
         </div>
@@ -213,7 +213,7 @@
               <div>
                 <div class="font-weight-medium">{{ item.title || 'N/A' }}</div>
                 <div class="text-caption text-medium-emphasis">
-                  {{ item.registration || 'No registration' }}
+                  {{ item.registration || t('common.noRegistration') }}
                 </div>
               </div>
             </div>
@@ -253,7 +253,7 @@
                 size="small"
                 color="primary"
                 @click="viewVehicle(item.id)"
-                title="View"
+                :title="t('common.view')"
               >
                 <v-icon size="20">mdi-eye</v-icon>
               </v-btn>
@@ -263,7 +263,7 @@
                 size="small"
                 color="error"
                 @click="confirmDelete(item)"
-                title="Delete"
+                :title="t('common.delete')"
               >
                 <v-icon size="20">mdi-delete</v-icon>
               </v-btn>
@@ -290,7 +290,7 @@
     >
       <v-card>
         <v-card-title class="text-h6 font-weight-bold">
-          Delete Vehicle
+          {{ t('admin.views.vehicles.deleteVehicle') }}
         </v-card-title>
         <v-card-text>
           <p class="text-body-1">
@@ -302,13 +302,13 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="showDeleteDialog = false">Cancel</v-btn>
+          <v-btn variant="text" @click="showDeleteDialog = false">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="error"
             @click="deleteVehicle"
             :loading="deleting"
           >
-            Delete Vehicle
+            {{ t('admin.views.vehicles.deleteVehicle') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -319,6 +319,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { getVehicles, deleteVehicle as deleteVehicleApi } from '@/api/admin.api'
 import type { PaginationModel } from '@/models/pagination.model'
 import type { VehicleModel } from '@/models/vehicle.model'
@@ -326,6 +327,7 @@ import type { VehicleStatus } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const loading = ref(false)
 const error = ref<string | null>(null)

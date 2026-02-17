@@ -4,9 +4,9 @@
     <div class="header-section mb-6">
       <div class="d-flex justify-space-between align-center">
         <div>
-          <h1 class="text-h4 font-weight-bold mb-1">Translation Management</h1>
+          <h1 class="text-h4 font-weight-bold mb-1">{{ t('admin.views.translations.title') }}</h1>
           <p class="text-body-2 text-medium-emphasis mb-0">
-            Manage all application translations and labels
+            {{ t('admin.views.translations.subtitle') }}
           </p>
         </div>
         <div class="d-flex gap-2">
@@ -17,7 +17,7 @@
             @click="$router.push('/admin/translations/import')"
             variant="outlined"
           >
-            Import
+            {{ t('common.import') }}
           </v-btn>
           <v-btn
             color="primary"
@@ -26,7 +26,7 @@
             @click="exportTranslations"
             variant="outlined"
           >
-            Export
+            {{ t('common.export') }}
           </v-btn>
           <v-btn
             color="primary"
@@ -35,7 +35,7 @@
             @click="showCreateDialog = true"
             elevation="2"
           >
-            Create Translation
+            {{ t('admin.views.translations.addTranslation') }}
           </v-btn>
         </div>
       </div>
@@ -48,7 +48,7 @@
           <v-col cols="12" md="6">
             <v-text-field
               v-model="searchQuery"
-              label="Search translations"
+              :label="t('admin.views.translations.searchPlaceholder')"
               prepend-inner-icon="mdi-magnify"
               variant="outlined"
               density="compact"
@@ -61,7 +61,7 @@
             <v-select
               v-model="selectedLocale"
               :items="locales"
-              label="Filter by Locale"
+              :label="t('admin.views.translations.filterByLocale')"
               variant="outlined"
               density="compact"
               clearable
@@ -145,7 +145,7 @@
           <v-form ref="editForm">
             <v-text-field
               v-model="editForm.key"
-              label="Translation Key"
+              :label="t('admin.views.translations.translationKey')"
               variant="outlined"
               density="compact"
               :disabled="!!editingTranslation"
@@ -155,7 +155,7 @@
 
             <v-textarea
               v-model="editForm.default_value"
-              label="Default Value (English)"
+              :label="t('admin.views.translations.defaultValue')"
               variant="outlined"
               density="compact"
               rows="3"
@@ -165,11 +165,11 @@
 
             <v-divider class="my-4" />
 
-            <div class="text-subtitle-1 font-weight-semibold mb-3">Translations</div>
+            <div class="text-subtitle-1 font-weight-semibold mb-3">{{ t('admin.nav.translations') }}</div>
 
             <v-textarea
               v-model="editForm.translations.en"
-              label="English (en)"
+              :label="t('admin.views.translations.english')"
               variant="outlined"
               density="compact"
               rows="2"
@@ -178,7 +178,7 @@
 
             <v-textarea
               v-model="editForm.translations.da"
-              label="Danish (da)"
+              :label="t('admin.views.translations.danish')"
               variant="outlined"
               density="compact"
               rows="2"
@@ -187,7 +187,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="closeEditDialog">Cancel</v-btn>
+          <v-btn variant="text" @click="closeEditDialog">{{ t('common.cancel') }}</v-btn>
           <v-btn color="primary" @click="saveTranslation" :loading="saving">
             Save
           </v-btn>
@@ -199,14 +199,14 @@
     <!-- Delete Confirmation Dialog -->
     <v-dialog v-model="showDeleteDialog" max-width="400">
       <v-card>
-        <v-card-title class="text-h6">Confirm Delete</v-card-title>
+        <v-card-title class="text-h6">{{ t('common.confirmDelete') }}</v-card-title>
         <v-card-text>
           Are you sure you want to delete the translation key
           <code>{{ deletingTranslation?.key }}</code>? This action cannot be undone.
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="showDeleteDialog = false">Cancel</v-btn>
+          <v-btn variant="text" @click="showDeleteDialog = false">{{ t('common.cancel') }}</v-btn>
           <v-btn color="error" @click="deleteTranslation" :loading="deleting">
             Delete
           </v-btn>
@@ -218,7 +218,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { translationService, type TranslationKey } from '@/services/translationService'
+
+const { t } = useI18n()
 
 const headers = [
   { title: 'Key', key: 'key', sortable: true },

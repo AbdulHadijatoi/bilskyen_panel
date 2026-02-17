@@ -6,7 +6,7 @@
         <h1 class="text-h5 font-weight-medium mb-1">
           {{ totalSubscriptionsCount }} Subscriptions
         </h1>
-        <p class="text-body-2 text-medium-emphasis">Manage all dealer subscriptions</p>
+        <p class="text-body-2 text-medium-emphasis">{{ t('admin.views.subscriptions.subtitle') }}</p>
       </div>
       <v-btn
         v-if="hasPermission('admin.subscriptions.create')"
@@ -16,7 +16,7 @@
         @click="openCreateDialog"
         size="default"
       >
-        Add Subscription
+        {{ t('admin.views.subscriptions.addSubscription') }}
       </v-btn>
     </div>
 
@@ -43,7 +43,7 @@
           @click="selectStatusTab(2)"
         >
           <v-card-text class="pa-4">
-            <div class="text-caption text-medium-emphasis mb-1">Active</div>
+            <div class="text-caption text-medium-emphasis mb-1">{{ t('admin.views.subscriptions.active') }}</div>
             <div class="text-h5 font-weight-bold">{{ statusCounts.active || 0 }}</div>
           </v-card-text>
         </v-card>
@@ -56,7 +56,7 @@
           @click="selectStatusTab(3)"
         >
           <v-card-text class="pa-4">
-            <div class="text-caption text-medium-emphasis mb-1">Expired</div>
+            <div class="text-caption text-medium-emphasis mb-1">{{ t('admin.views.subscriptions.expired') }}</div>
             <div class="text-h5 font-weight-bold">{{ statusCounts.expired || 0 }}</div>
           </v-card-text>
         </v-card>
@@ -69,7 +69,7 @@
           @click="selectStatusTab(4)"
         >
           <v-card-text class="pa-4">
-            <div class="text-caption text-medium-emphasis mb-1">Canceled</div>
+            <div class="text-caption text-medium-emphasis mb-1">{{ t('admin.views.subscriptions.canceled') }}</div>
             <div class="text-h5 font-weight-bold">{{ statusCounts.canceled || 0 }}</div>
           </v-card-text>
         </v-card>
@@ -82,7 +82,7 @@
           @click="selectStatusTab(1)"
         >
           <v-card-text class="pa-4">
-            <div class="text-caption text-medium-emphasis mb-1">Trial</div>
+            <div class="text-caption text-medium-emphasis mb-1">{{ t('admin.views.subscriptions.trial') }}</div>
             <div class="text-h5 font-weight-bold">{{ statusCounts.trial || 0 }}</div>
           </v-card-text>
         </v-card>
@@ -95,7 +95,7 @@
           @click="selectStatusTab(5)"
         >
           <v-card-text class="pa-4">
-            <div class="text-caption text-medium-emphasis mb-1">Scheduled</div>
+            <div class="text-caption text-medium-emphasis mb-1">{{ t('admin.views.subscriptions.scheduled') }}</div>
             <div class="text-h5 font-weight-bold">{{ statusCounts.scheduled || 0 }}</div>
           </v-card-text>
         </v-card>
@@ -143,13 +143,13 @@
                   class="filter-btn"
                   :class="{ 'filter-active': filters.dealer_id }"
                 >
-                  {{ filters.dealer_id ? getDealerName(filters.dealer_id!) : 'All dealers' }}
+                  {{ filters.dealer_id ? getDealerName(filters.dealer_id!) : t('common.allDealers') }}
                   <v-icon end size="small">mdi-chevron-down</v-icon>
                 </v-btn>
               </template>
               <v-list density="compact" class="filter-menu">
                 <v-list-item @click="filters.dealer_id = null; loadSubscriptions()">
-                  <v-list-item-title>All dealers</v-list-item-title>
+                  <v-list-item-title>{{ t('common.allDealers') }}</v-list-item-title>
                 </v-list-item>
                 <v-list-item
                   v-for="dealer in dealersForCreate"
@@ -172,13 +172,13 @@
                   class="filter-btn"
                   :class="{ 'filter-active': filters.subscription_status_id }"
                 >
-                  {{ filters.subscription_status_id ? getStatusLabel(filters.subscription_status_id!) : 'All statuses' }}
+                  {{ filters.subscription_status_id ? getStatusLabel(filters.subscription_status_id!) : t('common.allStatuses') }}
                   <v-icon end size="small">mdi-chevron-down</v-icon>
                 </v-btn>
               </template>
               <v-list density="compact" class="filter-menu">
                 <v-list-item @click="filters.subscription_status_id = null; loadSubscriptions()">
-                  <v-list-item-title>All statuses</v-list-item-title>
+                  <v-list-item-title>{{ t('common.allStatuses') }}</v-list-item-title>
                 </v-list-item>
                 <v-list-item
                   v-for="status in statusOptions"
@@ -206,7 +206,7 @@
           <!-- Search and Export -->
           <v-text-field
             v-model="searchQuery"
-            placeholder="Search for a subscription"
+            :placeholder="t('admin.views.subscriptions.searchPlaceholder')"
             variant="outlined"
             density="compact"
             hide-details
@@ -232,7 +232,7 @@
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model="dateFilter.start"
-                  label="Start Date"
+                  :label="t('admin.views.subscriptions.startDate')"
                   type="date"
                   variant="outlined"
                   density="compact"
@@ -241,7 +241,7 @@
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model="dateFilter.end"
-                  label="End Date"
+                  :label="t('admin.views.subscriptions.endDate')"
                   type="date"
                   variant="outlined"
                   density="compact"
@@ -253,7 +253,7 @@
                   :items="billingCycleOptions"
                   item-title="label"
                   item-value="value"
-                  label="Billing Cycle"
+                  :label="t('admin.views.subscriptions.billingCycle')"
                   variant="outlined"
                   density="compact"
                   clearable
@@ -345,7 +345,7 @@
                 color="primary"
               >
                 <v-icon size="small">mdi-eye</v-icon>
-                <v-tooltip activator="parent">View Details</v-tooltip>
+                <v-tooltip activator="parent">{{ t('admin.views.users.viewDetails') }}</v-tooltip>
               </v-btn>
               <v-btn
                 icon
@@ -355,7 +355,7 @@
                 color="info"
               >
                 <v-icon size="small">mdi-pencil</v-icon>
-                <v-tooltip activator="parent">Edit</v-tooltip>
+                <v-tooltip activator="parent">{{ t('common.edit') }}</v-tooltip>
               </v-btn>
               <v-menu>
                 <template #activator="{ props }">
@@ -368,7 +368,7 @@
                     @click.stop
             >
                     <v-icon size="small">mdi-dots-vertical</v-icon>
-                    <v-tooltip activator="parent">More Actions</v-tooltip>
+                    <v-tooltip activator="parent">{{ t('common.actions') }}</v-tooltip>
             </v-btn>
                 </template>
                 <v-list density="compact">
@@ -404,7 +404,7 @@
     <!-- Create Subscription Dialog -->
     <v-dialog v-model="showCreateDialog" max-width="700" scrollable persistent>
       <v-card>
-        <v-card-title>Create New Subscription</v-card-title>
+        <v-card-title>{{ t('admin.views.subscriptions.createNewSubscription') }}</v-card-title>
         <v-divider />
         <v-card-text class="pa-6">
           <v-form ref="createFormRef" v-model="createFormValid">
@@ -413,7 +413,7 @@
               :items="dealersForCreate"
               item-title="name"
               item-value="id"
-              label="Dealer *"
+              :label="t('admin.views.subscriptions.dealer')"
               variant="outlined"
               :rules="[v => !!v || 'Required']"
               class="mb-4"
@@ -439,7 +439,7 @@
               :items="plansList"
               item-title="name"
               item-value="id"
-              label="Plan *"
+              :label="t('admin.views.subscriptions.plan')"
               variant="outlined"
               :rules="[v => !!v || 'Required']"
               class="mb-4"
@@ -451,7 +451,7 @@
               :items="statusOptions"
               item-title="label"
               item-value="value"
-              label="Status *"
+              :label="t('admin.views.subscriptions.status')"
             variant="outlined"
               :rules="[v => !!v || 'Required']"
               class="mb-4"
@@ -461,7 +461,7 @@
               <v-col cols="12" md="6">
           <v-text-field
                   v-model="newSubscription.starts_at"
-                  label="Start Date *"
+                  :label="t('admin.views.subscriptions.startDate') + ' *'"
                   type="datetime-local"
             variant="outlined"
                   :rules="[v => !!v || 'Required']"
@@ -475,7 +475,7 @@
                   :items="billingCycleOptions"
                   item-title="label"
                   item-value="value"
-                  label="Billing Cycle"
+                  :label="t('admin.views.subscriptions.billingCycle')"
             variant="outlined"
                   class="mb-4"
                   density="compact"
@@ -484,7 +484,7 @@
             </v-row>
           <v-text-field
               v-model="newSubscription.ends_at"
-              label="End Date (Optional)"
+              :label="t('admin.views.subscriptions.endDateOptional')"
               type="datetime-local"
             variant="outlined"
               class="mb-4"
@@ -492,7 +492,7 @@
             />
             <v-switch
               v-model="newSubscription.auto_renew"
-              label="Auto Renew"
+              :label="t('admin.views.subscriptions.autoRenew')"
               color="primary"
               density="compact"
             />
@@ -501,7 +501,7 @@
         <v-divider />
         <v-card-actions class="pa-4">
           <v-spacer />
-          <v-btn variant="text" @click="closeCreateDialog" size="small">Cancel</v-btn>
+          <v-btn variant="text" @click="closeCreateDialog" size="small">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="primary"
             @click="createSubscription"
@@ -528,7 +528,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="showOverrideConfirmDialog = false">Cancel</v-btn>
+          <v-btn variant="text" @click="showOverrideConfirmDialog = false">{{ t('common.cancel') }}</v-btn>
           <v-btn color="primary" @click="confirmOverrideAndCreate" :loading="creating">
             Continue
           </v-btn>
@@ -539,7 +539,7 @@
     <!-- Edit Subscription Dialog -->
     <v-dialog v-model="showEditDialog" max-width="700" scrollable persistent>
       <v-card>
-        <v-card-title>Edit Subscription</v-card-title>
+        <v-card-title>{{ t('admin.views.subscriptions.editSubscription') }}</v-card-title>
         <v-divider />
         <v-card-text class="pa-6">
           <v-form ref="editFormRef" v-model="editFormValid">
@@ -548,7 +548,7 @@
             :items="statusOptions"
             item-title="label"
             item-value="value"
-              label="Status *"
+              :label="t('admin.views.subscriptions.status')"
               variant="outlined"
               :rules="[v => !!v || 'Required']"
               class="mb-4"
@@ -558,7 +558,7 @@
               <v-col cols="12" md="6">
                 <v-text-field
                   v-model="editData.starts_at"
-                  label="Start Date *"
+                  :label="t('admin.views.subscriptions.startDate') + ' *'"
                   type="datetime-local"
                   variant="outlined"
                   :rules="[v => !!v || 'Required']"
@@ -569,7 +569,7 @@
               <v-col cols="12" md="6">
                 <v-text-field
                   v-model="editData.ends_at"
-                  label="End Date"
+                  :label="t('admin.views.subscriptions.endDate')"
                   type="datetime-local"
             variant="outlined"
                   class="mb-4"
@@ -579,7 +579,7 @@
             </v-row>
             <v-switch
               v-model="editData.auto_renew"
-              label="Auto Renew"
+              :label="t('admin.views.subscriptions.autoRenew')"
               color="primary"
               density="compact"
             />
@@ -588,7 +588,7 @@
         <v-divider />
         <v-card-actions class="pa-4">
           <v-spacer />
-          <v-btn variant="text" @click="showEditDialog = false" size="small">Cancel</v-btn>
+          <v-btn variant="text" @click="showEditDialog = false" size="small">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="primary"
             @click="updateSubscriptionAction"
@@ -608,6 +608,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { hasPermission } from '@/utils/permissions'
 import {
   getSubscriptions,
@@ -626,6 +627,7 @@ import type { PaginationModel } from '@/models/pagination.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const loading = ref(false)
 const loadingDealersForCreate = ref(false)

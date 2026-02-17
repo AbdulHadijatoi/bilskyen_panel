@@ -3,9 +3,9 @@
     <!-- Header -->
     <div class="header-section mb-6">
       <div>
-        <h1 class="text-h4 font-weight-bold mb-1">Audit Logs</h1>
+        <h1 class="text-h4 font-weight-bold mb-1">{{ t('admin.views.auditLogs.title') }}</h1>
         <p class="text-body-2 text-medium-emphasis">
-          View and filter audit logs for all system activities. Track all changes and actions across the platform.
+          {{ t('admin.views.auditLogs.subtitle') }}
         </p>
       </div>
     </div>
@@ -21,8 +21,8 @@
               <div class="filter-item filter-search">
                 <v-text-field
                   v-model="filters.search"
-                  label="Search"
-                  placeholder="Search logs..."
+                  :label="t('admin.views.auditLogs.search')"
+                  :placeholder="t('admin.views.auditLogs.searchPlaceholder')"
                   variant="outlined"
                   density="compact"
                   hide-details
@@ -38,7 +38,7 @@
                 <v-select
                   v-model="filters.action"
                   :items="actionOptions"
-                  label="Action"
+                  :label="t('admin.views.auditLogs.action')"
                   variant="outlined"
                   density="compact"
                   hide-details
@@ -53,7 +53,7 @@
                 <v-select
                   v-model="filters.target_type"
                   :items="targetTypeOptions"
-                  label="Target Type"
+                  :label="t('admin.views.auditLogs.targetType')"
                   variant="outlined"
                   density="compact"
                   hide-details
@@ -68,7 +68,7 @@
                 <v-select
                   v-model="filters.severity"
                   :items="severityOptions"
-                  label="Severity"
+                  :label="t('admin.views.auditLogs.severity')"
                   variant="outlined"
                   density="compact"
                   hide-details
@@ -83,7 +83,7 @@
                 <v-select
                   v-model="filters.status"
                   :items="statusOptions"
-                  label="Status"
+                  :label="t('common.status')"
                   variant="outlined"
                   density="compact"
                   hide-details
@@ -98,7 +98,7 @@
                 <v-select
                   v-model="filters.time_period"
                   :items="timePeriodOptions"
-                  label="Time Period"
+                  :label="t('admin.views.auditLogs.timePeriod')"
                   variant="outlined"
                   density="compact"
                   hide-details
@@ -125,7 +125,7 @@
             <!-- Filter Summary Chips -->
             <div v-if="hasActiveFilters" class="mt-3 pt-3" style="border-top: 1px solid #f5f5f5;">
               <div class="d-flex flex-wrap gap-2 align-center">
-                <span class="text-caption text-medium-emphasis">Active filters:</span>
+                <span class="text-caption text-medium-emphasis">{{ t('admin.views.auditLogs.activeFilters') }}</span>
                 <v-chip
                   v-for="(value, key) in activeFilters"
                   :key="key"
@@ -254,7 +254,7 @@
     <v-dialog v-model="detailDialog.show" max-width="800" scrollable>
       <v-card>
         <v-card-title class="d-flex justify-space-between align-center">
-          <span>Audit Log Details</span>
+          <span>{{ t('admin.views.auditLogs.auditLogDetails') }}</span>
           <v-btn icon="mdi-close" variant="text" size="small" @click="detailDialog.show = false" />
         </v-card-title>
         <v-divider />
@@ -268,7 +268,7 @@
         </v-card-text>
         <v-card-text v-else-if="detailDialog.log" class="pa-6">
           <div class="detail-section">
-            <h3 class="text-subtitle-1 font-weight-bold mb-3">Basic Information</h3>
+            <h3 class="text-subtitle-1 font-weight-bold mb-3">{{ t('admin.views.auditLogs.basicInfo') }}</h3>
             <v-row>
               <v-col cols="12" md="6">
                 <div class="detail-item mb-3">
@@ -276,7 +276,7 @@
                   <span class="text-body-2 ml-2">{{ detailDialog.log.id }}</span>
                 </div>
                 <div class="detail-item mb-3">
-                  <span class="text-caption text-medium-emphasis">Action:</span>
+                  <span class="text-caption text-medium-emphasis">{{ t('admin.views.auditLogs.action') }}:</span>
                   <v-chip
                     size="small"
                     variant="flat"
@@ -288,29 +288,29 @@
                   </v-chip>
                 </div>
                 <div class="detail-item mb-3">
-                  <span class="text-caption text-medium-emphasis">Target Type:</span>
+                  <span class="text-caption text-medium-emphasis">{{ t('admin.views.auditLogs.targetType') }}:</span>
                   <span class="text-body-2 ml-2">{{ detailDialog.log.target_type }}</span>
                 </div>
                 <div class="detail-item mb-3">
-                  <span class="text-caption text-medium-emphasis">Target ID:</span>
+                  <span class="text-caption text-medium-emphasis">{{ t('admin.views.auditLogs.targetId') }}:</span>
                   <span class="text-body-2 ml-2">{{ detailDialog.log.target_id }}</span>
                 </div>
               </v-col>
               <v-col cols="12" md="6">
                 <div class="detail-item mb-3">
-                  <span class="text-caption text-medium-emphasis">Actor Type:</span>
+                  <span class="text-caption text-medium-emphasis">{{ t('admin.views.auditLogs.actorType') }}:</span>
                   <span class="text-body-2 ml-2">{{ detailDialog.log.actor_type }}</span>
                 </div>
                 <div class="detail-item mb-3">
-                  <span class="text-caption text-medium-emphasis">Actor ID:</span>
+                  <span class="text-caption text-medium-emphasis">{{ t('admin.views.auditLogs.actorId') }}:</span>
                   <span class="text-body-2 ml-2">{{ detailDialog.log.actor_id }}</span>
                 </div>
                 <div class="detail-item mb-3" v-if="detailDialog.log.dealer_id">
-                  <span class="text-caption text-medium-emphasis">Dealer ID:</span>
+                  <span class="text-caption text-medium-emphasis">{{ t('admin.views.auditLogs.dealerId') }}:</span>
                   <span class="text-body-2 ml-2">{{ detailDialog.log.dealer_id }}</span>
                 </div>
                 <div class="detail-item mb-3">
-                  <span class="text-caption text-medium-emphasis">Created At:</span>
+                  <span class="text-caption text-medium-emphasis">{{ t('admin.views.auditLogs.createdAt') }}:</span>
                   <span class="text-body-2 ml-2">{{ formatDate(detailDialog.log.created_at) }}</span>
                 </div>
               </v-col>
@@ -320,11 +320,11 @@
           <v-divider class="my-4" />
 
           <div class="detail-section">
-            <h3 class="text-subtitle-1 font-weight-bold mb-3">Status & Severity</h3>
+            <h3 class="text-subtitle-1 font-weight-bold mb-3">{{ t('admin.views.auditLogs.statusSeverity') }}</h3>
             <v-row>
               <v-col cols="12" md="6">
                 <div class="detail-item mb-3">
-                  <span class="text-caption text-medium-emphasis">Status:</span>
+                  <span class="text-caption text-medium-emphasis">{{ t('common.status') }}:</span>
                   <v-chip
                     v-if="detailDialog.log.status"
                     size="small"
@@ -340,7 +340,7 @@
               </v-col>
               <v-col cols="12" md="6">
                 <div class="detail-item mb-3">
-                  <span class="text-caption text-medium-emphasis">Severity:</span>
+                  <span class="text-caption text-medium-emphasis">{{ t('admin.views.auditLogs.severity') }}:</span>
                   <v-chip
                     v-if="detailDialog.log.severity"
                     size="small"
@@ -360,20 +360,20 @@
           <v-divider class="my-4" v-if="detailDialog.log.description" />
 
           <div class="detail-section" v-if="detailDialog.log.description">
-            <h3 class="text-subtitle-1 font-weight-bold mb-3">Description</h3>
+            <h3 class="text-subtitle-1 font-weight-bold mb-3">{{ t('admin.views.auditLogs.description') }}</h3>
             <p class="text-body-2">{{ detailDialog.log.description }}</p>
           </div>
 
           <v-divider class="my-4" v-if="detailDialog.log.metadata || detailDialog.log.tags" />
 
           <div class="detail-section" v-if="detailDialog.log.metadata || detailDialog.log.tags">
-            <h3 class="text-subtitle-1 font-weight-bold mb-3">Additional Information</h3>
+            <h3 class="text-subtitle-1 font-weight-bold mb-3">{{ t('admin.views.auditLogs.additionalInfo') }}</h3>
             <div v-if="detailDialog.log.tags" class="mb-3">
-              <span class="text-caption text-medium-emphasis">Tags:</span>
+              <span class="text-caption text-medium-emphasis">{{ t('admin.views.auditLogs.tags') }}:</span>
               <span class="text-body-2 ml-2">{{ detailDialog.log.tags }}</span>
             </div>
             <div v-if="detailDialog.log.metadata">
-              <span class="text-caption text-medium-emphasis">Metadata:</span>
+              <span class="text-caption text-medium-emphasis">{{ t('admin.views.auditLogs.metadata') }}:</span>
               <pre class="text-body-2 mt-2 pa-3" style="background-color: #f5f5f5; border-radius: 4px; overflow-x: auto;">{{ JSON.stringify(detailDialog.log.metadata, null, 2) }}</pre>
             </div>
           </div>
@@ -381,11 +381,11 @@
           <v-divider class="my-4" v-if="detailDialog.log.request_method || detailDialog.log.request_url || detailDialog.log.ip_address" />
 
           <div class="detail-section" v-if="detailDialog.log.request_method || detailDialog.log.request_url || detailDialog.log.ip_address">
-            <h3 class="text-subtitle-1 font-weight-bold mb-3">Request Information</h3>
+            <h3 class="text-subtitle-1 font-weight-bold mb-3">{{ t('admin.views.auditLogs.requestInfo') }}</h3>
             <v-row>
               <v-col cols="12" md="6">
                 <div class="detail-item mb-3" v-if="detailDialog.log.request_method">
-                  <span class="text-caption text-medium-emphasis">Method:</span>
+                  <span class="text-caption text-medium-emphasis">{{ t('admin.views.auditLogs.method') }}:</span>
                   <span class="text-body-2 ml-2">{{ detailDialog.log.request_method }}</span>
                 </div>
                 <div class="detail-item mb-3" v-if="detailDialog.log.ip_address">
@@ -395,11 +395,11 @@
               </v-col>
               <v-col cols="12" md="6">
                 <div class="detail-item mb-3" v-if="detailDialog.log.user_agent">
-                  <span class="text-caption text-medium-emphasis">User Agent:</span>
+                  <span class="text-caption text-medium-emphasis">{{ t('admin.views.auditLogs.userAgent') }}:</span>
                   <span class="text-body-2 ml-2" style="word-break: break-all;">{{ detailDialog.log.user_agent }}</span>
                 </div>
                 <div class="detail-item mb-3" v-if="detailDialog.log.duration_ms">
-                  <span class="text-caption text-medium-emphasis">Duration:</span>
+                  <span class="text-caption text-medium-emphasis">{{ t('admin.views.auditLogs.duration') }}:</span>
                   <span class="text-body-2 ml-2">{{ detailDialog.log.duration_ms }} ms</span>
                 </div>
               </v-col>
@@ -413,7 +413,7 @@
           <v-divider class="my-4" v-if="detailDialog.log.error_message" />
 
           <div class="detail-section" v-if="detailDialog.log.error_message">
-            <h3 class="text-subtitle-1 font-weight-bold mb-3 text-error">Error Information</h3>
+            <h3 class="text-subtitle-1 font-weight-bold mb-3 text-error">{{ t('admin.views.auditLogs.errorInfo') }}</h3>
             <v-alert type="error" variant="tonal" density="compact">
               {{ detailDialog.log.error_message }}
             </v-alert>
@@ -422,17 +422,17 @@
           <v-divider class="my-4" v-if="detailDialog.log.related_target_type" />
 
           <div class="detail-section" v-if="detailDialog.log.related_target_type">
-            <h3 class="text-subtitle-1 font-weight-bold mb-3">Related Target</h3>
+            <h3 class="text-subtitle-1 font-weight-bold mb-3">{{ t('admin.views.auditLogs.relatedTarget') }}</h3>
             <v-row>
               <v-col cols="12" md="6">
                 <div class="detail-item mb-3">
-                  <span class="text-caption text-medium-emphasis">Related Target Type:</span>
+                  <span class="text-caption text-medium-emphasis">{{ t('admin.views.auditLogs.relatedTargetType') }}:</span>
                   <span class="text-body-2 ml-2">{{ detailDialog.log.related_target_type }}</span>
                 </div>
               </v-col>
               <v-col cols="12" md="6">
                 <div class="detail-item mb-3">
-                  <span class="text-caption text-medium-emphasis">Related Target ID:</span>
+                  <span class="text-caption text-medium-emphasis">{{ t('admin.views.auditLogs.relatedTargetId') }}:</span>
                   <span class="text-body-2 ml-2">{{ detailDialog.log.related_target_id }}</span>
                 </div>
               </v-col>
@@ -442,7 +442,7 @@
         <v-divider />
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="detailDialog.show = false">Close</v-btn>
+          <v-btn variant="text" @click="detailDialog.show = false">{{ t('common.close') }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -456,7 +456,7 @@
     >
       {{ snackbar.message }}
       <template v-slot:actions>
-        <v-btn variant="text" size="small" @click="snackbar.show = false">Close</v-btn>
+        <v-btn variant="text" size="small" @click="snackbar.show = false">{{ t('common.close') }}</v-btn>
       </template>
     </v-snackbar>
   </div>
@@ -464,8 +464,11 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { getAuditLogs, getAuditLog, type AuditLogModel } from '@/api/admin.api'
 import type { PaginationModel } from '@/models/pagination.model'
+
+const { t } = useI18n()
 
 // State
 const snackbar = ref({

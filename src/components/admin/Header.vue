@@ -76,16 +76,53 @@
       <Breadcrumb />
 
       <div style="flex-grow: 1;" />
+
+      <div class="language-switch-wrapper">
+        <button
+          type="button"
+          class="language-switch"
+          :aria-label="t('common.language')"
+          :title="t('common.language')"
+          :style="{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.375rem',
+            borderRadius: '0.375rem',
+            padding: '0.5rem',
+            backgroundColor: 'var(--secondary)',
+            color: 'var(--secondary-foreground)',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '0.8125rem',
+            fontWeight: 500,
+            transition: 'background-color 0.2s',
+          }"
+          @click="toggleLocale"
+        >
+          <v-icon size="16">mdi-translate</v-icon>
+          <span class="language-code">{{ localeStore.locale.toUpperCase() }}</span>
+        </button>
+      </div>
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
 import { LayoutPanelLeft } from 'lucide-vue-next'
+import { useI18n } from 'vue-i18n'
 import { useSidebarStore } from '@/stores/sidebar'
+import { useLocaleStore } from '@/stores/locale.store'
 import Breadcrumb from '../dealer/Breadcrumb.vue'
 
+const { t } = useI18n()
 const sidebarStore = useSidebarStore()
+const localeStore = useLocaleStore()
+
+function toggleLocale() {
+  const next = localeStore.locale === 'en' ? 'da' : 'en'
+  localeStore.setLocale(next)
+}
 </script>
 
 <style scoped>
@@ -154,6 +191,14 @@ const sidebarStore = useSidebarStore()
 .breadcrumb :deep(*) {
   visibility: visible !important;
   opacity: 1 !important;
+}
+
+.language-switch-wrapper {
+  flex-shrink: 0;
+}
+
+.language-switch:hover {
+  opacity: 0.9;
 }
 </style>
 

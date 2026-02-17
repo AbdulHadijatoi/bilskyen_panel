@@ -4,9 +4,9 @@
     <div class="header-section mb-6">
       <div class="d-flex justify-space-between align-center">
   <div>
-          <h1 class="text-h4 font-weight-bold mb-1">Vehicle Management</h1>
+          <h1 class="text-h4 font-weight-bold mb-1">{{ t('dealer.views.vehicles.title') }}</h1>
           <p class="text-body-2 text-medium-emphasis mb-0">
-          View and manage your vehicle inventory
+          {{ t('dealer.views.vehicles.subtitle') }}
         </p>
       </div>
       <v-btn
@@ -16,7 +16,7 @@
           size="default"
         :to="{ name: 'dealer.vehicles.add' }"
       >
-        Add Vehicle
+        {{ t('dealer.views.vehicles.addVehicle') }}
       </v-btn>
     </div>
     </div>
@@ -32,7 +32,7 @@
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between">
               <div>
-                <div class="stat-label">Total Vehicles</div>
+                <div class="stat-label">{{ t('dealer.views.vehicles.totalVehicles') }}</div>
                 <div class="stat-value">{{ vehicles.totalDocs || 0 }}</div>
               </div>
               <v-icon size="40" color="primary" class="stat-icon">mdi-car-multiple</v-icon>
@@ -49,7 +49,7 @@
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between">
               <div>
-                <div class="stat-label">Published</div>
+                <div class="stat-label">{{ t('dealer.views.vehicles.published') }}</div>
                 <div class="stat-value text-success">{{ publishedCount }}</div>
               </div>
               <v-icon size="40" color="success" class="stat-icon">mdi-check-circle</v-icon>
@@ -66,7 +66,7 @@
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between">
               <div>
-                <div class="stat-label">Draft</div>
+                <div class="stat-label">{{ t('dealer.views.vehicles.draft') }}</div>
                 <div class="stat-value text-warning">{{ draftCount }}</div>
               </div>
               <v-icon size="40" color="warning" class="stat-icon">mdi-file-document-edit</v-icon>
@@ -83,7 +83,7 @@
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between">
               <div>
-                <div class="stat-label">Sold</div>
+                <div class="stat-label">{{ t('dealer.views.vehicles.sold') }}</div>
                 <div class="stat-value text-info">{{ soldCount }}</div>
               </div>
               <v-icon size="40" color="info" class="stat-icon">mdi-check-all</v-icon>
@@ -103,7 +103,7 @@
         <div class="d-flex align-center gap-4 flex-wrap">
           <v-text-field
             v-model="search"
-            placeholder="Search by title, registration, VIN..."
+            :placeholder="t('dealer.views.vehicles.searchPlaceholder')"
             density="comfortable"
             variant="outlined"
             prepend-inner-icon="mdi-magnify"
@@ -118,7 +118,7 @@
             :items="statusFilterOptions"
             item-title="label"
             item-value="value"
-            label="Filter by Status"
+            :label="t('dealer.views.vehicles.filterByStatus')"
               variant="outlined" 
             density="comfortable"
             prepend-inner-icon="mdi-filter"
@@ -135,7 +135,7 @@
             :loading="loading"
             size="default"
           >
-            Refresh
+            {{ t('common.refresh') }}
             </v-btn>
         </div>
       </v-card-text>
@@ -149,22 +149,22 @@
     >
       <v-card-title class="card-title">
         <v-icon class="mr-2">mdi-table</v-icon>
-        Vehicles List
+        {{ t('dealer.views.vehicles.vehiclesList') }}
         <v-spacer />
         <span class="text-caption text-medium-emphasis">
-          Showing {{ vehicles.docs.length }} of {{ vehicles.totalDocs || 0 }} vehicles
+          {{ t('dealer.views.vehicles.showingXOfY', { count: vehicles.docs.length, total: vehicles.totalDocs || 0 }) }}
         </span>
       </v-card-title>
 
       <v-card-text class="pa-0">
         <div v-if="loading" class="loading-container">
           <v-progress-circular indeterminate color="primary" size="48" />
-          <p class="text-body-2 text-medium-emphasis mt-4">Loading vehicles...</p>
+          <p class="text-body-2 text-medium-emphasis mt-4">{{ t('dealer.views.vehicles.loadingVehicles') }}</p>
         </div>
 
         <div v-else-if="error" class="error-container pa-6">
           <v-alert type="error" variant="tonal" prominent>
-            <v-alert-title>Error</v-alert-title>
+            <v-alert-title>{{ t('dealer.views.vehicles.error') }}</v-alert-title>
             {{ error }}
           </v-alert>
         </div>
@@ -200,7 +200,7 @@
               <div>
                 <div class="font-weight-medium">{{ item.title || 'N/A' }}</div>
                 <div class="text-caption text-medium-emphasis">
-                  {{ item.registration || 'No registration' }}
+                  {{ item.registration || t('common.noRegistration') }}
                 </div>
               </div>
             </div>
@@ -230,7 +230,7 @@
                 size="small"
                 color="primary"
                 @click="viewVehicle(item.id)"
-                title="View"
+                :title="t('common.view')"
               >
                 <v-icon size="20">mdi-eye</v-icon>
                 </v-btn>
@@ -240,7 +240,7 @@
                 size="small"
                 color="error"
                 @click="confirmDelete(item)"
-                  title="Delete"
+                  :title="t('common.delete')"
               >
                 <v-icon size="20">mdi-delete</v-icon>
               </v-btn>
@@ -267,25 +267,25 @@
     >
       <v-card>
         <v-card-title class="text-h6 font-weight-bold">
-          Delete Vehicle
+          {{ t('dealer.views.vehicles.deleteVehicle') }}
         </v-card-title>
         <v-card-text>
           <p class="text-body-1">
-            Are you sure you want to delete <strong>{{ vehicleToDelete?.title || `Vehicle #${vehicleToDelete?.id}` }}</strong>?
+            {{ t('dealer.views.vehicles.confirmDeleteMessage', { name: vehicleToDelete?.title || `Vehicle #${vehicleToDelete?.id}` }) }}
           </p>
           <p class="text-body-2 text-medium-emphasis mt-2">
-            This action will soft delete the vehicle. The vehicle will no longer be visible in the system.
+            {{ t('dealer.views.vehicles.deleteVehicleDescription') }}
           </p>
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="showDeleteDialog = false">Cancel</v-btn>
+          <v-btn variant="text" @click="showDeleteDialog = false">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="error"
             @click="deleteVehicle"
             :loading="deleting"
           >
-            Delete Vehicle
+            {{ t('dealer.views.vehicles.deleteVehicle') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -296,6 +296,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { getVehicles, deleteVehicle as deleteVehicleApi } from '@/api/dealer.api'
 import { hasPermission } from '@/utils/permissions'
 import type { PaginationModel } from '@/models/pagination.model'
@@ -304,6 +305,7 @@ import type { VehicleStatus } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -324,21 +326,21 @@ const showDeleteDialog = ref(false)
 const vehicleToDelete = ref<VehicleModel | null>(null)
 const deleting = ref(false)
 
-const statusFilterOptions = [
-  { label: 'All Statuses', value: null },
-  { label: 'Draft', value: 'draft' as VehicleStatus },
-  { label: 'Published', value: 'published' as VehicleStatus },
-  { label: 'Sold', value: 'sold' as VehicleStatus },
-  { label: 'Archived', value: 'archived' as VehicleStatus },
-]
+const statusFilterOptions = computed(() => [
+  { label: t('dealer.views.vehicles.allStatuses'), value: null },
+  { label: t('dealer.views.vehicles.draft'), value: 'draft' as VehicleStatus },
+  { label: t('dealer.views.vehicles.published'), value: 'published' as VehicleStatus },
+  { label: t('dealer.views.vehicles.sold'), value: 'sold' as VehicleStatus },
+  { label: t('dealer.views.vehicles.archived'), value: 'archived' as VehicleStatus },
+])
 
-const headers = [
+const headers = computed(() => [
   { title: 'ID', key: 'id', width: '100px', sortable: false },
-  { title: 'Vehicle', key: 'title', sortable: false },
-  { title: 'Price', key: 'price', width: '120px', sortable: false },
-  { title: 'Status', key: 'status', width: '120px', sortable: false },
-  { title: 'Actions', key: 'actions', sortable: false, width: '120px', align: 'center' as const },
-]
+  { title: t('dealer.views.vehicles.vehicle'), key: 'title', sortable: false },
+  { title: t('dealer.views.vehicles.price'), key: 'price', width: '120px', sortable: false },
+  { title: t('common.status'), key: 'status', width: '120px', sortable: false },
+  { title: t('common.actions'), key: 'actions', sortable: false, width: '120px', align: 'center' as const },
+])
 
 // Status counts - fetch all vehicles for accurate counts
 const statusCounts = ref({
@@ -399,7 +401,7 @@ const loadVehicles = async () => {
     const response = await getVehicles(params)
     vehicles.value = response
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load vehicles'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.vehicles.failedLoadVehicles')
   } finally {
     loading.value = false
   }
@@ -435,7 +437,7 @@ const deleteVehicle = async () => {
     vehicleToDelete.value = null
     await Promise.all([loadVehicles(), loadStatusCounts()])
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to delete vehicle'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.vehicles.failedDeleteVehicle')
   } finally {
     deleting.value = false
   }

@@ -25,7 +25,7 @@
             <v-icon :size="20" class="icon">{{ item.icon }}</v-icon>
           </div>
           <div class="flex min-w-0 grow items-center gap-2.5">
-            <div class="truncate">{{ item.title }}</div>
+            <div class="truncate">{{ translatedItemTitle }}</div>
             <span v-if="item.badge" class="__menu-item-badge">{{ item.badge }}</span>
           </div>
         </div>
@@ -38,7 +38,7 @@
         </div>
       </component>
     </template>
-    <span>{{ item.title }}</span>
+    <span>{{ translatedItemTitle }}</span>
   </v-tooltip>
   <component
     v-else-if="!item.items || item.items.length === 0"
@@ -60,7 +60,7 @@
         <v-icon :size="20" class="icon">{{ item.icon }}</v-icon>
       </div>
       <div class="flex min-w-0 grow items-center gap-2.5">
-        <div class="truncate">{{ item.title }}</div>
+        <div class="truncate">{{ translatedItemTitle }}</div>
         <span v-if="item.badge" class="__menu-item-badge">{{ item.badge }}</span>
       </div>
     </div>
@@ -101,7 +101,7 @@
               <v-icon :size="20" class="icon">{{ item.icon }}</v-icon>
             </div>
             <div class="flex min-w-0 grow items-center gap-2.5">
-              <div class="truncate">{{ item.title }}</div>
+              <div class="truncate">{{ translatedItemTitle }}</div>
               <span v-if="item.badge" class="__menu-item-badge">{{ item.badge }}</span>
             </div>
           </div>
@@ -118,7 +118,7 @@
           </div>
         </div>
       </template>
-      <span>{{ item.title }}</span>
+      <span>{{ translatedItemTitle }}</span>
     </v-tooltip>
     <div
       v-else
@@ -141,7 +141,7 @@
           <v-icon :size="20" class="icon">{{ item.icon }}</v-icon>
         </div>
         <div class="flex min-w-0 grow items-center gap-2.5">
-          <div class="truncate">{{ item.title }}</div>
+          <div class="truncate">{{ translatedItemTitle }}</div>
           <span v-if="item.badge" class="__menu-item-badge">{{ item.badge }}</span>
         </div>
       </div>
@@ -188,7 +188,7 @@
               <v-icon :size="20" class="icon">{{ subItem.icon || 'mdi-circle-small' }}</v-icon>
             </div>
             <div class="flex min-w-0 grow items-center gap-2.5">
-              <div class="truncate">{{ subItem.title }}</div>
+              <div class="truncate">{{ getSubItemTitle(subItem.title) }}</div>
               <span v-if="subItem.badge" class="__menu-item-badge">{{ subItem.badge }}</span>
             </div>
           </div>
@@ -201,16 +201,40 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useSidebarStore } from '@/stores/sidebar'
 import type { SidebarSectionItem } from '@/constants/dealer'
+
+const NAV_TITLE_KEYS: Record<string, string> = {
+  Dashboard: 'nav.dashboard',
+  Vehicles: 'nav.vehicles',
+  Overview: 'nav.overview',
+  'Add Vehicle': 'nav.addVehicle',
+  Leads: 'nav.leads',
+  Enquiries: 'nav.enquiries',
+  Staff: 'nav.staff',
+  Subscription: 'nav.subscription',
+  'Audit Logs': 'nav.auditLogs',
+}
 
 interface Props {
   item: SidebarSectionItem
 }
 
 const props = defineProps<Props>()
+const { t } = useI18n()
 const route = useRoute()
 const sidebarStore = useSidebarStore()
+
+const translatedItemTitle = computed(() => {
+  const key = NAV_TITLE_KEYS[props.item.title]
+  return key ? t(key) : props.item.title
+})
+
+function getSubItemTitle(title: string): string {
+  const key = NAV_TITLE_KEYS[title]
+  return key ? t(key) : title
+}
 
 const isActive = computed(() => {
   return (

@@ -78,7 +78,7 @@
               letterSpacing: '0.05em',
             }"
           >
-            {{ section.title }}
+            {{ getSectionTitle(section.title) }}
           </div>
 
           <div class="sidebar-menu" style="display: flex; flex-direction: column; gap: 0.125rem;">
@@ -129,15 +129,15 @@
           </template>
           <v-list>
             <v-list-item :to="{ name: 'dealer.profile' }" prepend-icon="mdi-account">
-              <v-list-item-title>View Profile</v-list-item-title>
+              <v-list-item-title>{{ t('nav.viewProfile') }}</v-list-item-title>
             </v-list-item>
             <v-divider />
             <v-list-item prepend-icon="mdi-lock-reset" @click="showChangePasswordDialog = true">
-              <v-list-item-title>Change Password</v-list-item-title>
+              <v-list-item-title>{{ t('nav.changePassword') }}</v-list-item-title>
             </v-list-item>
             <v-divider />
             <v-list-item prepend-icon="mdi-logout" @click="handleLogout">
-              <v-list-item-title>Logout</v-list-item-title>
+              <v-list-item-title>{{ t('nav.logout') }}</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
@@ -152,6 +152,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useSidebarStore } from '@/stores/sidebar'
 import { useAuthStore } from '@/stores/auth.store'
 import { logout, getCurrentUser } from '@/services/auth'
@@ -161,10 +162,22 @@ import { hasFeature, getSubscriptionFeatures } from '@/utils/subscriptionFeature
 import SidebarItem from './SidebarItem.vue'
 import ChangePasswordDialog from './ChangePasswordDialog.vue'
 
+const { t } = useI18n()
 const sidebarStore = useSidebarStore()
 const authStore = useAuthStore()
 const router = useRouter()
 const showChangePasswordDialog = ref(false)
+
+const SECTION_TITLE_KEYS: Record<string, string> = {
+  'Core Operations': 'navSection.coreOperations',
+  Management: 'navSection.management',
+}
+
+function getSectionTitle(title: string | undefined): string {
+  if (!title) return ''
+  const key = SECTION_TITLE_KEYS[title]
+  return key ? t(key) : title
+}
 
 const userInitials = computed(() => {
   const name = authStore.user?.name || 'User'

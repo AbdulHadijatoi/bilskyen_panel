@@ -3,9 +3,9 @@
     <!-- Header -->
     <div class="analytics-header mb-6">
       <div>
-        <h1 class="text-h4 font-weight-bold mb-2">Analytics</h1>
+        <h1 class="text-h4 font-weight-bold mb-2">{{ t('dealer.views.analytics.title') }}</h1>
         <p class="text-body-1 text-medium-emphasis">
-          Your dealer performance and insights
+          {{ t('dealer.views.analytics.subtitle') }}
         </p>
       </div>
       <DateRangeFilter v-model="dateRange" @update:model-value="loadAllAnalytics" />
@@ -14,7 +14,7 @@
     <!-- Loading State -->
     <div v-if="loading && !overview" class="loading-container">
       <v-progress-circular indeterminate color="primary" size="64" />
-      <p class="text-body-1 text-medium-emphasis mt-4">Loading analytics data...</p>
+      <p class="text-body-1 text-medium-emphasis mt-4">{{ t('dealer.views.analytics.loadingData') }}</p>
     </div>
 
     <!-- Error State -->
@@ -25,7 +25,7 @@
       prominent
       class="mb-4"
     >
-      <v-alert-title>Error Loading Analytics</v-alert-title>
+      <v-alert-title>{{ t('dealer.views.analytics.errorLoading') }}</v-alert-title>
       {{ error }}
     </v-alert>
 
@@ -35,44 +35,44 @@
       <v-row class="mb-6">
         <v-col cols="12" sm="6" md="3">
           <MetricCard
-            title="Active Vehicles"
+            :title="t('dealer.views.analytics.activeVehicles')"
             :value="overview.vehicles.total_active"
             icon="mdi-car"
             icon-color="success"
-            :subtitle="`${overview.vehicles.sold} sold`"
+            :subtitle="`${overview.vehicles.sold} ${t('dealer.views.analytics.sold')}`"
             subtitle-icon="mdi-check-circle"
           />
         </v-col>
         <v-col cols="12" sm="6" md="3">
           <MetricCard
-            title="Total Leads"
+            :title="t('dealer.views.analytics.totalLeads')"
             :value="overview.leads.total"
             icon="mdi-phone-in-talk"
             icon-color="primary"
-            :subtitle="`${overview.leads.by_type.enquiry + overview.leads.by_type.phone} enquiries`"
+            :subtitle="`${overview.leads.by_type.enquiry + overview.leads.by_type.phone} ${t('dealer.views.analytics.enquiries')}`"
             subtitle-icon="mdi-phone"
           />
         </v-col>
         <v-col cols="12" sm="6" md="3">
           <MetricCard
-            title="Conversion Rate"
+            :title="t('dealer.views.analytics.conversionRate')"
             :value="overview.conversion_rate"
             icon="mdi-chart-line"
             icon-color="warning"
             format="percentage"
-            :subtitle="`${overview.vehicles.sold} sold`"
+            :subtitle="`${overview.vehicles.sold} ${t('dealer.views.analytics.sold')}`"
             subtitle-icon="mdi-check-circle"
           />
         </v-col>
         <v-col cols="12" sm="6" md="3">
           <MetricCard
-            title="Featured Vehicles"
+            :title="t('dealer.views.analytics.featuredVehicles')"
             :value="overview.vehicles.featured_count"
             icon="mdi-star"
             icon-color="info"
-            :subtitle="`${overview.vehicles.featured_limit} limit`"
+            :subtitle="`${overview.vehicles.featured_limit} ${t('dealer.views.analytics.limit')}`"
             subtitle-icon="mdi-information"
-            :badge="overview.vehicles.featured_count >= overview.vehicles.featured_limit ? 'Limit Reached' : undefined"
+            :badge="overview.vehicles.featured_count >= overview.vehicles.featured_limit ? t('dealer.views.analytics.limitReached') : undefined"
             badge-color="warning"
           />
         </v-col>
@@ -82,7 +82,7 @@
       <v-card variant="outlined" class="mb-6" style="border-color: rgba(0, 0, 0, 0.12);">
         <v-card-title class="d-flex align-center">
           <v-icon size="20" class="mr-2">mdi-phone-in-talk</v-icon>
-          <span>Lead Analytics</span>
+          <span>{{ t('dealer.views.analytics.leadAnalytics') }}</span>
         </v-card-title>
         <v-card-text>
           <div v-if="loadingLeads" class="text-center py-4">
@@ -91,7 +91,7 @@
           <div v-else-if="leadAnalytics">
             <v-row>
               <v-col cols="12" md="6">
-                <h3 class="text-h6 mb-3">Leads Over Time</h3>
+                <h3 class="text-h6 mb-3">{{ t('dealer.views.analytics.leadsOverTime') }}</h3>
                 <LineChart
                   v-if="leadAnalytics.over_time.length > 0"
                   :data="{
@@ -107,7 +107,7 @@
                 />
               </v-col>
               <v-col cols="12" md="6">
-                <h3 class="text-h6 mb-3">Leads by Source</h3>
+                <h3 class="text-h6 mb-3">{{ t('dealer.views.analytics.leadsBySource') }}</h3>
                 <PieChart
                   v-if="leadAnalytics.by_source.length > 0"
                   :data="{
@@ -129,7 +129,7 @@
             </v-row>
             <v-row class="mt-4">
               <v-col cols="12" md="6">
-                <h3 class="text-h6 mb-3">Lead Status Breakdown</h3>
+                <h3 class="text-h6 mb-3">{{ t('dealer.views.analytics.leadStatusBreakdown') }}</h3>
                 <PieChart
                   v-if="leadAnalytics.status_breakdown.length > 0"
                   :data="{
@@ -150,15 +150,15 @@
               </v-col>
               <v-col cols="12" md="6">
                 <div class="mb-4">
-                  <strong>Average Response Time:</strong> {{ leadAnalytics.average_response_time_hours }} hours
+                  <strong>{{ t('dealer.views.analytics.averageResponseTime') }}</strong> {{ leadAnalytics.average_response_time_hours }} {{ t('dealer.views.analytics.hours') }}
                 </div>
-                <h3 class="text-h6 mb-3">Top Vehicles by Leads</h3>
+                <h3 class="text-h6 mb-3">{{ t('dealer.views.analytics.topVehiclesByLeads') }}</h3>
                 <v-table>
                   <thead>
                     <tr>
-                      <th>Vehicle</th>
-                      <th>Registration</th>
-                      <th>Leads</th>
+                      <th>{{ t('dealer.views.analytics.vehicle') }}</th>
+                      <th>{{ t('dealer.views.analytics.registration') }}</th>
+                      <th>{{ t('dealer.views.analytics.leads') }}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -179,7 +179,7 @@
       <v-card variant="outlined" class="mb-6" style="border-color: rgba(0, 0, 0, 0.12);">
         <v-card-title class="d-flex align-center">
           <v-icon size="20" class="mr-2">mdi-car</v-icon>
-          <span>Vehicle Performance</span>
+          <span>{{ t('dealer.views.analytics.vehiclePerformance') }}</span>
         </v-card-title>
         <v-card-text>
           <div v-if="loadingVehicles" class="text-center py-4">
@@ -188,13 +188,13 @@
           <div v-else-if="vehicleAnalytics">
             <v-row>
               <v-col cols="12" md="6">
-                <h3 class="text-h6 mb-3">Most Viewed Vehicles</h3>
+                <h3 class="text-h6 mb-3">{{ t('dealer.views.analytics.mostViewedVehicles') }}</h3>
                 <v-table>
                   <thead>
                     <tr>
-                      <th>Vehicle</th>
-                      <th>Registration</th>
-                      <th>Views</th>
+                      <th>{{ t('dealer.views.analytics.vehicle') }}</th>
+                      <th>{{ t('dealer.views.analytics.registration') }}</th>
+                      <th>{{ t('dealer.views.analytics.views') }}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -207,13 +207,13 @@
                 </v-table>
               </v-col>
               <v-col cols="12" md="6">
-                <h3 class="text-h6 mb-3">Vehicles with Highest Leads</h3>
+                <h3 class="text-h6 mb-3">{{ t('dealer.views.analytics.vehiclesWithHighestLeads') }}</h3>
                 <v-table>
                   <thead>
                     <tr>
-                      <th>Vehicle</th>
-                      <th>Registration</th>
-                      <th>Leads</th>
+                      <th>{{ t('dealer.views.analytics.vehicle') }}</th>
+                      <th>{{ t('dealer.views.analytics.registration') }}</th>
+                      <th>{{ t('dealer.views.analytics.leads') }}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -229,18 +229,18 @@
             <v-row class="mt-4">
               <v-col cols="12" md="6">
                 <div class="mb-4">
-                  <strong>Average Days on Market:</strong> {{ vehicleAnalytics.average_days_on_market }} days
+                  <strong>{{ t('dealer.views.analytics.averageDaysOnMarket') }}</strong> {{ vehicleAnalytics.average_days_on_market }} {{ t('dealer.views.analytics.days') }}
                 </div>
               </v-col>
               <v-col cols="12" md="6">
-                <h3 class="text-h6 mb-3">Recent Price Changes</h3>
+                <h3 class="text-h6 mb-3">{{ t('dealer.views.analytics.recentPriceChanges') }}</h3>
                 <v-table>
                   <thead>
                     <tr>
-                      <th>Vehicle</th>
-                      <th>Old Price</th>
-                      <th>New Price</th>
-                      <th>Change</th>
+                      <th>{{ t('dealer.views.analytics.vehicle') }}</th>
+                      <th>{{ t('dealer.views.analytics.oldPrice') }}</th>
+                      <th>{{ t('dealer.views.analytics.newPrice') }}</th>
+                      <th>{{ t('dealer.views.analytics.change') }}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -264,7 +264,7 @@
       <v-card variant="outlined" class="mb-6" style="border-color: rgba(0, 0, 0, 0.12);">
         <v-card-title class="d-flex align-center">
           <v-icon size="20" class="mr-2">mdi-chart-bar</v-icon>
-          <span>Marketing Analytics</span>
+          <span>{{ t('dealer.views.analytics.marketingAnalytics') }}</span>
         </v-card-title>
         <v-card-text>
           <div v-if="loadingMarketing" class="text-center py-4">
@@ -273,10 +273,10 @@
           <div v-else-if="marketing">
             <v-row>
               <v-col cols="12" md="6">
-                <h3 class="text-h6 mb-3">Featured vs Non-Featured Performance</h3>
+                <h3 class="text-h6 mb-3">{{ t('dealer.views.analytics.featuredVsNonFeatured') }}</h3>
                 <BarChart
                   :data="{
-                    labels: ['Featured', 'Non-Featured'],
+                    labels: [t('dealer.views.analytics.featured'), t('dealer.views.analytics.nonFeatured')],
                     datasets: [
                       {
                         label: 'Views',
@@ -343,7 +343,7 @@
                 </div>
               </v-col>
               <v-col cols="12" md="6">
-                <h3 class="text-h6 mb-3">Feature Usage</h3>
+                <h3 class="text-h6 mb-3">{{ t('dealer.views.analytics.featureUsage') }}</h3>
                 <div v-for="feature in subscription.features" :key="feature.feature_key" class="mb-4">
                   <div class="d-flex justify-space-between mb-1">
                     <span>{{ feature.feature_name }}</span>
@@ -367,6 +367,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import {
   getAnalyticsOverview,
   getAnalyticsLeads,
@@ -388,6 +389,7 @@ import LineChart from '@/components/charts/LineChart.vue'
 import BarChart from '@/components/charts/BarChart.vue'
 import PieChart from '@/components/charts/PieChart.vue'
 
+const { t } = useI18n()
 const dateRange = ref<DateRange>('30d')
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -426,7 +428,7 @@ const loadOverview = async () => {
     error.value = null
     overview.value = await getAnalyticsOverview(dateRange.value)
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load overview analytics'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.analytics.failedLoadOverview')
   } finally {
     loading.value = false
   }

@@ -3,9 +3,9 @@
     <!-- Header -->
     <div class="header-section mb-6">
       <div>
-        <h1 class="text-h4 font-weight-bold mb-1">Audit Logs</h1>
+        <h1 class="text-h4 font-weight-bold mb-1">{{ t('dealer.views.auditLogs.title') }}</h1>
         <p class="text-body-2 text-medium-emphasis">
-          View and filter audit logs for your dealer account. Track all system activities and changes.
+          {{ t('dealer.views.auditLogs.subtitle') }}
         </p>
       </div>
     </div>
@@ -21,8 +21,8 @@
               <div class="filter-item filter-search">
                 <v-text-field
                   v-model="filters.search"
-                  label="Search"
-                  placeholder="Search logs..."
+                  :label="t('admin.views.auditLogs.search')"
+                  :placeholder="t('admin.views.auditLogs.searchPlaceholder')"
                   variant="outlined"
                   density="compact"
                   hide-details
@@ -37,7 +37,7 @@
                 <v-select
                   v-model="filters.action"
                   :items="actionOptions"
-                  label="Action"
+                  :label="t('admin.views.auditLogs.action')"
                   variant="outlined"
                   density="compact"
                   hide-details
@@ -52,7 +52,7 @@
                 <v-select
                   v-model="filters.target_type"
                   :items="targetTypeOptions"
-                  label="Target Type"
+                  :label="t('admin.views.auditLogs.targetType')"
                   variant="outlined"
                   density="compact"
                   hide-details
@@ -67,7 +67,7 @@
                 <v-select
                   v-model="filters.severity"
                   :items="severityOptions"
-                  label="Severity"
+                  :label="t('admin.views.auditLogs.severity')"
                   variant="outlined"
                   density="compact"
                   hide-details
@@ -82,7 +82,7 @@
                 <v-select
                   v-model="filters.status"
                   :items="statusOptions"
-                  label="Status"
+                  :label="t('common.status')"
                   variant="outlined"
                   density="compact"
                   hide-details
@@ -97,7 +97,7 @@
                 <v-select
                   v-model="filters.time_period"
                   :items="timePeriodOptions"
-                  label="Time Period"
+                  :label="t('admin.views.auditLogs.timePeriod')"
                   variant="outlined"
                   density="compact"
                   hide-details
@@ -117,7 +117,7 @@
                   class="border border-grey-100"
                   @click="clearFilters"
                 >
-                  Clear Filters
+                  {{ t('dealer.views.auditLogs.clearFilters') }}
                 </v-btn>
               </div>
             </div>
@@ -125,7 +125,7 @@
             <!-- Filter Summary Chips -->
             <div v-if="hasActiveFilters" class="mt-3 pt-3" style="border-top: 1px solid #f5f5f5;">
               <div class="d-flex flex-wrap gap-2 align-center">
-                <span class="text-caption text-medium-emphasis">Active filters:</span>
+                <span class="text-caption text-medium-emphasis">{{ t('admin.views.auditLogs.activeFilters') }}</span>
                 <v-chip
                   v-for="(value, key) in activeFilters"
                   :key="key"
@@ -160,9 +160,9 @@
 
             <div v-else-if="auditLogs.docs.length === 0" class="text-center py-12">
               <v-icon size="48" color="grey-lighten-1" class="mb-3">mdi-file-document-outline</v-icon>
-              <p class="text-body-1 text-medium-emphasis mb-1">No audit logs found</p>
+              <p class="text-body-1 text-medium-emphasis mb-1">{{ t('dealer.views.auditLogs.noLogsFound') }}</p>
               <p class="text-caption text-medium-emphasis">
-                {{ hasActiveFilters ? 'Try adjusting your filters' : 'No audit logs available' }}
+                {{ hasActiveFilters ? t('dealer.views.auditLogs.tryAdjustingFilters') : t('dealer.views.auditLogs.noLogsAvailable') }}
               </p>
             </div>
 
@@ -258,7 +258,7 @@
     <v-dialog v-model="detailDialog.show" max-width="800" scrollable>
       <v-card>
         <v-card-title class="d-flex align-center justify-space-between pa-4" style="background-color: #fafafa;">
-          <span class="text-h6">Audit Log Details</span>
+          <span class="text-h6">{{ t('dealer.views.auditLogs.auditLogDetails') }}</span>
           <v-btn icon="mdi-close" variant="text" size="small" @click="detailDialog.show = false" />
         </v-card-title>
 
@@ -274,7 +274,7 @@
         <v-card-text v-else-if="detailDialog.log" class="pa-6">
           <!-- Basic Info -->
           <div class="detail-section mb-4">
-            <h3 class="text-subtitle-1 font-weight-bold mb-3">Basic Information</h3>
+            <h3 class="text-subtitle-1 font-weight-bold mb-3">{{ t('admin.views.auditLogs.basicInfo') }}</h3>
             <div class="detail-grid">
               <div class="detail-item mb-3">
                 <span class="text-caption text-medium-emphasis font-weight-bold">ID:</span>
@@ -361,7 +361,7 @@
           <v-divider class="my-4" v-if="detailDialog.log.description" />
 
           <div class="detail-section" v-if="detailDialog.log.description">
-            <h3 class="text-subtitle-1 font-weight-bold mb-3">Description</h3>
+            <h3 class="text-subtitle-1 font-weight-bold mb-3">{{ t('admin.views.auditLogs.description') }}</h3>
             <p class="text-body-2">{{ detailDialog.log.description }}</p>
           </div>
 
@@ -382,7 +382,7 @@
           <v-divider class="my-4" v-if="detailDialog.log.request_method || detailDialog.log.request_url || detailDialog.log.ip_address" />
 
           <div class="detail-section" v-if="detailDialog.log.request_method || detailDialog.log.request_url || detailDialog.log.ip_address">
-            <h3 class="text-subtitle-1 font-weight-bold mb-3">Request Information</h3>
+            <h3 class="text-subtitle-1 font-weight-bold mb-3">{{ t('admin.views.auditLogs.requestInfo') }}</h3>
             <div class="detail-grid">
               <div class="detail-column">
                 <div class="detail-item mb-3" v-if="detailDialog.log.request_method">
@@ -414,7 +414,7 @@
           <v-divider class="my-4" v-if="detailDialog.log.error_message" />
 
           <div class="detail-section" v-if="detailDialog.log.error_message">
-            <h3 class="text-subtitle-1 font-weight-bold mb-3">Error Message</h3>
+            <h3 class="text-subtitle-1 font-weight-bold mb-3">{{ t('admin.views.auditLogs.errorInfo') }}</h3>
             <v-alert type="error" variant="tonal" density="compact">
               {{ detailDialog.log.error_message }}
             </v-alert>
@@ -423,7 +423,7 @@
           <v-divider class="my-4" v-if="detailDialog.log.related_target_type" />
 
           <div class="detail-section" v-if="detailDialog.log.related_target_type">
-            <h3 class="text-subtitle-1 font-weight-bold mb-3">Related Target</h3>
+            <h3 class="text-subtitle-1 font-weight-bold mb-3">{{ t('admin.views.auditLogs.relatedTarget') }}</h3>
             <div class="detail-grid">
               <div class="detail-item mb-3">
                 <span class="text-caption text-medium-emphasis font-weight-bold">Related Target Type:</span>
@@ -439,7 +439,7 @@
 
         <v-card-actions class="pa-4" style="background-color: #fafafa;">
           <v-spacer />
-          <v-btn variant="text" @click="detailDialog.show = false">Close</v-btn>
+          <v-btn variant="text" @click="detailDialog.show = false">{{ t('dealer.views.auditLogs.close') }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -453,7 +453,7 @@
     >
       {{ snackbar.message }}
       <template v-slot:actions>
-        <v-btn variant="text" size="small" @click="snackbar.show = false">Close</v-btn>
+        <v-btn variant="text" size="small" @click="snackbar.show = false">{{ t('dealer.views.auditLogs.close') }}</v-btn>
       </template>
     </v-snackbar>
   </div>
@@ -461,8 +461,11 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { getAuditLogs, getAuditLog, type DealerAuditLogModel } from '@/api/dealer.api'
 import type { PaginationModel } from '@/models/pagination.model'
+
+const { t } = useI18n()
 
 // State
 const snackbar = ref({
@@ -617,8 +620,8 @@ const loadAuditLogs = async () => {
     auditLogs.value = response
   } catch (err: any) {
     console.error('Failed to load audit logs:', err)
-    error.value = err.message || 'Failed to load audit logs'
-    showSnackbar('Failed to load audit logs', 'error')
+    error.value = err.message || t('dealer.views.auditLogs.failedLoadLogs')
+    showSnackbar(t('dealer.views.auditLogs.failedLoadLogs'), 'error')
   } finally {
     loading.value = false
   }
@@ -792,8 +795,8 @@ const openDetailDialog = async (id: number) => {
     const log = await getAuditLog(id)
     detailDialog.value.log = log
   } catch (err: any) {
-    detailDialog.value.error = err.message || 'Failed to load audit log details'
-    showSnackbar('Failed to load audit log details', 'error')
+    detailDialog.value.error = err.message || t('dealer.views.auditLogs.failedLoadDetails')
+    showSnackbar(t('dealer.views.auditLogs.failedLoadDetails'), 'error')
   } finally {
     detailDialog.value.loading = false
   }

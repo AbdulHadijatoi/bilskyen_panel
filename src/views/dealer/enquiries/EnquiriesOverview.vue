@@ -4,9 +4,9 @@
     <div class="header-section mb-6">
       <div class="d-flex justify-space-between align-center flex-wrap gap-4">
         <div>
-          <h1 class="text-h4 font-weight-bold mb-1">Customer Enquiries</h1>
+          <h1 class="text-h4 font-weight-bold mb-1">{{ t('dealer.views.enquiries.title') }}</h1>
           <p class="text-body-2 text-medium-emphasis mb-0">
-            Manage and respond to customer enquiries for your vehicles
+            {{ t('dealer.views.enquiries.subtitle') }}
           </p>
         </div>
         <div class="d-flex gap-2">
@@ -16,7 +16,7 @@
             size="small"
             @click="loadEnquiries"
             :loading="loading"
-            title="Refresh"
+            :title="t('dealer.views.enquiries.refresh')"
           >
             <v-icon>mdi-refresh</v-icon>
           </v-btn>
@@ -31,7 +31,7 @@
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between">
               <div>
-                <div class="stat-label text-caption">Total</div>
+                <div class="stat-label text-caption">{{ t('dealer.views.enquiries.total') }}</div>
                 <div class="stat-value text-h5 font-weight-bold">{{ pagination.total }}</div>
               </div>
               <v-icon size="32" color="primary" class="stat-icon">mdi-email-multiple</v-icon>
@@ -44,7 +44,7 @@
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between">
               <div>
-                <div class="stat-label text-caption">New</div>
+                <div class="stat-label text-caption">{{ t('dealer.views.enquiries.new') }}</div>
                 <div class="stat-value text-h5 font-weight-bold text-blue">{{ newCount }}</div>
               </div>
               <v-icon size="32" color="blue" class="stat-icon">mdi-email-alert</v-icon>
@@ -57,7 +57,7 @@
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between">
               <div>
-                <div class="stat-label text-caption">In Progress</div>
+                <div class="stat-label text-caption">{{ t('dealer.views.enquiries.inProgress') }}</div>
                 <div class="stat-value text-h5 font-weight-bold text-orange">{{ inProgressCount }}</div>
               </div>
               <v-icon size="32" color="orange" class="stat-icon">mdi-clock-outline</v-icon>
@@ -70,7 +70,7 @@
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between">
               <div>
-                <div class="stat-label text-caption">Responded</div>
+                <div class="stat-label text-caption">{{ t('dealer.views.enquiries.responded') }}</div>
                 <div class="stat-value text-h5 font-weight-bold text-success">{{ respondedCount }}</div>
               </div>
               <v-icon size="32" color="success" class="stat-icon">mdi-check-circle</v-icon>
@@ -95,7 +95,7 @@
           <v-text-field
             v-model="searchQuery"
             prepend-inner-icon="mdi-magnify"
-            label="Search enquiries..."
+            :label="t('dealer.views.enquiries.searchPlaceholder')"
             variant="outlined"
             density="compact"
             clearable
@@ -111,7 +111,7 @@
             :items="statusOptions"
             item-title="label"
             item-value="value"
-            label="Status"
+            :label="t('dealer.views.enquiries.status')"
             variant="outlined"
             density="compact"
             clearable
@@ -127,7 +127,7 @@
             :items="typeOptions"
             item-title="label"
             item-value="value"
-            label="Type"
+            :label="t('dealer.views.enquiries.type')"
             variant="outlined"
             density="compact"
             clearable
@@ -186,28 +186,28 @@
       <v-card-text class="pa-0">
         <div v-if="loading" class="text-center py-12">
           <v-progress-circular indeterminate color="primary" size="64" />
-          <p class="text-body-2 text-medium-emphasis mt-4">Loading enquiries...</p>
+          <p class="text-body-2 text-medium-emphasis mt-4">{{ t('dealer.views.enquiries.loadingEnquiries') }}</p>
         </div>
 
         <div v-else-if="error" class="text-center py-12">
           <v-alert type="error" variant="tonal" class="mx-4">
-            <v-alert-title>Error</v-alert-title>
+            <v-alert-title>{{ t('dealer.views.enquiries.error') }}</v-alert-title>
             {{ error }}
           </v-alert>
         </div>
 
         <div v-else-if="enquiries.length === 0" class="text-center py-12">
           <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-email-off</v-icon>
-          <h3 class="text-h6 mb-2">No enquiries found</h3>
+          <h3 class="text-h6 mb-2">{{ t('dealer.views.enquiries.noEnquiriesFound') }}</h3>
           <p class="text-body-2 text-medium-emphasis mb-4">
-            {{ hasActiveFilters ? 'Try adjusting your filters' : 'No customer enquiries yet' }}
+            {{ hasActiveFilters ? t('dealer.views.enquiries.tryAdjustingFilters') : t('dealer.views.enquiries.noEnquiriesYet') }}
           </p>
           <v-btn
             v-if="hasActiveFilters"
             variant="outlined"
             @click="clearAllFilters"
           >
-            Clear Filters
+            {{ t('dealer.views.enquiries.clearFilters') }}
           </v-btn>
         </div>
 
@@ -305,7 +305,7 @@
                   variant="text"
                   size="small"
                   @click="viewEnquiry(item.id)"
-                  title="View Details"
+                  :title="t('dealer.views.enquiries.viewDetails')"
                 >
                   <v-icon size="20">mdi-eye</v-icon>
                 </v-btn>
@@ -316,27 +316,27 @@
                       variant="text"
                       size="small"
                       v-bind="props"
-                      title="More Actions"
+                      :title="t('dealer.views.enquiries.moreActions')"
                     >
                       <v-icon size="20">mdi-dots-vertical</v-icon>
                     </v-btn>
                   </template>
                   <v-list density="compact">
                     <v-list-item @click="viewEnquiry(item.id)" prepend-icon="mdi-eye">
-                      <v-list-item-title>View Details</v-list-item-title>
+                      <v-list-item-title>{{ t('dealer.views.enquiries.viewDetails') }}</v-list-item-title>
                     </v-list-item>
                     <v-list-item @click="updateEnquiryStatus(item)" prepend-icon="mdi-flag">
-                      <v-list-item-title>Change Status</v-list-item-title>
+                      <v-list-item-title>{{ t('dealer.views.enquiries.changeStatus') }}</v-list-item-title>
                     </v-list-item>
                     <v-list-item @click="updateEnquiryType(item)" prepend-icon="mdi-tag">
-                      <v-list-item-title>Change Type</v-list-item-title>
+                      <v-list-item-title>{{ t('dealer.views.enquiries.changeType') }}</v-list-item-title>
                     </v-list-item>
                     <v-list-item
                       v-if="item.vehicleId"
                       @click="viewVehicle(item.vehicleId)"
                       prepend-icon="mdi-car"
                     >
-                      <v-list-item-title>View Vehicle</v-list-item-title>
+                      <v-list-item-title>{{ t('dealer.views.enquiries.viewVehicle') }}</v-list-item-title>
                     </v-list-item>
                   </v-list>
                 </v-menu>
@@ -440,6 +440,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import {
   getEnquiries,
   updateEnquiryStatus as updateEnquiryStatusApi,
@@ -451,6 +452,7 @@ import type { ApiErrorModel } from '@/models/api-error.model'
 import type { PaginationModel, PaginationParams } from '@/models/pagination.model'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -502,15 +504,15 @@ const typeOptions = [
   { label: 'Other', value: EnquiryType.OTHER },
 ]
 
-const headers = [
-  { title: 'Subject', key: 'subject', sortable: true, width: '25%' },
-  { title: 'Customer', key: 'user', sortable: false, width: '20%' },
-  { title: 'Vehicle', key: 'vehicle', sortable: false, width: '18%' },
-  { title: 'Type', key: 'type', sortable: true, width: '12%' },
-  { title: 'Status', key: 'status', sortable: true, width: '12%' },
-  { title: 'Date', key: 'createdAt', sortable: true, width: '10%' },
-  { title: 'Actions', key: 'actions', sortable: false, align: 'end' as const, width: '3%' },
-]
+const headers = computed(() => [
+  { title: t('dealer.views.enquiries.subject'), key: 'subject', sortable: true, width: '25%' },
+  { title: t('dealer.views.enquiries.customer'), key: 'user', sortable: false, width: '20%' },
+  { title: t('dealer.views.enquiries.vehicle'), key: 'vehicle', sortable: false, width: '18%' },
+  { title: t('dealer.views.enquiries.type'), key: 'type', sortable: true, width: '12%' },
+  { title: t('dealer.views.enquiries.status'), key: 'status', sortable: true, width: '12%' },
+  { title: t('dealer.views.enquiries.date'), key: 'createdAt', sortable: true, width: '10%' },
+  { title: t('common.actions'), key: 'actions', sortable: false, align: 'end' as const, width: '3%' },
+])
 
 const hasActiveFilters = computed(() => {
   return !!(filters.value.status || filters.value.type || searchQuery.value)
@@ -632,7 +634,7 @@ const handleUpdateStatus = async () => {
     statusDialog.value = false
     selectedEnquiry.value = null
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update status'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.enquiries.failedUpdateStatus')
   } finally {
     updating.value = false
   }
@@ -648,7 +650,7 @@ const handleUpdateType = async () => {
     typeDialog.value = false
     selectedEnquiry.value = null
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update type'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.enquiries.failedUpdateType')
   } finally {
     updating.value = false
   }
@@ -719,7 +721,7 @@ const loadEnquiries = async () => {
     pagination.value.total = response.totalDocs || 0
   } catch (err) {
     const apiError = err as ApiErrorModel
-    error.value = apiError?.message || 'Failed to load enquiries'
+    error.value = apiError?.message || t('dealer.views.enquiries.failedLoadEnquiries')
   } finally {
     loading.value = false
   }

@@ -13,7 +13,7 @@
           <v-icon size="20">mdi-arrow-left</v-icon>
         </v-btn>
         <div class="flex-grow-1">
-          <h1 class="text-h5 font-weight-bold mb-1">Vehicle Details</h1>
+          <h1 class="text-h5 font-weight-bold mb-1">{{ t('dealer.views.vehicleDetail.title') }}</h1>
           <p class="text-caption text-medium-emphasis mb-0">
             View and manage all vehicle information, images, and equipment
           </p>
@@ -63,7 +63,7 @@
       class="mb-4"
       density="compact"
     >
-      <v-alert-title>Error</v-alert-title>
+      <v-alert-title>{{ t('dealer.views.vehicleDetail.error') }}</v-alert-title>
       {{ error }}
     </v-alert>
 
@@ -1116,7 +1116,7 @@
         <v-card-text class="pa-3">
           <v-file-input
             v-model="imageFiles"
-            label="Select Images"
+            :label="t('dealer.views.vehicleDetail.selectImages')"
             multiple
             accept="image/*"
             variant="outlined"
@@ -1230,7 +1230,7 @@
             :items="statusOptions"
             item-title="label"
             item-value="value"
-            label="New Status"
+            :label="t('dealer.views.vehicleDetail.newStatus')"
             variant="outlined"
             density="compact"
             hide-details="auto"
@@ -1261,7 +1261,7 @@
         </v-card-title>
         <v-card-text class="pa-3">
           <p class="text-body-2">
-            Are you sure you want to mark <strong>{{ vehicle?.title || `Vehicle #${vehicle?.id}` }}</strong> as sold?
+            {{ t('dealer.views.vehicleDetail.markAsSoldConfirm', { name: vehicle?.title || `Vehicle #${vehicle?.id}` }) }}
           </p>
           <p class="text-caption text-medium-emphasis mt-1">
             This will update the vehicle status to "Sold". The vehicle will be marked as sold in the system.
@@ -1317,6 +1317,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import {
   getVehicle,
   updateVehicle,
@@ -1338,6 +1339,7 @@ import type { ApiErrorModel } from '@/models/api-error.model'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -1488,7 +1490,7 @@ const loadVehicle = async () => {
       wholesale_price_includes_delivery: loadedVehicle.details?.wholesale_price_includes_delivery || undefined,
     }
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load vehicle'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.vehicleDetail.failedLoadVehicle')
   } finally {
     loading.value = false
   }
@@ -1599,7 +1601,7 @@ const saveVehicle = async () => {
     
     await loadVehicle()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update vehicle'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.vehicleDetail.failedUpdateVehicle')
   } finally {
     updating.value = false
   }

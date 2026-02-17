@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="d-flex justify-space-between align-center mb-6">
       <div>
-        <h1 class="text-h5 font-weight-medium mb-1">Select your plan</h1>
+        <h1 class="text-h5 font-weight-medium mb-1">{{ t('dealer.views.subscription.selectYourPlan') }}</h1>
         <p class="text-body-2 text-medium-emphasis">
           Pick your preferred plan below
         </p>
@@ -17,18 +17,18 @@
       elevation="1"
       class="mb-6"
     >
-      <v-card-title class="pa-4">Current Subscription</v-card-title>
+      <v-card-title class="pa-4">{{ t('dealer.views.subscription.currentSubscription') }}</v-card-title>
       <v-card-text class="pa-4">
         <v-row>
           <v-col cols="12" md="6">
             <div class="mb-2">
-              <div class="text-caption text-medium-emphasis">Plan</div>
+              <div class="text-caption text-medium-emphasis">{{ t('dealer.views.subscription.plan') }}</div>
               <div class="font-weight-medium">{{ currentSubscription.plan?.name || 'N/A' }}</div>
             </div>
           </v-col>
           <v-col cols="12" md="6">
             <div class="mb-2">
-              <div class="text-caption text-medium-emphasis">Status</div>
+              <div class="text-caption text-medium-emphasis">{{ t('dealer.views.subscription.status') }}</div>
               <v-chip
                 :color="getStatusColor(currentSubscription.subscription_status_id)"
                 size="small"
@@ -40,13 +40,13 @@
           </v-col>
           <v-col cols="12" md="6" v-if="currentSubscription.starts_at">
             <div class="mb-2">
-              <div class="text-caption text-medium-emphasis">Start Date</div>
+              <div class="text-caption text-medium-emphasis">{{ t('dealer.views.subscription.startDate') }}</div>
               <div>{{ formatDate(currentSubscription.starts_at) }}</div>
             </div>
           </v-col>
           <v-col cols="12" md="6" v-if="currentSubscription.ends_at">
             <div class="mb-2">
-              <div class="text-caption text-medium-emphasis">End Date</div>
+              <div class="text-caption text-medium-emphasis">{{ t('dealer.views.subscription.endDate') }}</div>
               <div>{{ formatDate(currentSubscription.ends_at) }}</div>
             </div>
           </v-col>
@@ -78,7 +78,7 @@
       class="text-center py-12"
     >
       <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-package-variant-closed</v-icon>
-      <h3 class="text-h6 font-weight-medium mb-2">No Plans Available</h3>
+      <h3 class="text-h6 font-weight-medium mb-2">{{ t('dealer.views.subscription.noPlansAvailable') }}</h3>
       <p class="text-body-2 text-medium-emphasis">
         There are no subscription plans available for your account at this time.
       </p>
@@ -109,7 +109,7 @@
                 size="small"
                 variant="flat"
               >
-                Active
+                {{ t('dealer.views.subscription.statusActive') }}
               </v-chip>
             </div>
             
@@ -129,12 +129,12 @@
               </div>
             </div>
             <div v-else class="mb-3">
-              <div class="text-h6 font-weight-bold text-medium-emphasis">No pricing</div>
+              <div class="text-h6 font-weight-bold text-medium-emphasis">{{ t('dealer.views.subscription.noPricing') }}</div>
             </div>
 
             <!-- Description -->
             <p class="text-body-2 text-medium-emphasis mb-4" style="min-height: 2.5em;">
-              {{ plan.description || 'No description provided' }}
+              {{ plan.description || t('dealer.views.subscription.noDescription') }}
             </p>
 
             <!-- Features List -->
@@ -151,7 +151,7 @@
               </div>
             </div>
             <div v-else class="mb-4">
-              <div class="text-body-2 text-medium-emphasis">No features assigned</div>
+              <div class="text-body-2 text-medium-emphasis">{{ t('dealer.views.subscription.noFeaturesAssigned') }}</div>
             </div>
 
             <!-- Trial Badge -->
@@ -178,7 +178,7 @@
               @click="openSubscriptionDialog(plan)"
               block
             >
-              {{ currentSubscription ? 'Change Plan' : 'Select Plan' }}
+              {{ currentSubscription ? t('dealer.views.subscription.changePlan') : t('dealer.views.subscription.selectPlan') }}
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -199,9 +199,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { getSubscription, getAvailablePlans, createSubscription, type PlanModel, type CreateDealerSubscriptionData } from '@/api/dealer.api'
 import PlanSubscriptionDialog from '@/components/dealer/PlanSubscriptionDialog.vue'
 import type { ApiErrorModel } from '@/models/api-error.model'
+
+const { t } = useI18n()
 
 const loadingPlans = ref(false)
 const error = ref<string | null>(null)
@@ -218,7 +221,7 @@ const loadPlans = async () => {
     const plans = await getAvailablePlans()
     availablePlans.value = plans
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load plans'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.subscription.failedLoadPlans')
     availablePlans.value = []
   } finally {
     loadingPlans.value = false
@@ -266,13 +269,13 @@ const getStatusColor = (statusId?: number) => {
 
 const getStatusLabel = (statusId?: number) => {
   const labels: Record<number, string> = {
-    1: 'Trial',
-    2: 'Active',
-    3: 'Expired',
-    4: 'Canceled',
-    5: 'Scheduled'
+    1: t('dealer.views.subscription.statusTrial'),
+    2: t('dealer.views.subscription.statusActive'),
+    3: t('dealer.views.subscription.statusExpired'),
+    4: t('dealer.views.subscription.statusCanceled'),
+    5: t('dealer.views.subscription.statusScheduled')
   }
-  return labels[statusId || 0] || 'Unknown'
+  return labels[statusId || 0] || t('dealer.views.subscription.statusUnknown')
 }
 
 const formatDate = (date?: string) => {
@@ -363,7 +366,7 @@ const handleSubscriptionConfirm = async (billingCycle: 'monthly' | 'yearly') => 
     // Reload plans and current subscription
     await Promise.all([loadPlans(), loadCurrentSubscription()])
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to create subscription'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.subscription.failedCreateSubscription')
   } finally {
     creatingSubscription.value = false
   }

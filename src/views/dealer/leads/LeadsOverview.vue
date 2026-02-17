@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="d-flex flex-column flex-md-row justify-space-between align-start align-md-center mb-4 gap-3">
       <div class="flex-grow-1">
-        <h2 class="text-h5 font-weight-bold mb-1">Manage Leads</h2>
+        <h2 class="text-h5 font-weight-bold mb-1">{{ t('dealer.views.leads.title') }}</h2>
         <p class="text-body-2 text-medium-emphasis">
           Track and manage customer leads. Follow up on inquiries and convert them into sales.
         </p>
@@ -17,10 +17,10 @@
           class="flex-grow-1 flex-md-grow-0"
         >
           <v-btn value="kanban" prepend-icon="mdi-view-column">
-            <span class="d-none d-sm-inline">Kanban</span>
+            <span class="d-none d-sm-inline">{{ t('dealer.views.leads.kanban') }}</span>
           </v-btn>
           <v-btn value="table" prepend-icon="mdi-table">
-            <span class="d-none d-sm-inline">Table</span>
+            <span class="d-none d-sm-inline">{{ t('dealer.views.leads.table') }}</span>
           </v-btn>
         </v-btn-toggle>
         <v-btn
@@ -41,7 +41,7 @@
         <v-text-field
           v-model="searchQuery"
           prepend-inner-icon="mdi-magnify"
-          placeholder="Search by name, email, phone, or vehicle..."
+          :placeholder="t('dealer.views.leads.searchPlaceholder')"
       variant="outlined"
           density="compact"
           hide-details
@@ -119,13 +119,13 @@
               </v-btn>
             </template>
             <v-card min-width="280" class="pa-3">
-              <div class="text-subtitle-2 font-weight-bold mb-3">Filter Options</div>
+              <div class="text-subtitle-2 font-weight-bold mb-3">{{ t('dealer.views.leads.filterOptions') }}</div>
               <v-select
                 v-model="filterDays"
                 :items="daysOptions"
                 item-title="label"
                 item-value="value"
-                label="Time Period"
+                :label="t('dealer.views.leads.timePeriod')"
                 variant="outlined"
                 density="compact"
                 hide-details
@@ -138,7 +138,7 @@
                 :items="stages"
                 item-title="name"
                 item-value="id"
-                label="Stage"
+                :label="t('dealer.views.leads.stage')"
                 variant="outlined"
                 density="compact"
                 hide-details
@@ -151,7 +151,7 @@
                 :items="intentOptions"
                 item-title="name"
                 item-value="id"
-                label="Intent"
+                :label="t('dealer.views.leads.intent')"
                 variant="outlined"
                 density="compact"
                 hide-details
@@ -164,7 +164,7 @@
                 :items="vehicleOptions"
                 item-title="title"
                 item-value="id"
-                label="Vehicles"
+                :label="t('dealer.views.leads.vehicles')"
                 variant="outlined"
                 density="compact"
                 hide-details
@@ -212,9 +212,9 @@
             >
               <template #item.name="{ item }">
                         <div>
-                  <div class="font-weight-medium">{{ item.name || 'Unknown' }}</div>
+                  <div class="font-weight-medium">{{ item.name || t('dealer.views.leads.unknown') }}</div>
                   <div class="text-caption text-medium-emphasis">
-                    {{ item.email || item.phone || 'No contact' }}
+                    {{ item.email || item.phone || t('common.noContact') }}
                   </div>
                 </div>
               </template>
@@ -222,7 +222,7 @@
                 <div v-if="item.vehicle" class="text-caption">
                   {{ item.vehicle.title || item.vehicle.registration || 'N/A' }}
                         </div>
-                <div v-else class="text-medium-emphasis">No vehicle</div>
+                <div v-else class="text-medium-emphasis">{{ t('dealer.views.leads.noVehicle') }}</div>
               </template>
               <template #item.stageId="{ item }">
                 <v-chip
@@ -242,7 +242,7 @@
                 >
                   {{ getIntentName(item.intentId) }}
                 </v-chip>
-                <span v-else class="text-medium-emphasis">Not set</span>
+                <span v-else class="text-medium-emphasis">{{ t('dealer.views.leads.notSet') }}</span>
               </template>
               <template #item.categoryId="{ item }">
                 <v-chip
@@ -252,7 +252,7 @@
                 >
                   {{ getCategoryName(item.categoryId) }}
                 </v-chip>
-                <span v-else class="text-medium-emphasis">Not set</span>
+                <span v-else class="text-medium-emphasis">{{ t('dealer.views.leads.notSet') }}</span>
               </template>
               <template #item.createdAt="{ item }">
                 {{ formatLeadDate(item.createdAt) }}
@@ -266,10 +266,10 @@
                           </template>
                           <v-list>
                     <v-list-item @click="viewLead(item.id)">
-                              <v-list-item-title>View Details</v-list-item-title>
+                              <v-list-item-title>{{ t('dealer.views.leads.viewDetails') }}</v-list-item-title>
                             </v-list-item>
                     <v-list-item @click="assignLead(item)">
-                              <v-list-item-title>Assign</v-list-item-title>
+                              <v-list-item-title>{{ t('dealer.views.leads.assign') }}</v-list-item-title>
                             </v-list-item>
                           </v-list>
                         </v-menu>
@@ -346,7 +346,7 @@
                       >
                         <div class="text-center text-medium-emphasis py-8">
                           <v-icon size="48" color="grey-lighten-1">mdi-inbox-outline</v-icon>
-                          <div class="mt-2">No leads in this stage</div>
+                          <div class="mt-2">{{ t('dealer.views.leads.noLeadsInStage') }}</div>
                         </div>
                       </div>
                       <!-- Draggable items -->
@@ -397,21 +397,21 @@
     <!-- Assign Lead Dialog -->
     <v-dialog v-model="assignDialog" max-width="500">
       <v-card>
-        <v-card-title>Assign Lead</v-card-title>
+        <v-card-title>{{ t('dealer.views.leads.assignLead') }}</v-card-title>
         <v-card-text>
           <v-select
             v-model="selectedStaffId"
             :items="staffMembers"
             item-title="name"
             item-value="id"
-            label="Assign to Staff Member"
+            :label="t('dealer.views.leads.assignToStaff')"
             variant="outlined"
           />
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="assignDialog = false">Cancel</v-btn>
-          <v-btn color="primary" @click="handleAssignLead">Assign</v-btn>
+          <v-btn variant="text" @click="assignDialog = false">{{ t('common.cancel') }}</v-btn>
+          <v-btn color="primary" @click="handleAssignLead">{{ t('dealer.views.leads.assign') }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -419,21 +419,21 @@
     <!-- Change Intent Dialog -->
     <v-dialog v-model="intentDialog" max-width="400">
       <v-card>
-        <v-card-title>Change Intent</v-card-title>
+        <v-card-title>{{ t('dealer.views.leads.changeIntent') }}</v-card-title>
         <v-card-text>
           <v-select
             v-model="selectedIntentId"
             :items="intentOptions"
             item-title="name"
             item-value="id"
-            label="Select Intent"
+            :label="t('dealer.views.leads.selectIntent')"
             variant="outlined"
           />
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="intentDialog = false">Cancel</v-btn>
-          <v-btn color="primary" @click="handleChangeIntent">Update</v-btn>
+          <v-btn variant="text" @click="intentDialog = false">{{ t('common.cancel') }}</v-btn>
+          <v-btn color="primary" @click="handleChangeIntent">{{ t('common.update') }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -441,21 +441,21 @@
     <!-- Change Category Dialog -->
     <v-dialog v-model="categoryDialog" max-width="400">
       <v-card>
-        <v-card-title>Change Category</v-card-title>
+        <v-card-title>{{ t('dealer.views.leads.changeCategory') }}</v-card-title>
         <v-card-text>
           <v-select
             v-model="selectedCategoryId"
             :items="categoryOptions"
             item-title="name"
             item-value="id"
-            label="Select Category"
+            :label="t('dealer.views.leads.selectCategory')"
             variant="outlined"
           />
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="categoryDialog = false">Cancel</v-btn>
-          <v-btn color="primary" @click="handleChangeCategory">Update</v-btn>
+          <v-btn variant="text" @click="categoryDialog = false">{{ t('common.cancel') }}</v-btn>
+          <v-btn color="primary" @click="handleChangeCategory">{{ t('common.update') }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -469,7 +469,7 @@
     >
       {{ snackbar.message }}
       <template #actions>
-        <v-btn variant="text" @click="snackbar.show = false">Close</v-btn>
+        <v-btn variant="text" @click="snackbar.show = false">{{ t('common.close') }}</v-btn>
       </template>
     </v-snackbar>
   </div>
@@ -477,8 +477,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch, nextTick, onUnmounted } from 'vue'
-// All reactive variables are defined below and automatically available in template
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useDebounceFn } from '@vueuse/core'
 import Sortable, { type SortableEvent } from 'sortablejs'
 import { getLeads, assignLead as assignLeadApi, getStaff, updateLeadStage, updateLeadIntent, updateLeadCategory, getVehicles } from '@/api/dealer.api'
@@ -501,6 +501,7 @@ import LeadCard from '@/components/dealer/LeadCard.vue'
 import AnalyticsSidebar from '@/components/dealer/AnalyticsSidebar.vue'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -926,7 +927,7 @@ const initializeSortable = async () => {
             // Show error toast
             snackbar.value = {
               show: true,
-              message: (err as ApiErrorModel).message || 'Failed to update lead stage',
+              message: (err as ApiErrorModel).message || t('dealer.views.leads.failedUpdateStage'),
               color: 'error',
             }
             
@@ -1022,15 +1023,15 @@ const debouncedSearch = useDebounceFn(() => {
   // Search is handled by computed property
 }, 300)
 
-const tableHeaders = [
-  { title: 'Customer', key: 'name', sortable: true },
-  { title: 'Vehicle', key: 'vehicle', sortable: false },
-  { title: 'Stage', key: 'stageId', sortable: true },
-  { title: 'Intent', key: 'intentId', sortable: true },
-  { title: 'Category', key: 'categoryId', sortable: true },
-  { title: 'Date', key: 'createdAt', sortable: true },
-  { title: 'Actions', key: 'actions', sortable: false, align: 'end' as const },
-]
+const tableHeaders = computed(() => [
+  { title: t('dealer.views.leads.customer'), key: 'name', sortable: true },
+  { title: t('dealer.views.leads.vehicle'), key: 'vehicle', sortable: false },
+  { title: t('dealer.views.leads.stage'), key: 'stageId', sortable: true },
+  { title: t('dealer.views.leads.intent'), key: 'intentId', sortable: true },
+  { title: t('dealer.views.leads.category'), key: 'categoryId', sortable: true },
+  { title: t('common.date'), key: 'createdAt', sortable: true },
+  { title: t('common.actions'), key: 'actions', sortable: false, align: 'end' as const },
+])
 
 const viewLead = (leadId: number) => {
   router.push({ name: 'dealer.leads.detail', params: { id: leadId } })
@@ -1064,7 +1065,7 @@ const handleAssignLead = async () => {
     selectedLead.value = null
     selectedStaffId.value = null
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to assign lead'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.leadsDetail.failedAssignLead')
   } finally {
     loading.value = false
   }
@@ -1081,7 +1082,7 @@ const handleChangeIntent = async () => {
     selectedLead.value = null
     selectedIntentId.value = null
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update intent'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.leadsDetail.failedUpdateIntent')
   } finally {
     loading.value = false
   }
@@ -1098,7 +1099,7 @@ const handleChangeCategory = async () => {
     selectedLead.value = null
     selectedCategoryId.value = null
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update category'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.leadsDetail.failedUpdateCategory')
   } finally {
     loading.value = false
   }
@@ -1124,7 +1125,7 @@ const loadLeads = async () => {
     await nextTick()
   } catch (err) {
     const apiError = err as ApiErrorModel
-    error.value = apiError?.message || 'Failed to load leads'
+    error.value = apiError?.message || t('dealer.views.leadsDetail.failedLoadLead')
   } finally {
     loading.value = false
   }

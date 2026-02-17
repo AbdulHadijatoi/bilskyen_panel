@@ -1,9 +1,9 @@
 <template>
   <div class="flex w-full flex-col gap-4">
     <div>
-      <h2 class="text-xl font-bold">Permissions Management</h2>
+      <h2 class="text-xl font-bold">{{ t('dealer.views.permissions.title') }}</h2>
       <p class="text-muted-foreground max-w-2xl">
-        Manage permissions for users and roles. Select a user or role to view and modify their permissions.
+        {{ t('dealer.views.permissions.subtitle') }}
       </p>
     </div>
 
@@ -16,13 +16,13 @@
 
     <!-- Model Selection Section -->
     <v-card>
-      <v-card-title>Select User or Role</v-card-title>
+      <v-card-title>{{ t('dealer.views.permissions.selectUserOrRole') }}</v-card-title>
       <v-card-text>
         <div class="flex flex-col gap-4">
           <!-- Model Type Selection -->
           <v-radio-group v-model="modelType" inline>
-            <v-radio label="User" value="user" />
-            <v-radio label="Role" value="role" />
+            <v-radio :label="t('dealer.views.permissions.user')" value="user" />
+            <v-radio :label="t('dealer.views.permissions.role')" value="role" />
           </v-radio-group>
 
           <!-- Model Search/Autocomplete -->
@@ -37,8 +37,8 @@
               @keydown.enter.prevent="handleModelSearch"
               item-title="name"
               item-value="id"
-              label="Search and select a user or role"
-              placeholder="Type to search and press Enter..."
+              :label="t('dealer.views.permissions.searchPlaceholder')"
+              :placeholder="t('dealer.views.permissions.typeToSearch')"
               clearable
               return-object
               :no-filter="true"
@@ -56,9 +56,9 @@
             </v-autocomplete>
             <div class="text-caption text-medium-emphasis mt-1 d-flex align-center">
               <v-icon size="small" class="mr-1">mdi-information-outline</v-icon>
-              <span>Type your search query and press</span>
+              <span>{{ t('dealer.views.permissions.typeSearchQuery') }}</span>
               <kbd class="mx-1 px-2 py-0.5 bg-grey-lighten-4 rounded text-caption font-weight-medium">Enter</kbd>
-              <span>to search</span>
+              <span>{{ t('dealer.views.permissions.toSearch') }}</span>
             </div>
           </div>
 
@@ -78,12 +78,12 @@
 
     <!-- Filter Section -->
     <v-card v-if="isFilterApplied">
-      <v-card-title>Filter Permissions</v-card-title>
+      <v-card-title>{{ t('dealer.views.permissions.filterPermissions') }}</v-card-title>
       <v-card-text>
         <v-btn-toggle v-model="filterType" mandatory divided variant="outlined" color="primary">
-          <v-btn value="all">All</v-btn>
-          <v-btn value="assigned">Assigned</v-btn>
-          <v-btn value="unassigned">Unassigned</v-btn>
+          <v-btn value="all">{{ t('dealer.views.permissions.all') }}</v-btn>
+          <v-btn value="assigned">{{ t('dealer.views.permissions.assigned') }}</v-btn>
+          <v-btn value="unassigned">{{ t('dealer.views.permissions.unassigned') }}</v-btn>
         </v-btn-toggle>
       </v-card-text>
     </v-card>
@@ -91,7 +91,7 @@
     <!-- Permissions List -->
     <v-card v-if="isFilterApplied">
       <v-card-title class="d-flex justify-space-between align-center">
-        <span>Permissions</span>
+        <span>{{ t('dealer.views.permissions.permissions') }}</span>
         <v-chip color="primary" variant="tonal">
           {{ filteredItems.length }} permission{{ filteredItems.length !== 1 ? 's' : '' }}
         </v-chip>
@@ -162,7 +162,7 @@
       <v-card-text>
         <div class="text-center py-12">
           <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-shield-lock-outline</v-icon>
-          <p class="text-h6 mb-2">Select a User or Role</p>
+          <p class="text-h6 mb-2">{{ t('dealer.views.permissions.selectUserOrRoleHint') }}</p>
           <p class="text-muted-foreground">
             Choose a user or role from above to view and manage their permissions.
           </p>
@@ -179,7 +179,7 @@
     >
       {{ snackbar.message }}
       <template v-slot:actions>
-        <v-btn variant="text" @click="snackbar.show = false">Close</v-btn>
+        <v-btn variant="text" @click="snackbar.show = false">{{ t('common.close') }}</v-btn>
       </template>
     </v-snackbar>
   </div>
@@ -187,8 +187,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import apiClient from '@/utils/axios'
 
+const { t } = useI18n()
 const modelSearchRef = ref()
 
 interface PermissionAction {

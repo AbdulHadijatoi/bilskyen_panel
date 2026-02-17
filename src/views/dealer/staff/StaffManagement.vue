@@ -4,7 +4,7 @@
     <div class="header-section mb-6">
       <div class="d-flex justify-space-between align-center">
         <div>
-          <h1 class="text-h4 font-weight-bold mb-1">Staff Management</h1>
+          <h1 class="text-h4 font-weight-bold mb-1">{{ t('dealer.views.staff.title') }}</h1>
           <p class="text-body-2 text-medium-emphasis mb-0">
             Manage your dealer staff members
           </p>
@@ -34,7 +34,7 @@
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between">
               <div>
-                <div class="stat-label text-caption text-medium-emphasis mb-1">Total Staff</div>
+                <div class="stat-label text-caption text-medium-emphasis mb-1">{{ t('dealer.views.staff.totalStaff') }}</div>
                 <div class="stat-value text-h4 font-weight-bold">{{ totalStaff }}</div>
               </div>
               <v-icon size="40" color="primary">mdi-account-multiple</v-icon>
@@ -55,7 +55,7 @@
         <div class="d-flex align-center gap-4 flex-wrap">
           <v-text-field
             v-model="search"
-            placeholder="Search by name, email, or username..."
+            :placeholder="t('dealer.views.staff.searchPlaceholder')"
             density="compact"
             variant="outlined"
             prepend-inner-icon="mdi-magnify"
@@ -72,7 +72,7 @@
             :loading="loading"
             size="default"
           >
-            Refresh
+            {{ t('common.refresh') }}
           </v-btn>
         </div>
       </v-card-text>
@@ -87,31 +87,31 @@
     >
       <v-card-title class="card-title pa-4">
         <v-icon class="mr-2">mdi-table</v-icon>
-        Staff Members
+        {{ t('dealer.views.staff.staffMembers') }}
         <v-spacer />
         <span class="text-caption text-medium-emphasis">
-          {{ filteredStaff.length }} {{ filteredStaff.length === 1 ? 'member' : 'members' }}
+          {{ filteredStaff.length }} {{ filteredStaff.length === 1 ? t('dealer.views.staff.member') : t('dealer.views.staff.members') }}
         </span>
       </v-card-title>
 
       <v-card-text class="pa-0">
         <div v-if="loading" class="loading-container py-8">
           <v-progress-circular indeterminate color="primary" size="48" />
-          <p class="text-body-2 text-medium-emphasis mt-4">Loading staff members...</p>
+          <p class="text-body-2 text-medium-emphasis mt-4">{{ t('dealer.views.staff.loadingStaff') }}</p>
         </div>
 
         <div v-else-if="error" class="error-container pa-6">
           <v-alert type="error" variant="tonal" prominent>
-            <v-alert-title>Error</v-alert-title>
+            <v-alert-title>{{ t('admin.views.users.error') }}</v-alert-title>
             {{ error }}
           </v-alert>
         </div>
 
         <div v-else-if="filteredStaff.length === 0" class="empty-container py-8 text-center">
           <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-account-off</v-icon>
-          <p class="text-body-1 text-medium-emphasis mb-2">No staff members found</p>
+          <p class="text-body-1 text-medium-emphasis mb-2">{{ t('dealer.views.staff.noStaffFound') }}</p>
           <p class="text-caption text-medium-emphasis">
-            {{ search ? 'Try adjusting your search' : 'Add your first staff member to get started' }}
+            {{ search ? t('dealer.views.staff.tryAdjustingSearch') : t('dealer.views.staff.addFirstStaff') }}
           </p>
         </div>
 
@@ -133,7 +133,7 @@
               </v-avatar>
               <div>
                 <div class="text-body-2 font-weight-medium">{{ item.name }}</div>
-                <div class="text-caption text-medium-emphasis">{{ item.email || 'No email' }}</div>
+                <div class="text-caption text-medium-emphasis">{{ item.email || t('dealer.views.staff.noEmail') }}</div>
               </div>
             </div>
           </template>
@@ -179,14 +179,14 @@
                 <v-list-item
                   v-if="hasPermission('dealer.staff.manage')"
                   prepend-icon="mdi-pencil"
-                  title="Edit"
+                  :title="t('dealer.views.staff.edit')"
                   class="text-caption"
                   @click="editStaff(item)"
                 />
                 <v-list-item
                   v-if="hasPermission('dealer.staff.manage')"
                   prepend-icon="mdi-delete"
-                  title="Remove"
+                  :title="t('dealer.views.staff.remove')"
                   class="text-caption text-error"
                   @click="confirmDelete(item)"
                 />
@@ -217,19 +217,22 @@
 
     <!-- Snackbar for copy notification -->
     <v-snackbar v-model="copiedSnackbar" timeout="2000" color="success">
-      Username copied to clipboard!
+      {{ t('dealer.views.staff.usernameCopied') }}
     </v-snackbar>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { getStaff, type StaffMember } from '@/api/dealer.api'
 import { hasPermission } from '@/utils/permissions'
 import AddStaffDialog from '@/components/dealer/staff/AddStaffDialog.vue'
 import EditStaffDialog from '@/components/dealer/staff/EditStaffDialog.vue'
 import DeleteStaffDialog from '@/components/dealer/staff/DeleteStaffDialog.vue'
 import type { ApiErrorModel } from '@/models/api-error.model'
+
+const { t } = useI18n()
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -242,14 +245,14 @@ const showDeleteDialog = ref(false)
 const selectedStaff = ref<StaffMember | null>(null)
 const copiedSnackbar = ref(false)
 
-// Table headers
-const headers = [
-  { title: 'Name', key: 'name', sortable: true },
-  { title: 'Username', key: 'username', sortable: true, width: '200px' },
-  { title: 'Phone', key: 'phone', sortable: false },
-  { title: 'Joined', key: 'created_at', sortable: true, width: '120px' },
+// Table headers (computed so they react to locale change)
+const headers = computed(() => [
+  { title: t('dealer.views.staff.tableName'), key: 'name', sortable: true },
+  { title: t('dealer.views.staff.tableUsername'), key: 'username', sortable: true, width: '200px' },
+  { title: t('dealer.views.staff.tablePhone'), key: 'phone', sortable: false },
+  { title: t('dealer.views.staff.tableJoined'), key: 'created_at', sortable: true, width: '120px' },
   { title: '', key: 'actions', sortable: false, width: '60px', align: 'end' as const },
-]
+])
 
 // Computed stats
 const totalStaff = computed(() => staff.value.length)
@@ -315,7 +318,7 @@ const loadStaff = async () => {
     const staffList = await getStaff()
     staff.value = staffList
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load staff members'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.staff.failedLoadStaff')
   } finally {
     loading.value = false
   }

@@ -35,33 +35,63 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { DEALER_ROUTE_BASE } from '@/constants/dealer'
+import { ADMIN_ROUTE_BASE } from '@/constants/admin'
 
 const route = useRoute()
+const { t } = useI18n()
 
-const LABEL_OVERRIDES: Record<string, string> = {
-  'user-profile': 'User Profile',
-  settings: 'Settings',
-  account: 'Account',
+const isAdmin = computed(() => route.path.startsWith(ADMIN_ROUTE_BASE))
+
+const BREADCRUMB_KEY_MAP: Record<string, string> = {
+  'user-profile': 'breadcrumb.userProfile',
+  settings: 'breadcrumb.settings',
+  account: 'breadcrumb.account',
 }
 
-const base = DEALER_ROUTE_BASE
-const label = 'Dashboard'
+const ADMIN_BREADCRUMB_KEY_MAP: Record<string, string> = {
+  users: 'admin.breadcrumb.users',
+  vehicles: 'admin.breadcrumb.vehicles',
+  plans: 'admin.breadcrumb.plans',
+  subscriptions: 'admin.breadcrumb.subscriptions',
+  pages: 'admin.breadcrumb.pages',
+  'home-page-content': 'admin.breadcrumb.homePageContent',
+  'about-page-content': 'admin.breadcrumb.aboutPageContent',
+  'contact-page-content': 'admin.breadcrumb.contactPageContent',
+  'privacy-page-content': 'admin.breadcrumb.privacyPageContent',
+  'terms-page-content': 'admin.breadcrumb.termsPageContent',
+  'featured-vehicles': 'admin.breadcrumb.featuredVehicles',
+  analytics: 'admin.breadcrumb.analytics',
+  'audit-logs': 'admin.breadcrumb.auditLogs',
+  constants: 'admin.breadcrumb.constants',
+  permissions: 'admin.breadcrumb.permissions',
+  translations: 'admin.breadcrumb.translations',
+  import: 'admin.breadcrumb.import',
+}
+
+const base = computed(() => (isAdmin.value ? ADMIN_ROUTE_BASE : DEALER_ROUTE_BASE))
+
+const label = computed(() =>
+  isAdmin.value ? t('admin.breadcrumb.dashboard') : t('breadcrumb.dashboard')
+)
 
 const visibleSegments = computed(() => {
   const path = route.path
+  if (isAdmin.value) {
+    const relativePath = path.replace(new RegExp(`^${ADMIN_ROUTE_BASE}/?`), '')
+    return relativePath ? relativePath.split('/').filter(Boolean) : []
+  }
   if (!path.startsWith(DEALER_ROUTE_BASE)) return []
-  
   const relativePath = path.replace(DEALER_ROUTE_BASE, '').replace(/^\//, '')
-  if (!relativePath) return []
-  
-  return relativePath.split('/').filter(Boolean)
+  return relativePath ? relativePath.split('/').filter(Boolean) : []
 })
 
 const buildHref = (segment: string) => {
   const index = visibleSegments.value.indexOf(segment)
   const relative = visibleSegments.value.slice(0, index + 1)
-  return `${base.replace(/\/$/, '')}/${relative.join('/')}`
+  const basePath = base.value.replace(/\/$/, '')
+  return basePath ? `${basePath}/${relative.join('/')}` : `/${relative.join('/')}`
 }
 
 const toTitleCase = (str: string) => {
@@ -72,7 +102,9 @@ const toTitleCase = (str: string) => {
 }
 
 const getLabel = (segment: string) => {
-  return LABEL_OVERRIDES[segment] || toTitleCase(segment)
+  const keyMap = isAdmin.value ? ADMIN_BREADCRUMB_KEY_MAP : BREADCRUMB_KEY_MAP
+  const key = keyMap[segment]
+  return key ? t(key) : toTitleCase(segment)
 }
 </script>
 
