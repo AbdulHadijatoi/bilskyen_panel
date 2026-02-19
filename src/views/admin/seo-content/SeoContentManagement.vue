@@ -342,9 +342,7 @@ function resetForm() {
 }
 
 function parseJsonSafe(str: string): Record<string, unknown> | unknown[] | null {
-  if (typeof str !== 'string' || !str.trim()) return null
-  const trimmed = str.trim()
-  if (trimmed[0] !== '{' && trimmed[0] !== '[') return null
+  if (!str || !str.trim()) return null
   try {
     return JSON.parse(str) as Record<string, unknown> | unknown[]
   } catch {

@@ -163,7 +163,7 @@ const createSearch = async () => {
   try {
     creating.value = true
     let filters: Record<string, any> = {}
-    if (typeof newSearchFilters.value === 'string' && newSearchFilters.value.trim()) {
+    if (newSearchFilters.value.trim()) {
       try {
         filters = JSON.parse(newSearchFilters.value)
       } catch (e) {

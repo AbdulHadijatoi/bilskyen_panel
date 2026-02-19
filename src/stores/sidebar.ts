@@ -10,9 +10,7 @@ function getStoredSidebarState(): { isCollapsed: boolean; isOpen: boolean } | nu
 
   try {
     const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY)
-    if (!stored || typeof stored !== 'string') return null
-    const trimmed = stored.trim()
-    if (!trimmed || (trimmed[0] !== '{' && trimmed[0] !== '[')) return null
+    if (!stored) return null
 
     const parsed = JSON.parse(stored)
     // Check if the stored data is still valid (not expired)
