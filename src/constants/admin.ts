@@ -97,11 +97,6 @@ export const adminSidebarSections: SidebarSection[] = [
             url: `${ADMIN_ROUTE_BASE}/pages/terms-page-content`,
             permission: 'admin.pages.update',
           },
-          {
-            title: 'SEO Content',
-            url: `${ADMIN_ROUTE_BASE}/pages/seo-content`,
-            permission: 'admin.pages.update',
-          },
         ],
       },
       {

@@ -20,7 +20,6 @@ import {
   ADMIN_CONTACT_PAGE_ENDPOINTS,
   ADMIN_PRIVACY_PAGE_ENDPOINTS,
   ADMIN_TERMS_PAGE_ENDPOINTS,
-  ADMIN_SEO_PAGE_ENDPOINTS,
   ADMIN_ANALYTICS_ENDPOINTS,
   ADMIN_AUDIT_ENDPOINTS,
   ADMIN_CONSTANTS_ENDPOINTS,
@@ -2093,128 +2092,6 @@ export async function bulkUpdateTermsPageContent(
     }
     
     return mapHomePageSectionsFromApi(sectionsData)
-  } catch (error) {
-    throw handleError(error)
-  }
-}
-
-// ============================================================================
-// SEO PAGES
-// ============================================================================
-
-export interface SeoPageModel {
-  id: number
-  page_type: string
-  page_key: string
-  title?: string | null
-  meta_title?: string | null
-  meta_description?: string | null
-  meta_keywords?: string | null
-  canonical_url?: string | null
-  robots?: string | null
-  og_title?: string | null
-  og_description?: string | null
-  og_image?: string | null
-  twitter_title?: string | null
-  twitter_description?: string | null
-  twitter_image?: string | null
-  schema_type?: string | null
-  schema_json?: Record<string, unknown> | null
-  content_html?: string | null
-  faq_json?: unknown[] | null
-  breadcrumbs_json?: unknown[] | null
-  created_at?: string
-  updated_at?: string
-}
-
-export type CreateSeoPageData = Omit<SeoPageModel, 'id' | 'created_at' | 'updated_at'> & { page_type: string; page_key: string }
-export type UpdateSeoPageData = Partial<CreateSeoPageData>
-
-/**
- * Get all SEO pages (optional filter by page_type)
- */
-export async function getSeoPages(pageType?: string): Promise<SeoPageModel[]> {
-  try {
-    const response = await httpClient.get<{ data: SeoPageModel[] }>(
-      ADMIN_SEO_PAGE_ENDPOINTS.LIST,
-      { params: pageType ? { page_type: pageType } : {} }
-    )
-    return handleSuccess<SeoPageModel[]>(response)
-  } catch (error) {
-    throw handleError(error)
-  }
-}
-
-export interface SeoPageKeyOption {
-  value: string
-  label: string
-}
-
-/**
- * Get page_key options for dropdown (vehicle slugs or dealer slugs)
- */
-export async function getSeoPageKeyOptions(pageType: 'vehicle' | 'dealer'): Promise<SeoPageKeyOption[]> {
-  try {
-    const response = await httpClient.get<{ data: SeoPageKeyOption[] }>(
-      ADMIN_SEO_PAGE_ENDPOINTS.PAGE_KEY_OPTIONS,
-      { params: { page_type: pageType } }
-    )
-    return handleSuccess<SeoPageKeyOption[]>(response)
-  } catch (error) {
-    throw handleError(error)
-  }
-}
-
-/**
- * Get one SEO page by id
- */
-export async function getSeoPage(id: number | string): Promise<SeoPageModel> {
-  try {
-    const response = await httpClient.get<{ data: SeoPageModel }>(
-      ADMIN_SEO_PAGE_ENDPOINTS.SHOW(id)
-    )
-    return handleSuccess<SeoPageModel>(response)
-  } catch (error) {
-    throw handleError(error)
-  }
-}
-
-/**
- * Create or update by page_type + page_key (upsert)
- */
-export async function createSeoPage(data: CreateSeoPageData): Promise<SeoPageModel> {
-  try {
-    const response = await httpClient.post<{ data: SeoPageModel }>(
-      ADMIN_SEO_PAGE_ENDPOINTS.CREATE,
-      data
-    )
-    return handleSuccess<SeoPageModel>(response)
-  } catch (error) {
-    throw handleError(error)
-  }
-}
-
-/**
- * Update existing SEO page by id
- */
-export async function updateSeoPage(id: number | string, data: UpdateSeoPageData): Promise<SeoPageModel> {
-  try {
-    const response = await httpClient.put<{ data: SeoPageModel }>(
-      ADMIN_SEO_PAGE_ENDPOINTS.UPDATE(id),
-      data
-    )
-    return handleSuccess<SeoPageModel>(response)
-  } catch (error) {
-    throw handleError(error)
-  }
-}
-
-/**
- * Delete SEO page
- */
-export async function deleteSeoPage(id: number | string): Promise<void> {
-  try {
-    await httpClient.delete(ADMIN_SEO_PAGE_ENDPOINTS.DELETE(id))
   } catch (error) {
     throw handleError(error)
   }

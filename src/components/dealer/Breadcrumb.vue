@@ -61,7 +61,6 @@ const ADMIN_BREADCRUMB_KEY_MAP: Record<string, string> = {
   'contact-page-content': 'admin.breadcrumb.contactPageContent',
   'privacy-page-content': 'admin.breadcrumb.privacyPageContent',
   'terms-page-content': 'admin.breadcrumb.termsPageContent',
-  'seo-content': 'admin.breadcrumb.seoContent',
   'featured-vehicles': 'admin.breadcrumb.featuredVehicles',
   analytics: 'admin.breadcrumb.analytics',
   'audit-logs': 'admin.breadcrumb.auditLogs',

@@ -229,11 +229,6 @@ const router = createRouter({
           component: () => import('@/views/admin/terms-page-content/TermsPageContentManagement.vue'),
         },
         {
-          path: 'pages/seo-content',
-          name: 'admin.seo-content',
-          component: () => import('@/views/admin/seo-content/SeoContentManagement.vue'),
-        },
-        {
           path: 'featured-vehicles',
           name: 'admin.featured-vehicles',
           component: () => import('@/views/admin/featured-vehicles/FeaturedVehicles.vue'),
