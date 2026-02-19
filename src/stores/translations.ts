@@ -27,8 +27,10 @@ export const useTranslationStore = defineStore('translations', () => {
     
     try {
       const stored = localStorage.getItem(`${STORAGE_KEY}_${locale.value}`)
-      if (!stored) return null
-      
+      if (!stored || typeof stored !== 'string') return null
+      const trimmed = stored.trim()
+      if (!trimmed || (trimmed[0] !== '{' && trimmed[0] !== '[')) return null
+
       const data = JSON.parse(stored)
       if (Date.now() - data.timestamp < CACHE_EXPIRY) {
         return data.translations

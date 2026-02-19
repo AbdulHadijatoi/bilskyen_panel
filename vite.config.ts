@@ -6,11 +6,12 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     vue(),
     vueJsx(),
-    vueDevTools(),
+    // Only load Vue DevTools in development (avoids JSON parse / serialization errors in production)
+    ...(mode === 'development' ? [vueDevTools()] : []),
   ],
   resolve: {
     alias: {
@@ -118,4 +119,4 @@ export default defineConfig({
       'vue-echarts',
     ],
   },
-})
+}))
