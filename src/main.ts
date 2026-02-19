@@ -21,9 +21,20 @@ async function bootstrap() {
   // Load initial locale messages before first render so vue-i18n does not warn on missing keys
   const stored = localStorage.getItem(STORAGE_KEY)
   const locale: SupportedLocale = stored === 'da' ? 'da' : 'en'
-  await loadLocaleMessages(locale)
+  try {
+    await loadLocaleMessages(locale)
+  } catch (e) {
+    console.error('Failed to load locale:', locale, e)
+    try {
+      await loadLocaleMessages('en')
+    } catch (fallback) {
+      console.error('Fallback locale load failed:', fallback)
+    }
+  }
 
   app.mount('#app')
 }
 
-bootstrap()
+bootstrap().catch((err) => {
+  console.error('Bootstrap failed:', err)
+})
