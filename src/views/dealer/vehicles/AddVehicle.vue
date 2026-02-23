@@ -1724,6 +1724,12 @@ const performLookup = async () => {
       upsertLookupOption(transmissions.value, { id: data.transmission.id, name: data.transmission.name })
       form.value.transmissionId = data.transmission.id
       form.value.transmissionType = data.transmission.name
+    } else if (data.gear_type_id) {
+      // DMR API returns gear_type_id (1=Manual, 2=Automatic) - set transmissionType for UI
+      const gearType = gearTypes.value.find(g => g.id === data.gear_type_id)
+      if (gearType) {
+        form.value.transmissionType = gearType.name
+      }
     }
 
     // Map euro emission class - handle both object and string formats
@@ -2194,7 +2200,7 @@ const saveAsDraft = async () => {
       }
     }
 
-    // Transmission
+    // Transmission and gear_type_id
     if (form.value.transmissionId) {
       vehicleData.transmission_id = form.value.transmissionId
     } else if (form.value.transmissionType) {
@@ -2206,6 +2212,8 @@ const saveAsDraft = async () => {
       if (gearType) {
         vehicleData.gear_type_id = gearType.id
       }
+    } else if (nummerpladeData.gear_type_id) {
+      vehicleData.gear_type_id = nummerpladeData.gear_type_id
     }
 
     // Previous usage
@@ -2557,20 +2565,20 @@ const submitForm = async () => {
       }
     }
     
-    // Transmission - use transmission_id if available, otherwise try to find from transmissionType
+    // Transmission and gear_type_id - use nummerpladeData.gear_type_id from DMR when form has no transmission
     if (form.value.transmissionId) {
       vehicleData.transmission_id = form.value.transmissionId
     } else if (form.value.transmissionType) {
-      // Try to find transmission by name
       const transmission = transmissions.value.find(t => t.name === form.value.transmissionType)
       if (transmission) {
         vehicleData.transmission_id = transmission.id
       }
-      // Also try to find gear_type_id if transmissionType matches a gear type (for backward compatibility)
       const gearType = gearTypes.value.find(g => g.name === form.value.transmissionType)
       if (gearType) {
         vehicleData.gear_type_id = gearType.id
       }
+    } else if (nummerpladeData.gear_type_id) {
+      vehicleData.gear_type_id = nummerpladeData.gear_type_id
     }
 
     // Previous usage - find use_id from form or Nummerplade API

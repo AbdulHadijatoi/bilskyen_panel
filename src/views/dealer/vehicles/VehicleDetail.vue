@@ -557,6 +557,23 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
+                    <div class="field-label">Gear Type</div>
+                    <div class="field-value">{{ displayValue(vehicle.gearTypeName) }}</div>
+                  </div>
+                  <v-select
+                    v-else
+                    v-model="vehicleData.gear_type_id"
+                    :items="gearTypes"
+                    item-title="name"
+                    item-value="id"
+                    label="Gear Type"
+                    variant="outlined"
+                    density="compact"
+                    hide-details="auto"
+                  />
+                </v-col>
+                <v-col cols="12" sm="6" md="4">
+                  <div v-if="!editMode" class="info-field">
                     <div class="field-label">Transmission</div>
                     <div class="field-value">{{ displayValue(vehicle.details?.transmission_name || (vehicle as any).transmissionName) }}</div>
                   </div>
