@@ -10,6 +10,8 @@ import { handleSuccess, handleError } from './response'
 import { AUTH_ENDPOINTS } from './endpoints'
 import { useAuthStore } from '@/stores/auth.store'
 import { normalizeUser } from '@/utils/user'
+import { getStoredAccessToken, clearTokens } from '@/utils/token'
+import { loadSubscriptionFeatures } from '@/api/subscription-features.api'
 import type { UserModel } from '@/models/user.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import router from '@/router'
@@ -186,7 +188,6 @@ export async function getCurrentUser(): Promise<UserModel> {
       // If features are missing and user is dealer/staff (not admin), try to load them from dedicated endpoint
       if (user && !authStore.isAdmin && Object.keys(authStore.subscriptionFeatures).length === 0) {
         try {
-          const { loadSubscriptionFeatures } = await import('@/api/dealer.api')
           await loadSubscriptionFeatures()
         } catch (error) {
           // Continue anyway - features might not be available
@@ -206,7 +207,6 @@ export async function getCurrentUser(): Promise<UserModel> {
  */
 export async function checkAuth(): Promise<boolean> {
   const authStore = useAuthStore()
-  const { getStoredAccessToken, clearTokens } = await import('@/utils/token')
 
   // If no token in store, try to restore from localStorage
   if (!authStore.accessToken) {
@@ -225,7 +225,6 @@ export async function checkAuth(): Promise<boolean> {
       // After getting user, ensure features are loaded if missing (for dealer/staff users)
       if (authStore.user && !authStore.isAdmin && Object.keys(authStore.subscriptionFeatures).length === 0) {
         try {
-          const { loadSubscriptionFeatures } = await import('@/api/dealer.api')
           await loadSubscriptionFeatures()
         } catch (error) {
           // Continue anyway - features might not be available
@@ -242,7 +241,6 @@ export async function checkAuth(): Promise<boolean> {
   // If we have both token and user, ensure features are loaded if missing (for dealer/staff users)
   if (authStore.isAuthenticated && !authStore.isAdmin && Object.keys(authStore.subscriptionFeatures).length === 0) {
     try {
-      const { loadSubscriptionFeatures } = await import('@/api/dealer.api')
       await loadSubscriptionFeatures()
     } catch (error) {
       // Continue anyway - features might not be available

@@ -297,7 +297,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { getProfile, updateProfile, type UpdateProfileData } from '@/api/staff.api'
 import { getCurrentUser } from '@/api/auth.api'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@/stores/auth.store'
 import type { DealerModel } from '@/models/dealer.model'
 
 const authStore = useAuthStore()

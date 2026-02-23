@@ -33,6 +33,7 @@ import type { PaginationModel, PaginationParams } from '@/models/pagination.mode
 import type { ApiErrorModel } from '@/models/api-error.model'
 import type { VehicleStatus } from '@/models/vehicle.model'
 import type { LeadStage } from '@/models/lead.model'
+import { useAuthStore } from '@/stores/auth.store'
 
 /**
  * Dealer audit log model
@@ -1128,7 +1129,6 @@ export async function loadSubscriptionFeatures(): Promise<Record<string, string>
     const features = handleSuccess<Record<string, string>>(response)
     
     // Update auth store with features
-    const { useAuthStore } = await import('@/stores/auth.store')
     const authStore = useAuthStore()
     authStore.setSubscriptionFeatures(features)
     
@@ -1209,7 +1209,6 @@ export async function createSubscription(data: CreateDealerSubscriptionData): Pr
     
     // Update subscription features in auth store if provided
     if (result.subscription_features) {
-      const { useAuthStore } = await import('@/stores/auth.store')
       const authStore = useAuthStore()
       authStore.setSubscriptionFeatures(result.subscription_features)
     }

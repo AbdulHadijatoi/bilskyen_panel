@@ -78,34 +78,47 @@
       <div style="flex-grow: 1;" />
 
       <div class="language-switch-wrapper">
-        <button
-          type="button"
-          class="language-switch"
-          :aria-label="t('common.language')"
-          :title="t('common.language')"
-          :style="{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.375rem',
-            borderRadius: '0.375rem',
-            padding: '0.5rem',
-            backgroundColor: 'var(--secondary)',
-            color: 'var(--secondary-foreground)',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '0.8125rem',
-            fontWeight: 500,
-            transition: 'background-color 0.2s',
-          }"
-          @click="toggleLocale"
-        >
-          <v-icon size="16">mdi-translate</v-icon>
-          <span class="language-code">{{ localeStore.locale.toUpperCase() }}</span>
-        </button>
+        <v-menu location="bottom end" offset="8">
+          <template #activator="{ props }">
+            <button
+              v-bind="props"
+              type="button"
+              class="language-switch"
+              :aria-label="t('common.language')"
+              :title="t('common.language')"
+              :style="{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.375rem',
+                borderRadius: '0.375rem',
+                padding: '0.5rem',
+                backgroundColor: 'var(--secondary)',
+                color: 'var(--secondary-foreground)',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '0.8125rem',
+                fontWeight: 500,
+                transition: 'background-color 0.2s',
+              }"
+            >
+              <v-icon size="16">mdi-translate</v-icon>
+              <span class="language-code">{{ localeStore.locale.toUpperCase() }}</span>
+              <v-icon size="14">mdi-chevron-down</v-icon>
+            </button>
+          </template>
+          <v-list density="compact" min-width="140">
+            <v-list-item
+              v-for="option in languageOptions"
+              :key="option.value"
+              :title="option.label"
+              :active="localeStore.locale === option.value"
+              @click="setLocale(option.value)"
+            />
+          </v-list>
+        </v-menu>
       </div>
 
-      <NotificationsButton />
     </div>
   </header>
 </template>
@@ -113,18 +126,23 @@
 <script setup lang="ts">
 import { LayoutPanelLeft } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
+import type { SupportedLocale } from '@/plugins/i18n'
 import { useSidebarStore } from '@/stores/sidebar'
 import { useLocaleStore } from '@/stores/locale.store'
 import Breadcrumb from './Breadcrumb.vue'
-import NotificationsButton from './NotificationsButton.vue'
 
 const { t } = useI18n()
 const sidebarStore = useSidebarStore()
 const localeStore = useLocaleStore()
 
-function toggleLocale() {
-  const next = localeStore.locale === 'en' ? 'da' : 'en'
-  localeStore.setLocale(next)
+const languageOptions: Array<{ value: SupportedLocale; label: string }> = [
+  { value: 'en', label: 'English' },
+  { value: 'da', label: 'Dansk' },
+]
+
+async function setLocale(locale: SupportedLocale) {
+  if (localeStore.locale === locale) return
+  await localeStore.setLocale(locale)
 }
 </script>
 

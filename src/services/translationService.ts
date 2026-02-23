@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { useAuthStore } from '../stores/auth'
+import { useAuthStore } from '../stores/auth.store'
 
 const API_BASE = '/api/v1/admin/translations'
 

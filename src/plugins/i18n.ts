@@ -10,33 +10,30 @@ const i18n = createI18n({
 })
 
 const localeModules = import.meta.glob<{ default: Record<string, unknown> }>('../locales/*.json')
+const loadedLocales = new Set<SupportedLocale>()
 
 /**
  * Load messages for a locale via dynamic import and set them on the global i18n instance.
- * Also sets the current locale.
+ * Optionally sets the current locale (setLocale = true by default).
  */
-export async function loadLocaleMessages(locale: SupportedLocale): Promise<void> {
+export async function loadLocaleMessages(locale: SupportedLocale, setLocale = true): Promise<void> {
   const loader = localeModules[`../locales/${locale}.json`]
   if (!loader) return
   const mod = await loader()
   const messages = mod.default
   i18n.global.setLocaleMessage(locale, messages)
-  i18n.global.locale.value = locale
+  if (setLocale) {
+    i18n.global.locale.value = locale
+  }
+  loadedLocales.add(locale)
 }
-
-const loadedLocales = new Set<SupportedLocale>()
 
 /**
  * Ensure a locale's messages are loaded; if not, load them. Then set locale.
  */
 export async function ensureLocaleLoaded(locale: SupportedLocale): Promise<void> {
   if (!loadedLocales.has(locale)) {
-    const loader = localeModules[`../locales/${locale}.json`]
-    if (loader) {
-      const mod = await loader()
-      i18n.global.setLocaleMessage(locale, mod.default)
-      loadedLocales.add(locale)
-    }
+    await loadLocaleMessages(locale, false)
   }
   i18n.global.locale.value = locale
 }

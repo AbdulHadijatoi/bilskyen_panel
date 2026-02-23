@@ -50,7 +50,7 @@
             id="email"
             v-model="email"
             type="email"
-            :placeholder="t('auth.login.emailPlaceholder')"
+            placeholder="johndoe@mail.com"
             autocomplete="email"
             tabindex="1"
             required

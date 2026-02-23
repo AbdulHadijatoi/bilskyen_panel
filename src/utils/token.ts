@@ -5,7 +5,7 @@
  * Tokens stored in Pinia store and persisted to localStorage
  */
 
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@/stores/auth.store'
 
 const ACCESS_TOKEN_KEY = 'access_token'
 

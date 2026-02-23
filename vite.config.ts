@@ -21,8 +21,29 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
+          // Split large app modules used across many routes
+          if (id.includes('/src/api/dealer.api.ts')) {
+            return 'dealer-api'
+          }
+          if (id.includes('/src/views/admin/')) {
+            return 'admin-pages'
+          }
+          if (id.includes('/src/views/dealer/')) {
+            return 'dealer-pages'
+          }
+
           // Split node_modules into separate chunks
           if (id.includes('node_modules')) {
+            // Vue core runtime packages
+            if (id.includes('node_modules/vue/') || id.includes('node_modules/@vue/')) {
+              return 'vue-core'
+            }
+
+            // Vue I18n
+            if (id.includes('vue-i18n') || id.includes('@intlify/')) {
+              return 'i18n'
+            }
+
             // Vuetify and its dependencies
             if (id.includes('vuetify') || id.includes('@mdi/font')) {
               return 'vuetify'
@@ -32,10 +53,15 @@ export default defineConfig({
             if (id.includes('echarts') || id.includes('vue-echarts')) {
               return 'echarts'
             }
-            
-            // Vue core libraries (excluding vue itself which is handled separately)
-            if (id.includes('vue') && !id.includes('node_modules/vue/') && !id.includes('vue-router') && !id.includes('vue-echarts')) {
-              return 'vue-vendor'
+
+            // Chart.js and vue-chartjs
+            if (id.includes('chart.js') || id.includes('vue-chartjs')) {
+              return 'chartjs'
+            }
+
+            // Tiptap editor packages
+            if (id.includes('@tiptap/')) {
+              return 'tiptap'
             }
             
             // Vue Router
@@ -62,10 +88,15 @@ export default defineConfig({
             if (id.includes('lucide-vue-next')) {
               return 'lucide'
             }
+
+            // Drag and drop helpers
+            if (id.includes('sortablejs') || id.includes('vue-draggable-next')) {
+              return 'dragdrop'
+            }
             
             // Group other smaller vendor libraries together
             // Only create vendor chunk if there are actual dependencies
-            const otherVendors = ['@vue', 'autoprefixer', 'postcss', 'tailwindcss']
+            const otherVendors = ['autoprefixer', 'postcss', 'tailwindcss']
             if (otherVendors.some(vendor => id.includes(vendor))) {
               return 'vendor'
             }

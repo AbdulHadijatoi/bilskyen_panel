@@ -5,7 +5,7 @@ import { checkAuth } from '@/api/auth.api'
 import { encryptUrlParam } from '@/utils/urlEncryption'
 import { isAdmin, isDealer } from '@/utils/permissions'
 import { hasFeature, getSubscriptionFeatures } from '@/utils/subscriptionFeatures'
-import { loadSubscriptionFeatures } from '@/api/dealer.api'
+import { loadSubscriptionFeatures } from '@/api/subscription-features.api'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -227,6 +227,11 @@ const router = createRouter({
           path: 'pages/terms-page-content',
           name: 'admin.terms-page-content',
           component: () => import('@/views/admin/terms-page-content/TermsPageContentManagement.vue'),
+        },
+        {
+          path: 'pages/seo-content',
+          name: 'admin.seo-content',
+          component: () => import('@/views/admin/seo-content/SeoContentManagement.vue'),
         },
         {
           path: 'featured-vehicles',

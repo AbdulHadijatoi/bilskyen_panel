@@ -5,7 +5,7 @@
  * Always use mapped UserModel, never raw API responses
  */
 
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@/stores/auth.store'
 import type { UserModel } from '@/models/user.model'
 import { mapUserFromApi } from '@/models/user.model'
 import { UserRole } from '@/models/user.model'
@@ -28,7 +28,7 @@ export function getUser(): UserModel | null {
     banned: authStore.user.banned ?? false,
     roles: authStore.user.roles,
     permissions: authStore.user.permissions,
-    createdAt: authStore.user.created_at,
+    createdAt: authStore.user.createdAt,
   }
 }
 

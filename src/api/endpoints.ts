@@ -317,6 +317,18 @@ export const ADMIN_TERMS_PAGE_ENDPOINTS = {
 } as const
 
 /**
+ * Admin SEO pages endpoints
+ */
+export const ADMIN_SEO_PAGE_ENDPOINTS = {
+  LIST: '/admin/seo-pages',
+  PAGE_KEY_OPTIONS: '/admin/seo-pages/page-key-options',
+  SHOW: (id: number | string) => `/admin/seo-pages/${id}`,
+  CREATE: '/admin/seo-pages',
+  UPDATE: (id: number | string) => `/admin/seo-pages/${id}`,
+  DELETE: (id: number | string) => `/admin/seo-pages/${id}`,
+} as const
+
+/**
  * Public home page content endpoints
  */
 export const PUBLIC_HOME_PAGE_ENDPOINTS = {

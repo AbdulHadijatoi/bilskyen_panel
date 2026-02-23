@@ -1,6 +1,7 @@
 import apiClient from '@/utils/axios'
 import axios from 'axios'
-import { useAuthStore, type User } from '@/stores/auth'
+import { useAuthStore } from '@/stores/auth.store'
+import type { UserModel as User } from '@/models/user.model'
 import router from '@/router'
 
 export interface LoginCredentials {
