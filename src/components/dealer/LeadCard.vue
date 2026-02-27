@@ -68,7 +68,13 @@
         </v-chip>
       </div>
       
+      <div v-if="lead.message || lead.enquiry?.message" class="text-caption text-medium-emphasis mb-2 lead-message-excerpt">
+        <v-icon size="x-small" class="mr-1">mdi-message-text-outline</v-icon>
+        {{ lead.enquiry?.message || lead.message }}
+      </div>
+      
       <div class="text-caption text-medium-emphasis">
+
         {{ formatLeadDate(lead.createdAt) }}
       </div>
     </v-card-text>
@@ -153,5 +159,14 @@ const handleCardClick = (event: MouseEvent) => {
 
 :deep(.v-chip:hover) {
   transform: scale(1.05);
+}
+
+.lead-message-excerpt {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
 }
 </style>

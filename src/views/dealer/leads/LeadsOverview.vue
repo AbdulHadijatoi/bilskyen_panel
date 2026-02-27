@@ -254,7 +254,14 @@
                 </v-chip>
                 <span v-else class="text-medium-emphasis">{{ t('dealer.views.leads.notSet') }}</span>
               </template>
+              <template #item.message="{ item }">
+                <div v-if="item.message || item.enquiry?.message" class="text-caption lead-message-cell">
+                  {{ item.enquiry?.message || item.message }}
+                </div>
+                <div v-else class="text-medium-emphasis text-caption">-</div>
+              </template>
               <template #item.createdAt="{ item }">
+
                 {{ formatLeadDate(item.createdAt) }}
               </template>
               <template #item.actions="{ item }">
@@ -1029,6 +1036,7 @@ const tableHeaders = computed(() => [
   { title: t('dealer.views.leads.stage'), key: 'stageId', sortable: true },
   { title: t('dealer.views.leads.intent'), key: 'intentId', sortable: true },
   { title: t('dealer.views.leads.category'), key: 'categoryId', sortable: true },
+  { title: 'Message', key: 'message', sortable: false },
   { title: t('common.date'), key: 'createdAt', sortable: true },
   { title: t('common.actions'), key: 'actions', sortable: false, align: 'end' as const },
 ])
@@ -1415,5 +1423,12 @@ onUnmounted(() => {
 
 .analytics-enter {
   animation: slideIn 0.3s ease;
+}
+
+.lead-message-cell {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

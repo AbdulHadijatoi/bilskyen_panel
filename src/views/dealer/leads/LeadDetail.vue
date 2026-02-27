@@ -116,10 +116,28 @@
                     <div class="font-weight-medium">{{ lead.source || 'N/A' }}</div>
                   </div>
                 </v-col>
-                <v-col cols="12" v-if="lead.message">
+                <v-col cols="12" v-if="lead.message || lead.enquiry">
                   <div class="mb-3">
-                    <div class="text-caption text-medium-emphasis mb-1">Message/Enquiry</div>
-                    <div class="text-body-2">{{ lead.message }}</div>
+                    <div class="text-caption text-medium-emphasis mb-1">
+                      {{ lead.enquiry ? 'Initial Enquiry Details' : 'Message' }}
+                    </div>
+                    <v-card variant="tonal" density="compact" class="pa-3 rounded-lg">
+                      <div v-if="lead.enquiry" class="d-flex flex-column gap-1">
+                        <div v-if="lead.enquiry.type" class="text-body-2">
+                          <strong>Purpose:</strong> {{ lead.enquiry.type }}
+                        </div>
+                        <div v-if="lead.enquiry.subject" class="text-body-2">
+                          <strong>Subject:</strong> {{ lead.enquiry.subject }}
+                        </div>
+                        <div class="text-body-2 mt-1">
+                          <strong>Message:</strong>
+                          <p class="mt-1">{{ lead.enquiry.message }}</p>
+                        </div>
+                      </div>
+                      <div v-else class="text-body-2">
+                        {{ lead.message }}
+                      </div>
+                    </v-card>
                   </div>
                 </v-col>
               </v-row>

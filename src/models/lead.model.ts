@@ -68,7 +68,7 @@ export interface LeadModel {
   updatedAt?: string
   deletedAt?: string
   lastActivityAt?: string
-  
+
   // Relations (if included in response)
   dealer?: any
   vehicle?: any
@@ -76,6 +76,13 @@ export interface LeadModel {
   buyerUser?: any
   assignedTo?: any
   messages?: LeadMessageModel[]
+  enquiry?: {
+    id: number
+    subject: string
+    message: string
+    type: string
+    status: string
+  }
 }
 
 /**
@@ -89,7 +96,7 @@ export interface LeadMessageModel {
   isFromCustomer?: boolean
   createdAt?: string
   updatedAt?: string
-  
+
   user?: any
 }
 
@@ -106,16 +113,16 @@ export function mapLeadFromApi(data: any): LeadModel {
     name: data.buyer_user?.name || data.user?.name || data.name || 'Unknown',
     email: data.buyer_user?.email || data.user?.email || data.email,
     phone: data.buyer_user?.phone || data.user?.phone || data.phone,
-    message: data.message,
+    message: data.enquiry?.message || data.message || '',
     stageId: data.lead_stage_id || data.stage_id,
     stage: (data.lead_stage_id || data.stage_id) as LeadStage,
     intentId: data.lead_intent_id || data.intent_id,
     categoryId: data.lead_category_id || data.category_id,
     intent: data.lead_intent ? { id: data.lead_intent.id, name: data.lead_intent.name } : undefined,
-    category: data.lead_category ? { 
-      id: data.lead_category.id, 
+    category: data.lead_category ? {
+      id: data.lead_category.id,
       name: data.lead_category.name,
-      description: data.lead_category.description 
+      description: data.lead_category.description
     } : undefined,
     source: data.source?.name || data.source,
     createdAt: data.created_at,
@@ -128,8 +135,16 @@ export function mapLeadFromApi(data: any): LeadModel {
     buyerUser: data.buyer_user,
     assignedTo: data.assigned_user || data.assigned_to,
     messages: data.messages?.map(mapLeadMessageFromApi),
+    enquiry: data.enquiry ? {
+      id: data.enquiry.id,
+      subject: data.enquiry.subject,
+      message: data.enquiry.message,
+      type: data.enquiry.type,
+      status: data.enquiry.status
+    } : undefined
   }
 }
+
 
 /**
  * Map lead message from API
