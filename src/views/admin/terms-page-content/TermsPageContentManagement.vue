@@ -2,9 +2,9 @@
   <div class="terms-page-content-container">
     <div class="page-header">
       <div class="header-content">
-        <h2 class="page-title">Terms of Service Content Management</h2>
+        <h2 class="page-title">{{ t('admin.views.termsPageContent.title') }}</h2>
         <p class="page-description">
-          Edit the terms of service page content below. Use the toolbar for headings, lists, bold, italic, and links. Changes are saved to the database and cache is automatically cleared.
+          {{ t('admin.views.termsPageContent.description') }}
         </p>
       </div>
       <div class="header-actions">
@@ -17,7 +17,7 @@
           @click="saveContent"
           class="save-button"
         >
-          Save Changes
+          {{ t('admin.views.termsPageContent.saveChanges') }}
         </v-btn>
       </div>
     </div>
@@ -25,7 +25,7 @@
     <!-- Loading State -->
     <div v-if="loading" class="text-center py-8">
       <v-progress-circular indeterminate color="primary" />
-      <p class="text-body-2 text-medium-emphasis mt-4">Loading terms of service content...</p>
+      <p class="text-body-2 text-medium-emphasis mt-4">{{ t('admin.views.termsPageContent.loading') }}</p>
     </div>
 
     <!-- Error State -->
@@ -36,7 +36,7 @@
       prominent
       class="mb-4"
     >
-      <v-alert-title>Error Loading Content</v-alert-title>
+      <v-alert-title>{{ t('admin.views.termsPageContent.errorLoading') }}</v-alert-title>
       {{ error }}
     </v-alert>
 
@@ -44,7 +44,7 @@
     <div v-else class="editor-wrapper">
       <RichTextEditor
         v-model="termsBody"
-        placeholder="Write your terms of service content here…"
+        :placeholder="t('admin.views.termsPageContent.placeholder')"
       />
     </div>
 
@@ -55,9 +55,9 @@
       timeout="3000"
       location="top"
     >
-      Terms of service content updated successfully!
+      {{ t('admin.views.termsPageContent.successMessage') }}
       <template #actions>
-        <v-btn variant="text" @click="showSuccess = false">Close</v-btn>
+        <v-btn variant="text" @click="showSuccess = false">{{ t('common.close') }}</v-btn>
       </template>
     </v-snackbar>
 
@@ -70,7 +70,7 @@
     >
       {{ errorMessage }}
       <template #actions>
-        <v-btn variant="text" @click="showError = false">Close</v-btn>
+        <v-btn variant="text" @click="showError = false">{{ t('common.close') }}</v-btn>
       </template>
     </v-snackbar>
   </div>
@@ -78,12 +78,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import {
   getTermsPageContent,
   bulkUpdateTermsPageContent,
 } from '@/api/admin.api'
 import RichTextEditor from '@/components/admin/RichTextEditor.vue'
 
+const { t } = useI18n()
 const BODY_KEY = 'terms_body'
 
 const loading = ref(false)
@@ -102,7 +104,7 @@ async function loadContent() {
     const bodySection = sections.find((s) => s.sectionKey === BODY_KEY)
     termsBody.value = bodySection?.content ?? ''
   } catch (err: any) {
-    error.value = err.message || 'Failed to load terms of service content'
+    error.value = err.message || t('admin.views.termsPageContent.failedLoad')
     console.error('Error loading terms of service content:', err)
   } finally {
     loading.value = false
@@ -117,7 +119,7 @@ async function saveContent() {
     await bulkUpdateTermsPageContent({ [BODY_KEY]: termsBody.value || null }, 'terms')
     showSuccess.value = true
   } catch (err: any) {
-    errorMessage.value = err.message || 'Failed to save terms of service content'
+    errorMessage.value = err.message || t('admin.views.termsPageContent.failedSave')
     showError.value = true
     console.error('Error saving terms of service content:', err)
   } finally {

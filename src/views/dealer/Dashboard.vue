@@ -146,7 +146,7 @@
                 <span class="text-caption text-medium-emphasis">{{ t('dealer.views.dashboard.newVehicles') }}</span>
               </div>
               <div class="text-h6 font-weight-bold">{{ stats.overview.vehicles.new_last_30_days }}</div>
-              <div class="text-caption text-medium-emphasis">Last 30 days</div>
+              <div class="text-caption text-medium-emphasis">{{ t('dealer.views.dashboard.last30Days') }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -159,7 +159,7 @@
                 <span class="text-caption text-medium-emphasis">{{ t('dealer.views.dashboard.newLeads') }}</span>
               </div>
               <div class="text-h6 font-weight-bold">{{ stats.overview.leads.new_last_30_days }}</div>
-              <div class="text-caption text-medium-emphasis">Last 30 days</div>
+              <div class="text-caption text-medium-emphasis">{{ t('dealer.views.dashboard.last30Days') }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -172,7 +172,7 @@
                 <span class="text-caption text-medium-emphasis">{{ t('dealer.views.dashboard.avgVehiclePrice') }}</span>
               </div>
               <div class="text-h6 font-weight-bold">{{ formatPrice(stats.overview.vehicles.average_price) }}</div>
-              <div class="text-caption text-medium-emphasis">Total value: {{ formatPrice(stats.overview.vehicles.total_value) }}</div>
+              <div class="text-caption text-medium-emphasis">{{ t('dealer.views.dashboard.totalValue') }}: {{ formatPrice(stats.overview.vehicles.total_value) }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -226,7 +226,7 @@
           <v-card variant="flat" class="chart-card" elevation="1">
             <v-card-title class="d-flex align-center">
               <v-icon size="20" class="mr-2">mdi-chart-line</v-icon>
-              <span>Vehicle Creation Trend (30 Days)</span>
+              <span>{{ t('dealer.views.dashboard.creationTrendTitle') }}</span>
             </v-card-title>
             <v-card-text>
               <div class="trend-chart">
@@ -240,7 +240,7 @@
                   />
                 </div>
                 <div class="trend-labels">
-                  <span class="text-caption text-medium-emphasis">30 days ago</span>
+                  <span class="text-caption text-medium-emphasis">{{ t('dealer.views.dashboard.thirtyDaysAgo') }}</span>
                   <span class="text-caption text-medium-emphasis">{{ t('dealer.views.dashboard.today') }}</span>
                 </div>
               </div>
@@ -418,13 +418,14 @@ const getVehicleStatusColor = (statusId?: number) => {
 }
 
 const getVehicleStatusName = (statusId?: number) => {
-  const names: Record<number, string> = {
-    1: 'Draft',
-    2: 'Published',
-    3: 'Sold',
-    4: 'Archived',
+  const keys: Record<number, string> = {
+    1: 'dealer.views.vehicles.draft',
+    2: 'dealer.views.vehicles.published',
+    3: 'dealer.views.vehicles.sold',
+    4: 'dealer.views.vehicles.archived',
   }
-  return names[statusId || 0] || 'Unknown'
+  const key = keys[statusId || 0]
+  return key ? t(key) : t('common.unknown')
 }
 
 onMounted(() => {

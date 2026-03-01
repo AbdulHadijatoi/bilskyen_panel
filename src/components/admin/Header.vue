@@ -30,7 +30,7 @@
       <button
         @click="sidebarStore.toggleSidebar"
         class="sidebar-trigger"
-        aria-label="Toggle Sidebar"
+        :aria-label="t('common.toggleSidebar')"
         type="button"
         :style="{
           marginLeft: '-0.25rem',
@@ -123,6 +123,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { LayoutPanelLeft } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import type { SupportedLocale } from '@/plugins/i18n'
@@ -134,10 +135,10 @@ const { t } = useI18n()
 const sidebarStore = useSidebarStore()
 const localeStore = useLocaleStore()
 
-const languageOptions: Array<{ value: SupportedLocale; label: string }> = [
-  { value: 'en', label: 'English' },
-  { value: 'da', label: 'Dansk' },
-]
+const languageOptions = computed<Array<{ value: SupportedLocale; label: string }>>(() => [
+  { value: 'en', label: t('common.english') },
+  { value: 'da', label: t('common.danish') },
+])
 
 async function setLocale(locale: SupportedLocale) {
   if (localeStore.locale === locale) return

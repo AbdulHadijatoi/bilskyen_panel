@@ -121,7 +121,7 @@
                   class="flex min-w-0 grow flex-col items-start gap-0.5"
                   style="min-width: 0;"
                 >
-                  <div class="truncate text-xs font-medium" style="width: 100%;">{{ authStore.user?.name || 'User' }}</div>
+                  <div class="truncate text-xs font-medium" style="width: 100%;">{{ authStore.user?.name || t('common.userFallback') }}</div>
                   <div class="truncate text-xs" style="opacity: 0.7; width: 100%; font-size: 0.6875rem;">{{ authStore.user?.email || '' }}</div>
                 </div>
               </div>
@@ -179,7 +179,7 @@ function getSectionTitle(title: string | undefined): string {
 }
 
 const userInitials = computed(() => {
-  const name = authStore.user?.name || 'User'
+  const name = authStore.user?.name || t('common.userFallback')
   const names = name.split(' ')
   if (names.length >= 2) {
     const firstName = names[0]

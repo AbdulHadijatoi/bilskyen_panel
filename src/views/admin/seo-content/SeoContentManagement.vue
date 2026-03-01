@@ -58,10 +58,10 @@
           {{ item.updated_at ? formatDate(item.updated_at) : '—' }}
         </template>
         <template #item.actions="{ item }">
-          <v-btn icon variant="text" size="small" @click="openEdit(item)" title="Edit">
+          <v-btn icon variant="text" size="small" @click="openEdit(item)" :title="$t('admin.seoContent.editTitle')">
             <v-icon>mdi-pencil</v-icon>
           </v-btn>
-          <v-btn icon variant="text" size="small" color="error" @click="confirmDelete(item)" title="Delete">
+          <v-btn icon variant="text" size="small" color="error" @click="confirmDelete(item)" :title="$t('admin.seoContent.deleteTitle')">
             <v-icon>mdi-delete</v-icon>
           </v-btn>
         </template>
@@ -189,37 +189,37 @@ import {
 
 const { t: $t } = useI18n()
 
-// Page types that match defined routes (for form dropdown)
-const PAGE_TYPE_OPTIONS = [
-  { value: 'home', label: 'Home' },
-  { value: 'listing', label: 'Vehicles listing' },
-  { value: 'static', label: 'Static page' },
-  { value: 'vehicle', label: 'Vehicle detail' },
-  { value: 'dealer', label: 'Dealer page' },
-] as const
+// Page types that match defined routes (for form dropdown) - labels translated
+const PAGE_TYPE_OPTIONS = computed(() => [
+  { value: 'home', label: $t('admin.seoContent.pageTypeHome') },
+  { value: 'listing', label: $t('admin.seoContent.pageTypeListing') },
+  { value: 'static', label: $t('admin.seoContent.pageTypeStatic') },
+  { value: 'vehicle', label: $t('admin.seoContent.pageTypeVehicle') },
+  { value: 'dealer', label: $t('admin.seoContent.pageTypeDealer') },
+])
 
-// Page keys for fixed route types (home, listing, static)
-const PAGE_KEY_OPTIONS: Record<string, { value: string; label: string }[]> = {
-  home: [{ value: 'home', label: 'Home' }],
-  listing: [{ value: 'vehicles', label: 'Vehicles' }],
+// Page keys for fixed route types (home, listing, static) - labels translated
+const PAGE_KEY_OPTIONS = computed<Record<string, { value: string; label: string }[]>>(() => ({
+  home: [{ value: 'home', label: $t('admin.seoContent.pageKeyHome') }],
+  listing: [{ value: 'vehicles', label: $t('admin.seoContent.pageKeyVehicles') }],
   static: [
-    { value: 'about', label: 'About' },
-    { value: 'contact', label: 'Contact' },
-    { value: 'privacy-policy', label: 'Privacy Policy' },
-    { value: 'terms-of-service', label: 'Terms of Service' },
+    { value: 'about', label: $t('admin.seoContent.pageKeyAbout') },
+    { value: 'contact', label: $t('admin.seoContent.pageKeyContact') },
+    { value: 'privacy-policy', label: $t('admin.seoContent.pageKeyPrivacyPolicy') },
+    { value: 'terms-of-service', label: $t('admin.seoContent.pageKeyTermsOfService') },
   ],
-}
+}))
 
 // For filter in list view (same + optional extras)
-const pageTypeOptions = [...PAGE_TYPE_OPTIONS]
+const pageTypeOptions = computed(() => [...PAGE_TYPE_OPTIONS.value])
 
-const headers = [
-  { title: 'Page Type', key: 'page_type', sortable: true },
-  { title: 'Page Key', key: 'page_key', sortable: true },
-  { title: 'Meta Title', key: 'meta_title' },
-  { title: 'Updated', key: 'updated_at' },
+const headers = computed(() => [
+  { title: $t('admin.seoContent.tableHeaderPageType'), key: 'page_type', sortable: true },
+  { title: $t('admin.seoContent.tableHeaderPageKey'), key: 'page_key', sortable: true },
+  { title: $t('admin.seoContent.tableHeaderMetaTitle'), key: 'meta_title' },
+  { title: $t('admin.seoContent.tableHeaderUpdated'), key: 'updated_at' },
   { title: '', key: 'actions', sortable: false, width: '100' },
-]
+])
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -271,7 +271,8 @@ const loadingPageKeyOptions = ref(false)
 
 const formPageKeyOptions = computed(() => {
   const type = form.value.page_type
-  if (PAGE_KEY_OPTIONS[type]) return PAGE_KEY_OPTIONS[type]
+  const options = PAGE_KEY_OPTIONS.value
+  if (options[type]) return options[type]
   if (type === 'vehicle') return vehicleSlugOptions.value
   if (type === 'dealer') return dealerSlugOptions.value
   return []
@@ -375,7 +376,7 @@ async function loadPages() {
   try {
     pages.value = await getSeoPages()
   } catch (err: any) {
-    error.value = err.message || 'Failed to load SEO pages'
+    error.value = err.message || $t('admin.seoContent.failedLoadPages')
     console.error(err)
   } finally {
     loading.value = false
@@ -422,14 +423,14 @@ async function openEdit(item: SeoPageModel) {
     breadcrumbsJsonText.value = full.breadcrumbs_json ? JSON.stringify(full.breadcrumbs_json, null, 2) : ''
     dialogOpen.value = true
   } catch (err: any) {
-    errorMessage.value = err.message || 'Failed to load SEO page'
+    errorMessage.value = err.message || $t('admin.seoContent.failedLoadPage')
     showError.value = true
   }
 }
 
 async function saveForm() {
   if (!form.value.page_type || !form.value.page_key) {
-    errorMessage.value = 'Page type and page key are required'
+    errorMessage.value = $t('admin.seoContent.pageTypeKeyRequired')
     showError.value = true
     return
   }
@@ -450,7 +451,7 @@ async function saveForm() {
     dialogOpen.value = false
     await loadPages()
   } catch (err: any) {
-    errorMessage.value = err.message || 'Failed to save'
+    errorMessage.value = err.message || $t('admin.seoContent.failedSave')
     showError.value = true
   } finally {
     saving.value = false
@@ -473,7 +474,7 @@ async function doDelete() {
     itemToDelete.value = null
     await loadPages()
   } catch (err: any) {
-    errorMessage.value = err.message || 'Failed to delete'
+    errorMessage.value = err.message || $t('admin.seoContent.failedDelete')
     showError.value = true
   } finally {
     deleting.value = false

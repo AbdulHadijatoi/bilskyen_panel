@@ -30,7 +30,7 @@
           @click="selectStatusTab(null)"
         >
           <v-card-text class="pa-4">
-            <div class="text-caption text-medium-emphasis mb-1">All</div>
+            <div class="text-caption text-medium-emphasis mb-1">{{ t('admin.views.subscriptions.all') }}</div>
             <div class="text-h5 font-weight-bold">{{ totalSubscriptionsCount }}</div>
           </v-card-text>
         </v-card>
@@ -114,7 +114,7 @@
           @update:model-value="handlePlanTabChange"
         >
           <v-tab value="all" class="plan-tab">
-            All Plans
+            {{ t('admin.views.subscriptions.allPlans') }}
           </v-tab>
           <v-tab
             v-for="plan in plansList"
@@ -384,7 +384,7 @@
                     @click="cancelSubscriptionAction(item.id)"
                     prepend-icon="mdi-cancel"
                   >
-                    Cancel
+                    {{ t('admin.views.subscriptions.cancelSubscriptionAction') }}
                   </v-list-item>
                 </v-list>
               </v-menu>
@@ -510,7 +510,7 @@
             prepend-icon="mdi-check"
             size="small"
           >
-            Create
+            {{ t('admin.views.subscriptions.createButton') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -818,7 +818,7 @@ const loadSubscriptions = async () => {
     const response = await getSubscriptions(params)
     subscriptions.value = response
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load subscriptions'
+    error.value = (err as ApiErrorModel).message || t('admin.views.subscriptions.failedLoadSubscriptions')
   } finally {
     loading.value = false
   }
@@ -903,7 +903,7 @@ const doCreateSubscription = async () => {
     showOverrideConfirmDialog.value = false
     await Promise.all([loadSubscriptions(), loadStats()])
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to create subscription'
+    error.value = (err as ApiErrorModel).message || t('admin.views.subscriptions.failedCreateSubscription')
   } finally {
     creating.value = false
   }
@@ -952,7 +952,7 @@ const updateSubscriptionAction = async () => {
     selectedSubscription.value = null
     await Promise.all([loadSubscriptions(), loadStats()])
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update subscription'
+    error.value = (err as ApiErrorModel).message || t('admin.views.subscriptions.failedUpdateSubscription')
   } finally {
     updating.value = false
   }
@@ -964,7 +964,7 @@ const cancelSubscriptionAction = async (id: number | string) => {
     await cancelSubscription(id)
     await Promise.all([loadSubscriptions(), loadStats()])
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to cancel subscription'
+    error.value = (err as ApiErrorModel).message || t('admin.views.subscriptions.failedCancelSubscription')
   }
 }
 
@@ -973,7 +973,7 @@ const renewSubscriptionAction = async (id: number | string) => {
     await renewSubscription(id)
     await Promise.all([loadSubscriptions(), loadStats()])
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to renew subscription'
+    error.value = (err as ApiErrorModel).message || t('admin.views.subscriptions.failedRenewSubscription')
   }
 }
 

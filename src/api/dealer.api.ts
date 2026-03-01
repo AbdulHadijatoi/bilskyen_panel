@@ -1299,7 +1299,9 @@ export interface LookupConstantsResponse {
   price_types: Array<{ id: number; name: string }>
   conditions: Array<{ id: number; name: string }>
   variants: Array<{ id: number; name: string }>
-  models: Array<{ id: number; name: string; brand_id: number }>
+  /** Dealer/Staff API returns vehicle_models; public API may return models */
+  models?: Array<{ id: number; name: string; brand_id: number }>
+  vehicle_models?: Array<{ id: number; name: string; brand_id: number }>
   equipment_types: Array<{
     id: number
     name: string

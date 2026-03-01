@@ -2,9 +2,9 @@
   <div class="privacy-page-content-container">
     <div class="page-header">
       <div class="header-content">
-        <h2 class="page-title">Privacy Policy Content Management</h2>
+        <h2 class="page-title">{{ t('admin.views.privacyPageContent.title') }}</h2>
         <p class="page-description">
-          Edit the privacy policy page content below. Use the toolbar for headings, lists, bold, italic, and links. Changes are saved to the database and cache is automatically cleared.
+          {{ t('admin.views.privacyPageContent.description') }}
         </p>
       </div>
       <div class="header-actions">
@@ -17,7 +17,7 @@
           @click="saveContent"
           class="save-button"
         >
-          Save Changes
+          {{ t('admin.views.privacyPageContent.saveChanges') }}
         </v-btn>
       </div>
     </div>
@@ -25,7 +25,7 @@
     <!-- Loading State -->
     <div v-if="loading" class="text-center py-8">
       <v-progress-circular indeterminate color="primary" />
-      <p class="text-body-2 text-medium-emphasis mt-4">Loading privacy policy content...</p>
+      <p class="text-body-2 text-medium-emphasis mt-4">{{ t('admin.views.privacyPageContent.loading') }}</p>
     </div>
 
     <!-- Error State -->
@@ -36,7 +36,7 @@
       prominent
       class="mb-4"
     >
-      <v-alert-title>Error Loading Content</v-alert-title>
+      <v-alert-title>{{ t('admin.views.privacyPageContent.errorLoading') }}</v-alert-title>
       {{ error }}
     </v-alert>
 
@@ -44,7 +44,7 @@
     <div v-else class="editor-wrapper">
       <RichTextEditor
         v-model="privacyBody"
-        placeholder="Write your privacy policy content here…"
+        :placeholder="t('admin.views.privacyPageContent.placeholder')"
       />
     </div>
 
@@ -55,9 +55,9 @@
       timeout="3000"
       location="top"
     >
-      Privacy policy content updated successfully!
+      {{ t('admin.views.privacyPageContent.successMessage') }}
       <template #actions>
-        <v-btn variant="text" @click="showSuccess = false">Close</v-btn>
+        <v-btn variant="text" @click="showSuccess = false">{{ t('common.close') }}</v-btn>
       </template>
     </v-snackbar>
 
@@ -70,7 +70,7 @@
     >
       {{ errorMessage }}
       <template #actions>
-        <v-btn variant="text" @click="showError = false">Close</v-btn>
+        <v-btn variant="text" @click="showError = false">{{ t('common.close') }}</v-btn>
       </template>
     </v-snackbar>
   </div>
@@ -78,12 +78,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import {
   getPrivacyPageContent,
   bulkUpdatePrivacyPageContent,
 } from '@/api/admin.api'
 import RichTextEditor from '@/components/admin/RichTextEditor.vue'
 
+const { t } = useI18n()
 const BODY_KEY = 'privacy_body'
 
 const loading = ref(false)
@@ -102,7 +104,7 @@ async function loadContent() {
     const bodySection = sections.find((s) => s.sectionKey === BODY_KEY)
     privacyBody.value = bodySection?.content ?? ''
   } catch (err: any) {
-    error.value = err.message || 'Failed to load privacy policy content'
+    error.value = err.message || t('admin.views.privacyPageContent.failedLoad')
     console.error('Error loading privacy policy content:', err)
   } finally {
     loading.value = false
@@ -117,7 +119,7 @@ async function saveContent() {
     await bulkUpdatePrivacyPageContent({ [BODY_KEY]: privacyBody.value || null }, 'privacy')
     showSuccess.value = true
   } catch (err: any) {
-    errorMessage.value = err.message || 'Failed to save privacy policy content'
+    errorMessage.value = err.message || t('admin.views.privacyPageContent.failedSave')
     showError.value = true
     console.error('Error saving privacy policy content:', err)
   } finally {

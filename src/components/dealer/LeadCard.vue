@@ -11,9 +11,9 @@
     <v-card-text class="pa-3">
       <div class="d-flex justify-space-between align-start mb-2">
         <div class="flex-grow-1">
-          <div class="font-weight-bold mb-1">{{ lead.name || 'Unknown' }}</div>
+          <div class="font-weight-bold mb-1">{{ lead.name || t('common.unknown') }}</div>
           <div class="text-caption text-medium-emphasis mb-2">
-            {{ lead.email || lead.phone || 'No contact' }}
+            {{ lead.email || lead.phone || t('common.noContact') }}
           </div>
         </div>
         <v-menu location="bottom end" @click.stop>
@@ -30,16 +30,16 @@
           </template>
           <v-list>
             <v-list-item @click="$emit('view', lead.id)">
-              <v-list-item-title>View Details</v-list-item-title>
+              <v-list-item-title>{{ t('dealer.views.leads.viewDetails') }}</v-list-item-title>
             </v-list-item>
             <v-list-item @click="$emit('assign', lead)">
-              <v-list-item-title>Assign</v-list-item-title>
+              <v-list-item-title>{{ t('dealer.views.leads.assign') }}</v-list-item-title>
             </v-list-item>
             <v-list-item @click="$emit('change-intent', lead)">
-              <v-list-item-title>Change Intent</v-list-item-title>
+              <v-list-item-title>{{ t('dealer.views.leads.changeIntent') }}</v-list-item-title>
             </v-list-item>
             <v-list-item @click="$emit('change-category', lead)">
-              <v-list-item-title>Change Category</v-list-item-title>
+              <v-list-item-title>{{ t('dealer.views.leads.changeCategory') }}</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
@@ -47,7 +47,7 @@
       
       <div v-if="lead.vehicle" class="text-caption text-medium-emphasis mb-2">
         <v-icon size="small" class="mr-1">mdi-car</v-icon>
-        {{ lead.vehicle.title || lead.vehicle.registration || 'N/A' }}
+        {{ lead.vehicle.title || lead.vehicle.registration || t('common.na') }}
       </div>
       
       <div class="d-flex gap-1 flex-wrap mb-2">
@@ -82,6 +82,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import type { LeadModel } from '@/models/lead.model'
 import {
   getIntentName,
@@ -89,6 +90,8 @@ import {
   getCategoryName,
   formatLeadDate,
 } from '@/utils/leadHelpers'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   lead: LeadModel

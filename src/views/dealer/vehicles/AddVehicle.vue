@@ -22,19 +22,19 @@
     </div>
 
     <!-- License Plate Lookup Section (Outside Tabs) -->
-    <v-card variant="flat" elevation="1" class="mb-4">
+    <v-card elevation="0" class="mb-4 border border-gray-200">
       <v-card-text class="pa-6">
         <div class="mb-2">
-          <h3 class="text-h6 font-weight-semibold mb-2">Vehicle Lookup</h3>
+          <h3 class="text-h6 font-weight-semibold mb-2">{{ t('dealer.views.addVehicle.vehicleLookup') }}</h3>
           <p class="text-body-2 text-medium-emphasis mb-4">
-            Enter license plate to auto-fill vehicle information
+            {{ t('dealer.views.addVehicle.lookupSubtitle') }}
           </p>
 
           <v-row class="align-center">
             <v-col cols="12" md="8">
               <v-text-field
                 v-model="lookupForm.registrationNumber"
-                label="License Plate"
+                :label="t('dealer.views.addVehicle.licensePlate')"
                 placeholder="e.g., AB 12 345"
                 variant="outlined"
                 :disabled="lookupLoading || showFormFields"
@@ -54,7 +54,7 @@
                 style="height: 56px;"
               >
                 <v-icon start>mdi-magnify</v-icon>
-                Find A Vehicle
+                {{ t('dealer.views.addVehicle.findVehicle') }}
               </v-btn>
               <v-btn
                 v-if="!showFormFields"
@@ -64,7 +64,7 @@
                 style="height: 56px;"
               >
                 <v-icon start>mdi-pencil</v-icon>
-                Enter Manually
+                {{ t('dealer.views.addVehicle.enterManually') }}
               </v-btn>
               <v-btn
                 v-if="showFormFields"
@@ -74,7 +74,7 @@
                 style="height: 56px;"
               >
                 <v-icon start>mdi-refresh</v-icon>
-                Start Over
+                {{ t('dealer.views.addVehicle.startOver') }}
               </v-btn>
             </v-col>
           </v-row>
@@ -130,7 +130,7 @@
                   <div v-if="showFormFields">
                     <div class="mb-6">
                       <div class="d-flex justify-space-between align-center flex-wrap mb-2">
-                        <h3 class="text-h6 font-weight-semibold mb-0">Vehicle Information</h3>
+                        <h3 class="text-h6 font-weight-semibold mb-0">{{ t('dealer.views.addVehicle.vehicleInformation') }}</h3>
                         <v-btn
                           variant="outlined"
                           color="warning"
@@ -309,7 +309,7 @@
               <template v-if="index === 1">
                 <div>
                 <div class="mb-6">
-                  <h3 class="text-h6 font-weight-semibold mb-2">Vehicle Details</h3>
+                  <h3 class="text-h6 font-weight-semibold mb-2">{{ t('dealer.views.vehicleDetail.detailsSection') }}</h3>
                   <p class="text-body-2 text-medium-emphasis mb-0">
                     Registration, mileage, and usage information
                   </p>
@@ -340,7 +340,7 @@
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model="form.registrationNumber"
-                  label="License Plate"
+                  :label="t('dealer.views.addVehicle.licensePlate')"
                   density="compact"
                   variant="outlined"
                   :rules="[rules.required]"
@@ -429,7 +429,7 @@
                 <div class="mb-4">
                   <h4 class="text-subtitle-1 font-weight-semibold mb-4">
                     <v-icon size="20" class="mr-2">mdi-engine</v-icon>
-                    Engine & Drivetrain
+                    Engine & Transmission
                   </h4>
               <v-row dense>
               <v-col cols="12" md="4">
@@ -446,17 +446,6 @@
                   v-model="form.transmissionType"
                   :items="fuelTypes.map(f => f.name)"
                   label="Fuel Type"
-                  density="compact"
-                  variant="outlined"
-                  :rules="[rules.required]"
-                    hide-details="auto"
-                />
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-select
-                  v-model="form.drivetrain"
-                  :items="drivetrainTypes.map(d => d.value)"
-                  label="Drivetrain"
                   density="compact"
                   variant="outlined"
                   :rules="[rules.required]"
@@ -510,56 +499,53 @@
                   </p>
                 </div>
 
-            <div
-              v-for="(equipmentType, typeIndex) in equipmentTypes"
-              :key="typeIndex"
-              class="mb-3"
-            >
-              <div class="d-flex align-center justify-space-between mb-2">
-                <h4 class="text-subtitle-1 font-weight-semibold mb-0">
-                  <!-- <v-icon size="20" class="mr-2">{{ getCategoryIcon(equipmentType.name) }}</v-icon> -->
-                  {{ equipmentType.name }}
-                  </h4>
-                <v-chip
-                  v-if="equipmentType.equipments?.length"
-                  size="x-small"
-                  color="primary"
-                  variant="tonal"
-                  class="text-caption"
-                >
-                  {{
-                    form.equipment.filter(id =>
-                      equipmentType.equipments.some(eq => eq.id.toString() === id)
-                    ).length
-                  }} selected
-                </v-chip>
-              </div>
-              <v-row dense class="ma-n1">
-                <v-col
-                  v-for="(equipment, equipmentIndex) in equipmentType.equipments"
-                  :key="equipmentIndex"
-                  cols="12"
-                  sm="6"
-                  md="4"
-                  lg="3"
-                  class="pa-1"
-                >
-                  <v-checkbox
-                    v-model="form.equipment"
-                    :value="equipment.id.toString()"
+            <v-expansion-panels class="equipment-panels" multiple elevation="0">
+              <v-expansion-panel
+                v-for="(equipmentType, typeIndex) in equipmentTypes"
+                :key="typeIndex"
+                class="equipment-type-panel"
+                elevation="0"
+              >
+                <v-expansion-panel-title class="equipment-type-title">
+                  <span class="equipment-type-name">{{ equipmentType.name }}</span>
+                  <v-chip
+                    v-if="equipmentType.equipments?.length"
+                    size="x-small"
                     color="primary"
-                    density="compact"
-                    hide-details
-                    class="equipment-checkbox"
+                    variant="tonal"
+                    class="equipment-type-badge"
                   >
-                    <template #label>
-                      <span class="text-body-2 equipment-label">{{ equipment.name }}</span>
-                    </template>
-                  </v-checkbox>
-                </v-col>
-              </v-row>
-              <v-divider v-if="typeIndex < equipmentTypes.length - 1" class="mt-3 mb-1" />
-            </div>
+                    {{
+                      form.equipment.filter(id =>
+                        equipmentType.equipments.some(eq => eq.id.toString() === id)
+                      ).length
+                    }} selected
+                  </v-chip>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text class="equipment-type-content">
+                  <div class="equipment-chips">
+                    <div
+                      v-for="(equipment, equipmentIndex) in equipmentType.equipments"
+                      :key="equipmentIndex"
+                      class="equipment-chip"
+                    >
+                      <v-checkbox
+                        v-model="form.equipment"
+                        :value="equipment.id.toString()"
+                        color="primary"
+                        density="compact"
+                        hide-details
+                        class="equipment-checkbox"
+                      >
+                        <template #label>
+                          <span class="equipment-label">{{ equipment.name }}</span>
+                        </template>
+                      </v-checkbox>
+                    </div>
+                  </div>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
           </div>
               </template>
 
@@ -616,8 +602,49 @@
                 hide-details="auto"
               />
             </v-col>
-          </v-row>
+</v-row>
         </div>
+
+                <v-divider class="my-6" />
+                <div class="mb-4">
+                  <h4 class="text-subtitle-1 font-weight-semibold mb-4">
+                    <v-icon size="20" class="mr-2">mdi-store-marker</v-icon>
+                    Dealer contact (shown on ad)
+                  </h4>
+                  <v-row dense>
+                    <v-col cols="12" md="4">
+                      <v-text-field
+                        v-model="form.sellerAddress"
+                        label="Address"
+                        density="compact"
+                        variant="outlined"
+                        hide-details="auto"
+                        placeholder="Street, city"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="4">
+                      <v-text-field
+                        v-model="form.sellerPostcode"
+                        label="Postal code"
+                        density="compact"
+                        variant="outlined"
+                        hide-details="auto"
+                        placeholder="e.g. 2100"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="4">
+                      <v-text-field
+                        v-model="form.sellerPhone"
+                        label="Phone"
+                        density="compact"
+                        variant="outlined"
+                        hide-details="auto"
+                        placeholder="Contact number"
+                      />
+                    </v-col>
+                  </v-row>
+                  <p class="text-caption text-medium-emphasis mt-2">Filled from your dealer profile when empty. Shown to buyers on the vehicle listing.</p>
+                </div>
 
                 <v-divider class="my-6" />
                 <div class="mb-4">
@@ -1087,7 +1114,7 @@
             color="primary"
             variant="elevated"
             :loading="submitting"
-            :disabled="!formValid || !imagesValid"
+            :disabled="submitting"
             @click="submitForm"
           >
             <v-icon start>{{ submitting ? 'mdi-loading' : 'mdi-check-circle' }}</v-icon>
@@ -1120,13 +1147,15 @@
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { createVehicle, createVehicleDraft, updateVehicle, getLookupConstants, lookupVehicleByRegistration } from '@/api/dealer.api'
+import { createVehicle, createVehicleDraft, updateVehicle, getLookupConstants, lookupVehicleByRegistration, getProfile } from '@/api/dealer.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import type { VehicleModel } from '@/models/vehicle.model'
 import MonthYearPicker from '@/components/ui/MonthYearPicker.vue'
+import { useErrorMessage } from '@/composables/useErrorMessage'
 
 const router = useRouter()
 const { t } = useI18n()
+const { getDisplayMessage } = useErrorMessage()
 
 // Wizard state
 const currentStep = ref(0)
@@ -1467,6 +1496,9 @@ const form = ref({
   leasingDuration: null as number | null,
   leasingAnnualMileage: null as number | null,
   leasingTotalCost: null as number | null,
+  sellerAddress: '',
+  sellerPostcode: '',
+  sellerPhone: '',
   
   // Step 6 (Media)
   images: [] as File[],
@@ -1518,11 +1550,31 @@ const loadLookupData = async () => {
     priceTypes.value = data.price_types || []
     conditions.value = data.conditions || []
     variants.value = data.variants || []
-    models.value = data.models || []
+    models.value = data.vehicle_models || data.models || []
     drivetrainTypes.value = data.drivetrain_types || []
     equipmentTypes.value = data.equipment_types || []
   } catch (error) {
     console.error('Failed to load lookup data:', error)
+  }
+}
+
+// Pre-fill dealer contact fields from dealer profile when empty
+const loadDealerProfileForContact = async () => {
+  try {
+    const profile = await getProfile()
+    const f = form.value
+    if (!f.sellerAddress && (profile.address || profile.city || profile.postcode)) {
+      const parts = [profile.address, profile.city, profile.postcode].filter(Boolean) as string[]
+      if (parts.length) f.sellerAddress = parts.join(', ')
+    }
+    if (!f.sellerPostcode && profile.postcode) {
+      f.sellerPostcode = profile.postcode
+    }
+    if (!f.sellerPhone && profile.owner?.phone) {
+      f.sellerPhone = profile.owner.phone
+    }
+  } catch (_) {
+    // Dealer profile may not be available
   }
 }
 
@@ -1550,6 +1602,45 @@ const rules = {
     // This rule is not used anymore - validation is done via computed property
     return true
   },
+}
+
+/** Returns step indices and labels that have missing or invalid required fields (for validation feedback). */
+function getInvalidSteps(): { stepIndex: number; stepLabel: string }[] {
+  const invalid: { stepIndex: number; stepLabel: string }[] = []
+  const f = form.value
+
+  // Step 0: Vehicle Lookup
+  const vinValid = f.vin && f.vin.length === 17 && /^[A-HJ-NPR-Z0-9]+$/i.test(f.vin)
+  if (!f.make || !f.modelId || !f.variant || !f.fuelType || !vinValid || !f.registrationDate) {
+    invalid.push({ stepIndex: 0, stepLabel: steps[0]?.label ?? 'Vehicle Lookup' })
+  }
+
+  // Step 1: Vehicle Details
+  const odometerValid = f.odometer == null || (f.odometer >= 0 && f.odometer <= 12000000000000)
+  if (!f.firstRegistrationDate || !f.registrationNumber || !odometerValid) {
+    invalid.push({ stepIndex: 1, stepLabel: steps[1]?.label ?? 'Vehicle Details' })
+  }
+
+  // Step 2: Technical Data
+  if (!f.transmissionType) {
+    invalid.push({ stepIndex: 2, stepLabel: steps[2]?.label ?? 'Technical Data' })
+  }
+
+  // Step 3: Equipment - no required fields
+
+  // Step 4: Pricing & Sales (retailPrice has rules.price: optional but if set must be in range)
+  const priceValid = f.retailPrice == null || (f.retailPrice >= 0 && f.retailPrice <= 999999999)
+  if (!priceValid) {
+    invalid.push({ stepIndex: 4, stepLabel: steps[4]?.label ?? 'Pricing & Sales' })
+  }
+
+  // Step 5: Media
+  const descValid = f.description && f.description.length >= 1 && f.description.length <= 5000
+  if (!(imagePreviews.value.length >= 1) || !descValid) {
+    invalid.push({ stepIndex: 5, stepLabel: steps[5]?.label ?? 'Media' })
+  }
+
+  return invalid
 }
 
 // Methods
@@ -1846,6 +1937,7 @@ onMounted(() => {
   window.addEventListener('keydown', handleKeydown)
   window.addEventListener('beforeunload', handleBeforeUnload)
   loadLookupData()
+  loadDealerProfileForContact()
 })
 
 // Cleanup will be handled in the combined onBeforeUnmount below
@@ -2200,22 +2292,6 @@ const saveAsDraft = async () => {
       }
     }
 
-    // Transmission and gear_type_id
-    if (form.value.transmissionId) {
-      vehicleData.transmission_id = form.value.transmissionId
-    } else if (form.value.transmissionType) {
-      const transmission = transmissions.value.find(t => t.name === form.value.transmissionType)
-      if (transmission) {
-        vehicleData.transmission_id = transmission.id
-      }
-      const gearType = gearTypes.value.find(g => g.name === form.value.transmissionType)
-      if (gearType) {
-        vehicleData.gear_type_id = gearType.id
-      }
-    } else if (nummerpladeData.gear_type_id) {
-      vehicleData.gear_type_id = nummerpladeData.gear_type_id
-    }
-
     // Previous usage
     if (form.value.previousUsage) {
       const vehicleUse = vehicleUses.value.find(u => u.name === form.value.previousUsage)
@@ -2264,10 +2340,34 @@ const saveAsDraft = async () => {
     if (form.value.salesTypeId) {
       vehicleData.sales_type_id = form.value.salesTypeId
     }
+    if (form.value.sellerAddress) {
+      vehicleData.seller_address = form.value.sellerAddress
+    }
+    if (form.value.sellerPostcode) {
+      vehicleData.seller_postcode = form.value.sellerPostcode
+    }
+    if (form.value.sellerPhone) {
+      vehicleData.seller_phone = form.value.sellerPhone
+    }
     if (form.value.annualTax !== null && form.value.annualTax !== undefined) {
       const annualTax = toNumberOrNull(form.value.annualTax)
       if (annualTax !== null) {
         vehicleData.annual_tax = annualTax
+      }
+    }
+    if (form.value.engineType) {
+      vehicleData.engine_type = form.value.engineType
+    }
+    if (form.value.wholesalePrice !== null && form.value.wholesalePrice !== undefined) {
+      const wholesalePrice = toNumberOrNull(form.value.wholesalePrice)
+      if (wholesalePrice !== null) {
+        vehicleData.wholesale_price = wholesalePrice
+      }
+    }
+    if (form.value.internalCostPrice !== null && form.value.internalCostPrice !== undefined) {
+      const internalCostPrice = toNumberOrNull(form.value.internalCostPrice)
+      if (internalCostPrice !== null) {
+        vehicleData.internal_cost_price = internalCostPrice
       }
     }
 
@@ -2302,7 +2402,7 @@ const saveAsDraft = async () => {
   } catch (error: any) {
     console.error('Failed to save draft:', error)
     const apiError = error as ApiErrorModel
-    const errorMessage = apiError.message || t('dealer.views.addVehicle.failedSaveDraft')
+    const errorMessage = getDisplayMessage(apiError)
     submitError.value = errorMessage
     showSnackbar(errorMessage, 'error')
     draftSaved.value = false
@@ -2378,6 +2478,9 @@ const clearDraft = () => {
     leasingDuration: null,
     leasingAnnualMileage: null,
     leasingTotalCost: null,
+    sellerAddress: '',
+    sellerPostcode: '',
+    sellerPhone: '',
     
     // Step 6 (Media)
     images: [],
@@ -2393,6 +2496,9 @@ const clearDraft = () => {
   
   // Reset to first step
   currentStep.value = 0
+  
+  // Re-apply dealer profile contact pre-fill when empty
+  loadDealerProfileForContact()
   
   // Reset description manual edit flag
   isDescriptionManuallyEdited.value = false
@@ -2423,7 +2529,13 @@ const submitForm = async () => {
     }
   }
   
-  if (!allValid) return
+  if (!allValid) {
+    const invalidSteps = getInvalidSteps()
+    const tabNames = invalidSteps.map(s => s.stepLabel).join(', ')
+    submitError.value = t('dealer.views.addVehicle.completeRequiredFieldsIn', { tabs: tabNames })
+    currentStep.value = invalidSteps[0]?.stepIndex ?? 0
+    return
+  }
 
   if (!imagesValid.value) {
     submitError.value = t('dealer.views.addVehicle.minImagesRequired')
@@ -2565,22 +2677,6 @@ const submitForm = async () => {
       }
     }
     
-    // Transmission and gear_type_id - use nummerpladeData.gear_type_id from DMR when form has no transmission
-    if (form.value.transmissionId) {
-      vehicleData.transmission_id = form.value.transmissionId
-    } else if (form.value.transmissionType) {
-      const transmission = transmissions.value.find(t => t.name === form.value.transmissionType)
-      if (transmission) {
-        vehicleData.transmission_id = transmission.id
-      }
-      const gearType = gearTypes.value.find(g => g.name === form.value.transmissionType)
-      if (gearType) {
-        vehicleData.gear_type_id = gearType.id
-      }
-    } else if (nummerpladeData.gear_type_id) {
-      vehicleData.gear_type_id = nummerpladeData.gear_type_id
-    }
-
     // Previous usage - find use_id from form or Nummerplade API
     if (form.value.previousUsage) {
       const vehicleUse = vehicleUses.value.find(u => u.name === form.value.previousUsage)
@@ -2647,6 +2743,15 @@ const submitForm = async () => {
       if (salesTypeId !== null) {
         vehicleData.sales_type_id = salesTypeId
       }
+    }
+    if (form.value.sellerAddress) {
+      vehicleData.seller_address = form.value.sellerAddress
+    }
+    if (form.value.sellerPostcode) {
+      vehicleData.seller_postcode = form.value.sellerPostcode
+    }
+    if (form.value.sellerPhone) {
+      vehicleData.seller_phone = form.value.sellerPhone
     }
     if (form.value.wholesalePrice !== null && form.value.wholesalePrice !== undefined) {
       const wholesalePrice = toNumberOrNull(form.value.wholesalePrice)
@@ -3025,7 +3130,7 @@ const submitForm = async () => {
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } else {
       // General error
-      submitError.value = apiError.message || t('dealer.views.addVehicle.failedCreateVehicle')
+      submitError.value = getDisplayMessage(apiError)
       
       // Scroll to top to show error
       window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -3302,7 +3407,84 @@ onBeforeRouteLeave((to, from, next) => {
 </script>
 
 <style scoped>
-/* Equipment checkbox layout - compact and readable */
+/* Equipment section - match sell-your-car design (collapsible by type) */
+.equipment-panels {
+  margin-top: 0.5rem;
+}
+
+.equipment-type-panel {
+  margin-bottom: 0.5rem;
+  border: 1px solid rgba(var(--v-border-color), 0.4);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: rgb(var(--v-theme-surface));
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.equipment-type-panel:last-child {
+  margin-bottom: 0;
+}
+
+.equipment-type-title {
+  min-height: 48px !important;
+  padding: 0.75rem 1rem !important;
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+  color: rgba(var(--v-theme-on-surface), 0.85) !important;
+  background: rgba(var(--v-theme-on-surface), 0.04) !important;
+  transition: background 0.2s ease, color 0.2s ease !important;
+}
+
+.equipment-type-title:hover {
+  background: rgba(var(--v-theme-on-surface), 0.07) !important;
+  color: rgb(var(--v-theme-on-surface)) !important;
+}
+
+.equipment-type-name {
+  flex: 1;
+}
+
+.equipment-type-badge {
+  margin-left: 0.5rem;
+}
+
+.equipment-type-content {
+  padding: 1rem !important;
+  border-top: 1px solid rgba(var(--v-border-color), 0.4) !important;
+  background: rgb(var(--v-theme-surface));
+}
+
+.equipment-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.equipment-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(var(--v-border-color), 0.5);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(var(--v-theme-on-surface), 0.02);
+  color: rgb(var(--v-theme-on-surface));
+}
+
+.equipment-chip:hover {
+  background: rgba(var(--v-theme-primary), 0.06);
+  border-color: rgba(var(--v-theme-primary), 0.4);
+}
+
+.equipment-chip:has(.v-selection-control-group--dirty) {
+  background: rgba(var(--v-theme-primary), 0.08);
+  border-color: rgba(var(--v-theme-primary), 0.5);
+}
+
 .equipment-checkbox :deep(.v-selection-control) {
   align-items: center;
   margin-bottom: 0;
@@ -3315,6 +3497,8 @@ onBeforeRouteLeave((to, from, next) => {
 .equipment-label {
   white-space: normal;
   line-height: 1.2;
+  font-size: 0.75rem;
+  color: inherit;
 }
 
 /* Image drag and drop styles */

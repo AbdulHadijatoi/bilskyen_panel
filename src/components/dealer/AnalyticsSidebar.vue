@@ -4,7 +4,7 @@
     <div class="analytics-header">
       <div class="d-flex align-center gap-2">
         <v-icon color="primary">mdi-chart-box</v-icon>
-        <span class="text-subtitle-1 font-weight-bold">Analytics</span>
+        <span class="text-subtitle-1 font-weight-bold">{{ t('dealer.views.leads.analytics') }}</span>
       </div>
       <v-btn
         icon
@@ -26,7 +26,7 @@
         </div>
         <div class="metric-content">
           <div class="metric-value">{{ totalLeads }}</div>
-          <div class="metric-label">Total Leads</div>
+          <div class="metric-label">{{ t('dealer.views.leads.totalLeads') }}</div>
         </div>
       </div>
 
@@ -34,7 +34,7 @@
       <div class="analytics-section">
         <div class="section-header">
           <v-icon size="16" class="mr-1">mdi-filter</v-icon>
-          <span class="text-caption font-weight-medium">By Stage</span>
+          <span class="text-caption font-weight-medium">{{ t('dealer.views.leads.byStage') }}</span>
         </div>
         <div class="section-content">
           <div
@@ -53,7 +53,7 @@
           </div>
           <div v-if="Object.keys(leadsByStage).length === 0" class="empty-state">
             <v-icon size="20" class="mb-1">mdi-information-outline</v-icon>
-            <span class="text-caption text-medium-emphasis">No data</span>
+            <span class="text-caption text-medium-emphasis">{{ t('dealer.views.leads.noData') }}</span>
           </div>
         </div>
       </div>
@@ -62,7 +62,7 @@
       <div class="analytics-section">
         <div class="section-header">
           <v-icon size="16" class="mr-1">mdi-star</v-icon>
-          <span class="text-caption font-weight-medium">By Intent</span>
+          <span class="text-caption font-weight-medium">{{ t('dealer.views.leads.byIntent') }}</span>
         </div>
         <div class="section-content">
           <div
@@ -81,7 +81,7 @@
           </div>
           <div v-if="Object.keys(leadsByIntent).length === 0" class="empty-state">
             <v-icon size="20" class="mb-1">mdi-information-outline</v-icon>
-            <span class="text-caption text-medium-emphasis">No data</span>
+            <span class="text-caption text-medium-emphasis">{{ t('dealer.views.leads.noData') }}</span>
           </div>
         </div>
       </div>
@@ -90,7 +90,7 @@
       <div class="analytics-section">
         <div class="section-header">
           <v-icon size="16" class="mr-1">mdi-car</v-icon>
-          <span class="text-caption font-weight-medium">Top Vehicles</span>
+          <span class="text-caption font-weight-medium">{{ t('dealer.views.leads.topVehicles') }}</span>
         </div>
         <div class="section-content">
           <div
@@ -101,14 +101,14 @@
             <div class="d-flex align-center gap-2 flex-grow-1 min-width-0">
               <v-icon size="16" class="text-medium-emphasis">mdi-car-outline</v-icon>
               <span class="metric-name text-truncate">
-                {{ item.vehicle?.title || item.vehicle?.registration || 'N/A' }}
+                {{ item.vehicle?.title || item.vehicle?.registration || t('common.na') }}
               </span>
             </div>
             <div class="metric-count">{{ item.count }}</div>
           </div>
           <div v-if="topVehicles.length === 0" class="empty-state">
             <v-icon size="20" class="mb-1">mdi-information-outline</v-icon>
-            <span class="text-caption text-medium-emphasis">No vehicle data</span>
+            <span class="text-caption text-medium-emphasis">{{ t('dealer.views.leads.noVehicleData') }}</span>
           </div>
         </div>
       </div>
@@ -118,6 +118,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { LeadModel } from '@/models/lead.model'
 import {
   getStageName,
@@ -125,6 +126,8 @@ import {
   getIntentName,
   getIntentColor,
 } from '@/utils/leadHelpers'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   leads: LeadModel[]

@@ -15,7 +15,7 @@
         <div class="flex-grow-1">
           <h1 class="text-h5 font-weight-bold mb-1">{{ t('dealer.views.vehicleDetail.title') }}</h1>
           <p class="text-caption text-medium-emphasis mb-0">
-            View and manage all vehicle information, images, and equipment
+            {{ t('dealer.views.vehicleDetail.viewSubtitle') }}
           </p>
         </div>
         <v-btn
@@ -25,7 +25,7 @@
           @click="editMode = true"
           size="small"
         >
-          Edit Vehicle
+          {{ t('dealer.views.vehicleDetail.editVehicle') }}
         </v-btn>
         <div v-else-if="vehicle && editMode" class="d-flex gap-2">
           <v-btn
@@ -33,7 +33,7 @@
             @click="cancelEdit"
             size="small"
           >
-            Cancel
+            {{ t('common.cancel') }}
           </v-btn>
           <v-btn
             color="primary"
@@ -42,7 +42,7 @@
             :loading="updating"
             size="small"
           >
-            Save Changes
+            {{ t('dealer.views.profile.saveChanges') }}
           </v-btn>
         </div>
       </div>
@@ -51,7 +51,7 @@
     <!-- Loading State -->
     <div v-if="loading" class="loading-container">
       <v-progress-circular indeterminate color="primary" size="48" />
-      <p class="text-body-2 text-medium-emphasis mt-3">Loading vehicle information...</p>
+      <p class="text-body-2 text-medium-emphasis mt-3">{{ t('dealer.views.vehicleDetail.loadingVehicle') }}</p>
     </div>
 
     <!-- Error State -->
@@ -177,7 +177,7 @@
           >
             <v-card-title class="card-title">
               <v-icon size="18" class="mr-2">mdi-information</v-icon>
-              <span class="text-subtitle-1">Basic Information</span>
+              <span class="text-subtitle-1">{{ t('dealer.views.vehicleDetail.basicInformation') }}</span>
             </v-card-title>
             <v-card-text class="pa-3">
               <v-row dense>
@@ -384,7 +384,7 @@
           >
             <v-card-title class="card-title">
               <v-icon size="18" class="mr-2">mdi-cog</v-icon>
-              <span class="text-subtitle-1">Specifications</span>
+              <span class="text-subtitle-1">{{ t('dealer.views.vehicleDetail.specifications') }}</span>
             </v-card-title>
             <v-card-text class="pa-3">
               <v-row dense>
@@ -667,7 +667,7 @@
           >
             <v-card-title class="card-title">
               <v-icon size="18" class="mr-2">mdi-file-document-edit</v-icon>
-              <span class="text-subtitle-1">Vehicle Details</span>
+              <span class="text-subtitle-1">{{ t('dealer.views.vehicleDetail.detailsSection') }}</span>
             </v-card-title>
             <v-card-text class="pa-3">
               <v-row dense>
@@ -868,7 +868,7 @@
           >
             <v-card-title class="card-title">
               <v-icon size="18" class="mr-2">mdi-currency-usd</v-icon>
-              <span class="text-subtitle-1">Pricing Information</span>
+              <span class="text-subtitle-1">{{ t('dealer.views.vehicleDetail.pricingInformation') }}</span>
             </v-card-title>
             <v-card-text class="pa-3">
               <v-row dense>
@@ -996,7 +996,7 @@
           >
             <v-card-title class="card-title">
               <v-icon size="18" class="mr-2">mdi-image-multiple</v-icon>
-              <span class="text-subtitle-1">Vehicle Images</span>
+              <span class="text-subtitle-1">{{ t('dealer.views.vehicleDetail.vehicleImages') }}</span>
               <v-spacer />
               <v-btn
                 color="primary"
@@ -1049,7 +1049,7 @@
           >
             <v-card-title class="card-title">
               <v-icon size="18" class="mr-2">mdi-cog</v-icon>
-              <span class="text-subtitle-1">Equipment</span>
+              <span class="text-subtitle-1">{{ t('dealer.views.vehicleDetail.equipment') }}</span>
               <v-spacer />
               <v-btn
                 color="primary"
@@ -1092,7 +1092,7 @@
           >
             <v-card-title class="card-title">
               <v-icon size="18" class="mr-2">mdi-information-outline</v-icon>
-              <span class="text-subtitle-1">Information</span>
+              <span class="text-subtitle-1">{{ t('dealer.views.vehicleDetail.information') }}</span>
             </v-card-title>
             <v-card-text class="pa-3">
               <div class="info-list">
@@ -1144,7 +1144,7 @@
         </v-card-text>
         <v-card-actions class="pa-3">
           <v-spacer />
-          <v-btn variant="text" size="small" @click="cancelImageUpload">Cancel</v-btn>
+          <v-btn variant="text" size="small" @click="cancelImageUpload">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="primary"
             size="small"
@@ -1172,7 +1172,7 @@
         </v-card-text>
         <v-card-actions class="pa-3">
           <v-spacer />
-          <v-btn variant="text" size="small" @click="showDeleteImageDialog = false">Cancel</v-btn>
+          <v-btn variant="text" size="small" @click="showDeleteImageDialog = false">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="error"
             size="small"
@@ -1218,7 +1218,7 @@
         </v-card-text>
         <v-card-actions class="pa-3">
           <v-spacer />
-          <v-btn variant="text" size="small" @click="cancelEquipmentEdit">Cancel</v-btn>
+          <v-btn variant="text" size="small" @click="cancelEquipmentEdit">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="primary"
             size="small"
@@ -1255,7 +1255,7 @@
         </v-card-text>
         <v-card-actions class="pa-3">
           <v-spacer />
-          <v-btn variant="text" size="small" @click="cancelStatusUpdate">Cancel</v-btn>
+          <v-btn variant="text" size="small" @click="cancelStatusUpdate">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="primary"
             size="small"
@@ -1281,12 +1281,12 @@
             {{ t('dealer.views.vehicleDetail.markAsSoldConfirm', { name: vehicle?.title || `Vehicle #${vehicle?.id}` }) }}
           </p>
           <p class="text-caption text-medium-emphasis mt-1">
-            This will update the vehicle status to "Sold". The vehicle will be marked as sold in the system.
+            {{ t('dealer.views.vehicleDetail.markAsSoldDescription') }}
           </p>
         </v-card-text>
         <v-card-actions class="pa-3">
           <v-spacer />
-          <v-btn variant="text" size="small" @click="showMarkAsSoldDialog = false">Cancel</v-btn>
+          <v-btn variant="text" size="small" @click="showMarkAsSoldDialog = false">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="success"
             size="small"
@@ -1316,7 +1316,7 @@
         </v-card-text>
         <v-card-actions class="pa-3">
           <v-spacer />
-          <v-btn variant="text" size="small" @click="showDeleteDialog = false">Cancel</v-btn>
+          <v-btn variant="text" size="small" @click="showDeleteDialog = false">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="error"
             size="small"

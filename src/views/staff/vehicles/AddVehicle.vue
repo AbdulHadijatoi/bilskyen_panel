@@ -1120,11 +1120,16 @@
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { createVehicle, createVehicleDraft, updateVehicle, getLookupConstants, lookupVehicleByRegistration } from '@/api/staff.api'
+import { handleError } from '@/api/response'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import type { VehicleModel } from '@/models/vehicle.model'
 import MonthYearPicker from '@/components/ui/MonthYearPicker.vue'
+import { useI18n } from 'vue-i18n'
+import { useErrorMessage } from '@/composables/useErrorMessage'
 
 const router = useRouter()
+const { t } = useI18n()
+const { getDisplayMessage } = useErrorMessage()
 
 // Wizard state
 const currentStep = ref(0)
@@ -1516,7 +1521,7 @@ const loadLookupData = async () => {
     priceTypes.value = data.price_types || []
     conditions.value = data.conditions || []
     variants.value = data.variants || []
-    models.value = data.models || []
+    models.value = data.vehicle_models || data.models || []
     drivetrainTypes.value = data.drivetrain_types || []
     equipmentTypes.value = data.equipment_types || []
   } catch (error) {
@@ -1780,7 +1785,7 @@ const performLookup = async () => {
   } catch (error: any) {
     // Clear success flag on error
     lookupSuccess.value = false
-    lookupError.value = error.response?.data?.message || error.message || 'Failed to fetch vehicle data. Please check the license plate and try again.'
+    lookupError.value = getDisplayMessage(handleError(error))
   } finally {
     lookupLoading.value = false
   }
@@ -2292,7 +2297,7 @@ const saveAsDraft = async () => {
   } catch (error: any) {
     console.error('Failed to save draft:', error)
     const apiError = error as ApiErrorModel
-    const errorMessage = apiError.message || 'Failed to save draft. Please try again.'
+    const errorMessage = getDisplayMessage(apiError)
     submitError.value = errorMessage
     showSnackbar(errorMessage, 'error')
     draftSaved.value = false
@@ -3015,7 +3020,7 @@ const submitForm = async () => {
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } else {
       // General error
-      submitError.value = apiError.message || 'Failed to create vehicle. Please try again.'
+      submitError.value = getDisplayMessage(apiError)
       
       // Scroll to top to show error
       window.scrollTo({ top: 0, behavior: 'smooth' })

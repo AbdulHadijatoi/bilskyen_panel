@@ -257,7 +257,7 @@
                   </v-btn>
                 </template>
               </v-tooltip>
-              <v-tooltip v-if="hasPermission('admin.users.delete')" text="Delete User" location="top">
+              <v-tooltip v-if="hasPermission('admin.users.delete')" :text="t('admin.views.users.deleteUser')" location="top">
                 <template #activator="{ props }">
                   <v-btn
                     icon
@@ -278,9 +278,9 @@
           <template #no-data>
             <div class="text-center py-8">
               <v-icon size="64" color="grey-lighten-1" class="mb-2">mdi-account-off</v-icon>
-              <p class="text-body-1 text-medium-emphasis">No users found</p>
+              <p class="text-body-1 text-medium-emphasis">{{ t('admin.views.users.noUsersFound') }}</p>
               <p class="text-caption text-medium-emphasis mt-1">
-                {{ search ? 'Try adjusting your search criteria' : 'Create your first user to get started' }}
+                {{ search ? t('admin.views.users.tryAdjustingSearch') : t('admin.views.users.createFirstUser') }}
               </p>
             </div>
           </template>
@@ -304,7 +304,7 @@
       <v-card>
         <v-card-title class="d-flex align-center">
           <v-icon color="primary" class="mr-2">mdi-account-plus</v-icon>
-          Create New User
+          {{ t('admin.views.users.createNewUser') }}
         </v-card-title>
         <v-card-text class="pt-4">
           <v-form ref="createFormRef">
@@ -314,7 +314,7 @@
               variant="outlined"
               density="comfortable"
               prepend-inner-icon="mdi-account"
-              :rules="[v => !!v || 'Name is required']"
+              :rules="[v => !!v || t('admin.views.users.nameRequired')]"
               class="mb-3"
             />
             <v-text-field
@@ -325,8 +325,8 @@
               density="comfortable"
               prepend-inner-icon="mdi-email"
               :rules="[
-                v => !!v || 'Email is required',
-                v => /.+@.+\..+/.test(v) || 'Email must be valid'
+                v => !!v || t('admin.views.users.emailRequired'),
+                v => /.+@.+\..+/.test(v) || t('admin.views.users.emailValid')
               ]"
               class="mb-3"
             />
@@ -338,8 +338,8 @@
               density="comfortable"
               prepend-inner-icon="mdi-lock"
               :rules="[
-                v => !!v || 'Password is required',
-                v => (v && v.length >= 8) || 'Password must be at least 8 characters'
+                v => !!v || t('admin.views.users.passwordRequired'),
+                v => (v && v.length >= 8) || t('admin.views.users.passwordMinLength')
               ]"
               class="mb-3"
             />
@@ -360,7 +360,7 @@
               variant="outlined"
               density="comfortable"
               prepend-inner-icon="mdi-account-status"
-              :rules="[v => !!v || 'Status is required']"
+              :rules="[v => !!v || t('admin.views.users.statusRequired')]"
               class="mb-3"
             />
             <v-select
@@ -373,7 +373,7 @@
               density="comfortable"
               prepend-inner-icon="mdi-shield-account"
               :loading="loadingRoles"
-              :rules="[v => !!v || 'Role is required']"
+              :rules="[v => !!v || t('admin.views.users.roleRequired')]"
             />
             <v-file-input
               v-if="isDealerRoleInCreate"
@@ -487,16 +487,16 @@ const newUser = ref<CreateUserData>({
 })
 const newUserLogoFile = ref<File[] | null>(null)
 
-const statusOptions = [
-  { label: 'Active', value: 1 },
-  { label: 'Inactive', value: 2 },
-  { label: 'Suspended', value: 3 },
-]
+const statusOptions = computed(() => [
+  { label: t('admin.views.users.statusActive'), value: 1 },
+  { label: t('admin.views.users.statusInactive'), value: 2 },
+  { label: t('admin.views.users.statusSuspended'), value: 3 },
+])
 
-const statusFilterOptions = [
-  { label: 'All Statuses', value: null },
-  ...statusOptions,
-]
+const statusFilterOptions = computed(() => [
+  { label: t('admin.views.users.allStatuses'), value: null },
+  ...statusOptions.value,
+])
 
 /** Roles shown in the create-user dialog: only seller and dealer */
 const createDialogRoles = computed(() => {
@@ -510,20 +510,20 @@ const isDealerRoleInCreate = computed(() => {
 })
 
 const roleFilterOptions = computed(() => {
-  const options: Array<{ label: string; value: string | null }> = [{ label: 'All Roles', value: null }]
+  const options: Array<{ label: string; value: string | null }> = [{ label: t('admin.views.users.allRoles'), value: null }]
   roles.value.forEach(role => {
     options.push({ label: role.name, value: role.name })
   })
   return options
 })
 
-const headers = [
+const headers = computed(() => [
   { title: 'ID', key: 'id', width: '100px', sortable: false },
-  { title: 'User', key: 'name', sortable: false },
-  { title: 'Roles', key: 'roles', sortable: false },
-  { title: 'Status', key: 'status', width: '120px', sortable: false },
-  { title: 'Actions', key: 'actions', sortable: false, width: '120px', align: 'center' as const },
-]
+  { title: t('admin.views.users.fullName'), key: 'name', sortable: false },
+  { title: t('admin.views.users.userRole'), key: 'roles', sortable: false },
+  { title: t('admin.views.users.accountStatus'), key: 'status', width: '120px', sortable: false },
+  { title: t('common.actions'), key: 'actions', sortable: false, width: '120px', align: 'center' as const },
+])
 
 const activeUsersCount = computed(() => {
   return users.value.docs.filter(u => u.statusId === 1).length
@@ -568,7 +568,7 @@ const loadUsers = async () => {
     const response = await getUsers(params)
     users.value = response
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load users'
+    error.value = (err as ApiErrorModel).message || t('admin.views.users.failedLoadUsers')
   } finally {
     loading.value = false
   }
@@ -608,7 +608,7 @@ const createUser = async () => {
     cancelCreate()
     await loadUsers()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to create user'
+    error.value = (err as ApiErrorModel).message || t('admin.views.users.failedCreateUser')
   } finally {
     creating.value = false
   }
@@ -650,7 +650,7 @@ const deleteUser = async () => {
     userToDelete.value = null
     await loadUsers()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to delete user'
+    error.value = (err as ApiErrorModel).message || t('admin.views.users.failedDeleteUser')
   } finally {
     deleting.value = false
   }
@@ -666,8 +666,8 @@ const getStatusColor = (status?: string) => {
 }
 
 const getStatusLabel = (statusId?: number) => {
-  const status = statusOptions.find(s => s.value === statusId)
-  return status?.label || 'Unknown'
+  const status = statusOptions.value.find(s => s.value === statusId)
+  return status?.label || t('admin.views.users.statusUnknown')
 }
 
 const getUserInitials = (name: string): string => {
