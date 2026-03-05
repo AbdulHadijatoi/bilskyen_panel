@@ -452,6 +452,19 @@
                     hide-details="auto"
                 />
               </v-col>
+              <v-col cols="12" md="4">
+                <v-select
+                  v-model="form.gearTypeId"
+                  :items="gearTypes"
+                  item-title="name"
+                  item-value="id"
+                  label="Gear Type"
+                  density="compact"
+                  variant="outlined"
+                  :rules="[rules.required]"
+                  hide-details="auto"
+                />
+              </v-col>
             </v-row>
             </div>
 
@@ -1469,6 +1482,7 @@ const form = ref({
   engineType: '',
   transmissionType: '',
   transmissionId: null as number | null,
+  gearTypeId: null as number | null,
   drivetrain: '',
   fuelConsumption: null as number | null,
   euroEmissionClass: '',
@@ -1545,6 +1559,10 @@ const loadLookupData = async () => {
     fuelTypes.value = data.fuel_types || []
     gearTypes.value = data.gear_types || []
     transmissions.value = data.transmissions || []
+    const automatic = (data.gear_types || []).find((g: any) => String(g.name || '').toLowerCase() === 'automatic')
+    if (automatic && form.value.gearTypeId == null) {
+      form.value.gearTypeId = automatic.id
+    }
     vehicleUses.value = data.vehicle_uses || []
     salesTypes.value = data.sales_types || []
     priceTypes.value = data.price_types || []
@@ -1621,8 +1639,8 @@ function getInvalidSteps(): { stepIndex: number; stepLabel: string }[] {
     invalid.push({ stepIndex: 1, stepLabel: steps[1]?.label ?? 'Vehicle Details' })
   }
 
-  // Step 2: Technical Data
-  if (!f.transmissionType) {
+  // Step 2: Technical Data - gear type is required (defaults to Automatic when gear types load)
+  if (!f.gearTypeId) {
     invalid.push({ stepIndex: 2, stepLabel: steps[2]?.label ?? 'Technical Data' })
   }
 
@@ -1816,7 +1834,9 @@ const performLookup = async () => {
       form.value.transmissionId = data.transmission.id
       form.value.transmissionType = data.transmission.name
     } else if (data.gear_type_id) {
-      // DMR API returns gear_type_id (1=Manual, 2=Automatic) - set transmissionType for UI
+      // DMR API returns gear_type_id (1=Manual, 2=Automatic) - prefill gear type dropdown; user can change it
+      const automaticId = gearTypes.value.find(g => g.name === 'Automatic')?.id
+      form.value.gearTypeId = data.gear_type_id ?? automaticId ?? null
       const gearType = gearTypes.value.find(g => g.id === data.gear_type_id)
       if (gearType) {
         form.value.transmissionType = gearType.name
@@ -2370,6 +2390,10 @@ const saveAsDraft = async () => {
         vehicleData.internal_cost_price = internalCostPrice
       }
     }
+    const defaultGearTypeId = gearTypes.value.find(g => g.name === 'Automatic')?.id
+    if (form.value.gearTypeId != null || defaultGearTypeId != null) {
+      vehicleData.gear_type_id = form.value.gearTypeId ?? defaultGearTypeId ?? null
+    }
 
     // Check if we have an existing draft vehicle ID
     let savedVehicle: VehicleModel
@@ -2451,6 +2475,7 @@ const clearDraft = () => {
     engineType: '',
     transmissionType: '',
     transmissionId: null,
+    gearTypeId: null,
     drivetrain: '',
     fuelConsumption: null,
     euroEmissionClass: '',
@@ -2608,6 +2633,8 @@ const submitForm = async () => {
         vehicleData.variant = variantName
       }
     }
+    const defaultGearTypeIdSubmit = gearTypes.value.find(g => g.name === 'Automatic')?.id
+    vehicleData.gear_type_id = form.value.gearTypeId ?? defaultGearTypeIdSubmit ?? undefined
 
     // Add model_year_id from Nummerplade API if available
     if (nummerpladeData.model_year?.id) {

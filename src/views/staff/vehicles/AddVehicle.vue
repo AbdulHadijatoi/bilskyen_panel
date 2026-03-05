@@ -454,6 +454,19 @@
               </v-col>
               <v-col cols="12" md="4">
                 <v-select
+                  v-model="form.gearTypeId"
+                  :items="gearTypes"
+                  item-title="name"
+                  item-value="id"
+                  label="Gear Type"
+                  density="compact"
+                  variant="outlined"
+                  :rules="[rules.required]"
+                  hide-details="auto"
+                />
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-select
                   v-model="form.drivetrain"
                   :items="drivetrainTypes.map(d => d.value)"
                   label="Drivetrain"
@@ -1443,6 +1456,7 @@ const form = ref({
   engineType: '',
   transmissionType: '',
   transmissionId: null as number | null,
+  gearTypeId: null as number | null,
   drivetrain: '',
   fuelConsumption: null as number | null,
   euroEmissionClass: '',
@@ -1516,6 +1530,10 @@ const loadLookupData = async () => {
     fuelTypes.value = data.fuel_types || []
     gearTypes.value = data.gear_types || []
     transmissions.value = data.transmissions || []
+    const automatic = (data.gear_types || []).find((g: any) => String(g.name || '').toLowerCase() === 'automatic')
+    if (automatic && form.value.gearTypeId == null) {
+      form.value.gearTypeId = automatic.id
+    }
     vehicleUses.value = data.vehicle_uses || []
     salesTypes.value = data.sales_types || []
     priceTypes.value = data.price_types || []
@@ -1727,6 +1745,13 @@ const performLookup = async () => {
       upsertLookupOption(transmissions.value, { id: data.transmission.id, name: data.transmission.name })
       form.value.transmissionId = data.transmission.id
       form.value.transmissionType = data.transmission.name
+    } else if (data.gear_type_id) {
+      const automaticId = gearTypes.value.find(g => g.name === 'Automatic')?.id
+      form.value.gearTypeId = data.gear_type_id ?? automaticId ?? null
+      const gearType = gearTypes.value.find(g => g.id === data.gear_type_id)
+      if (gearType) {
+        form.value.transmissionType = gearType.name
+      }
     }
 
     // Map euro emission class - handle both object and string formats
@@ -2205,10 +2230,10 @@ const saveAsDraft = async () => {
       if (transmission) {
         vehicleData.transmission_id = transmission.id
       }
-      const gearType = gearTypes.value.find(g => g.name === form.value.transmissionType)
-      if (gearType) {
-        vehicleData.gear_type_id = gearType.id
-      }
+    }
+    const defaultGearTypeId = gearTypes.value.find(g => g.name === 'Automatic')?.id
+    if (form.value.gearTypeId != null || defaultGearTypeId != null) {
+      vehicleData.gear_type_id = form.value.gearTypeId ?? defaultGearTypeId ?? null
     }
 
     // Previous usage
@@ -2346,6 +2371,7 @@ const clearDraft = () => {
     engineType: '',
     transmissionType: '',
     transmissionId: null,
+    gearTypeId: null,
     drivetrain: '',
     fuelConsumption: null,
     euroEmissionClass: '',
@@ -2564,17 +2590,13 @@ const submitForm = async () => {
     if (form.value.transmissionId) {
       vehicleData.transmission_id = form.value.transmissionId
     } else if (form.value.transmissionType) {
-      // Try to find transmission by name
       const transmission = transmissions.value.find(t => t.name === form.value.transmissionType)
       if (transmission) {
         vehicleData.transmission_id = transmission.id
       }
-      // Also try to find gear_type_id if transmissionType matches a gear type (for backward compatibility)
-      const gearType = gearTypes.value.find(g => g.name === form.value.transmissionType)
-      if (gearType) {
-        vehicleData.gear_type_id = gearType.id
-      }
     }
+    const defaultGearTypeIdSubmit = gearTypes.value.find(g => g.name === 'Automatic')?.id
+    vehicleData.gear_type_id = form.value.gearTypeId ?? defaultGearTypeIdSubmit ?? undefined
 
     // Previous usage - find use_id from form or Nummerplade API
     if (form.value.previousUsage) {

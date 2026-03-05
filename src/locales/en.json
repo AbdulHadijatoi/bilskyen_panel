@@ -131,6 +131,7 @@
       "contactPageContent": "Contact Page Content",
       "privacyPageContent": "Privacy Page Content",
       "termsPageContent": "Terms Page Content",
+      "loginPageContent": "Login Page Content",
       "seoContent": "SEO Content",
       "featuredVehicles": "Featured Vehicles",
       "plans": "Plans",
@@ -163,6 +164,7 @@
       "contactPageContent": "Contact Page Content",
       "privacyPageContent": "Privacy Page Content",
       "termsPageContent": "Terms Page Content",
+      "loginPageContent": "Login Page Content",
       "seoContent": "SEO Content",
       "featuredVehicles": "Featured Vehicles",
       "analytics": "Analytics",
@@ -342,6 +344,20 @@
         "successMessage": "Privacy policy content updated successfully!",
         "failedLoad": "Failed to load privacy policy content",
         "failedSave": "Failed to save privacy policy content"
+      },
+      "loginPageContent": {
+        "title": "Login Page Content",
+        "description": "Edit the testimonial shown on the login (and other auth) pages sidebar. This content is stored in the database and used on the main site auth layout.",
+        "loading": "Loading login page content...",
+        "errorLoading": "Error Loading Content",
+        "saveChanges": "Save Changes",
+        "testimonialQuote": "Testimonial quote",
+        "testimonialQuotePlaceholder": "e.g. Bilskyen has revolutionized the way we manage our dealership operations…",
+        "testimonialAuthor": "Author name",
+        "testimonialAuthorPlaceholder": "e.g. Rahif",
+        "successMessage": "Login page content updated successfully!",
+        "failedLoad": "Failed to load login page content",
+        "failedSave": "Failed to save login page content"
       },
       "vehicles": {
         "title": "Vehicle Management",

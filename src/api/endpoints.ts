@@ -317,6 +317,15 @@ export const ADMIN_TERMS_PAGE_ENDPOINTS = {
 } as const
 
 /**
+ * Admin login page content endpoints (auth layout sidebar testimonial)
+ */
+export const ADMIN_LOGIN_PAGE_ENDPOINTS = {
+  LIST: '/admin/login-page-content',
+  UPDATE: (sectionKey: string) => `/admin/login-page-content/${sectionKey}`,
+  BULK_UPDATE: '/admin/login-page-content/bulk-update',
+} as const
+
+/**
  * Admin SEO pages endpoints
  */
 export const ADMIN_SEO_PAGE_ENDPOINTS = {

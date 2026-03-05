@@ -216,6 +216,7 @@ const ADMIN_NAV_TITLE_KEYS: Record<string, string> = {
   'Contact Page Content': 'admin.nav.contactPageContent',
   'Privacy Page Content': 'admin.nav.privacyPageContent',
   'Terms Page Content': 'admin.nav.termsPageContent',
+  'Login Page Content': 'admin.nav.loginPageContent',
   'Featured Vehicles': 'admin.nav.featuredVehicles',
   Plans: 'admin.nav.plans',
   Subscriptions: 'admin.nav.subscriptions',

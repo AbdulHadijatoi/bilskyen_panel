@@ -131,6 +131,7 @@
       "contactPageContent": "Kontakt sideindhold",
       "privacyPageContent": "Privatliv sideindhold",
       "termsPageContent": "Vilkår sideindhold",
+      "loginPageContent": "Login sideindhold",
       "seoContent": "SEO-indhold",
       "featuredVehicles": "Fremhævede køretøjer",
       "plans": "Planer",
@@ -163,6 +164,7 @@
       "contactPageContent": "Kontakt sideindhold",
       "privacyPageContent": "Privatliv sideindhold",
       "termsPageContent": "Vilkår sideindhold",
+      "loginPageContent": "Login sideindhold",
       "seoContent": "SEO-indhold",
       "featuredVehicles": "Fremhævede køretøjer",
       "analytics": "Analyser",
@@ -342,6 +344,20 @@
         "successMessage": "Privatlivspolitik er opdateret!",
         "failedLoad": "Kunne ikke indlæse privatlivspolitik",
         "failedSave": "Kunne ikke gemme privatlivspolitik"
+      },
+      "loginPageContent": {
+        "title": "Login sideindhold",
+        "description": "Rediger anbefalingen vist i sidebaren på login- (og andre auth-) sider. Indholdet gemmes i databasen og bruges på auth-layoutet på hovedsiden.",
+        "loading": "Indlæser login sideindhold...",
+        "errorLoading": "Fejl ved indlæsning af indhold",
+        "saveChanges": "Gem ændringer",
+        "testimonialQuote": "Anbefalingscitat",
+        "testimonialQuotePlaceholder": "f.eks. Bilskyen har revolutioneret måden, vi administrerer vores forhandleroperationer på…",
+        "testimonialAuthor": "Forfatternavn",
+        "testimonialAuthorPlaceholder": "f.eks. Rahif",
+        "successMessage": "Login sideindhold er opdateret!",
+        "failedLoad": "Kunne ikke indlæse login sideindhold",
+        "failedSave": "Kunne ikke gemme login sideindhold"
       },
       "vehicles": {
         "title": "Køretøjsadministration",

@@ -229,6 +229,11 @@ const router = createRouter({
           component: () => import('@/views/admin/terms-page-content/TermsPageContentManagement.vue'),
         },
         {
+          path: 'pages/login-page-content',
+          name: 'admin.login-page-content',
+          component: () => import('@/views/admin/login-page-content/LoginPageContentManagement.vue'),
+        },
+        {
           path: 'pages/seo-content',
           name: 'admin.seo-content',
           component: () => import('@/views/admin/seo-content/SeoContentManagement.vue'),

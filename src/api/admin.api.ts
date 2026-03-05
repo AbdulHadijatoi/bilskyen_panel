@@ -20,6 +20,7 @@ import {
   ADMIN_CONTACT_PAGE_ENDPOINTS,
   ADMIN_PRIVACY_PAGE_ENDPOINTS,
   ADMIN_TERMS_PAGE_ENDPOINTS,
+  ADMIN_LOGIN_PAGE_ENDPOINTS,
   ADMIN_SEO_PAGE_ENDPOINTS,
   ADMIN_ANALYTICS_ENDPOINTS,
   ADMIN_AUDIT_ENDPOINTS,
@@ -2092,6 +2093,68 @@ export async function bulkUpdateTermsPageContent(
       return []
     }
     
+    return mapHomePageSectionsFromApi(sectionsData)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// LOGIN PAGE CONTENT (auth layout sidebar testimonial)
+// ============================================================================
+
+/**
+ * Get all login page sections
+ */
+export async function getLoginPageContent(
+  pageName?: string
+): Promise<HomePageSectionModel[]> {
+  try {
+    const response = await httpClient.get<{ data: any[] }>(
+      ADMIN_LOGIN_PAGE_ENDPOINTS.LIST,
+      { params: pageName ? { page_name: pageName } : {} }
+    )
+    const sections = handleSuccess<any[]>(response)
+    return mapHomePageSectionsFromApi(sections)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Bulk update login page sections
+ */
+export async function bulkUpdateLoginPageContent(
+  sections: Record<string, string | null>,
+  pageName?: string
+): Promise<HomePageSectionModel[]> {
+  try {
+    const response = await httpClient.post<{ data: any[] }>(
+      ADMIN_LOGIN_PAGE_ENDPOINTS.BULK_UPDATE,
+      {
+        sections,
+        ...(pageName ? { page_name: pageName } : {}),
+      }
+    )
+
+    const sectionsData = handleSuccess<any>(response)
+
+    if (!Array.isArray(sectionsData)) {
+      if (sectionsData && typeof sectionsData === 'object' && sectionsData !== null) {
+        const singleSection = {
+          id: sectionsData.id,
+          sectionKey: sectionsData.section_key || sectionsData.sectionKey,
+          content: sectionsData.content,
+          pageName: sectionsData.page_name || sectionsData.pageName,
+          createdAt: sectionsData.created_at || sectionsData.createdAt,
+          updatedAt: sectionsData.updated_at || sectionsData.updatedAt,
+        }
+        return [singleSection]
+      }
+      console.warn('bulkUpdateLoginPageContent: sectionsData is not an array', sectionsData)
+      return []
+    }
+
     return mapHomePageSectionsFromApi(sectionsData)
   } catch (error) {
     throw handleError(error)
