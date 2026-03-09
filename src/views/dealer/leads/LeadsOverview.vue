@@ -5,7 +5,7 @@
       <div class="flex-grow-1">
         <h2 class="text-h5 font-weight-bold mb-1">{{ t('dealer.views.leads.title') }}</h2>
         <p class="text-body-2 text-medium-emphasis">
-          Track and manage customer leads. Follow up on inquiries and convert them into sales.
+          {{ t('dealer.views.leads.subtitle') }}
         </p>
       </div>
       <div class="d-flex gap-2 align-center w-100 w-md-auto">
@@ -72,7 +72,7 @@
             @click:close="filterVehicles = filterVehicles.filter(id => id !== vehicleId); applyFilters()"
           >
             <v-icon start size="small">mdi-car</v-icon>
-            {{ vehicleOptions.find(v => v.id === vehicleId)?.title || 'Vehicle' }}
+            {{ vehicleOptions.find(v => v.id === vehicleId)?.title || t('dealer.views.leads.vehicle') }}
           </v-chip>
           <v-chip
             v-if="filterStage"
@@ -107,7 +107,7 @@
                 prepend-icon="mdi-filter-variant"
                 :class="{ 'text-primary': hasActiveFilters }"
               >
-                Filters
+                {{ t('dealer.views.leads.filters') }}
                 <v-chip
                   v-if="activeFilterCount > 0"
                   size="x-small"
@@ -183,7 +183,7 @@
             prepend-icon="mdi-close-circle"
             @click="clearAllFilters"
           >
-            Clear All
+            {{ t('common.clearAll') }}
           </v-btn>
         </div>
             </div>
@@ -567,24 +567,24 @@ const clearAllFilters = () => {
 }
 
 // Days filter options
-const daysOptions = [
-  { label: 'One Day', value: 1 },
-  { label: 'Three Days', value: 3 },
-  { label: 'One Week', value: 7 },
-  { label: 'Two Weeks', value: 14 },
-  { label: 'One Month', value: 30 },
-  { label: 'Two Months', value: 60 },
-  { label: 'Three Months', value: 90 },
-  { label: 'Four Months', value: 120 },
-  { label: 'Five Months', value: 150 },
-  { label: 'Six Months', value: 180 },
-  { label: 'Seven Months', value: 210 },
-  { label: 'Eight Months', value: 240 },
-  { label: 'Nine Months', value: 270 },
-  { label: 'Ten Months', value: 300 },
-  { label: 'Eleven Months', value: 330 },
-  { label: 'One Year', value: 365 },
-]
+const daysOptions = computed(() => [
+  { label: t('dealer.views.leads.daysOptions.oneDay'), value: 1 },
+  { label: t('dealer.views.leads.daysOptions.threeDays'), value: 3 },
+  { label: t('dealer.views.leads.daysOptions.oneWeek'), value: 7 },
+  { label: t('dealer.views.leads.daysOptions.twoWeeks'), value: 14 },
+  { label: t('dealer.views.leads.daysOptions.oneMonth'), value: 30 },
+  { label: t('dealer.views.leads.daysOptions.twoMonths'), value: 60 },
+  { label: t('dealer.views.leads.daysOptions.threeMonths'), value: 90 },
+  { label: t('dealer.views.leads.daysOptions.fourMonths'), value: 120 },
+  { label: t('dealer.views.leads.daysOptions.fiveMonths'), value: 150 },
+  { label: t('dealer.views.leads.daysOptions.sixMonths'), value: 180 },
+  { label: t('dealer.views.leads.daysOptions.sevenMonths'), value: 210 },
+  { label: t('dealer.views.leads.daysOptions.eightMonths'), value: 240 },
+  { label: t('dealer.views.leads.daysOptions.nineMonths'), value: 270 },
+  { label: t('dealer.views.leads.daysOptions.tenMonths'), value: 300 },
+  { label: t('dealer.views.leads.daysOptions.elevenMonths'), value: 330 },
+  { label: t('dealer.views.leads.daysOptions.oneYear'), value: 365 },
+])
 
 // Vehicle options for filter
 const vehicleOptions = computed(() => {
@@ -904,7 +904,7 @@ const initializeSortable = async () => {
             // Show success toast
             snackbar.value = {
               show: true,
-              message: `Lead moved to ${newStageName}`,
+              message: t('dealer.views.leads.leadMovedTo', { name: newStageName }),
               color: 'success',
             }
             
@@ -1036,7 +1036,7 @@ const tableHeaders = computed(() => [
   { title: t('dealer.views.leads.stage'), key: 'stageId', sortable: true },
   { title: t('dealer.views.leads.intent'), key: 'intentId', sortable: true },
   { title: t('dealer.views.leads.category'), key: 'categoryId', sortable: true },
-  { title: 'Message', key: 'message', sortable: false },
+  { title: t('dealer.views.leads.message'), key: 'message', sortable: false },
   { title: t('common.date'), key: 'createdAt', sortable: true },
   { title: t('common.actions'), key: 'actions', sortable: false, align: 'end' as const },
 ])
@@ -1144,7 +1144,7 @@ const loadStaff = async () => {
     const staff = await getStaff()
     staffMembers.value = staff.map((s: any) => ({
       id: s.user_id || s.user?.id,
-      name: s.user?.name || 'Unknown',
+      name: s.user?.name || t('common.userFallback'),
     }))
   } catch (err) {
     console.error('Failed to load staff:', err)

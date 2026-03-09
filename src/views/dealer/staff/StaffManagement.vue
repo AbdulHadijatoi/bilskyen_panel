@@ -6,7 +6,7 @@
         <div>
           <h1 class="text-h4 font-weight-bold mb-1">{{ t('dealer.views.staff.title') }}</h1>
           <p class="text-body-2 text-medium-emphasis mb-0">
-            Manage your dealer staff members
+            {{ t('dealer.views.staff.subtitle') }}
           </p>
         </div>
         <v-btn
@@ -17,7 +17,7 @@
           variant="outlined"
           @click="showAddDialog = true"
         >
-          Add Staff
+          {{ t('dealer.views.staff.addStaff') }}
         </v-btn>
       </div>
     </div>
@@ -153,7 +153,7 @@
           </template>
 
           <template #item.phone="{ item }">
-            <span class="text-body-2">{{ item.phone || '—' }}</span>
+            <span class="text-body-2">{{ item.phone || t('common.na') }}</span>
           </template>
 
           <template #item.created_at="{ item }">

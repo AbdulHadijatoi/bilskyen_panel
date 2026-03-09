@@ -5,7 +5,7 @@
       <div>
         <h1 class="text-h5 font-weight-medium mb-1">{{ t('dealer.views.subscription.selectYourPlan') }}</h1>
         <p class="text-body-2 text-medium-emphasis">
-          Pick your preferred plan below
+          {{ t('dealer.views.subscription.pickPlanSubtitle') }}
         </p>
       </div>
     </div>
@@ -80,7 +80,7 @@
       <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-package-variant-closed</v-icon>
       <h3 class="text-h6 font-weight-medium mb-2">{{ t('dealer.views.subscription.noPlansAvailable') }}</h3>
       <p class="text-body-2 text-medium-emphasis">
-        There are no subscription plans available for your account at this time.
+        {{ t('dealer.views.subscription.noPlansMessage') }}
       </p>
     </v-card>
 
@@ -122,10 +122,10 @@
                 <template v-else-if="getCurrentPricing(plan)?.yearly">
                   {{ formatPrice(getCurrentPricing(plan)!.yearly!.price, getCurrentPricing(plan)!.yearly!.currency) }}
                 </template>
-                <span class="text-body-2 font-weight-normal text-medium-emphasis">/ Month</span>
+                <span class="text-body-2 font-weight-normal text-medium-emphasis">{{ t('dealer.views.subscription.perMonth') }}</span>
               </div>
               <div v-if="getCurrentPricing(plan)?.yearly && getCurrentPricing(plan)?.monthly" class="text-caption text-medium-emphasis">
-                or {{ formatPrice(getCurrentPricing(plan)!.yearly!.price, getCurrentPricing(plan)!.yearly!.currency) }} / Year
+                {{ t('dealer.views.subscription.orPerYear', { price: formatPrice(getCurrentPricing(plan)!.yearly!.price, getCurrentPricing(plan)!.yearly!.currency) }) }}
               </div>
             </div>
             <div v-else class="mb-3">
@@ -162,7 +162,7 @@
                 variant="flat"
                 class="text-white"
               >
-                {{ plan.trial_days }} Days free trial
+                {{ t('dealer.views.subscription.daysFreeTrial', { count: plan.trial_days }) }}
               </v-chip>
             </div>
           </v-card-text>

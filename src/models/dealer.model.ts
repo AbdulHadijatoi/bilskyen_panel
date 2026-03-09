@@ -116,12 +116,13 @@ export interface DealerStaffModel {
  * Map API response (snake_case) to DealerModel (camelCase)
  */
 export function mapDealerFromApi(data: any): DealerModel {
+  const owner = data.owner ?? data.user
   return {
     id: data.id,
     userId: data.user_id,
-    name: data.name,
-    email: data.email,
-    phone: data.phone,
+    name: owner?.name ?? data.name,
+    email: owner?.email ?? data.email,
+    phone: owner?.phone ?? data.phone,
     address: data.address,
     city: data.city,
     postcode: data.postcode,
@@ -137,11 +138,11 @@ export function mapDealerFromApi(data: any): DealerModel {
     deletedAt: data.deleted_at,
     subscription: data.subscription ? mapSubscriptionFromApi(data.subscription) : undefined,
     staff: data.staff?.map(mapDealerStaffFromApi),
-    owner: data.owner ? {
-      id: data.owner.id,
-      name: data.owner.name,
-      email: data.owner.email,
-      phone: data.owner.phone,
+    owner: owner ? {
+      id: owner.id,
+      name: owner.name,
+      email: owner.email,
+      phone: owner.phone,
     } : undefined,
   }
 }

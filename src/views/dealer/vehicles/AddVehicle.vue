@@ -35,7 +35,7 @@
               <v-text-field
                 v-model="lookupForm.registrationNumber"
                 :label="t('dealer.views.addVehicle.licensePlate')"
-                placeholder="e.g., AB 12 345"
+                :placeholder="t('dealer.views.addVehicle.placeholderLicensePlate')"
                 variant="outlined"
                 :disabled="lookupLoading || showFormFields"
                 hide-details="auto"
@@ -138,11 +138,11 @@
                           @click="clearDraft"
                         >
                           <v-icon start>mdi-delete-sweep</v-icon>
-                          Clear Draft
+                          {{ t('dealer.views.addVehicle.clearDraft') }}
                         </v-btn>
                       </div>
                       <p class="text-body-2 text-medium-emphasis mb-0">
-                        Complete the vehicle details below
+                        {{ t('dealer.views.addVehicle.completeVehicleDetails') }}
                       </p>
                     </div>
 
@@ -150,14 +150,14 @@
                     <div class="mb-4">
                       <h4 class="text-subtitle-1 font-weight-semibold mb-4">
                         <v-icon size="20" class="mr-2">mdi-car-info</v-icon>
-                        Basic Information
+                        {{ t('dealer.views.addVehicle.basicInformation') }}
                       </h4>
               <v-row dense>
               <v-col cols="12" md="4">
                 <v-autocomplete
                   v-model="form.make"
                   :items="brands.map(b => b.name)"
-                  label="Make"
+                  :label="t('dealer.views.addVehicle.make')"
                   density="compact"
                   variant="outlined"
                   :rules="[rules.required]"
@@ -171,7 +171,7 @@
                   :items="filteredModels"
                   item-title="name"
                   item-value="id"
-                  label="Model"
+                  :label="t('dealer.views.addVehicle.model')"
                   density="compact"
                   variant="outlined"
                   :rules="[rules.required]"
@@ -181,10 +181,10 @@
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model="form.variant"
-                  label="Variant"
+                  :label="t('dealer.views.addVehicle.variant')"
                   density="compact"
                   variant="outlined"
-                    hint="Required - manual entry"
+                    :hint="t('dealer.views.addVehicle.variantHint')"
                   persistent-hint
                   :rules="[rules.required]"
                     hide-details="auto"
@@ -194,7 +194,7 @@
                 <v-autocomplete
                   v-model="form.fuelType"
                   :items="fuelTypes.map(f => f.name)"
-                  label="Fuel Type"
+                  :label="t('dealer.views.addVehicle.fuelType')"
                   density="compact"
                   variant="outlined"
                   :rules="[rules.required]"
@@ -205,11 +205,11 @@
                 <v-col cols="12" md="4">
                   <v-text-field
                     v-model="form.vin"
-                    label="VIN"
+                    :label="t('dealer.views.addVehicle.vin')"
                     density="compact"
                     variant="outlined"
                     maxlength="17"
-                    :rules="[rules.required, rules.vin]"
+                    :rules="[rules.vin]"
                     :readonly="!!lookupData?.vin"
                     hide-details="auto"
                   />
@@ -217,7 +217,7 @@
                 <v-col cols="12" md="4">
                   <MonthYearPicker
                     v-model="form.registrationDate"
-                    label="Registration"
+                    :label="t('dealer.views.addVehicle.registration')"
                     :rules="[rules.required]"
                     :readonly="!!lookupData?.registrationDate"
                   />
@@ -229,17 +229,17 @@
                     <div class="mb-4">
                       <h4 class="text-subtitle-1 font-weight-semibold mb-4">
                         <v-icon size="20" class="mr-2">mdi-gauge</v-icon>
-                        Performance & Emissions (Optional)
+                        {{ t('dealer.views.addVehicle.performanceEmissions') }}
                       </h4>
                       <v-row dense>
                         <v-col cols="12" md="3">
                           <v-text-field
                             v-model.number="form.powerHp"
-                            label="Power (HP)"
+                            :label="t('dealer.views.addVehicle.powerHp')"
                             type="number"
                             density="compact"
                             variant="outlined"
-                            hint="Calculated from kW"
+                            :hint="t('dealer.views.addVehicle.powerHpHint')"
                             persistent-hint
                             hide-details="auto"
                             readonly
@@ -248,7 +248,7 @@
                         <v-col cols="12" md="3">
                           <v-text-field
                             v-model.number="form.powerKw"
-                            label="Power (kW)"
+                            :label="t('dealer.views.addVehicle.powerKw')"
                             type="number"
                             density="compact"
                             variant="outlined"
@@ -258,7 +258,7 @@
                         <v-col cols="12" md="3">
                           <v-text-field
                             v-model.number="form.co2Emissions"
-                            label="CO2 Emissions (g/km)"
+                            :label="t('dealer.views.addVehicle.co2Emissions')"
                             type="number"
                             density="compact"
                             variant="outlined"
@@ -268,7 +268,7 @@
                         <v-col cols="12" md="3">
                           <v-text-field
                             v-model.number="form.fuelConsumptionWltp"
-                            label="Fuel Consumption WLTP (L/100km)"
+                            :label="t('dealer.views.addVehicle.fuelConsumptionWltp')"
                             type="number"
                             density="compact"
                             variant="outlined"
@@ -278,7 +278,7 @@
                         <v-col cols="12" md="4">
                           <v-text-field
                             v-model.number="form.fuelConsumptionNedc"
-                            label="Fuel Consumption NEDC (L/100km)"
+                            :label="t('dealer.views.addVehicle.fuelConsumptionNedc')"
                             type="number"
                             density="compact"
                             variant="outlined"
@@ -311,7 +311,7 @@
                 <div class="mb-6">
                   <h3 class="text-h6 font-weight-semibold mb-2">{{ t('dealer.views.vehicleDetail.detailsSection') }}</h3>
                   <p class="text-body-2 text-medium-emphasis mb-0">
-                    Registration, mileage, and usage information
+                    {{ t('dealer.views.addVehicle.registrationMileageInfo') }}
                   </p>
             </div>
 
@@ -319,21 +319,21 @@
                 <div class="mb-4">
                   <h4 class="text-subtitle-1 font-weight-semibold mb-4">
                     <v-icon size="20" class="mr-2">mdi-calendar-check</v-icon>
-                    Registration & Identity
+                    {{ t('dealer.views.addVehicle.registrationIdentity') }}
                   </h4>
               <v-row dense>
               <v-col cols="12" md="4">
                 <MonthYearPicker
                   v-model="form.firstRegistrationDate"
-                  label="First Registration"
+                  :label="t('dealer.views.addVehicle.firstRegistration')"
                   :rules="[rules.required]"
                 />
               </v-col>
               <v-col cols="12" md="4">
                 <MonthYearPicker
                   v-model="form.productionDate"
-                  label="Production"
-                  hint="Optional"
+                  :label="t('dealer.views.addVehicle.production')"
+                  :hint="t('dealer.views.addVehicle.optional')"
                   persistent-hint
                 />
               </v-col>
@@ -343,14 +343,13 @@
                   :label="t('dealer.views.addVehicle.licensePlate')"
                   density="compact"
                   variant="outlined"
-                  :rules="[rules.required]"
-                    hide-details="auto"
+                  hide-details="auto"
                 />
               </v-col>
               <v-col cols="12" md="4">
                 <MonthYearPicker
                   v-model="form.lastInspectionDate"
-                  label="Last Inspection"
+                  :label="t('dealer.views.addVehicle.lastInspection')"
                 />
               </v-col>
               <v-col cols="12" md="4">
@@ -367,7 +366,7 @@
                     class="checkbox-button-field__checkbox"
                     @click.stop
                   />
-                  <span class="checkbox-button-field__label">Import Vehicle</span>
+                  <span class="checkbox-button-field__label">{{ t('dealer.views.addVehicle.importVehicle') }}</span>
                 </div>
               </v-col>
               <v-col cols="12" md="4">
@@ -384,7 +383,7 @@
                     class="checkbox-button-field__checkbox"
                     @click.stop
                   />
-                  <span class="checkbox-button-field__label">Factory New</span>
+                  <span class="checkbox-button-field__label">{{ t('dealer.views.addVehicle.factoryNew') }}</span>
                 </div>
               </v-col>
             </v-row>
@@ -394,18 +393,18 @@
                 <div class="mb-4">
                   <h4 class="text-subtitle-1 font-weight-semibold mb-4">
                     <v-icon size="20" class="mr-2">mdi-speedometer</v-icon>
-                    Mileage & Usage
+                    {{ t('dealer.views.addVehicle.mileageUsage') }}
                   </h4>
               <v-row dense>
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model.number="form.odometer"
-                  label="Current Mileage"
+                  :label="t('dealer.views.addVehicle.currentMileage')"
                   type="number"
                   density="compact"
                   variant="outlined"
                   :rules="[rules.odometer]"
-                  hint="Optional"
+                  :hint="t('dealer.views.addVehicle.optional')"
                   persistent-hint
                     hide-details="auto"
                 />
@@ -419,9 +418,9 @@
               <template v-if="index === 2">
                 <div>
                 <div class="mb-6">
-                  <h3 class="text-h6 font-weight-semibold mb-2">Technical Specifications</h3>
+                  <h3 class="text-h6 font-weight-semibold mb-2">{{ t('dealer.views.addVehicle.technicalSpecifications') }}</h3>
                   <p class="text-body-2 text-medium-emphasis mb-0">
-                    Engine, transmission, and environmental data
+                    {{ t('dealer.views.addVehicle.engineTransmission') }}
                   </p>
             </div>
 
@@ -429,13 +428,13 @@
                 <div class="mb-4">
                   <h4 class="text-subtitle-1 font-weight-semibold mb-4">
                     <v-icon size="20" class="mr-2">mdi-engine</v-icon>
-                    Engine & Transmission
+                    {{ t('dealer.views.addVehicle.engineTransmissionTitle') }}
                   </h4>
               <v-row dense>
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model="form.engineType"
-                  label="Engine Type"
+                  :label="t('dealer.views.addVehicle.engineType')"
                   density="compact"
                   variant="outlined"
                     hide-details="auto"
@@ -443,9 +442,9 @@
               </v-col>
               <v-col cols="12" md="4">
                 <v-select
-                  v-model="form.transmissionType"
+                  v-model="form.fuelType"
                   :items="fuelTypes.map(f => f.name)"
-                  label="Fuel Type"
+                  :label="t('dealer.views.addVehicle.fuelType')"
                   density="compact"
                   variant="outlined"
                   :rules="[rules.required]"
@@ -458,7 +457,7 @@
                   :items="gearTypes"
                   item-title="name"
                   item-value="id"
-                  label="Gear Type"
+                  :label="t('dealer.views.addVehicle.gearType')"
                   density="compact"
                   variant="outlined"
                   :rules="[rules.required]"
@@ -472,7 +471,7 @@
                 <div class="mb-4">
                   <h4 class="text-subtitle-1 font-weight-semibold mb-4">
                     <v-icon size="20" class="mr-2">mdi-leaf</v-icon>
-                    Consumption & Emissions
+                    {{ t('dealer.views.addVehicle.consumptionEmissions') }}
                   </h4>
               <v-row dense>
               <v-col cols="12" md="4">
@@ -491,7 +490,7 @@
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model="form.euroEmissionClass"
-                  label="Euro Emission Class"
+                  :label="t('dealer.views.addVehicle.euroEmissionClass')"
                   density="compact"
                   variant="outlined"
                     hide-details="auto"
@@ -506,9 +505,9 @@
               <template v-if="index === 3">
                 <div>
                 <div class="mb-6">
-                  <h3 class="text-h6 font-weight-semibold mb-2">Equipment & Features</h3>
+                  <h3 class="text-h6 font-weight-semibold mb-2">{{ t('dealer.views.addVehicle.tabEquipment') }}</h3>
                   <p class="text-body-2 text-medium-emphasis mb-0">
-                    Select all applicable equipment and features
+                    {{ t('dealer.views.addVehicle.equipmentSelectHint') }}
                   </p>
                 </div>
 
@@ -528,11 +527,9 @@
                     variant="tonal"
                     class="equipment-type-badge"
                   >
-                    {{
-                      form.equipment.filter(id =>
+                    {{ t('dealer.views.addVehicle.selectedCount', { count: form.equipment.filter(id =>
                         equipmentType.equipments.some(eq => eq.id.toString() === id)
-                      ).length
-                    }} selected
+                      ).length }) }}
                   </v-chip>
                 </v-expansion-panel-title>
                 <v-expansion-panel-text class="equipment-type-content">
@@ -566,9 +563,9 @@
               <template v-if="index === 4">
                 <div>
                 <div class="mb-6">
-                  <h3 class="text-h6 font-weight-semibold mb-2">Pricing & Sales</h3>
+                  <h3 class="text-h6 font-weight-semibold mb-2">{{ t('dealer.views.addVehicle.tabPricing') }}</h3>
                   <p class="text-body-2 text-medium-emphasis mb-0">
-                    Configure pricing, sales type, and optional leasing options
+                    {{ t('dealer.views.addVehicle.configurePricingHint') }}
                   </p>
             </div>
 
@@ -576,7 +573,7 @@
                 <div class="mb-4">
               <h4 class="text-subtitle-1 font-weight-semibold mb-4">
                 <v-icon size="20" class="mr-2">mdi-tag-outline</v-icon>
-                Sales Configuration
+                {{ t('dealer.views.addVehicle.salesConfiguration') }}
               </h4>
           <v-row dense>
             <v-col cols="12" md="4">
@@ -585,7 +582,7 @@
                 :items="priceTypes"
                 item-title="name"
                 item-value="id"
-                label="Price Type"
+                :label="t('dealer.views.addVehicle.priceType')"
                 density="compact"
                 variant="outlined"
                 hide-details="auto"
@@ -597,7 +594,7 @@
                 :items="conditions"
                 item-title="name"
                 item-value="id"
-                label="Condition"
+                :label="t('dealer.views.addVehicle.condition')"
                 density="compact"
                 variant="outlined"
                 hide-details="auto"
@@ -609,7 +606,7 @@
                 :items="salesTypes"
                 item-title="name"
                 item-value="id"
-                label="Sales Type"
+                :label="t('dealer.views.addVehicle.salesType')"
                 density="compact"
                 variant="outlined"
                 hide-details="auto"
@@ -622,59 +619,59 @@
                 <div class="mb-4">
                   <h4 class="text-subtitle-1 font-weight-semibold mb-4">
                     <v-icon size="20" class="mr-2">mdi-store-marker</v-icon>
-                    Dealer contact (shown on ad)
+                    {{ t('dealer.views.addVehicle.dealerContactShown') }}
                   </h4>
                   <v-row dense>
                     <v-col cols="12" md="4">
                       <v-text-field
                         v-model="form.sellerAddress"
-                        label="Address"
+                        :label="t('dealer.views.addVehicle.address')"
                         density="compact"
                         variant="outlined"
                         hide-details="auto"
-                        placeholder="Street, city"
+                        :placeholder="t('dealer.views.addVehicle.placeholderStreetCity')"
                       />
                     </v-col>
                     <v-col cols="12" md="4">
                       <v-text-field
                         v-model="form.sellerPostcode"
-                        label="Postal code"
+                        :label="t('dealer.views.addVehicle.postalCode')"
                         density="compact"
                         variant="outlined"
                         hide-details="auto"
-                        placeholder="e.g. 2100"
+                        :placeholder="t('dealer.views.addVehicle.placeholderPostcode')"
                       />
                     </v-col>
                     <v-col cols="12" md="4">
                       <v-text-field
                         v-model="form.sellerPhone"
-                        label="Phone"
+                        :label="t('dealer.views.addVehicle.phone')"
                         density="compact"
                         variant="outlined"
                         hide-details="auto"
-                        placeholder="Contact number"
+                        :placeholder="t('dealer.views.addVehicle.placeholderContactNumber')"
                       />
                     </v-col>
                   </v-row>
-                  <p class="text-caption text-medium-emphasis mt-2">Filled from your dealer profile when empty. Shown to buyers on the vehicle listing.</p>
+                  <p class="text-caption text-medium-emphasis mt-2">{{ t('dealer.views.addVehicle.filledFromProfile') }}</p>
                 </div>
 
                 <v-divider class="my-6" />
                 <div class="mb-4">
                   <h4 class="text-subtitle-1 font-weight-semibold mb-4">
                     <v-icon size="20" class="mr-2">mdi-currency-usd</v-icon>
-                    Pricing
+                    {{ t('dealer.views.addVehicle.pricing') }}
                   </h4>
               <v-row dense>
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model.number="form.retailPrice"
-                    label="Retail Price"
+                    :label="t('dealer.views.addVehicle.retailPrice')"
                   type="number"
                   density="compact"
                   variant="outlined"
                   prefix="kr"
-                    hint="Including delivery"
+                    :hint="t('dealer.views.addVehicle.includingDelivery')"
                     persistent-hint
                   :rules="[rules.price]"
                     hide-details="auto"
@@ -683,7 +680,7 @@
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model.number="form.wholesalePrice"
-                  label="Wholesale Price"
+                  :label="t('dealer.views.addVehicle.wholesalePrice')"
                   type="number"
                   density="compact"
                   variant="outlined"
@@ -694,7 +691,7 @@
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model.number="form.priceWithoutTax"
-                  label="Price Without Tax"
+                  :label="t('dealer.views.addVehicle.priceWithoutTax')"
                   type="number"
                   density="compact"
                   variant="outlined"
@@ -705,12 +702,12 @@
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model.number="form.internalCostPrice"
-                    label="Internal Cost Price"
+                    :label="t('dealer.views.addVehicle.internalCostPrice')"
                   type="number"
                   density="compact"
                   variant="outlined"
                   prefix="kr"
-                    hint="Dealer only"
+                    :hint="t('dealer.views.addVehicle.dealerOnly')"
                     persistent-hint
                     hide-details="auto"
                 />
@@ -729,7 +726,7 @@
                     class="checkbox-button-field__checkbox"
                     @click.stop
                   />
-                  <span class="checkbox-button-field__label">Wholesale price includes delivery</span>
+                  <span class="checkbox-button-field__label">{{ t('dealer.views.addVehicle.wholesaleIncludesDelivery') }}</span>
                 </div>
               </v-col>
             </v-row>
@@ -738,14 +735,14 @@
             <div class="form-section mt-4">
               <div class="section-title mb-3">
                 <v-icon size="18" class="mr-2">mdi-calendar-clock</v-icon>
-                <span class="text-subtitle-2 font-weight-medium">Leasing Details (Optional)</span>
+                <span class="text-subtitle-2 font-weight-medium">{{ t('dealer.views.addVehicle.leasingDetailsOptional') }}</span>
               </div>
                 <v-row dense>
                 <v-col cols="12" md="4">
                   <v-select
                     v-model="form.leasingType"
                     :items="leasingTypes"
-                    label="Leasing Type"
+                    :label="t('dealer.views.addVehicle.leasingType')"
                     density="compact"
                     variant="outlined"
                       hide-details="auto"
@@ -755,7 +752,7 @@
                   <v-select
                     v-model="form.leasingCustomerType"
                     :items="leasingCustomerTypes"
-                    label="Customer Type"
+                    :label="t('dealer.views.addVehicle.customerType')"
                     density="compact"
                     variant="outlined"
                       hide-details="auto"
@@ -764,7 +761,7 @@
                 <v-col cols="12" md="4">
                   <v-text-field
                     v-model.number="form.leasingMonthlyPayment"
-                    label="Monthly Payment"
+                    :label="t('dealer.views.addVehicle.monthlyPayment')"
                     type="number"
                     density="compact"
                     variant="outlined"
@@ -775,7 +772,7 @@
                 <v-col cols="12" md="4">
                   <v-text-field
                     v-model.number="form.leasingFirstPayment"
-                    label="First Payment"
+                    :label="t('dealer.views.addVehicle.firstPayment')"
                     type="number"
                     density="compact"
                     variant="outlined"
@@ -786,7 +783,7 @@
                 <v-col cols="12" md="4">
                   <v-text-field
                     v-model.number="form.leasingResidualValue"
-                    label="Residual Value"
+                    :label="t('dealer.views.addVehicle.residualValue')"
                     type="number"
                     density="compact"
                     variant="outlined"
@@ -797,7 +794,7 @@
                 <v-col cols="12" md="3">
                   <v-text-field
                     v-model.number="form.leasingDuration"
-                      label="Duration (months)"
+                      :label="t('dealer.views.addVehicle.durationMonths')"
                     type="number"
                     density="compact"
                     variant="outlined"
@@ -807,7 +804,7 @@
                 <v-col cols="12" md="3">
                   <v-text-field
                     v-model.number="form.leasingAnnualMileage"
-                    label="Annual Mileage"
+                    :label="t('dealer.views.addVehicle.annualMileage')"
                     type="number"
                     density="compact"
                     variant="outlined"
@@ -817,7 +814,7 @@
                 <v-col cols="12" md="6">
                   <v-text-field
                     v-model.number="form.leasingTotalCost"
-                    label="Total Cost Over Term"
+                    :label="t('dealer.views.addVehicle.totalCostOverTerm')"
                     type="number"
                     density="compact"
                     variant="outlined"
@@ -834,9 +831,9 @@
               <template v-if="index === 5">
                 <div>
                 <div class="mb-6">
-                  <h3 class="text-h6 font-weight-semibold mb-2">Media & Description</h3>
+                  <h3 class="text-h6 font-weight-semibold mb-2">{{ t('dealer.views.addVehicle.mediaDescription') }}</h3>
                   <p class="text-body-2 text-medium-emphasis mb-0">
-                    Upload images and provide a detailed description
+                    {{ t('dealer.views.addVehicle.uploadImagesHint') }}
                   </p>
                 </div>
 
@@ -844,7 +841,7 @@
                 <div class="mb-4">
                   <h4 class="text-subtitle-1 font-weight-semibold mb-4">
                     <v-icon size="20" class="mr-2">mdi-image-multiple</v-icon>
-                    Vehicle Images
+                    {{ t('dealer.views.addVehicle.vehicleImages') }}
                     <v-chip size="x-small" class="ml-2" color="primary" variant="tonal">
                       {{ imagePreviews.length }}/20
                     </v-chip>
@@ -875,8 +872,8 @@
                     >
                       <div class="upload-content">
                         <v-icon class="upload-icon" size="36">mdi-cloud-upload</v-icon>
-                        <p class="upload-text">Click to upload or drag and drop</p>
-                        <p class="upload-hint">PNG, JPG, GIF up to 20MB each</p>
+                        <p class="upload-text">{{ t('dealer.views.addVehicle.clickToUpload') }}</p>
+                        <p class="upload-hint">{{ t('dealer.views.addVehicle.uploadHintFormats') }}</p>
                       </div>
                     </label>
                     <v-alert
@@ -886,7 +883,7 @@
                       density="compact"
                       class="mt-2"
                     >
-                      Please upload at least 1 image
+                      {{ t('dealer.views.addVehicle.uploadMinOneImage') }}
                     </v-alert>
                   </div>
 
@@ -966,7 +963,7 @@
                       style="bottom: 4px; left: 4px; z-index: 2;"
                     >
                       <v-icon size="14" start>mdi-star</v-icon>
-                    Cover
+                    {{ t('dealer.views.addVehicle.cover') }}
                     </v-chip>
                   </v-card>
                 </v-col>
@@ -977,15 +974,15 @@
                 <div class="mb-4">
                   <h4 class="text-subtitle-1 font-weight-semibold mb-4">
                     <v-icon size="20" class="mr-2">mdi-text</v-icon>
-                    Description
+                    {{ t('dealer.views.addVehicle.vehicleDescription') }}
                   </h4>
                 <v-textarea
                   v-model="form.description"
-                  label="Vehicle Description"
+                  :label="t('dealer.views.addVehicle.vehicleDescription')"
                   density="compact"
                   variant="outlined"
                   rows="6"
-                hint="Description will be auto-generated based on vehicle information. You can edit it manually."
+                :hint="t('dealer.views.addVehicle.descriptionHint')"
                   persistent-hint
                   :rules="[rules.required, rules.description]"
                 hide-details="auto"
@@ -1020,7 +1017,7 @@
         @click:close="validationErrors = {}"
       >
         <div class="mb-2">
-          <strong>Please fix the following errors:</strong>
+          <strong>{{ t('dealer.views.addVehicle.fixErrorsStrong') }}</strong>
         </div>
         <ul class="mb-0 pl-4">
           <li v-for="(errors, field) in validationErrors" :key="field">
@@ -1173,14 +1170,14 @@ const { getDisplayMessage } = useErrorMessage()
 // Wizard state
 const currentStep = ref(0)
 const visitedSteps = ref<Set<number>>(new Set([0])) // Track visited steps
-const steps = [
-  { label: 'Vehicle Lookup', key: 'lookup' },
-  { label: 'Vehicle Details', key: 'details' },
-  { label: 'Technical Data', key: 'technical' },
-  { label: 'Equipment & Features', key: 'equipment' },
-  { label: 'Pricing & Sales', key: 'pricing' },
-  { label: 'Media', key: 'media' },
-]
+const steps = computed(() => [
+  { label: t('dealer.views.addVehicle.tabLookup'), key: 'lookup' },
+  { label: t('dealer.views.addVehicle.tabDetails'), key: 'details' },
+  { label: t('dealer.views.addVehicle.tabTechnical'), key: 'technical' },
+  { label: t('dealer.views.addVehicle.tabEquipment'), key: 'equipment' },
+  { label: t('dealer.views.addVehicle.tabPricing'), key: 'pricing' },
+  { label: t('dealer.views.addVehicle.tabMedia'), key: 'media' },
+])
 
 // Form state
 const formRef = ref()
@@ -1263,15 +1260,15 @@ const fuelConsumptionLabel = computed(() => {
   const hybridFuelTypes = [4, 5]
   
   if (fuelTypeId && electricFuelTypes.includes(fuelTypeId)) {
-    return 'Electric Range (km)'
+    return t('dealer.views.addVehicle.electricRangeKm')
   }
   
   if (fuelTypeId && hybridFuelTypes.includes(fuelTypeId)) {
-    return 'Electric Range / KM/L'
+    return t('dealer.views.addVehicle.electricRangeKmPerL')
   }
   
   // Default for Petrol, Diesel, etc.
-  return 'KM/L'
+  return t('dealer.views.addVehicle.kmPerL')
 })
 
 // Computed property for fuel consumption hint
@@ -1284,15 +1281,15 @@ const fuelConsumptionHint = computed(() => {
   const hybridFuelTypes = [4, 5]
   
   if (fuelTypeId && electricFuelTypes.includes(fuelTypeId)) {
-    return 'Electric range in kilometers'
+    return t('dealer.views.addVehicle.fuelConsumptionHintElectric')
   }
   
   if (fuelTypeId && hybridFuelTypes.includes(fuelTypeId)) {
-    return 'Electric range in km (for EV mode) or fuel efficiency in km/l'
+    return t('dealer.views.addVehicle.fuelConsumptionHintHybrid')
   }
   
   // Default for Petrol, Diesel, etc.
-  return 'Fuel efficiency in kilometers per liter'
+  return t('dealer.views.addVehicle.fuelConsumptionHintDefault')
 })
 
 // Helper to calculate power in HP from kW (rounded to nearest whole number, e.g. 149.6 -> 150)
@@ -1600,9 +1597,10 @@ const loadDealerProfileForContact = async () => {
 const rules = {
   required: (v: any) => !!v || 'This field is required',
   vin: (v: string) => {
-    if (!v) return 'This field is required'
-    if (v.length !== 17) return 'VIN must be exactly 17 characters'
-    return /^[A-HJ-NPR-Z0-9]+$/i.test(v) || 'VIN can only contain letters (except I, O, Q) and numbers'
+    if (!v || !String(v).trim()) return true // Optional
+    const s = String(v).trim()
+    if (s.length !== 17) return 'VIN must be exactly 17 characters'
+    return /^[A-HJ-NPR-Z0-9]+$/i.test(s) || 'VIN can only contain letters (except I, O, Q) and numbers'
   },
   odometer: (v: number | null | undefined) => {
     if (v === null || v === undefined) return true // Optional field
@@ -1628,20 +1626,19 @@ function getInvalidSteps(): { stepIndex: number; stepLabel: string }[] {
   const f = form.value
 
   // Step 0: Vehicle Lookup
-  const vinValid = f.vin && f.vin.length === 17 && /^[A-HJ-NPR-Z0-9]+$/i.test(f.vin)
-  if (!f.make || !f.modelId || !f.variant || !f.fuelType || !vinValid || !f.registrationDate) {
-    invalid.push({ stepIndex: 0, stepLabel: steps[0]?.label ?? 'Vehicle Lookup' })
+  if (!f.make || !f.modelId || !f.variant || !f.fuelType || !f.registrationDate) {
+    invalid.push({ stepIndex: 0, stepLabel: steps.value[0]?.label ?? t('dealer.views.addVehicle.tabLookup') })
   }
 
-  // Step 1: Vehicle Details
+  // Step 1: Vehicle Details (VIN and registration number are optional)
   const odometerValid = f.odometer == null || (f.odometer >= 0 && f.odometer <= 12000000000000)
-  if (!f.firstRegistrationDate || !f.registrationNumber || !odometerValid) {
-    invalid.push({ stepIndex: 1, stepLabel: steps[1]?.label ?? 'Vehicle Details' })
+  if (!f.firstRegistrationDate || !odometerValid) {
+    invalid.push({ stepIndex: 1, stepLabel: steps.value[1]?.label ?? t('dealer.views.addVehicle.tabDetails') })
   }
 
   // Step 2: Technical Data - gear type is required (defaults to Automatic when gear types load)
   if (!f.gearTypeId) {
-    invalid.push({ stepIndex: 2, stepLabel: steps[2]?.label ?? 'Technical Data' })
+    invalid.push({ stepIndex: 2, stepLabel: steps.value[2]?.label ?? t('dealer.views.addVehicle.tabTechnical') })
   }
 
   // Step 3: Equipment - no required fields
@@ -1649,13 +1646,13 @@ function getInvalidSteps(): { stepIndex: number; stepLabel: string }[] {
   // Step 4: Pricing & Sales (retailPrice has rules.price: optional but if set must be in range)
   const priceValid = f.retailPrice == null || (f.retailPrice >= 0 && f.retailPrice <= 999999999)
   if (!priceValid) {
-    invalid.push({ stepIndex: 4, stepLabel: steps[4]?.label ?? 'Pricing & Sales' })
+    invalid.push({ stepIndex: 4, stepLabel: steps.value[4]?.label ?? t('dealer.views.addVehicle.tabPricing') })
   }
 
   // Step 5: Media
   const descValid = f.description && f.description.length >= 1 && f.description.length <= 5000
   if (!(imagePreviews.value.length >= 1) || !descValid) {
-    invalid.push({ stepIndex: 5, stepLabel: steps[5]?.label ?? 'Media' })
+    invalid.push({ stepIndex: 5, stepLabel: steps.value[5]?.label ?? t('dealer.views.addVehicle.tabMedia') })
   }
 
   return invalid
@@ -1906,7 +1903,7 @@ const performLookup = async () => {
 }
 
 const nextStep = async () => {
-  if (currentStep.value < steps.length - 1) {
+  if (currentStep.value < steps.value.length - 1) {
       currentStep.value++
     visitedSteps.value.add(currentStep.value)
     // Scroll to top of form
@@ -1924,7 +1921,7 @@ const previousStep = () => {
 }
 
 const goToStep = (index: number) => {
-  if (index >= 0 && index < steps.length) {
+  if (index >= 0 && index < steps.value.length) {
     currentStep.value = index
     visitedSteps.value.add(index)
     // Scroll to top of form

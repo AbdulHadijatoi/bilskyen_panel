@@ -946,36 +946,25 @@ export interface UpdateProfileData {
 }
 
 /**
- * Update dealer profile
+ * Update dealer profile (single endpoint: text fields + optional logo)
+ * Sends multipart/form-data so logo can be included when provided.
  */
-export async function updateProfile(data: UpdateProfileData): Promise<DealerModel> {
-  try {
-    const response = await httpClient.post<{ data: any }>(
-      DEALER_PROFILE_ENDPOINTS.UPDATE,
-      data
-    )
-    const dealerData = handleSuccess<any>(response)
-    return mapDealerFromApi(dealerData)
-  } catch (error) {
-    throw handleError(error)
-  }
-}
-
-/**
- * Upload dealer logo
- */
-export async function uploadLogo(file: File): Promise<DealerModel> {
+export async function updateProfile(data: UpdateProfileData, logoFile?: File | null): Promise<DealerModel> {
   try {
     const formData = new FormData()
-    formData.append('logo', file)
-    const response = await httpClient.post<{ data: any }>(
-      DEALER_PROFILE_ENDPOINTS.LOGO,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+    const keys: (keyof UpdateProfileData)[] = ['name', 'email', 'phone', 'cvr', 'address', 'city', 'postcode', 'country_code']
+    for (const key of keys) {
+      const value = data[key]
+      if (value !== undefined && value !== '') {
+        formData.append(key, String(value))
       }
+    }
+    if (logoFile instanceof File) {
+      formData.append('logo', logoFile, logoFile.name)
+    }
+    const response = await httpClient.post<{ data: any }>(
+      DEALER_PROFILE_ENDPOINTS.UPDATE,
+      formData
     )
     const dealerData = handleSuccess<any>(response)
     return mapDealerFromApi(dealerData)

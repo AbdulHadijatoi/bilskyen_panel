@@ -109,16 +109,17 @@
           <div class="mb-6">
             <h3 class="text-h6 font-weight-semibold mb-1">
               <v-icon size="20" class="mr-2">mdi-image</v-icon>
-              Dealer logo
-            </h3>
+              {{ t('dealer.views.profile.dealerLogo') }}
+          </h3>
             <p class="text-body-2 text-medium-emphasis mb-4">
-              Upload or update your dealer logo. Used on your public dealer page.
+              {{ t('dealer.views.profile.logoSubtitle') }}
             </p>
             <div class="d-flex align-center gap-4 flex-wrap">
               <div class="logo-preview rounded overflow-hidden" style="width: 100px; height: 100px; background: var(--v-border-color); flex-shrink: 0;">
                 <img
                   v-if="profile?.logo"
-                  :src="profile.logo"
+                  :key="logoCacheBuster"
+                  :src="profile.logo + (profile.logo.includes('?') ? '&' : '?') + 't=' + logoCacheBuster"
                   alt="Dealer logo"
                   class="w-100 h-100 object-fit-cover"
                 />
@@ -129,7 +130,7 @@
               <div class="flex-grow-1" style="min-width: 200px;">
                 <v-file-input
                   v-model="logoFile"
-                  label="Choose logo image"
+                  :label="t('dealer.views.profile.chooseLogoOptional')"
                   variant="outlined"
                   density="compact"
                   prepend-inner-icon="mdi-upload"
@@ -139,21 +140,8 @@
                   clearable
                   @update:model-value="onLogoFileSelected"
                 />
-                <v-btn
-                  v-if="logoFile?.length"
-                  color="primary"
-                  size="small"
-                  class="mt-2"
-                  :loading="uploadingLogo"
-                  @click="uploadLogo"
-                >
-                  Upload logo
-                </v-btn>
               </div>
             </div>
-            <v-alert v-if="logoUploadError" type="error" variant="tonal" density="compact" class="mt-2" closable @click:close="logoUploadError = null">
-              {{ logoUploadError }}
-            </v-alert>
           </div>
 
           <v-divider class="my-6" />
@@ -191,10 +179,10 @@
           <div class="mb-6">
             <h3 class="text-h6 font-weight-semibold mb-1">
               <v-icon size="20" class="mr-2">mdi-map-marker</v-icon>
-              Address Information
-            </h3>
+              {{ t('dealer.views.profile.addressInformation') }}
+          </h3>
             <p class="text-body-2 text-medium-emphasis mb-4">
-              Update your business address and location details
+              {{ t('dealer.views.profile.addressSubtitle') }}
             </p>
           </div>
 
@@ -314,7 +302,7 @@
             closable
             @click:close="showSuccess = false"
           >
-            Profile updated successfully!
+            {{ t('dealer.views.profile.profileUpdated') }}
           </v-alert>
 
           <!-- Action Buttons -->
@@ -327,7 +315,7 @@
               :disabled="submitting"
             >
               <v-icon start>mdi-refresh</v-icon>
-              Reset
+              {{ t('dealer.views.profile.reset') }}
             </v-btn>
             <v-btn
               color="primary"
@@ -349,7 +337,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { getProfile, updateProfile, uploadLogo as uploadLogoApi, type UpdateProfileData } from '@/api/dealer.api'
+import { getProfile, updateProfile, type UpdateProfileData } from '@/api/dealer.api'
 import { getCurrentUser } from '@/api/auth.api'
 import { useAuthStore } from '@/stores/auth.store'
 import type { DealerModel } from '@/models/dealer.model'
@@ -369,8 +357,8 @@ const validationErrors = ref<Record<string, string[]>>({})
 const showSuccess = ref(false)
 const profile = ref<DealerModel | null>(null)
 const logoFile = ref<File[] | null>(null)
-const uploadingLogo = ref(false)
-const logoUploadError = ref<string | null>(null)
+const logoFileToUpload = ref<File | null>(null)
+const logoCacheBuster = ref(0)
 
 // Form data
 const form = reactive<UpdateProfileData>({
@@ -416,7 +404,7 @@ const rules = {
   },
   cvr: (value: string) => {
     if (!value) return true
-    if (value.length > 20) return 'CVR number must be 20 characters or less'
+    if (value.length > 20) return t('dealer.views.profile.validationCvrMax')
     return true
   },
 }
@@ -465,14 +453,22 @@ const resetForm = () => {
     form.postcode = profile.value.postcode || ''
     form.country_code = profile.value.countryCode || ''
   }
+  logoFile.value = null
+  logoFileToUpload.value = null
   submitError.value = null
   validationErrors.value = {}
   showSuccess.value = false
 }
 
-// Handle form submission
+// Handle form submission (single API: text fields + optional logo)
 const handleSubmit = async () => {
   if (!formValid.value) {
+    return
+  }
+
+  const logoFileToSend = logoFileToUpload.value ?? logoFile.value?.[0]
+  if (logoFileToSend instanceof File && logoFileToSend.size > 2 * 1024 * 1024) {
+    submitError.value = t('dealer.views.profile.logoSizeError')
     return
   }
 
@@ -493,7 +489,7 @@ const handleSubmit = async () => {
       country_code: form.country_code || undefined,
     }
 
-    const updatedProfile = await updateProfile(updateData)
+    const updatedProfile = await updateProfile(updateData, logoFileToSend instanceof File ? logoFileToSend : null)
     profile.value = updatedProfile
 
     // Update form with new values (owner fields - dealer himself is the owner)
@@ -509,6 +505,11 @@ const handleSubmit = async () => {
     form.city = updatedProfile.city || ''
     form.postcode = updatedProfile.postcode || ''
     form.country_code = updatedProfile.countryCode || ''
+
+    // Clear logo selection and refresh preview
+    logoFile.value = null
+    logoFileToUpload.value = null
+    logoCacheBuster.value = Date.now()
 
     // Refresh auth store to update user info in sidebar
     if (updateData.name || updateData.email || updateData.phone) {
@@ -539,30 +540,10 @@ const handleSubmit = async () => {
   }
 }
 
-function onLogoFileSelected() {
-  logoUploadError.value = null
-}
-
-async function uploadLogo() {
-  const file = logoFile.value?.[0]
-  if (!file) return
-  if (file.size > 2 * 1024 * 1024) {
-    logoUploadError.value = 'Logo must be 2MB or less'
-    return
-  }
-  try {
-    uploadingLogo.value = true
-    logoUploadError.value = null
-    const updated = await uploadLogoApi(file)
-    profile.value = updated
-    logoFile.value = null
-    showSuccess.value = true
-    setTimeout(() => { showSuccess.value = false }, 3000)
-  } catch (err: any) {
-    logoUploadError.value = err?.message || 'Failed to upload logo'
-  } finally {
-    uploadingLogo.value = false
-  }
+function onLogoFileSelected(files: File | File[] | null) {
+  const list = files == null ? null : Array.isArray(files) ? files : [files]
+  const file = list?.[0]
+  logoFileToUpload.value = file instanceof File ? file : null
 }
 
 // Load profile on mount

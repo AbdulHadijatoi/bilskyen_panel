@@ -119,18 +119,18 @@
                 <v-col cols="12" v-if="lead.message || lead.enquiry">
                   <div class="mb-3">
                     <div class="text-caption text-medium-emphasis mb-1">
-                      {{ lead.enquiry ? 'Initial Enquiry Details' : 'Message' }}
+                      {{ lead.enquiry ? t('dealer.views.leadsDetail.initialEnquiryOrMessage') : t('dealer.views.leadsDetail.message') }}
                     </div>
                     <v-card variant="tonal" density="compact" class="pa-3 rounded-lg">
                       <div v-if="lead.enquiry" class="d-flex flex-column gap-1">
                         <div v-if="lead.enquiry.type" class="text-body-2">
-                          <strong>Purpose:</strong> {{ lead.enquiry.type }}
+                          <strong>{{ t('dealer.views.leadsDetail.purposeLabel') }}</strong> {{ lead.enquiry.type }}
                         </div>
                         <div v-if="lead.enquiry.subject" class="text-body-2">
-                          <strong>Subject:</strong> {{ lead.enquiry.subject }}
+                          <strong>{{ t('dealer.views.leadsDetail.subjectLabel') }}</strong> {{ lead.enquiry.subject }}
                         </div>
                         <div class="text-body-2 mt-1">
-                          <strong>Message:</strong>
+                          <strong>{{ t('dealer.views.leadsDetail.messageLabel') }}</strong>
                           <p class="mt-1">{{ lead.enquiry.message }}</p>
                         </div>
                       </div>
