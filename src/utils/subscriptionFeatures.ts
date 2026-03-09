@@ -14,10 +14,14 @@ export type SubscriptionFeatures = Record<string, string>
 
 /**
  * Get subscription features from auth store
+ * Reads .value so that limits are reactive and computed() tracks the store.
  */
 export function getSubscriptionFeatures(): SubscriptionFeatures {
   const authStore = useAuthStore()
-  return authStore.subscriptionFeatures || {}
+  const ref = authStore.subscriptionFeatures
+  // Pinia exposes state as refs; read .value to get the actual object and preserve reactivity in computed()
+  const value = ref && typeof ref === 'object' && 'value' in ref ? (ref as { value: Record<string, string> }).value : ref
+  return value ?? {}
 }
 
 /**
@@ -89,6 +93,7 @@ export enum FeatureKey {
   PRIORITY_SUPPORT = 'priority_support',
   ANALYTICS = 'analytics',
   MAX_VEHICLE_IMAGES = 'max_vehicle_images',
+  MAX_EQUIPMENT_PER_VEHICLE = 'max_equipment_per_vehicle',
   UPLOAD_3D_VIEW = 'upload_3d_view',
   AUDIT_LOGS = 'audit_logs',
 }

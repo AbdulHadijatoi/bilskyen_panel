@@ -1112,6 +1112,9 @@
         <v-card-title class="d-flex align-center text-subtitle-1">
           <v-icon color="primary" size="18" class="mr-2">mdi-upload</v-icon>
           Upload Vehicle Images
+          <v-chip v-if="maxVehicleImages > 0" size="x-small" class="ml-2" color="primary" variant="tonal">
+            {{ vehicleImages.length }}/{{ maxVehicleImages }}
+          </v-chip>
         </v-card-title>
         <v-card-text class="pa-3">
           <v-file-input
@@ -1123,6 +1126,7 @@
             density="compact"
             prepend-icon="mdi-image"
             hide-details="auto"
+            :hint="maxVehicleImages > 0 ? `You can add up to ${remainingImageSlots} more image(s).` : undefined"
           />
         </v-card-text>
         <v-card-actions class="pa-3">
@@ -1133,7 +1137,7 @@
             size="small"
             @click="uploadImages"
             :loading="uploadingImages"
-            :disabled="!imageFiles || imageFiles.length === 0"
+            :disabled="!imageFiles || imageFiles.length === 0 || (maxVehicleImages > 0 && vehicleImages.length + (imageFiles?.length || 0) > maxVehicleImages)"
           >
             Upload
           </v-btn>
@@ -1174,6 +1178,9 @@
         <v-card-title class="d-flex align-center text-subtitle-1">
           <v-icon color="primary" size="18" class="mr-2">mdi-cog</v-icon>
           Edit Equipment
+          <v-chip v-if="maxEquipmentPerVehicle > 0" size="x-small" class="ml-2" color="primary" variant="tonal">
+            {{ selectedEquipment.length }}/{{ maxEquipmentPerVehicle }}
+          </v-chip>
         </v-card-title>
         <v-card-text class="pa-3">
           <div v-if="loadingEquipment" class="text-center py-4">
@@ -1195,6 +1202,7 @@
                 density="compact"
                 hide-details
                 class="ml-4"
+                :disabled="maxEquipmentPerVehicle > 0 && selectedEquipment.length >= maxEquipmentPerVehicle && !selectedEquipment.includes(equipment.id)"
               />
             </div>
           </div>
@@ -1335,6 +1343,7 @@ import { VehicleStatus as VehicleStatusEnum } from '@/models/vehicle.model'
 import type { VehicleModel } from '@/models/vehicle.model'
 import type { VehicleImageModel } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import { getFeatureLimit, FeatureKey } from '@/utils/subscriptionFeatures'
 
 const route = useRoute()
 const router = useRouter()
@@ -1384,6 +1393,15 @@ const modelYears = computed(() => constants.value?.model_years || [])
 const transmissions = computed(() => constants.value?.transmissions || [])
 const drivetrainTypes = computed(() => constants.value?.drivetrain_types || [])
 const vehicleListStatusesFromConstants = computed(() => constants.value?.vehicle_list_statuses || [])
+
+// Subscription plan limits (dealer context when staff edits dealer vehicle)
+const maxVehicleImages = computed(() => getFeatureLimit(FeatureKey.MAX_VEHICLE_IMAGES, 20))
+const maxEquipmentPerVehicle = computed(() => getFeatureLimit(FeatureKey.MAX_EQUIPMENT_PER_VEHICLE, 30))
+const remainingImageSlots = computed(() => {
+  const max = maxVehicleImages.value
+  if (max <= 0) return 999
+  return Math.max(0, max - vehicleImages.value.length)
+})
 
 // Filter vehicle models by selected brand
 const filteredModels = computed(() => {
@@ -1608,6 +1626,12 @@ const saveVehicle = async () => {
 const uploadImages = async () => {
   if (!vehicle.value || !imageFiles.value || imageFiles.value.length === 0) return
 
+  const maxImg = maxVehicleImages.value
+  if (maxImg > 0 && vehicleImages.value.length + imageFiles.value.length > maxImg) {
+    error.value = `Plan limit: up to ${maxImg} images per vehicle. Remove some existing images or add fewer new ones.`
+    return
+  }
+
   try {
     uploadingImages.value = true
     error.value = null
@@ -1660,6 +1684,12 @@ const deleteImage = async () => {
 
 const saveEquipment = async () => {
   if (!vehicle.value) return
+
+  const maxEquip = maxEquipmentPerVehicle.value
+  if (maxEquip > 0 && selectedEquipment.value.length > maxEquip) {
+    error.value = `Plan limit: up to ${maxEquip} equipment items per vehicle. Please deselect some.`
+    return
+  }
 
   try {
     savingEquipment.value = true

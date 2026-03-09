@@ -520,6 +520,7 @@
                   <h3 class="text-h6 font-weight-semibold mb-2">Equipment & Features</h3>
                   <p class="text-body-2 text-medium-emphasis mb-0">
                     Select all applicable equipment and features
+                    <span v-if="maxEquipmentPerVehicle > 0" class="text-caption">({{ form.equipment.length }}/{{ maxEquipmentPerVehicle }})</span>
                   </p>
                 </div>
 
@@ -564,6 +565,7 @@
                     density="compact"
                     hide-details
                     class="equipment-checkbox"
+                    :disabled="maxEquipmentPerVehicle > 0 && form.equipment.length >= maxEquipmentPerVehicle && !form.equipment.includes(equipment.id.toString())"
                   >
                     <template #label>
                       <span class="text-body-2 equipment-label">{{ equipment.name }}</span>
@@ -819,7 +821,7 @@
                     <v-icon size="20" class="mr-2">mdi-image-multiple</v-icon>
                     Vehicle Images
                     <v-chip size="x-small" class="ml-2" color="primary" variant="tonal">
-                      {{ imagePreviews.length }}/20
+                      {{ imagePreviews.length }}/{{ maxVehicleImages }}
                     </v-chip>
                   </h4>
                   
@@ -1139,6 +1141,7 @@ import type { VehicleModel } from '@/models/vehicle.model'
 import MonthYearPicker from '@/components/ui/MonthYearPicker.vue'
 import { useI18n } from 'vue-i18n'
 import { useErrorMessage } from '@/composables/useErrorMessage'
+import { getFeatureLimit, FeatureKey } from '@/utils/subscriptionFeatures'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -1181,9 +1184,14 @@ const showSnackbar = (message: string, color: 'success' | 'error' | 'info' | 'wa
   snackbar.value.show = true
 }
 
+// Subscription plan limits for images and equipment
+const maxVehicleImages = computed(() => getFeatureLimit(FeatureKey.MAX_VEHICLE_IMAGES, 20))
+const maxEquipmentPerVehicle = computed(() => getFeatureLimit(FeatureKey.MAX_EQUIPMENT_PER_VEHICLE, 30))
+
 // Computed property to check if images are valid
 const imagesValid = computed(() => {
-  return form.value.images && form.value.images.length >= 1 && form.value.images.length <= 20
+  const max = maxVehicleImages.value
+  return form.value.images && form.value.images.length >= 1 && (max <= 0 || form.value.images.length <= max)
 })
 
 // Lookup state
@@ -1890,9 +1898,12 @@ const setCoverImage = (index: number) => {
 const handleImageUpload = (newFiles: File | File[]) => {
   const filesArray = Array.isArray(newFiles) ? newFiles : newFiles ? [newFiles] : []
   if (filesArray.length === 0) return
-  
+
+  const maxImages = maxVehicleImages.value
+  if (maxImages <= 0) return
+
   const currentCount = form.value.images.length
-  const remainingSlots = 20 - currentCount
+  const remainingSlots = maxImages - currentCount
   
   if (remainingSlots <= 0) {
     // Already at max, don't add more
@@ -1921,7 +1932,7 @@ const handleImageUpload = (newFiles: File | File[]) => {
   
   if (validFiles.length === 0) return
   
-  // Add only as many as we can fit (up to 20 total)
+  // Add only as many as we can fit (up to plan limit)
   const filesToAdd = validFiles.slice(0, remainingSlots)
   form.value.images = [...form.value.images, ...filesToAdd]
 }
@@ -2447,7 +2458,10 @@ const submitForm = async () => {
   if (!allValid) return
 
   if (!imagesValid.value) {
-    submitError.value = 'Please upload at least 1 image (maximum 20 images)'
+    const max = maxVehicleImages.value
+    submitError.value = max > 0
+      ? `Please upload at least 1 image (maximum ${max} images)`
+      : 'Please upload at least 1 image'
     // Scroll to media step
     currentStep.value = 5
     return

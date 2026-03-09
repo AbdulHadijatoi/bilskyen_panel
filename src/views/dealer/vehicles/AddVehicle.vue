@@ -508,6 +508,7 @@
                   <h3 class="text-h6 font-weight-semibold mb-2">{{ t('dealer.views.addVehicle.tabEquipment') }}</h3>
                   <p class="text-body-2 text-medium-emphasis mb-0">
                     {{ t('dealer.views.addVehicle.equipmentSelectHint') }}
+                    <span v-if="maxEquipmentPerVehicle > 0" class="text-caption">({{ form.equipment.length }}/{{ maxEquipmentPerVehicle }})</span>
                   </p>
                 </div>
 
@@ -546,6 +547,7 @@
                         density="compact"
                         hide-details
                         class="equipment-checkbox"
+                        :disabled="maxEquipmentPerVehicle > 0 && form.equipment.length >= maxEquipmentPerVehicle && !form.equipment.includes(equipment.id.toString())"
                       >
                         <template #label>
                           <span class="equipment-label">{{ equipment.name }}</span>
@@ -843,7 +845,7 @@
                     <v-icon size="20" class="mr-2">mdi-image-multiple</v-icon>
                     {{ t('dealer.views.addVehicle.vehicleImages') }}
                     <v-chip size="x-small" class="ml-2" color="primary" variant="tonal">
-                      {{ imagePreviews.length }}/20
+                      {{ imagePreviews.length }}/{{ maxVehicleImages }}
                     </v-chip>
                   </h4>
                   
@@ -1158,10 +1160,12 @@ import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { createVehicle, createVehicleDraft, updateVehicle, getLookupConstants, lookupVehicleByRegistration, getProfile } from '@/api/dealer.api'
+import { loadSubscriptionFeatures } from '@/api/subscription-features.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import type { VehicleModel } from '@/models/vehicle.model'
 import MonthYearPicker from '@/components/ui/MonthYearPicker.vue'
 import { useErrorMessage } from '@/composables/useErrorMessage'
+import { getFeatureLimit, getSubscriptionFeatures, FeatureKey } from '@/utils/subscriptionFeatures'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -1204,9 +1208,14 @@ const showSnackbar = (message: string, color: 'success' | 'error' | 'info' | 'wa
   snackbar.value.show = true
 }
 
+// Subscription plan limits for images and equipment
+const maxVehicleImages = computed(() => getFeatureLimit(FeatureKey.MAX_VEHICLE_IMAGES, 20))
+const maxEquipmentPerVehicle = computed(() => getFeatureLimit(FeatureKey.MAX_EQUIPMENT_PER_VEHICLE, 30))
+
 // Computed property to check if images are valid
 const imagesValid = computed(() => {
-  return form.value.images && form.value.images.length >= 1 && form.value.images.length <= 20
+  const max = maxVehicleImages.value
+  return form.value.images && form.value.images.length >= 1 && (max <= 0 || form.value.images.length <= max)
 })
 
 // Lookup state
@@ -1641,9 +1650,13 @@ function getInvalidSteps(): { stepIndex: number; stepLabel: string }[] {
     invalid.push({ stepIndex: 2, stepLabel: steps.value[2]?.label ?? t('dealer.views.addVehicle.tabTechnical') })
   }
 
-  // Step 3: Equipment - no required fields
+  // Step 3: Equipment - check plan limit
+  const maxEquip = maxEquipmentPerVehicle.value
+  if (maxEquip > 0 && f.equipment && f.equipment.length > maxEquip) {
+    invalid.push({ stepIndex: 3, stepLabel: steps.value[3]?.label ?? t('dealer.views.addVehicle.tabEquipment') })
+  }
 
-  // Step 4: Pricing & Sales (retailPrice has rules.price: optional but if set must be in range)
+  // Step 4: Pricing & Sales
   const priceValid = f.retailPrice == null || (f.retailPrice >= 0 && f.retailPrice <= 999999999)
   if (!priceValid) {
     invalid.push({ stepIndex: 4, stepLabel: steps.value[4]?.label ?? t('dealer.views.addVehicle.tabPricing') })
@@ -1651,7 +1664,9 @@ function getInvalidSteps(): { stepIndex: number; stepLabel: string }[] {
 
   // Step 5: Media
   const descValid = f.description && f.description.length >= 1 && f.description.length <= 5000
-  if (!(imagePreviews.value.length >= 1) || !descValid) {
+  const maxImg = maxVehicleImages.value
+  const imagesCountOk = maxImg <= 0 || imagePreviews.value.length <= maxImg
+  if (!(imagePreviews.value.length >= 1) || !descValid || !imagesCountOk) {
     invalid.push({ stepIndex: 5, stepLabel: steps.value[5]?.label ?? t('dealer.views.addVehicle.tabMedia') })
   }
 
@@ -1950,11 +1965,20 @@ const handleKeydown = (event: KeyboardEvent) => {
 }
 
 // Add keyboard event listener and load lookup data
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener('keydown', handleKeydown)
   window.addEventListener('beforeunload', handleBeforeUnload)
   loadLookupData()
   loadDealerProfileForContact()
+  // Ensure subscription features (and thus plan limits) are loaded for equipment/image limits
+  try {
+    const features = getSubscriptionFeatures()
+    if (Object.keys(features).length === 0) {
+      await loadSubscriptionFeatures()
+    }
+  } catch {
+    // Ignore - limits will use defaults
+  }
 })
 
 // Cleanup will be handled in the combined onBeforeUnmount below
@@ -1977,9 +2001,12 @@ const setCoverImage = (index: number) => {
 const handleImageUpload = (newFiles: File | File[]) => {
   const filesArray = Array.isArray(newFiles) ? newFiles : newFiles ? [newFiles] : []
   if (filesArray.length === 0) return
-  
+
+  const maxImages = maxVehicleImages.value
+  if (maxImages <= 0) return
+
   const currentCount = form.value.images.length
-  const remainingSlots = 20 - currentCount
+  const remainingSlots = maxImages - currentCount
   
   if (remainingSlots <= 0) {
     // Already at max, don't add more
@@ -2008,7 +2035,7 @@ const handleImageUpload = (newFiles: File | File[]) => {
   
   if (validFiles.length === 0) return
   
-  // Add only as many as we can fit (up to 20 total)
+  // Add only as many as we can fit (up to plan limit)
   const filesToAdd = validFiles.slice(0, remainingSlots)
   form.value.images = [...form.value.images, ...filesToAdd]
 }

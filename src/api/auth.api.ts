@@ -12,6 +12,7 @@ import { useAuthStore } from '@/stores/auth.store'
 import { normalizeUser } from '@/utils/user'
 import { getStoredAccessToken, clearTokens } from '@/utils/token'
 import { loadSubscriptionFeatures } from '@/api/subscription-features.api'
+import { getSubscriptionFeatures } from '@/utils/subscriptionFeatures'
 import type { UserModel } from '@/models/user.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import router from '@/router'
@@ -186,7 +187,8 @@ export async function getCurrentUser(): Promise<UserModel> {
       authStore.setSubscriptionFeatures(features)
     } else {
       // If features are missing and user is dealer/staff (not admin), try to load them from dedicated endpoint
-      if (user && !authStore.isAdmin && Object.keys(authStore.subscriptionFeatures).length === 0) {
+      const currentFeatures = getSubscriptionFeatures()
+      if (user && !authStore.isAdmin && Object.keys(currentFeatures).length === 0) {
         try {
           await loadSubscriptionFeatures()
         } catch (error) {
@@ -223,7 +225,8 @@ export async function checkAuth(): Promise<boolean> {
     try {
       await getCurrentUser()
       // After getting user, ensure features are loaded if missing (for dealer/staff users)
-      if (authStore.user && !authStore.isAdmin && Object.keys(authStore.subscriptionFeatures).length === 0) {
+      const featuresAfterMe = getSubscriptionFeatures()
+      if (authStore.user && !authStore.isAdmin && Object.keys(featuresAfterMe).length === 0) {
         try {
           await loadSubscriptionFeatures()
         } catch (error) {
@@ -239,7 +242,8 @@ export async function checkAuth(): Promise<boolean> {
   }
 
   // If we have both token and user, ensure features are loaded if missing (for dealer/staff users)
-  if (authStore.isAuthenticated && !authStore.isAdmin && Object.keys(authStore.subscriptionFeatures).length === 0) {
+  const currentFeatures = getSubscriptionFeatures()
+  if (authStore.isAuthenticated && !authStore.isAdmin && Object.keys(currentFeatures).length === 0) {
     try {
       await loadSubscriptionFeatures()
     } catch (error) {
