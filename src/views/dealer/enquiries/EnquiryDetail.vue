@@ -14,7 +14,7 @@
         <div class="flex-grow-1">
           <h1 class="text-h4 font-weight-bold mb-1">{{ t('dealer.views.enquiries.enquiryDetails') }}</h1>
           <p class="text-body-2 text-medium-emphasis mb-0">
-            View and manage customer enquiry information
+            {{ t('dealer.views.enquiries.viewSubtitle') }}
           </p>
         </div>
         <v-btn
@@ -34,7 +34,7 @@
     <!-- Loading State -->
     <div v-if="loading && !enquiry" class="text-center py-12">
       <v-progress-circular indeterminate color="primary" size="64" />
-      <p class="text-body-2 text-medium-emphasis mt-4">Loading enquiry details...</p>
+      <p class="text-body-2 text-medium-emphasis mt-4">{{ t('dealer.views.enquiries.loadingDetails') }}</p>
     </div>
 
     <!-- Error State -->
@@ -66,7 +66,7 @@
             <v-card-title class="d-flex align-center justify-space-between">
               <div class="d-flex align-center gap-2">
                 <v-icon color="primary">mdi-email</v-icon>
-                <span>Enquiry Message</span>
+                <span>{{ t('dealer.views.enquiries.enquiryMessage') }}</span>
               </div>
               <v-chip
                 size="small"
@@ -80,12 +80,12 @@
             </v-card-title>
             <v-card-text>
               <div class="mb-4">
-                <div class="text-caption text-medium-emphasis mb-1">Subject</div>
+                <div class="text-caption text-medium-emphasis mb-1">{{ t('dealer.views.enquiries.subject') }}</div>
                 <div class="text-h6 font-weight-bold">{{ enquiry.subject }}</div>
               </div>
               <v-divider class="my-4" />
               <div>
-                <div class="text-caption text-medium-emphasis mb-2">Message</div>
+                <div class="text-caption text-medium-emphasis mb-2">{{ t('dealer.views.enquiries.message') }}</div>
                 <div class="message-content">{{ enquiry.message }}</div>
               </div>
             </v-card-text>
@@ -100,7 +100,7 @@
               borderColor: 'var(--border)',
             }"
           >
-            <v-card-title class="text-subtitle-1">Quick Actions</v-card-title>
+            <v-card-title class="text-subtitle-1">{{ t('dealer.views.enquiries.quickActions') }}</v-card-title>
             <v-card-text>
               <div class="d-flex flex-wrap gap-2">
                 <v-btn
@@ -128,7 +128,7 @@
                   prepend-icon="mdi-car"
                   :to="{ name: 'dealer.vehicles.detail', params: { id: enquiry.vehicleId } }"
                 >
-                  View Vehicle
+                  {{ t('dealer.views.enquiries.viewVehicle') }}
                 </v-btn>
                 <v-btn
                   v-if="enquiry.user?.email"
@@ -137,7 +137,7 @@
                   prepend-icon="mdi-email-outline"
                   :href="`mailto:${enquiry.user.email}?subject=Re: ${enquiry.subject}`"
                 >
-                  Reply via Email
+                  {{ t('dealer.views.enquiries.replyViaEmail') }}
                 </v-btn>
                 <v-btn
                   v-if="enquiry.user?.phone"
@@ -146,7 +146,7 @@
                   prepend-icon="mdi-phone"
                   :href="`tel:${enquiry.user.phone}`"
                 >
-                  Call Customer
+                  {{ t('dealer.views.enquiries.callCustomer') }}
                 </v-btn>
               </div>
             </v-card-text>
@@ -164,10 +164,10 @@
               borderColor: 'var(--border)',
             }"
           >
-            <v-card-title class="text-subtitle-1">Status & Type</v-card-title>
+            <v-card-title class="text-subtitle-1">{{ t('dealer.views.enquiries.status') }} & {{ t('dealer.views.enquiries.type') }}</v-card-title>
             <v-card-text>
               <div class="mb-4">
-                <div class="text-caption text-medium-emphasis mb-2">Status</div>
+                <div class="text-caption text-medium-emphasis mb-2">{{ t('dealer.views.enquiries.status') }}</div>
                 <v-select
                   v-model="selectedStatus"
                   :items="statusOptions"
@@ -181,7 +181,7 @@
                 />
               </div>
               <div>
-                <div class="text-caption text-medium-emphasis mb-2">Type</div>
+                <div class="text-caption text-medium-emphasis mb-2">{{ t('dealer.views.enquiries.type') }}</div>
                 <v-select
                   v-model="selectedType"
                   :items="typeOptions"
@@ -209,7 +209,7 @@
           >
             <v-card-title class="d-flex align-center gap-2">
               <v-icon>mdi-account</v-icon>
-              <span>Customer</span>
+              <span>{{ t('dealer.views.enquiries.customer') }}</span>
             </v-card-title>
             <v-card-text>
               <div class="d-flex align-center gap-3 mb-4">
@@ -218,7 +218,7 @@
                 </v-avatar>
                 <div class="flex-grow-1">
                   <div class="text-h6 font-weight-bold">{{ enquiry.user.name }}</div>
-                  <div class="text-caption text-medium-emphasis">{{ enquiry.user.email || 'N/A' }}</div>
+                  <div class="text-caption text-medium-emphasis">{{ enquiry.user.email || t('common.na') }}</div>
                 </div>
               </div>
               <v-divider class="my-3" />
@@ -251,7 +251,7 @@
           >
             <v-card-title class="d-flex align-center gap-2">
               <v-icon>mdi-car</v-icon>
-              <span>Vehicle</span>
+              <span>{{ t('dealer.views.enquiries.vehicle') }}</span>
             </v-card-title>
             <v-card-text>
               <div class="mb-3">
@@ -270,7 +270,7 @@
                 prepend-icon="mdi-arrow-right"
                 :to="{ name: 'dealer.vehicles.detail', params: { id: enquiry.vehicleId } }"
               >
-                View Vehicle Details
+                {{ t('dealer.views.enquiries.viewVehicleDetails') }}
               </v-btn>
             </v-card-text>
           </v-card>
@@ -283,29 +283,29 @@
               borderColor: 'var(--border)',
             }"
           >
-            <v-card-title class="text-subtitle-1">Details</v-card-title>
+            <v-card-title class="text-subtitle-1">{{ t('dealer.views.enquiries.details') }}</v-card-title>
             <v-card-text>
               <div class="d-flex flex-column gap-3">
                 <div>
-                  <div class="text-caption text-medium-emphasis mb-1">Serial Number</div>
+                  <div class="text-caption text-medium-emphasis mb-1">{{ t('dealer.views.enquiries.serialNumber') }}</div>
                   <div class="text-body-2 font-weight-medium">
-                    {{ enquiry.serialNo ? `#${enquiry.serialNo}` : 'N/A' }}
+                    {{ enquiry.serialNo ? `#${enquiry.serialNo}` : t('common.na') }}
                   </div>
                 </div>
                 <v-divider />
                 <div>
-                  <div class="text-caption text-medium-emphasis mb-1">Source</div>
-                  <div class="text-body-2 font-weight-medium">{{ enquiry.source || 'N/A' }}</div>
+                  <div class="text-caption text-medium-emphasis mb-1">{{ t('dealer.views.enquiries.source') }}</div>
+                  <div class="text-body-2 font-weight-medium">{{ enquiry.source || t('common.na') }}</div>
                 </div>
                 <v-divider />
                 <div>
-                  <div class="text-caption text-medium-emphasis mb-1">Submitted</div>
+                  <div class="text-caption text-medium-emphasis mb-1">{{ t('dealer.views.enquiries.submitted') }}</div>
                   <div class="text-body-2 font-weight-medium">{{ formatDate(enquiry.createdAt) }}</div>
                   <div class="text-caption text-medium-emphasis">{{ formatTimeAgo(enquiry.createdAt) }}</div>
                 </div>
                 <v-divider v-if="enquiry.updatedAt" />
                 <div v-if="enquiry.updatedAt">
-                  <div class="text-caption text-medium-emphasis mb-1">Last Updated</div>
+                  <div class="text-caption text-medium-emphasis mb-1">{{ t('dealer.views.enquiries.lastUpdated') }}</div>
                   <div class="text-body-2 font-weight-medium">{{ formatDate(enquiry.updatedAt) }}</div>
                 </div>
               </div>
@@ -320,7 +320,7 @@
       <v-card>
         <v-card-title class="d-flex align-center">
           <v-icon class="mr-2">mdi-flag</v-icon>
-          Update Status
+          {{ t('dealer.views.enquiries.updateStatus') }}
         </v-card-title>
         <v-card-text>
           <v-select
@@ -328,7 +328,7 @@
             :items="statusOptions"
             item-title="label"
             item-value="value"
-            label="Status"
+            :label="t('dealer.views.enquiries.status')"
             variant="outlined"
             :prepend-icon="getStatusIcon(selectedStatus)"
           />
@@ -336,7 +336,7 @@
         <v-card-actions>
           <v-spacer />
           <v-btn variant="text" @click="showStatusDialog = false" :disabled="updating">
-            Cancel
+            {{ t('common.cancel') }}
           </v-btn>
           <v-btn
             color="primary"
@@ -344,7 +344,7 @@
             :loading="updating"
             prepend-icon="mdi-check"
           >
-            Update
+            {{ t('common.update') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -355,7 +355,7 @@
       <v-card>
         <v-card-title class="d-flex align-center">
           <v-icon class="mr-2">mdi-tag</v-icon>
-          Update Type
+          {{ t('dealer.views.enquiries.updateType') }}
         </v-card-title>
         <v-card-text>
           <v-select
@@ -363,7 +363,7 @@
             :items="typeOptions"
             item-title="label"
             item-value="value"
-            label="Type"
+            :label="t('dealer.views.enquiries.type')"
             variant="outlined"
             :prepend-icon="getTypeIcon(selectedType)"
           />
@@ -371,7 +371,7 @@
         <v-card-actions>
           <v-spacer />
           <v-btn variant="text" @click="showTypeDialog = false" :disabled="updating">
-            Cancel
+            {{ t('common.cancel') }}
           </v-btn>
           <v-btn
             color="primary"
@@ -379,7 +379,7 @@
             :loading="updating"
             prepend-icon="mdi-check"
           >
-            Update
+            {{ t('common.update') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -552,7 +552,7 @@ const loadEnquiry = async () => {
 }
 
 const formatDate = (date?: string) => {
-  if (!date) return 'N/A'
+  if (!date) return t('common.na')
   return new Date(date).toLocaleString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -568,7 +568,7 @@ const formatTimeAgo = (date?: string) => {
   const then = new Date(date)
   const diffInSeconds = Math.floor((now.getTime() - then.getTime()) / 1000)
   
-  if (diffInSeconds < 60) return 'Just now'
+  if (diffInSeconds < 60) return t('common.justNow')
   if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`
   if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`
   if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`

@@ -1,7 +1,7 @@
 <template>
   <div class="notifications-button-wrapper" style="position: relative;">
     <button
-      aria-label="Notifications"
+      :aria-label="t('dealerComponents.notificationsButton.ariaLabel')"
       class="notifications-button"
       :style="{
         display: 'inline-flex',
@@ -60,9 +60,11 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 
+const { t } = useI18n()
 const route = useRoute()
 
 const count = ref(0)

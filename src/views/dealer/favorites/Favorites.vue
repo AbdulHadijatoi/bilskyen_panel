@@ -151,7 +151,7 @@ const viewVehicle = (vehicleId: number) => {
 }
 
 const formatPrice = (price?: number) => {
-  if (!price) return 'N/A'
+  if (!price) return t('common.na')
   return new Intl.NumberFormat('da-DK', {
     style: 'currency',
     currency: 'DKK',
@@ -159,7 +159,7 @@ const formatPrice = (price?: number) => {
 }
 
 const formatMileage = (mileage?: number) => {
-  if (!mileage) return 'N/A'
+  if (!mileage) return t('common.na')
   return new Intl.NumberFormat('da-DK').format(mileage) + ' km'
 }
 

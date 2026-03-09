@@ -3,9 +3,9 @@
     <div class="financial-overview-header" :style="{ padding: 0, borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }">
       <div class="d-flex align-center flex-wrap" style="gap: 0.5rem;">
         <div class="d-flex flex-column flex-1" style="gap: 0.25rem;">
-          <h2 class="text-xl font-semibold mb-0" style="line-height: 1.5;">Financial Overview</h2>
+          <h2 class="text-xl font-semibold mb-0" style="line-height: 1.5;">{{ t('dealerDashboard.financialOverview') }}</h2>
           <p class="text-sm mb-0" style="color: var(--muted-foreground);">
-            Showing financial metrics for the last {{ granularity }}.
+            {{ t('dealerDashboard.showingFinancialMetrics', { period: granularity }) }}
           </p>
         </div>
 
@@ -25,7 +25,7 @@
     <div class="financial-overview-content" :style="{ padding: '2rem 0', paddingBottom: '2rem' }">
       <div v-if="loading || chartData.length === 0" class="d-flex align-center justify-center" :style="{ height: '250px', width: '100%', backgroundColor: 'var(--muted)', borderRadius: '0.5rem' }">
         <p class="text-sm" style="color: var(--muted-foreground);">
-          {{ loading ? 'Loading chart data...' : 'No financial overview data available.' }}
+          {{ loading ? t('dealerDashboard.loadingChartData') : t('dealerDashboard.noFinancialData') }}
         </p>
       </div>
       <div
@@ -45,6 +45,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { LineChart } from 'echarts/charts'
@@ -71,6 +72,8 @@ use([
 
 provide(THEME_KEY, 'light')
 
+const { t } = useI18n()
+
 interface ChartDataPoint {
   periodStart: string
   revenue: number
@@ -80,12 +83,12 @@ interface ChartDataPoint {
 }
 
 const granularity = ref<'week' | 'month' | 'quarter' | 'year'>('year')
-const periods = [
-  { title: 'Week', value: 'week' },
-  { title: 'Month', value: 'month' },
-  { title: 'Quarter', value: 'quarter' },
-  { title: 'Year', value: 'year' },
-]
+const periods = computed(() => [
+  { title: t('dealerDashboard.periodWeek'), value: 'week' },
+  { title: t('dealerDashboard.periodMonth'), value: 'month' },
+  { title: t('dealerDashboard.periodQuarter'), value: 'quarter' },
+  { title: t('dealerDashboard.periodYear'), value: 'year' },
+])
 
 const chartData = ref<ChartDataPoint[]>([])
 const loading = ref(true)

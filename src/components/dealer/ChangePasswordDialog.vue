@@ -3,7 +3,7 @@
     <v-card>
       <v-card-title class="d-flex align-center">
         <v-icon class="mr-2">mdi-lock-reset</v-icon>
-        Change Password
+        {{ t('dealerComponents.changePasswordDialog.title') }}
       </v-card-title>
 
       <v-divider />
@@ -13,7 +13,7 @@
           <!-- Current Password -->
           <v-text-field
             v-model="form.current_password"
-            label="Current Password"
+            :label="t('dealerComponents.changePasswordDialog.currentPassword')"
             type="password"
             density="compact"
             variant="outlined"
@@ -27,12 +27,12 @@
           <!-- New Password -->
           <v-text-field
             v-model="form.password"
-            label="New Password"
+            :label="t('dealerComponents.changePasswordDialog.newPassword')"
             type="password"
             density="compact"
             variant="outlined"
             :rules="[rules.required, rules.password]"
-            hint="Password must be at least 8 characters"
+            :hint="t('dealerComponents.changePasswordDialog.passwordMinHint')"
             persistent-hint
             hide-details="auto"
             prepend-inner-icon="mdi-lock-outline"
@@ -43,7 +43,7 @@
           <!-- Confirm Password -->
           <v-text-field
             v-model="form.password_confirmation"
-            label="Confirm New Password"
+            :label="t('dealerComponents.changePasswordDialog.confirmNewPassword')"
             type="password"
             density="compact"
             variant="outlined"
@@ -77,7 +77,7 @@
             @click:close="validationErrors = {}"
           >
             <div class="mb-2">
-              <strong>Please fix the following errors:</strong>
+              <strong>{{ t('dealerComponents.changePasswordDialog.fixErrors') }}</strong>
             </div>
             <ul class="mb-0 pl-4">
               <li v-for="(errors, field) in validationErrors" :key="field">
@@ -94,7 +94,7 @@
             density="compact"
             class="mt-4"
           >
-            Password changed successfully!
+            {{ t('dealerComponents.changePasswordDialog.passwordChangedSuccess') }}
           </v-alert>
         </v-form>
       </v-card-text>
@@ -108,7 +108,7 @@
           @click="close"
           :disabled="submitting"
         >
-          Cancel
+          {{ t('dealerComponents.changePasswordDialog.cancel') }}
         </v-btn>
         <v-btn
           color="primary"
@@ -118,7 +118,7 @@
           @click="handleSubmit"
         >
           <v-icon start>{{ submitting ? 'mdi-loading' : 'mdi-check' }}</v-icon>
-          {{ submitting ? 'Changing...' : 'Change Password' }}
+          {{ submitting ? t('dealerComponents.changePasswordDialog.changing') : t('dealerComponents.changePasswordDialog.changePassword') }}
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -127,9 +127,12 @@
 
 <script setup lang="ts">
 import { ref, reactive, watch, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { changePassword, type ChangePasswordData } from '@/api/auth.api'
 import { changeOwnPassword, type ChangeOwnPasswordData } from '@/api/admin.api'
 import { useAuthStore } from '@/stores/auth.store'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   modelValue: boolean
@@ -176,15 +179,15 @@ watch(dialog, (newVal) => {
 
 // Validation rules
 const rules = {
-  required: (value: string) => !!value || 'This field is required',
+  required: (value: string) => !!value || t('dealerComponents.staff.thisFieldRequired'),
   password: (value: string) => {
     if (!value) return true
-    if (value.length < 8) return 'Password must be at least 8 characters'
+    if (value.length < 8) return t('dealerComponents.changePasswordDialog.passwordMinLength')
     return true
   },
   passwordMatch: (value: string) => {
     if (!value) return true
-    if (value !== form.password) return 'Passwords do not match'
+    if (value !== form.password) return t('dealerComponents.changePasswordDialog.passwordsDoNotMatch')
     return true
   },
 }
@@ -242,7 +245,7 @@ const handleSubmit = async () => {
     if (err?.errors && typeof err.errors === 'object') {
       validationErrors.value = err.errors
     } else {
-      error.value = err?.message || 'Failed to change password. Please try again.'
+      error.value = err?.message || t('dealerComponents.changePasswordDialog.failedChangePassword')
     }
   } finally {
     submitting.value = false

@@ -120,7 +120,7 @@
                   v-if="profile?.logo"
                   :key="logoCacheBuster"
                   :src="profile.logo + (profile.logo.includes('?') ? '&' : '?') + 't=' + logoCacheBuster"
-                  alt="Dealer logo"
+                  :alt="t('dealer.views.profile.dealerLogo')"
                   class="w-100 h-100 object-fit-cover"
                 />
                 <div v-else class="w-100 h-100 d-flex align-center justify-center text-medium-emphasis">

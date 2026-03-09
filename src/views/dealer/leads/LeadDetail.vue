@@ -85,7 +85,7 @@
                 <v-col cols="12" md="6">
                   <div class="mb-3">
                     <div class="text-caption text-medium-emphasis mb-1">{{ t('dealer.views.leadsDetail.name') }}</div>
-                    <div class="font-weight-medium text-h6">{{ lead.name || 'N/A' }}</div>
+                    <div class="font-weight-medium text-h6">{{ lead.name || t('common.na') }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" md="6">
@@ -95,7 +95,7 @@
                       <a v-if="lead.email" :href="`mailto:${lead.email}`" class="text-primary">
                         {{ lead.email }}
                       </a>
-                      <span v-else>N/A</span>
+                      <span v-else>{{ t('common.na') }}</span>
                     </div>
                   </div>
                 </v-col>
@@ -106,14 +106,14 @@
                       <a v-if="lead.phone" :href="`tel:${lead.phone}`" class="text-primary">
                         {{ lead.phone }}
                       </a>
-                      <span v-else>N/A</span>
+                      <span v-else>{{ t('common.na') }}</span>
                     </div>
                   </div>
                 </v-col>
                 <v-col cols="12" md="6">
                   <div class="mb-3">
                     <div class="text-caption text-medium-emphasis mb-1">{{ t('dealer.views.leadsDetail.source') }}</div>
-                    <div class="font-weight-medium">{{ lead.source || 'N/A' }}</div>
+                    <div class="font-weight-medium">{{ lead.source || t('common.na') }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" v-if="lead.message || lead.enquiry">
@@ -263,13 +263,13 @@
                 <v-col cols="12" md="6">
                   <div class="mb-2">
                     <div class="text-caption text-medium-emphasis">{{ t('dealer.views.leadsDetail.titleLabel') }}</div>
-                    <div class="font-weight-medium">{{ lead.vehicle.title || 'N/A' }}</div>
+                    <div class="font-weight-medium">{{ lead.vehicle.title || t('common.na') }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" md="6">
                   <div class="mb-2">
                     <div class="text-caption text-medium-emphasis">{{ t('dealer.views.leadsDetail.registration') }}</div>
-                    <div class="font-weight-medium">{{ lead.vehicle.registration || 'N/A' }}</div>
+                    <div class="font-weight-medium">{{ lead.vehicle.registration || t('common.na') }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" md="6" v-if="lead.vehicle.price">
@@ -669,7 +669,7 @@ const loadStaff = async () => {
 }
 
 const formatPrice = (price?: number) => {
-  if (!price) return 'N/A'
+  if (!price) return t('common.na')
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',

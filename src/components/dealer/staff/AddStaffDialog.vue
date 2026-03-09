@@ -7,7 +7,7 @@
     >
       <v-card-title class="d-flex align-center pa-4">
         <v-icon class="mr-2">mdi-account-plus</v-icon>
-        Add Staff Member
+        {{ t('dealerComponents.staff.addStaffMember') }}
       </v-card-title>
 
       <v-divider />
@@ -16,7 +16,7 @@
         <v-form ref="formRef" v-model="formValid" @submit.prevent="handleSubmit">
           <v-text-field
             v-model="form.name"
-            label="Full Name"
+            :label="t('dealerComponents.staff.fullName')"
             density="compact"
             variant="outlined"
             :rules="rules.name"
@@ -28,7 +28,7 @@
 
           <v-text-field
             v-model="form.email"
-            label="Email Address (Optional)"
+            :label="t('dealerComponents.staff.emailOptional')"
             type="email"
             density="compact"
             variant="outlined"
@@ -40,7 +40,7 @@
 
           <v-text-field
             v-model="form.phone"
-            label="Phone (Optional)"
+            :label="t('dealerComponents.staff.phoneOptional')"
             density="compact"
             variant="outlined"
             :rules="rules.phone"
@@ -51,7 +51,7 @@
 
           <v-text-field
             v-model="form.password"
-            label="Password"
+            :label="t('dealerComponents.staff.password')"
             type="password"
             density="compact"
             variant="outlined"
@@ -99,7 +99,7 @@
             @click:close="validationErrors = {}"
           >
             <div class="mb-2">
-              <strong>Please fix the following errors:</strong>
+              <strong>{{ t('dealerComponents.staff.fixErrors') }}</strong>
             </div>
             <ul class="mb-0 pl-4">
               <li v-for="(errors, field) in validationErrors" :key="field">
@@ -119,7 +119,7 @@
           @click="close"
           :disabled="submitting"
         >
-          Cancel
+          {{ t('dealerComponents.staff.cancel') }}
         </v-btn>
         <v-btn
           color="primary"
@@ -128,7 +128,7 @@
           :disabled="!formValid || submitting"
           @click="handleSubmit"
         >
-          {{ submitting ? 'Creating...' : 'Create Staff' }}
+          {{ submitting ? t('dealerComponents.staff.creating') : t('dealerComponents.staff.createStaff') }}
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -137,7 +137,10 @@
 
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { addStaff, type AddStaffData } from '@/api/dealer.api'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   modelValue: boolean
@@ -172,17 +175,17 @@ const form = reactive<{
 const rules = {
   required: (value: any) => {
     if (value === undefined || value === null || value === '') {
-      return 'This field is required'
+      return t('dealerComponents.staff.thisFieldRequired')
     }
     return true
   },
   name: [
     (value: string) => {
       if (!value || value.trim().length === 0) {
-        return 'Name is required'
+        return t('dealerComponents.staff.nameRequired')
       }
       if (value.length < 2) {
-        return 'Name must be at least 2 characters'
+        return t('dealerComponents.staff.nameMinLength')
       }
       return true
     },
@@ -193,7 +196,7 @@ const rules = {
         return true // Optional field
       }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-        return 'Please enter a valid email address'
+        return t('dealerComponents.staff.emailInvalid')
       }
       return true
     },
@@ -209,10 +212,10 @@ const rules = {
   password: [
     (value: string) => {
       if (!value || value.trim().length === 0) {
-        return 'Password is required'
+        return t('dealerComponents.staff.passwordRequired')
       }
       if (value.length < 8) {
-        return 'Password must be at least 8 characters'
+        return t('dealerComponents.staff.passwordMinLength')
       }
       return true
     },
@@ -274,9 +277,9 @@ const handleSubmit = async () => {
     
     // Show success message with username
     if (result.username) {
-      successMessage.value = `Staff member created successfully! Username: ${result.username}`
+      successMessage.value = t('dealerComponents.staff.staffCreatedWithUsername', { username: result.username })
     } else {
-      successMessage.value = 'Staff member created successfully!'
+      successMessage.value = t('dealerComponents.staff.staffCreatedSuccess')
     }
 
     // Wait a bit before closing to show the success message
@@ -291,7 +294,7 @@ const handleSubmit = async () => {
     if (err?.errors && typeof err.errors === 'object') {
       validationErrors.value = err.errors
     } else {
-      error.value = err?.message || 'Failed to create staff member. Please try again.'
+      error.value = err?.message || t('dealerComponents.staff.failedCreateStaff')
     }
   } finally {
     submitting.value = false

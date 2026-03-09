@@ -220,7 +220,7 @@
               </template>
               <template #item.vehicle="{ item }">
                 <div v-if="item.vehicle" class="text-caption">
-                  {{ item.vehicle.title || item.vehicle.registration || 'N/A' }}
+                  {{ item.vehicle.title || item.vehicle.registration || t('common.na') }}
                         </div>
                 <div v-else class="text-medium-emphasis">{{ t('dealer.views.leads.noVehicle') }}</div>
               </template>

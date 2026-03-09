@@ -198,7 +198,7 @@
                 />
               </div>
               <div>
-                <div class="font-weight-medium">{{ item.title || 'N/A' }}</div>
+                <div class="font-weight-medium">{{ item.title || t('common.na') }}</div>
                 <div class="text-caption text-medium-emphasis">
                   {{ item.registration || t('common.noRegistration') }}
                 </div>
@@ -218,7 +218,7 @@
               size="small"
               variant="flat"
             >
-              {{ item.status || item.vehicleListStatusName || 'N/A' }}
+              {{ item.status || item.vehicleListStatusName || t('common.na') }}
             </v-chip>
           </template>
           
@@ -454,7 +454,7 @@ const getStatusColor = (status?: string) => {
 }
 
 const formatPrice = (price?: number) => {
-  if (!price) return 'N/A'
+  if (!price) return t('common.na')
   return new Intl.NumberFormat('da-DK', {
     style: 'currency',
     currency: 'DKK',

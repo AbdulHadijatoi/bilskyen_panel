@@ -7,7 +7,7 @@
     >
       <v-card-title class="d-flex align-center pa-4">
         <v-icon class="mr-2">mdi-account-edit</v-icon>
-        Edit Staff Member
+        {{ t('dealerComponents.staff.editStaffMember') }}
       </v-card-title>
 
       <v-divider />
@@ -16,9 +16,9 @@
         <v-form ref="formRef" v-model="formValid" @submit.prevent="handleSubmit">
           <!-- Username (Read-only with copy) -->
           <div class="mb-4">
-            <div class="text-caption text-medium-emphasis mb-1">Username</div>
+            <div class="text-caption text-medium-emphasis mb-1">{{ t('dealerComponents.staff.username') }}</div>
             <div class="d-flex align-center">
-              <div class="text-body-2 font-weight-medium mr-2">{{ staffMember?.username || 'N/A' }}</div>
+              <div class="text-body-2 font-weight-medium mr-2">{{ staffMember?.username || t('common.na') }}</div>
               <v-btn
                 icon
                 size="small"
@@ -29,15 +29,15 @@
                 <v-icon size="small">mdi-content-copy</v-icon>
               </v-btn>
               <v-snackbar v-model="copiedSnackbar" timeout="2000" color="success">
-                Username copied to clipboard!
+                {{ t('dealer.views.staff.usernameCopied') }}
               </v-snackbar>
             </div>
           </div>
 
           <!-- Email (Read-only) -->
           <div class="mb-4">
-            <div class="text-caption text-medium-emphasis mb-1">Email</div>
-            <div class="text-body-2 font-weight-medium">{{ staffMember?.email || 'N/A' }}</div>
+            <div class="text-caption text-medium-emphasis mb-1">{{ t('dealerComponents.staff.email') }}</div>
+            <div class="text-body-2 font-weight-medium">{{ staffMember?.email || t('common.na') }}</div>
           </div>
 
           <v-divider class="my-4" />
@@ -45,7 +45,7 @@
           <!-- Editable Fields -->
           <v-text-field
             v-model="form.name"
-            label="Full Name"
+            :label="t('dealerComponents.staff.fullName')"
             density="compact"
             variant="outlined"
             :rules="rules.name"
@@ -57,7 +57,7 @@
 
           <v-text-field
             v-model="form.phone"
-            label="Phone"
+            :label="t('dealer.views.profile.phone')"
             density="compact"
             variant="outlined"
             :rules="rules.phone"
@@ -69,7 +69,7 @@
           <!-- Password Change Toggle -->
           <v-checkbox
             v-model="changePassword"
-            label="Change Password"
+            :label="t('dealerComponents.staff.changePassword')"
             density="compact"
             hide-details="auto"
             class="mb-2"
@@ -78,7 +78,7 @@
           <v-text-field
             v-if="changePassword"
             v-model="form.password"
-            label="New Password"
+            :label="t('dealerComponents.staff.newPassword')"
             type="password"
             density="compact"
             variant="outlined"
@@ -112,7 +112,7 @@
             @click:close="validationErrors = {}"
           >
             <div class="mb-2">
-              <strong>Please fix the following errors:</strong>
+              <strong>{{ t('dealerComponents.staff.fixErrors') }}</strong>
             </div>
             <ul class="mb-0 pl-4">
               <li v-for="(errors, field) in validationErrors" :key="field">
@@ -132,7 +132,7 @@
           @click="close"
           :disabled="submitting"
         >
-          Cancel
+          {{ t('dealerComponents.staff.cancel') }}
         </v-btn>
         <v-btn
           color="primary"
@@ -141,7 +141,7 @@
           :disabled="!formValid || submitting"
           @click="handleSubmit"
         >
-          {{ submitting ? 'Updating...' : 'Update' }}
+          {{ submitting ? t('dealerComponents.staff.updating') : t('dealerComponents.staff.update') }}
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -150,7 +150,10 @@
 
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { updateStaff, type UpdateStaffData } from '@/api/dealer.api'
+
+const { t } = useI18n()
 
 export interface StaffMember {
   id: number
@@ -194,10 +197,10 @@ const rules = {
   name: [
     (value: string) => {
       if (!value || value.trim().length === 0) {
-        return 'Name is required'
+        return t('dealerComponents.staff.nameRequired')
       }
       if (value.length < 2) {
-        return 'Name must be at least 2 characters'
+        return t('dealerComponents.staff.nameMinLength')
       }
       return true
     },
@@ -216,10 +219,10 @@ const rules = {
         return true // Not required if checkbox is unchecked
       }
       if (!value || value.trim().length === 0) {
-        return 'Password is required when changing password'
+        return t('dealerComponents.staff.passwordRequiredWhenChanging')
       }
       if (value.length < 8) {
-        return 'Password must be at least 8 characters'
+        return t('dealerComponents.staff.passwordMinLength')
       }
       return true
     },
@@ -340,7 +343,7 @@ const handleSubmit = async () => {
     if (err?.errors && typeof err.errors === 'object') {
       validationErrors.value = err.errors
     } else {
-      error.value = err?.message || 'Failed to update staff member. Please try again.'
+      error.value = err?.message || t('dealerComponents.staff.failedUpdateStaff')
     }
   } finally {
     submitting.value = false

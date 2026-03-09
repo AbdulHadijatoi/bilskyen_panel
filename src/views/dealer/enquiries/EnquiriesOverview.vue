@@ -244,14 +244,14 @@
                 </v-avatar>
                 <div>
                   <div class="font-weight-medium text-body-2">{{ item.user.name }}</div>
-                  <div class="text-caption text-medium-emphasis">{{ item.user.email || 'N/A' }}</div>
+                  <div class="text-caption text-medium-emphasis">{{ item.user.email || t('common.na') }}</div>
                   <div v-if="item.user.phone" class="text-caption text-medium-emphasis">
                     <v-icon size="12">mdi-phone</v-icon>
                     {{ item.user.phone }}
                   </div>
                 </div>
               </div>
-              <span v-else class="text-medium-emphasis">N/A</span>
+              <span v-else class="text-medium-emphasis">{{ t('common.na') }}</span>
             </template>
 
             <template #item.vehicle="{ item }">
@@ -266,7 +266,7 @@
                   </div>
                 </div>
               </div>
-              <span v-else class="text-medium-emphasis">N/A</span>
+              <span v-else class="text-medium-emphasis">{{ t('common.na') }}</span>
             </template>
 
             <template #item.type="{ item }">
@@ -728,7 +728,7 @@ const loadEnquiries = async () => {
 }
 
 const formatDate = (date?: string) => {
-  if (!date) return 'N/A'
+  if (!date) return t('common.na')
   return new Date(date).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -742,7 +742,7 @@ const formatTimeAgo = (date?: string) => {
   const then = new Date(date)
   const diffInSeconds = Math.floor((now.getTime() - then.getTime()) / 1000)
   
-  if (diffInSeconds < 60) return 'Just now'
+  if (diffInSeconds < 60) return t('common.justNow')
   if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`
   if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`
   if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`

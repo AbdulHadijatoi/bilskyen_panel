@@ -188,7 +188,7 @@ const createSearch = async () => {
 }
 
 const deleteSearch = async (id: number | string) => {
-  if (!confirm('Are you sure you want to delete this saved search?')) return
+  if (!confirm(t('dealer.views.savedSearches.confirmDeleteSavedSearch'))) return
 
   try {
     await deleteSavedSearch(id)
@@ -207,14 +207,14 @@ const applySearch = (search: SavedSearchModel) => {
 }
 
 const formatFilters = (filters: Record<string, any>) => {
-  if (!filters || Object.keys(filters).length === 0) return 'No filters'
+  if (!filters || Object.keys(filters).length === 0) return t('dealer.views.savedSearches.noFilters')
   return Object.entries(filters)
     .map(([key, value]) => `${key}: ${value}`)
     .join(', ')
 }
 
 const formatDate = (date?: string) => {
-  if (!date) return 'N/A'
+  if (!date) return t('common.na')
   return new Date(date).toLocaleDateString()
 }
 

@@ -3,11 +3,11 @@
     <div class="vehicles-overview-header" :style="{ padding: 0, marginBottom: '1.5rem' }">
       <div class="d-flex justify-space-between align-center mb-0">
         <div>
-          <h3 class="text-xl font-semibold mb-0">Vehicles Overview</h3>
-          <p class="text-sm mb-0" style="color: var(--muted-foreground);">Current stock and status</p>
+          <h3 class="text-xl font-semibold mb-0">{{ t('dealerDashboard.vehiclesOverview') }}</h3>
+          <p class="text-sm mb-0" style="color: var(--muted-foreground);">{{ t('dealerDashboard.vehiclesOverviewSubtitle') }}</p>
         </div>
         <v-chip size="small" variant="outlined" prepend-icon="mdi-car" class="d-flex align-center" style="gap: 0.25rem;">
-          {{ vehiclesOverview?.totalVehicles || 0 }} Total Vehicles
+          {{ vehiclesOverview?.totalVehicles || 0 }} {{ t('dealerDashboard.totalVehicles') }}
         </v-chip>
       </div>
     </div>
@@ -17,7 +17,7 @@
         <!-- Vehicles Overview -->
         <div class="space-y-3">
           <h4 class="text-sm font-medium mb-0" style="color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.05em;">
-            Vehicles Overview
+            {{ t('dealerDashboard.vehiclesOverview') }}
           </h4>
           <div class="d-grid" style="grid-template-columns: repeat(1, 1fr); gap: 1rem;">
             <div class="d-flex align-center justify-center rounded-lg border pa-4" :style="{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', gap: '0.75rem' }">
@@ -32,7 +32,7 @@
                 <v-icon size="small">mdi-package-variant</v-icon>
               </div>
               <div class="flex-1">
-                <p class="text-sm font-medium mb-0" style="color: var(--muted-foreground);">Available</p>
+                <p class="text-sm font-medium mb-0" style="color: var(--muted-foreground);">{{ t('dealerDashboard.available') }}</p>
                 <p class="text-lg font-semibold mb-0">{{ vehiclesOverview?.availableVehicles || 0 }}</p>
               </div>
             </div>
@@ -48,7 +48,7 @@
                 <v-icon size="small">mdi-clock-outline</v-icon>
               </div>
               <div class="flex-1">
-                <p class="text-sm font-medium mb-0" style="color: var(--muted-foreground);">Pending</p>
+                <p class="text-sm font-medium mb-0" style="color: var(--muted-foreground);">{{ t('dealerDashboard.pending') }}</p>
                 <p class="text-lg font-semibold mb-0">{{ vehiclesOverview?.pendingVehicles || 0 }}</p>
               </div>
             </div>
@@ -64,7 +64,7 @@
                 <v-icon size="small">mdi-wrench</v-icon>
               </div>
               <div class="flex-1">
-                <p class="text-sm font-medium mb-0" style="color: var(--muted-foreground);">Need Work</p>
+                <p class="text-sm font-medium mb-0" style="color: var(--muted-foreground);">{{ t('dealerDashboard.needWork') }}</p>
                 <p class="text-lg font-semibold mb-0">{{ vehiclesOverview?.vehiclesNeedingWork || 0 }}</p>
               </div>
             </div>
@@ -74,7 +74,7 @@
         <!-- Financial Overview -->
         <div class="space-y-3">
           <h4 class="text-sm font-medium mb-0" style="color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.05em;">
-            Financial Overview
+            {{ t('dealerDashboard.financialOverview') }}
           </h4>
           <div class="d-grid" style="grid-template-columns: repeat(1, 1fr); gap: 1rem;">
             <div class="d-flex align-center justify-center rounded-lg border pa-4" :style="{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', gap: '0.75rem' }">
@@ -89,7 +89,7 @@
                 <v-icon size="small">mdi-trending-up</v-icon>
               </div>
               <div class="flex-1">
-                <p class="text-sm font-medium mb-0" style="color: var(--muted-foreground);">Total Inventory Value</p>
+                <p class="text-sm font-medium mb-0" style="color: var(--muted-foreground);">{{ t('dealerDashboard.totalInventoryValue') }}</p>
                 <p class="text-lg font-semibold mb-0">{{ formatCurrency(vehiclesOverview?.totalInventoryValue || 0) }}</p>
               </div>
             </div>
@@ -105,7 +105,7 @@
                 <v-icon size="small">mdi-trending-up</v-icon>
               </div>
               <div class="flex-1">
-                <p class="text-sm font-medium mb-0" style="color: var(--muted-foreground);">Average Vehicle Value</p>
+                <p class="text-sm font-medium mb-0" style="color: var(--muted-foreground);">{{ t('dealerDashboard.averageVehicleValue') }}</p>
                 <p class="text-lg font-semibold mb-0">{{ formatCurrency(vehiclesOverview?.averageVehicleValue || 0) }}</p>
               </div>
             </div>
@@ -118,8 +118,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import axios from 'axios'
 import { API_DEALER_BASE } from '@/constants/app'
+
+const { t } = useI18n()
 
 interface VehiclesOverview {
   totalVehicles: number

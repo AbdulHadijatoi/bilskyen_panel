@@ -2,7 +2,7 @@
   <div class="flex w-full flex-col gap-4">
     <div>
       <h2 class="text-xl font-bold">{{ t('dealer.views.changePassword.title') }}</h2>
-      <p class="text-muted-foreground max-w-2xl">Update your account password.</p>
+      <p class="text-muted-foreground max-w-2xl">{{ t('dealer.views.changePassword.updatePasswordSubtitle') }}</p>
     </div>
     <v-divider class="my-3" />
     <v-card>

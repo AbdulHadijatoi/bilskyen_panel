@@ -7,7 +7,7 @@
     >
       <v-card-title class="d-flex align-center pa-4">
         <v-icon class="mr-2" color="error">mdi-alert-circle</v-icon>
-        Remove Staff Member
+        {{ t('dealerComponents.staff.removeStaffMember') }}
       </v-card-title>
 
       <v-divider />
@@ -15,7 +15,7 @@
       <v-card-text class="pa-4">
         <div class="mb-4">
           <p class="text-body-2 mb-2">
-            Are you sure you want to remove this staff member from your dealer?
+            {{ t('dealerComponents.staff.confirmRemoveStaff') }}
           </p>
           
           <v-card
@@ -26,11 +26,11 @@
           >
             <div class="d-flex align-center mb-2">
               <v-icon class="mr-2" size="20">mdi-account</v-icon>
-              <span class="text-body-2 font-weight-medium">{{ staffMember?.name || 'N/A' }}</span>
+              <span class="text-body-2 font-weight-medium">{{ staffMember?.name || t('common.na') }}</span>
             </div>
             <div class="d-flex align-center mb-2">
               <v-icon class="mr-2" size="20">mdi-email</v-icon>
-              <span class="text-body-2">{{ staffMember?.email || 'N/A' }}</span>
+              <span class="text-body-2">{{ staffMember?.email || t('common.na') }}</span>
             </div>
             <div class="d-flex align-center">
               <v-icon class="mr-2" size="20">mdi-account-cog</v-icon>
@@ -45,8 +45,7 @@
             class="mt-4"
           >
             <div class="text-caption">
-              <strong>Warning:</strong> This action will remove the staff member's access to your dealer account. 
-              They will no longer be able to manage vehicles, leads, or access dealer features.
+              <strong>{{ t('common.warning') }}</strong> {{ t('dealerComponents.staff.confirmRemoveWarning') }}
             </div>
           </v-alert>
         </div>
@@ -74,7 +73,7 @@
           @click="close"
           :disabled="deleting"
         >
-          Cancel
+          {{ t('dealerComponents.staff.cancel') }}
         </v-btn>
         <v-btn
           color="error"
@@ -83,7 +82,7 @@
           :disabled="deleting"
           @click="handleDelete"
         >
-          {{ deleting ? 'Removing...' : 'Remove Staff' }}
+          {{ deleting ? t('dealerComponents.staff.removing') : t('dealerComponents.staff.removeStaff') }}
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -92,7 +91,10 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { removeStaff } from '@/api/dealer.api'
+
+const { t } = useI18n()
 
 export interface StaffMember {
   id: number
@@ -117,13 +119,13 @@ const error = ref<string | null>(null)
 
 // Get role name from ID
 const getRoleName = (roleId?: number): string => {
-  if (!roleId) return 'N/A'
+  if (!roleId) return t('common.na')
   const roleMap: Record<number, string> = {
-    1: 'Owner',
-    2: 'Manager',
-    3: 'Staff',
+    1: t('dealerComponents.staff.roleOwner'),
+    2: t('dealerComponents.staff.roleManager'),
+    3: t('dealerComponents.staff.roleStaff'),
   }
-  return roleMap[roleId] || 'Unknown'
+  return roleMap[roleId] || t('common.unknown')
 }
 
 // Watch for prop changes
@@ -167,7 +169,7 @@ const handleDelete = async () => {
     close()
   } catch (err: any) {
     console.error('Failed to remove staff:', err)
-    error.value = err?.message || 'Failed to remove staff member. Please try again.'
+    error.value = err?.message || t('dealerComponents.staff.failedRemoveStaff')
   } finally {
     deleting.value = false
   }

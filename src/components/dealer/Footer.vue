@@ -3,14 +3,14 @@
     <div class="footer-container">
       <div class="footer-content">
         <p class="footer-copyright">
-          © {{ currentYear }} {{ APP.NAME }}. All rights reserved.
+          {{ t('footer.copyright', { year: currentYear, name: APP.NAME }) }}
         </p>
         <div class="footer-links">
           <router-link to="/privacy" class="footer-link">
-            Privacy Policy
+            {{ t('footer.privacyPolicy') }}
           </router-link>
           <router-link to="/terms" class="footer-link">
-            Terms of Service
+            {{ t('footer.termsOfService') }}
           </router-link>
         </div>
       </div>
@@ -20,8 +20,10 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { APP } from '@/constants/app'
 
+const { t } = useI18n()
 const currentYear = computed(() => new Date().getFullYear())
 </script>
 

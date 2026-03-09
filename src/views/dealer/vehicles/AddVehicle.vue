@@ -1051,10 +1051,10 @@
             <!-- Content Section -->
             <div class="success-content pa-6">
               <h3 class="text-h5 font-weight-bold text-center mb-2">
-                Vehicle Saved Successfully
+                {{ t('dealer.views.addVehicle.vehicleSavedSuccessfully') }}
               </h3>
               <p class="text-body-1 text-center text-medium-emphasis mb-6">
-                Your vehicle has been saved and is ready to be published. What would you like to do next?
+                {{ t('dealer.views.addVehicle.vehicleSavedMessage') }}
               </p>
 
               <!-- Action Buttons -->
@@ -1067,7 +1067,7 @@
                   @click="goToVehiclesList"
                 >
                   <v-icon start>mdi-view-list</v-icon>
-                  View Vehicles List
+                  {{ t('dealer.views.addVehicle.viewVehiclesList') }}
                 </v-btn>
                 <v-btn
                   color="primary"
@@ -1077,7 +1077,7 @@
                   @click="addAnotherVehicle"
                 >
                   <v-icon start>mdi-plus-circle</v-icon>
-                  Add Another Vehicle
+                  {{ t('dealer.views.addVehicle.addAnotherVehicle') }}
                 </v-btn>
               </div>
             </div>
@@ -1095,7 +1095,7 @@
           @click="previousStep"
         >
           <v-icon start>mdi-chevron-left</v-icon>
-          Previous
+          {{ t('dealer.views.addVehicle.previous') }}
         </v-btn>
 
         <div class="d-flex">
@@ -1106,7 +1106,7 @@
             @click="saveAsDraft"
           >
             <v-icon start>mdi-content-save-outline</v-icon>
-            Save Draft
+            {{ t('dealer.views.addVehicle.saveDraft') }}
           </v-btn>
 
           <v-btn
@@ -1115,7 +1115,7 @@
             variant="elevated"
             @click="nextStep"
           >
-            Next
+            {{ t('dealer.views.addVehicle.next') }}
             <v-icon end>mdi-chevron-right</v-icon>
           </v-btn>
 
@@ -1595,24 +1595,24 @@ const loadDealerProfileForContact = async () => {
 
 // Validation rules
 const rules = {
-  required: (v: any) => !!v || 'This field is required',
+  required: (v: any) => !!v || t('dealer.views.addVehicle.fieldRequired'),
   vin: (v: string) => {
     if (!v || !String(v).trim()) return true // Optional
     const s = String(v).trim()
-    if (s.length !== 17) return 'VIN must be exactly 17 characters'
-    return /^[A-HJ-NPR-Z0-9]+$/i.test(s) || 'VIN can only contain letters (except I, O, Q) and numbers'
+    if (s.length !== 17) return t('dealer.views.addVehicle.vinExactLength')
+    return /^[A-HJ-NPR-Z0-9]+$/i.test(s) || t('dealer.views.addVehicle.vinFormat')
   },
   odometer: (v: number | null | undefined) => {
     if (v === null || v === undefined) return true // Optional field
-    return (v >= 0 && v <= 12000000000000) || 'Odometer must be between 0 and 12,000,000,000,000'
+    return (v >= 0 && v <= 12000000000000) || t('dealer.views.addVehicle.odometerRange')
   },
   price: (v: number) => {
     if (v === null || v === undefined) return true
-    return (v >= 0 && v <= 999999999) || 'Price must be between 0 and 999,999,999'
+    return (v >= 0 && v <= 999999999) || t('dealer.views.addVehicle.priceRange')
   },
   description: (v: string) => {
-    if (!v) return 'This field is required'
-    return (v.length >= 1 && v.length <= 5000) || 'Description must be between 1 and 5000 characters'
+    if (!v) return t('dealer.views.addVehicle.fieldRequired')
+    return (v.length >= 1 && v.length <= 5000) || t('dealer.views.addVehicle.descriptionLength')
   },
   requiredImages: (v: File[]) => {
     // This rule is not used anymore - validation is done via computed property
@@ -2399,11 +2399,11 @@ const saveAsDraft = async () => {
     if (draftVehicleId.value) {
       // Update existing draft
       savedVehicle = await updateVehicle(draftVehicleId.value, vehicleData)
-      message = 'Vehicle draft updated successfully'
+      message = t('dealer.views.addVehicle.draftUpdated')
     } else {
       // Create new draft
       savedVehicle = await createVehicleDraft(vehicleData)
-      message = (savedVehicle as any).__message || 'Vehicle draft saved successfully'
+      message = (savedVehicle as any).__message || t('dealer.views.addVehicle.draftSaved')
       // Store the draft vehicle ID for future updates
       draftVehicleId.value = savedVehicle.id
     }

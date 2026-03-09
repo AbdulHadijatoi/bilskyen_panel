@@ -736,7 +736,7 @@ const getFilterLabel = (key: string): string => {
 }
 
 const formatDate = (date?: string): string => {
-  if (!date) return 'N/A'
+  if (!date) return t('common.na')
   return new Date(date).toLocaleString()
 }
 

@@ -18,8 +18,8 @@
       <v-card-text class="pa-6 pt-2">
         <!-- Header -->
         <div class="text-center mb-6">
-          <h2 class="text-h5 font-weight-medium mb-2">Select your plan</h2>
-          <p class="text-body-2 text-medium-emphasis">Pick your preferred plan below</p>
+          <h2 class="text-h5 font-weight-medium mb-2">{{ t('dealerComponents.planSubscriptionDialog.selectYourPlan') }}</h2>
+          <p class="text-body-2 text-medium-emphasis">{{ t('dealerComponents.planSubscriptionDialog.pickPlanBelow') }}</p>
         </div>
 
         <!-- Warning Alert -->
@@ -31,9 +31,9 @@
           class="mb-6"
           icon="mdi-alert"
         >
-          <div class="font-weight-medium mb-1">Warning: Changing your plan</div>
+          <div class="font-weight-medium mb-1">{{ t('dealerComponents.planSubscriptionDialog.warningChangePlan') }}</div>
           <div class="text-body-2">
-            Changing your plan will override your existing subscription. Your current plan will be canceled and replaced with the selected plan.
+            {{ t('dealerComponents.planSubscriptionDialog.warningChangePlanMessage') }}
           </div>
         </v-alert>
 
@@ -49,7 +49,7 @@
               <div class="d-flex justify-space-between align-start">
                 <div class="flex-grow-1">
                   <div class="d-flex align-center mb-2">
-                    <h3 class="text-h6 font-weight-medium mr-2">Monthly Subscription</h3>
+                    <h3 class="text-h6 font-weight-medium mr-2">{{ t('dealerComponents.planSubscriptionDialog.monthlySubscription') }}</h3>
                     <v-chip
                       v-if="plan && plan.trial_days && plan.trial_days > 0"
                       color="success"
@@ -57,14 +57,14 @@
                       variant="flat"
                       class="text-white"
                     >
-                      {{ plan.trial_days }} Days free trial
+                      {{ plan.trial_days }} {{ t('dealerComponents.planSubscriptionDialog.daysFreeTrial') }}
                     </v-chip>
                   </div>
                   <div class="text-h5 font-weight-bold mb-2">
                     {{ formatPrice(getMonthlyPrice()) }}
                   </div>
                   <p class="text-body-2 text-medium-emphasis mb-0">
-                    Enjoy the added benefit of canceling at any time.
+                    {{ t('dealerComponents.planSubscriptionDialog.enjoyCancelAnytime') }}
                   </p>
                 </div>
                 <v-icon
@@ -89,9 +89,9 @@
                 <div class="flex-grow-1">
                   <div class="d-flex align-center mb-2">
                     <h3 class="text-h6 font-weight-medium mr-2">
-                      Yearly Subscription
+                      {{ t('dealerComponents.planSubscriptionDialog.yearlySubscription') }}
                       <span v-if="getYearlySavings() > 0" class="text-body-2 font-weight-normal text-medium-emphasis">
-                        (SAVE {{ getYearlySavingsPercentage() }}%)
+                        {{ t('dealerComponents.planSubscriptionDialog.savePercent', { percent: getYearlySavingsPercentage() }) }}
                       </span>
                     </h3>
                     <v-chip
@@ -101,14 +101,14 @@
                       variant="flat"
                       class="text-white"
                     >
-                      {{ plan.trial_days }} Days free trial
+                      {{ plan.trial_days }} {{ t('dealerComponents.planSubscriptionDialog.daysFreeTrial') }}
                     </v-chip>
                   </div>
                   <div class="text-h5 font-weight-bold mb-2">
                     {{ formatPrice(getYearlyPrice()) }}
                   </div>
                   <p class="text-body-2 text-medium-emphasis mb-0">
-                    Enjoy the added benefit of canceling at any time.
+                    {{ t('dealerComponents.planSubscriptionDialog.enjoyCancelAnytime') }}
                   </p>
                 </div>
                 <v-icon
@@ -134,14 +134,14 @@
             @click="handleConfirm"
             class="flex-grow-1"
           >
-            Confirm your purchase at {{ selectedCycle ? formatPrice(getSelectedPrice()) : '' }}
+            {{ selectedCycle ? t('dealerComponents.planSubscriptionDialog.confirmPurchase', { price: formatPrice(getSelectedPrice()) }) : '' }}
           </v-btn>
         </div>
 
         <!-- Security Footer -->
         <div class="text-center">
           <v-icon size="16" color="grey-darken-1" class="mb-1">mdi-lock</v-icon>
-          <p class="text-caption text-medium-emphasis mb-0">Payment secured by Stripe</p>
+          <p class="text-caption text-medium-emphasis mb-0">{{ t('dealerComponents.planSubscriptionDialog.paymentSecuredByStripe') }}</p>
         </div>
       </v-card-text>
     </v-card>
@@ -150,7 +150,10 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { PlanModel } from '@/api/dealer.api'
+
+const { t } = useI18n()
 
 interface Props {
   plan: PlanModel | null
@@ -245,7 +248,7 @@ const getYearlySavingsPercentage = () => {
 }
 
 const formatPrice = (priceInCents: number) => {
-  if (!priceInCents) return 'N/A'
+  if (!priceInCents) return t('common.na')
   const pricing = getCurrentPricing()
   const currency = pricing?.monthly?.currency || pricing?.yearly?.currency || 'DKK'
   const price = priceInCents / 100

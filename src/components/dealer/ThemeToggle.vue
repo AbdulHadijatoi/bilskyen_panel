@@ -13,19 +13,19 @@
     <v-list>
       <v-list-item
         prepend-icon="mdi-weather-sunny"
-        title="Light"
+        :title="t('dealerComponents.themeToggle.light')"
         :active="themeStore.currentTheme === 'light'"
         @click="handleThemeChange('light')"
       />
       <v-list-item
         prepend-icon="mdi-weather-night"
-        title="Dark"
+        :title="t('dealerComponents.themeToggle.dark')"
         :active="themeStore.currentTheme === 'dark'"
         @click="handleThemeChange('dark')"
       />
       <v-list-item
         prepend-icon="mdi-monitor"
-        title="System"
+        :title="t('dealerComponents.themeToggle.system')"
         :active="themeStore.currentTheme === 'system'"
         @click="handleThemeChange('system')"
       />
@@ -34,8 +34,10 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { useThemeStore } from '@/stores/theme'
 
+const { t } = useI18n()
 const themeStore = useThemeStore()
 
 const handleThemeChange = (theme: 'light' | 'dark' | 'system') => {

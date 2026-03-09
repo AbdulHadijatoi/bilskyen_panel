@@ -72,7 +72,14 @@
     "updatedAt": "Updated At",
     "na": "N/A",
     "userFallback": "User",
-    "toggleSidebar": "Toggle Sidebar"
+    "toggleSidebar": "Toggle Sidebar",
+    "justNow": "Just now",
+    "warning": "Warning"
+  },
+  "footer": {
+    "copyright": "© {year} {name}. All rights reserved.",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service"
   },
   "errors": {
     "NETWORK_ERROR": "Network error. Please check your connection.",
@@ -756,7 +763,8 @@
         "failedLoadDetails": "Failed to load audit log details",
         "auditLogDetails": "Audit Log Details",
         "close": "Close",
-        "failedLoadLogs": "Failed to load audit logs"
+        "failedLoadLogs": "Failed to load audit logs",
+        "createdAt": "Created At"
       },
       "leadsDetail": {
         "title": "Lead Details",
@@ -859,7 +867,11 @@
         "subtitle": "Manage and respond to customer enquiries for your vehicles",
         "new": "New",
         "loadingEnquiries": "Loading enquiries...",
-        "clearFilters": "Clear Filters"
+        "clearFilters": "Clear Filters",
+        "closed": "Closed",
+        "cancelled": "Cancelled",
+        "updatingStatusFor": "Updating status for:",
+        "updatingTypeFor": "Updating type for:"
       },
       "vehicleDetail": {
         "title": "Vehicle Details",
@@ -918,7 +930,51 @@
         "editEquipmentTitle": "Edit Equipment",
         "updateStatusTitle": "Update Vehicle Status",
         "deleteVehicleTitle": "Delete Vehicle",
-        "coverImageIndex": "Cover Image Index"
+        "coverImageIndex": "Cover Image Index",
+        "delete": "Delete",
+        "uploadVehicleImages": "Upload Vehicle Images",
+        "upload": "Upload",
+        "deleteImageConfirmFull": "Are you sure you want to delete this image?",
+        "editEquipment": "Edit Equipment",
+        "save": "Save",
+        "updateStatus": "Update Vehicle Status",
+        "currentStatus": "Current status:",
+        "markAsSold": "Mark as Sold",
+        "deleteVehicleConfirmFull": "Are you sure you want to delete this vehicle?",
+        "deleteVehicleDescriptionFull": "This action will soft delete the vehicle. The vehicle will no longer be visible in the system.",
+        "createdAt": "Created At",
+        "updatedAt": "Updated At",
+        "publishedAt": "Published At",
+        "bodyType": "Body Type",
+        "modelYear": "Model Year",
+        "kmDriven": "KM Driven",
+        "enginePower": "Engine Power",
+        "towingWeight": "Towing Weight",
+        "batteryCapacity": "Battery Capacity",
+        "chargingType": "Charging Type",
+        "ownershipTax": "Ownership Tax",
+        "firstRegistrationDate": "First Registration Date",
+        "fuelEfficiency": "Fuel Efficiency",
+        "fuelConsumptionWltpNedc": "Fuel Consumption WLTP/NEDC",
+        "gearType": "Gear Type",
+        "engineType": "Engine Type",
+        "euroEmissionClass": "Euro Emission Class",
+        "previousUsage": "Previous Usage",
+        "lastInspectionDate": "Last Inspection Date",
+        "lastInspectionResult": "Last Inspection Result",
+        "lastInspectionOdometer": "Last Inspection Odometer",
+        "isImport": "Is Import",
+        "isFactoryNew": "Is Factory New",
+        "drivetrainFwd": "FWD",
+        "drivetrainAwd": "AWD",
+        "rangeKm": "Range (km)",
+        "productionDate": "Production Date",
+        "co2Emissions": "CO2 Emissions (g/km)",
+        "fuelConsumptionWltp": "Fuel Consumption WLTP (L/100km)",
+        "fuelConsumptionNedc": "Fuel Consumption NEDC (L/100km)",
+        "enginePowerHp": "Engine Power (HP)",
+        "towingWeightKg": "Towing Weight (kg)",
+        "batteryCapacityKwh": "Battery Capacity (kWh)"
       },
       "addVehicle": {
         "title": "Add Vehicle",
@@ -1036,7 +1092,16 @@
         "fuelConsumptionHintElectric": "Electric range in kilometers",
         "fuelConsumptionHintHybrid": "Electric range in km (for EV mode) or fuel efficiency in km/l",
         "fuelConsumptionHintDefault": "Fuel efficiency in kilometers per liter",
-        "cover": "Cover"
+        "cover": "Cover",
+        "vehicleSavedSuccessfully": "Vehicle Saved Successfully",
+        "vehicleSavedMessage": "Your vehicle has been saved and is ready to be published. What would you like to do next?",
+        "viewVehiclesList": "View Vehicles List",
+        "addAnotherVehicle": "Add Another Vehicle",
+        "previous": "Previous",
+        "saveDraft": "Save Draft",
+        "next": "Next",
+        "vinExactLength": "VIN must be exactly 17 characters",
+        "vinFormat": "VIN can only contain letters (except I, O, Q) and numbers"
       },
       "favorites": {
         "title": "Favorites",
@@ -1059,7 +1124,9 @@
         "filtersJson": "Filters (JSON)",
         "filtersHint": "Enter search filters as JSON",
         "apply": "Apply",
-        "savedOn": "Saved {date}"
+        "savedOn": "Saved {date}",
+        "confirmDeleteSavedSearch": "Are you sure you want to delete this saved search?",
+        "noFilters": "No filters"
       },
       "permissions": {
         "title": "Permissions Management",
@@ -1084,6 +1151,7 @@
       },
       "changePassword": {
         "title": "Change Password",
+        "updatePasswordSubtitle": "Update your account password.",
         "placeholder": "Change password form will be implemented here"
       },
       "generalSettings": {
@@ -1091,5 +1159,113 @@
         "placeholder": "General settings form will be implemented here"
       }
     }
+  },
+  "dealerComponents": {
+    "staff": {
+      "addStaffMember": "Add Staff Member",
+      "editStaffMember": "Edit Staff Member",
+      "removeStaffMember": "Remove Staff Member",
+      "fullName": "Full Name",
+      "emailOptional": "Email Address (Optional)",
+      "phoneOptional": "Phone (Optional)",
+      "password": "Password",
+      "username": "Username",
+      "email": "Email",
+      "createStaff": "Create Staff",
+      "creating": "Creating...",
+      "cancel": "Cancel",
+      "update": "Update",
+      "updating": "Updating...",
+      "removeStaff": "Remove Staff",
+      "removing": "Removing...",
+      "confirmRemoveStaff": "Are you sure you want to remove this staff member from your dealer?",
+      "confirmRemoveWarning": "Warning: This action will remove the staff member's access to your dealer account. They will no longer be able to manage vehicles, leads, or access dealer features.",
+      "fixErrors": "Please fix the following errors:",
+      "nameRequired": "Name is required",
+      "nameMinLength": "Name must be at least 2 characters",
+      "emailInvalid": "Please enter a valid email address",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must be at least 8 characters",
+      "passwordRequiredWhenChanging": "Password is required when changing password",
+      "thisFieldRequired": "This field is required",
+      "staffCreatedSuccess": "Staff member created successfully!",
+      "staffCreatedWithUsername": "Staff member created successfully! Username: {username}",
+      "failedCreateStaff": "Failed to create staff member. Please try again.",
+      "failedUpdateStaff": "Failed to update staff member. Please try again.",
+      "failedRemoveStaff": "Failed to remove staff member. Please try again.",
+      "roleOwner": "Owner",
+      "roleManager": "Manager",
+      "roleStaff": "Staff",
+      "changePassword": "Change Password",
+      "newPassword": "New Password"
+    },
+    "changePasswordDialog": {
+      "title": "Change Password",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmNewPassword": "Confirm New Password",
+      "passwordMinHint": "Password must be at least 8 characters",
+      "fixErrors": "Please fix the following errors:",
+      "passwordChangedSuccess": "Password changed successfully!",
+      "cancel": "Cancel",
+      "changePassword": "Change Password",
+      "changing": "Changing...",
+      "passwordMinLength": "Password must be at least 8 characters",
+      "passwordsDoNotMatch": "Passwords do not match",
+      "failedChangePassword": "Failed to change password. Please try again."
+    },
+    "planSubscriptionDialog": {
+      "selectYourPlan": "Select your plan",
+      "pickPlanBelow": "Pick your preferred plan below",
+      "warningChangePlan": "Warning: Changing your plan",
+      "warningChangePlanMessage": "Changing your plan will override your existing subscription. Your current plan will be replaced by the new one.",
+      "monthlySubscription": "Monthly Subscription",
+      "yearlySubscription": "Yearly Subscription",
+      "savePercent": "(SAVE {percent} %)",
+      "daysFreeTrial": "Days free trial",
+      "enjoyCancelAnytime": "Enjoy the added benefit of canceling at any time.",
+      "confirmPurchase": "Confirm your purchase at {price}",
+      "paymentSecuredByStripe": "Payment secured by Stripe"
+    },
+    "themeToggle": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "notificationsButton": {
+      "ariaLabel": "Notifications"
+    }
+  },
+  "dealerDashboard": {
+    "financialOverview": "Financial Overview",
+    "salesOverview": "Sales Overview",
+    "salesOverviewSubtitle": "Sales performance and revenue insights",
+    "revenueOverview": "Revenue Overview",
+    "salesPerformance": "Sales Performance",
+    "totalSales": "Total Sales",
+    "totalRevenue": "Total Revenue",
+    "averageSaleValue": "Average Sale Value",
+    "avgDaysToSell": "Avg Days to Sell",
+    "salesThisMonth": "Sales This Month",
+    "salesThisQuarter": "Sales This Quarter",
+    "sales7Days": "Sales (7 days)",
+    "sales24h": "Sales (24h)",
+    "topPerformance": "Top Performance",
+    "topMonth": "Top Month",
+    "vehiclesOverview": "Vehicles Overview",
+    "vehiclesOverviewSubtitle": "Current stock and status",
+    "totalVehicles": "Total Vehicles",
+    "available": "Available",
+    "pending": "Pending",
+    "needWork": "Need Work",
+    "totalInventoryValue": "Total Inventory Value",
+    "averageVehicleValue": "Average Vehicle Value",
+    "loadingChartData": "Loading chart data...",
+    "noFinancialData": "No financial overview data available.",
+    "showingFinancialMetrics": "Showing financial metrics for the last {period}.",
+    "periodWeek": "Week",
+    "periodMonth": "Month",
+    "periodQuarter": "Quarter",
+    "periodYear": "Year"
   }
 }

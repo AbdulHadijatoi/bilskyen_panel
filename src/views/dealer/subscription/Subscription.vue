@@ -23,7 +23,7 @@
           <v-col cols="12" md="6">
             <div class="mb-2">
               <div class="text-caption text-medium-emphasis">{{ t('dealer.views.subscription.plan') }}</div>
-              <div class="font-weight-medium">{{ currentSubscription.plan?.name || 'N/A' }}</div>
+              <div class="font-weight-medium">{{ currentSubscription.plan?.name || t('common.na') }}</div>
             </div>
           </v-col>
           <v-col cols="12" md="6">
@@ -279,7 +279,7 @@ const getStatusLabel = (statusId?: number) => {
 }
 
 const formatDate = (date?: string) => {
-  if (!date) return 'N/A'
+  if (!date) return t('common.na')
   return new Date(date).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
