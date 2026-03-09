@@ -20,7 +20,10 @@ export function getSubscriptionFeatures(): SubscriptionFeatures {
   const authStore = useAuthStore()
   const ref = authStore.subscriptionFeatures
   // Pinia exposes state as refs; read .value to get the actual object and preserve reactivity in computed()
-  const value = ref && typeof ref === 'object' && 'value' in ref ? (ref as { value: Record<string, string> }).value : ref
+  const value: Record<string, string> | undefined =
+    ref && typeof ref === 'object' && 'value' in ref
+      ? (ref as unknown as { value: Record<string, string> }).value
+      : (ref as Record<string, string> | undefined)
   return value ?? {}
 }
 
