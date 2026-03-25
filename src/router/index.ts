@@ -259,6 +259,11 @@ const router = createRouter({
           component: () => import('@/views/admin/constants/ConstantsOverview.vue'),
         },
         {
+          path: 'ownership-tax-rules',
+          name: 'admin.ownership-tax-rules',
+          component: () => import('@/views/admin/ownership-tax/OwnershipTaxRules.vue'),
+        },
+        {
           path: 'permissions',
           name: 'admin.permissions',
           component: () => import('@/views/admin/permissions/PermissionsManagement.vue'),

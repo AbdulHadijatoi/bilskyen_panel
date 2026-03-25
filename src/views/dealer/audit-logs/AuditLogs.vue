@@ -672,7 +672,7 @@ const handleTimePeriodChange = (period: string | null) => {
   today.setHours(23, 59, 59, 999) // End of today
   const dateTo = today.toISOString().split('T')[0]
 
-  let dateFrom = new Date()
+  const dateFrom = new Date()
 
   // Parse the period value
   if (period.includes('_day') || period.includes('_days')) {

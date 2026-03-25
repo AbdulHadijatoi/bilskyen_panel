@@ -21,6 +21,7 @@ export interface VehicleModel {
   id: number
   dealerId?: number
   userId?: number
+  dmrFactVehicleId?: number
   locationId?: number
   registration?: string
   vin?: string
@@ -41,6 +42,7 @@ export interface VehicleModel {
   rangeKm?: number
   chargingType?: string
   ownershipTax?: number
+  calculatedOwnershipTax?: number
   firstRegistrationDate?: string
   fuelEfficiency?: number
   brandId?: number
@@ -100,6 +102,7 @@ export function mapVehicleFromApi(data: any): VehicleModel {
     id: data.id,
     dealerId: data.dealer_id,
     userId: data.user_id,
+    dmrFactVehicleId: data.dmr_fact_vehicle_id ?? data.dmrFactVehicleId,
     locationId: data.location_id,
     registration: data.registration,
     vin: data.vin,
@@ -120,6 +123,7 @@ export function mapVehicleFromApi(data: any): VehicleModel {
     rangeKm: data.range_km,
     chargingType: data.charging_type,
     ownershipTax: data.ownership_tax,
+    calculatedOwnershipTax: data.calculated_ownership_tax,
     firstRegistrationDate: data.first_registration_date,
     fuelEfficiency: data.fuel_efficiency,
     brandId: data.brand_id,

@@ -320,10 +320,9 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { getVehicles, deleteVehicle as deleteVehicleApi } from '@/api/admin.api'
+import { getVehicles, deleteVehicle as deleteVehicleApi, getConstantsData } from '@/api/admin.api'
 import type { PaginationModel } from '@/models/pagination.model'
 import type { VehicleModel } from '@/models/vehicle.model'
-import type { VehicleStatus } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
 const router = useRouter()
@@ -332,7 +331,8 @@ const { t } = useI18n()
 const loading = ref(false)
 const error = ref<string | null>(null)
 const search = ref('')
-const statusFilter = ref<VehicleStatus | null>(null)
+const statusFilter = ref<number | null>(null)
+const vehicleListStatuses = ref<Array<{ id: number; name: string }>>([])
 const dealerNameFilter = ref('')
 const userNameFilter = ref('')
 const vehicles = ref<PaginationModel<VehicleModel>>({
@@ -350,13 +350,21 @@ const showDeleteDialog = ref(false)
 const vehicleToDelete = ref<VehicleModel | null>(null)
 const deleting = ref(false)
 
-const statusFilterOptions = [
-  { label: 'All Statuses', value: null },
-  { label: 'Draft', value: 'draft' as VehicleStatus },
-  { label: 'Published', value: 'published' as VehicleStatus },
-  { label: 'Sold', value: 'sold' as VehicleStatus },
-  { label: 'Archived', value: 'archived' as VehicleStatus },
-]
+const statusFilterOptions = computed(() => {
+  const options: Array<{ label: string; value: number | null }> = [{ label: 'All Statuses', value: null }]
+
+  const pushIfFound = (match: string, label: string) => {
+    const found = vehicleListStatuses.value.find((s) => String(s.name || '').toLowerCase() === match)
+    if (found?.id != null) options.push({ label, value: found.id })
+  }
+
+  pushIfFound('draft', 'Draft')
+  pushIfFound('published', 'Published')
+  pushIfFound('sold', 'Sold')
+  pushIfFound('archived', 'Archived')
+
+  return options
+})
 
 const headers = [
   { title: 'ID', key: 'id', width: '100px', sortable: false },
@@ -387,8 +395,8 @@ const loadVehicles = async () => {
       page: currentPage.value,
       limit: 15,
     }
-    if (statusFilter.value) {
-      params.status = statusFilter.value
+    if (statusFilter.value != null) {
+      params.vehicle_list_status_id = statusFilter.value
     }
     if (search.value) {
       params.search = search.value
@@ -464,8 +472,14 @@ const formatPrice = (price?: number) => {
   }).format(price)
 }
 
-onMounted(() => {
-  loadVehicles()
+onMounted(async () => {
+  try {
+    const data = await getConstantsData()
+    vehicleListStatuses.value = data.vehicle_list_statuses || []
+  } catch (err) {
+    console.error('Failed to load vehicle list statuses:', err)
+  }
+  await loadVehicles()
 })
 </script>
 

@@ -27,6 +27,7 @@ import {
   ADMIN_CONSTANTS_ENDPOINTS,
   ADMIN_DASHBOARD_ENDPOINTS,
   ADMIN_FEATURED_VEHICLE_ENDPOINTS,
+  ADMIN_OWNERSHIP_TAX_ENDPOINTS,
 } from './endpoints'
 import type { UserModel } from '@/models/user.model'
 import { mapUserFromApi } from '@/models/user.model'
@@ -56,6 +57,54 @@ import {
  */
 function getIdempotencyKey(): string {
   return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`
+}
+
+/**
+ * Slim persisted vehicle fields for admin update (DMR-only contract).
+ * Backend persists only these columns on the `vehicles` row.
+ */
+const DMR_SLIM_VEHICLE_FIELDS = [
+  'dmr_fact_vehicle_id',
+  'title',
+  'registration',
+  'slug',
+  'price',
+  'vehicle_list_status_id',
+  'published_at',
+  'description',
+  'address',
+  'postcode',
+  'gear_type_id',
+  'km_driven',
+  'battery_capacity',
+  'range_km',
+  'charging_type',
+  'condition_id',
+  'servicebog',
+] as const
+
+type DmrSlimVehicleField = (typeof DMR_SLIM_VEHICLE_FIELDS)[number]
+
+function pickDmrSlimVehicleFields(
+  input: Record<string, any>,
+  options?: { omitVehicleListStatusId?: boolean }
+): Record<DmrSlimVehicleField, any> {
+  const out: Record<string, any> = {}
+
+  for (const field of DMR_SLIM_VEHICLE_FIELDS) {
+    if (options?.omitVehicleListStatusId && field === 'vehicle_list_status_id') continue
+    if (input[field] !== undefined && input[field] !== null) out[field] = input[field]
+  }
+
+  // Legacy UI keys -> new persisted column names
+  if (out.address === undefined && input.seller_address !== undefined && input.seller_address !== null) {
+    out.address = input.seller_address
+  }
+  if (out.postcode === undefined && input.seller_postcode !== undefined && input.seller_postcode !== null) {
+    out.postcode = input.seller_postcode
+  }
+
+  return out as Record<DmrSlimVehicleField, any>
 }
 
 // ============================================================================
@@ -525,6 +574,7 @@ export interface UpdateVehicleData {
   title?: string
   registration?: string
   vin?: string
+  dmr_fact_vehicle_id?: number
   brand_id?: number
   model_id?: number
   model_year_id?: number
@@ -600,9 +650,20 @@ export async function updateVehicle(
   data: UpdateVehicleData
 ): Promise<VehicleModel> {
   try {
+    // Persist only slim `vehicles` columns (DMR contract). Keep equipment_ids as a relation pivot.
+    const equipmentArray = (data as any).equipment_ids || (data as any).equipment
+    const slimPayload = pickDmrSlimVehicleFields(data as Record<string, any>)
+
+    const requestPayload = {
+      ...slimPayload,
+      ...(equipmentArray && Array.isArray(equipmentArray) && equipmentArray.length > 0
+        ? { equipment_ids: equipmentArray }
+        : {}),
+    }
+
     const response = await httpClient.post<{ data: any }>(
       ADMIN_VEHICLE_ENDPOINTS.UPDATE(id),
-      data
+      requestPayload
     )
     const vehicleData = handleSuccess<any>(response)
     return mapVehicleFromApi(vehicleData)
@@ -3798,6 +3859,131 @@ export async function updateFeaturedVehicle(
 export async function removeFeaturedVehicle(id: number | string): Promise<void> {
   try {
     await httpClient.post(ADMIN_FEATURED_VEHICLE_ENDPOINTS.DELETE(id), {})
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// OWNERSHIP TAX RULES
+// ============================================================================
+
+export interface DmrDriveEnergyModel {
+  id: number
+  typeNummer?: number | null
+  name: string
+}
+
+export interface OwnershipTaxRuleModel {
+  id: number
+  registrationYearFrom: number
+  registrationYearTo: number
+  kmPerLiterFrom: number
+  kmPerLiterTo: number
+  dmrDriveEnergyId: number
+  taxAmount: number
+  driveEnergy?: DmrDriveEnergyModel
+  createdAt?: string
+  updatedAt?: string
+}
+
+function mapDmrDriveEnergyFromApi(data: any): DmrDriveEnergyModel {
+  return {
+    id: data.id,
+    typeNummer: data.type_nummer ?? null,
+    name: data.name,
+  }
+}
+
+function mapOwnershipTaxRuleFromApi(data: any): OwnershipTaxRuleModel {
+  return {
+    id: data.id,
+    registrationYearFrom: data.registration_year_from,
+    registrationYearTo: data.registration_year_to,
+    kmPerLiterFrom: Number(data.km_per_liter_from),
+    kmPerLiterTo: Number(data.km_per_liter_to),
+    dmrDriveEnergyId: data.dmr_drive_energy_id,
+    taxAmount: data.tax_amount,
+    driveEnergy: data.drive_energy ? mapDmrDriveEnergyFromApi(data.drive_energy) : undefined,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+  }
+}
+
+export async function getDmrDriveEnergies(limit = 500): Promise<DmrDriveEnergyModel[]> {
+  try {
+    const response = await httpClient.get<{ data: any[] }>(
+      ADMIN_OWNERSHIP_TAX_ENDPOINTS.DMR_DRIVE_ENERGIES,
+      { params: { limit } }
+    )
+    const rows = handleSuccess<any[]>(response)
+    return rows.map(mapDmrDriveEnergyFromApi)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getOwnershipTaxRules(
+  params?: PaginationParams
+): Promise<PaginationModel<OwnershipTaxRuleModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<any> }>(
+      ADMIN_OWNERSHIP_TAX_ENDPOINTS.RULES.LIST,
+      { params }
+    )
+    const data = handleSuccess<PaginationModel<any>>(response)
+    return {
+      ...data,
+      docs: data.docs.map(mapOwnershipTaxRuleFromApi),
+    }
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export interface CreateOwnershipTaxRuleData {
+  registration_year_from: number
+  registration_year_to: number
+  km_per_liter_from: number
+  km_per_liter_to: number
+  dmr_drive_energy_id: number
+  tax_amount: number
+}
+
+export async function createOwnershipTaxRule(
+  data: CreateOwnershipTaxRuleData
+): Promise<OwnershipTaxRuleModel> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      ADMIN_OWNERSHIP_TAX_ENDPOINTS.RULES.CREATE,
+      data
+    )
+    const row = handleSuccess<any>(response)
+    return mapOwnershipTaxRuleFromApi(row)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function updateOwnershipTaxRule(
+  id: number | string,
+  data: Partial<CreateOwnershipTaxRuleData>
+): Promise<OwnershipTaxRuleModel> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      ADMIN_OWNERSHIP_TAX_ENDPOINTS.RULES.UPDATE(id),
+      data
+    )
+    const row = handleSuccess<any>(response)
+    return mapOwnershipTaxRuleFromApi(row)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function deleteOwnershipTaxRule(id: number | string): Promise<void> {
+  try {
+    await httpClient.post(ADMIN_OWNERSHIP_TAX_ENDPOINTS.RULES.DELETE(id), {})
   } catch (error) {
     throw handleError(error)
   }

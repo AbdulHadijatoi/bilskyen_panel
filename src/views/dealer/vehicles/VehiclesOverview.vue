@@ -297,11 +297,10 @@
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { getVehicles, deleteVehicle as deleteVehicleApi } from '@/api/dealer.api'
+import { getVehicles, deleteVehicle as deleteVehicleApi, getLookupConstants } from '@/api/dealer.api'
 import { hasPermission } from '@/utils/permissions'
 import type { PaginationModel } from '@/models/pagination.model'
 import type { VehicleModel } from '@/models/vehicle.model'
-import type { VehicleStatus } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
 const router = useRouter()
@@ -310,7 +309,7 @@ const { t } = useI18n()
 const loading = ref(false)
 const error = ref<string | null>(null)
 const search = ref('')
-const statusFilter = ref<VehicleStatus | null>(null)
+const statusFilter = ref<number | null>(null)
 const vehicles = ref<PaginationModel<VehicleModel>>({
   docs: [],
   limit: 15,
@@ -326,13 +325,27 @@ const showDeleteDialog = ref(false)
 const vehicleToDelete = ref<VehicleModel | null>(null)
 const deleting = ref(false)
 
-const statusFilterOptions = computed(() => [
-  { label: t('dealer.views.vehicles.allStatuses'), value: null },
-  { label: t('dealer.views.vehicles.draft'), value: 'draft' as VehicleStatus },
-  { label: t('dealer.views.vehicles.published'), value: 'published' as VehicleStatus },
-  { label: t('dealer.views.vehicles.sold'), value: 'sold' as VehicleStatus },
-  { label: t('dealer.views.vehicles.archived'), value: 'archived' as VehicleStatus },
-])
+const vehicleListStatuses = ref<Array<{ id: number; name: string }>>([])
+
+const statusFilterOptions = computed(() => {
+  const options: Array<{ label: string; value: number | null }> = [
+    { label: t('dealer.views.vehicles.allStatuses'), value: null },
+  ]
+
+  const pushIfFound = (match: string, labelKey: string) => {
+    const found = vehicleListStatuses.value.find(
+      (s) => String(s.name || '').toLowerCase() === match
+    )
+    if (found?.id != null) options.push({ label: t(labelKey), value: found.id })
+  }
+
+  pushIfFound('draft', 'dealer.views.vehicles.draft')
+  pushIfFound('published', 'dealer.views.vehicles.published')
+  pushIfFound('sold', 'dealer.views.vehicles.sold')
+  pushIfFound('archived', 'dealer.views.vehicles.archived')
+
+  return options
+})
 
 const headers = computed(() => [
   { title: 'ID', key: 'id', width: '100px', sortable: false },
@@ -392,8 +405,8 @@ const loadVehicles = async () => {
       page: currentPage.value,
       limit: 15,
     }
-    if (statusFilter.value) {
-      params.status = statusFilter.value
+    if (statusFilter.value != null) {
+      params.vehicle_list_status_id = statusFilter.value
     }
     if (search.value) {
       params.search = search.value
@@ -464,6 +477,12 @@ const formatPrice = (price?: number) => {
 }
 
 onMounted(async () => {
+  try {
+    const data = await getLookupConstants()
+    vehicleListStatuses.value = data.vehicle_list_statuses || []
+  } catch (err) {
+    console.error('Failed to load vehicle list statuses:', err)
+  }
   await Promise.all([loadVehicles(), loadStatusCounts()])
 })
 </script>

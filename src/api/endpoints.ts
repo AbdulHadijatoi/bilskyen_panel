@@ -380,6 +380,19 @@ export const ADMIN_FEATURED_VEHICLE_ENDPOINTS = {
 } as const
 
 /**
+ * Ownership tax rules endpoints (admin)
+ */
+export const ADMIN_OWNERSHIP_TAX_ENDPOINTS = {
+  RULES: {
+    LIST: '/admin/ownership-tax-rules',
+    CREATE: '/admin/ownership-tax-rules/create',
+    UPDATE: (id: number | string) => `/admin/ownership-tax-rules/update/${id}`,
+    DELETE: (id: number | string) => `/admin/ownership-tax-rules/delete/${id}`,
+  },
+  DMR_DRIVE_ENERGIES: '/admin/dmr-drive-energies',
+} as const
+
+/**
  * Admin constants endpoints
  */
 export const ADMIN_CONSTANTS_ENDPOINTS = {

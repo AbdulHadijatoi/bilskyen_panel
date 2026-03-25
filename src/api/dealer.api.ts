@@ -73,6 +73,54 @@ function getIdempotencyKey(): string {
   return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`
 }
 
+/**
+ * Slim persisted vehicle fields for dealer create/update (DMR-only contract).
+ * Backend persists only these columns on the `vehicles` row.
+ */
+const DMR_SLIM_VEHICLE_FIELDS = [
+  'dmr_fact_vehicle_id',
+  'title',
+  'registration',
+  'slug',
+  'price',
+  'vehicle_list_status_id',
+  'published_at',
+  'description',
+  'address',
+  'postcode',
+  'gear_type_id',
+  'km_driven',
+  'battery_capacity',
+  'range_km',
+  'charging_type',
+  'condition_id',
+  'servicebog',
+] as const
+
+type DmrSlimVehicleField = (typeof DMR_SLIM_VEHICLE_FIELDS)[number]
+
+function pickDmrSlimVehicleFields(
+  input: Record<string, any>,
+  options?: { omitVehicleListStatusId?: boolean }
+): Record<DmrSlimVehicleField | 'address' | 'postcode', any> {
+  const out: Record<string, any> = {}
+
+  for (const field of DMR_SLIM_VEHICLE_FIELDS) {
+    if (options?.omitVehicleListStatusId && field === 'vehicle_list_status_id') continue
+    if (input[field] !== undefined && input[field] !== null) out[field] = input[field]
+  }
+
+  // Legacy UI keys -> new persisted column names
+  if (out.address === undefined && input.seller_address !== undefined && input.seller_address !== null) {
+    out.address = input.seller_address
+  }
+  if (out.postcode === undefined && input.seller_postcode !== undefined && input.seller_postcode !== null) {
+    out.postcode = input.seller_postcode
+  }
+
+  return out
+}
+
 // ============================================================================
 // VEHICLES
 // ============================================================================
@@ -81,7 +129,7 @@ function getIdempotencyKey(): string {
  * Get dealer's vehicles with pagination
  */
 export async function getVehicles(params?: PaginationParams & {
-  status?: VehicleStatus
+  vehicle_list_status_id?: number
   search?: string
   min_price?: number
   max_price?: number
@@ -180,23 +228,17 @@ export async function createVehicle(
       })
     }
     
-    // Handle other fields
-    Object.keys(data).forEach((key) => {
-      // Skip images, equipment, and equipment_ids as we already handled them above
-      if (key === 'images' || key === 'equipment' || key === 'equipment_ids') {
-        return
-      }
-      
-      if (data[key] !== undefined && data[key] !== null) {
-        if (Array.isArray(data[key])) {
-          // For other arrays, send as JSON string
-          formData.append(key, JSON.stringify(data[key]))
-        } else if (typeof data[key] === 'object') {
-          // For objects, send as JSON string
-          formData.append(key, JSON.stringify(data[key]))
+    // Persist only slim `vehicles` columns (DMR contract)
+    const slimPayload = pickDmrSlimVehicleFields(data as Record<string, any>) as Record<string, any>
+    Object.keys(slimPayload).forEach((key) => {
+      const value = slimPayload[key]
+      if (value !== undefined && value !== null) {
+        if (Array.isArray(value)) {
+          formData.append(key, JSON.stringify(value))
+        } else if (typeof value === 'object') {
+          formData.append(key, JSON.stringify(value))
         } else {
-          // For primitives, send as string
-          formData.append(key, String(data[key]))
+          formData.append(key, String(value))
         }
       }
     })
@@ -243,23 +285,18 @@ export async function createVehicleDraft(
       })
     }
     
-    // Handle other fields
-    Object.keys(data).forEach((key) => {
-      // Skip images, equipment, and equipment_ids as we already handled them above
-      if (key === 'images' || key === 'equipment' || key === 'equipment_ids') {
-        return
-      }
-      
-      if (data[key] !== undefined && data[key] !== null) {
-        if (Array.isArray(data[key])) {
-          // For other arrays, send as JSON string
-          formData.append(key, JSON.stringify(data[key]))
-        } else if (typeof data[key] === 'object') {
-          // For objects, send as JSON string
-          formData.append(key, JSON.stringify(data[key]))
+    // Persist only slim `vehicles` columns (DMR contract).
+    // Draft status is set server-side, so omit any client-provided `vehicle_list_status_id`.
+    const slimPayload = pickDmrSlimVehicleFields(data as Record<string, any>, { omitVehicleListStatusId: true }) as Record<string, any>
+    Object.keys(slimPayload).forEach((key) => {
+      const value = slimPayload[key]
+      if (value !== undefined && value !== null) {
+        if (Array.isArray(value)) {
+          formData.append(key, JSON.stringify(value))
+        } else if (typeof value === 'object') {
+          formData.append(key, JSON.stringify(value))
         } else {
-          // For primitives, send as string
-          formData.append(key, String(data[key]))
+          formData.append(key, String(value))
         }
       }
     })
@@ -291,14 +328,19 @@ export async function updateVehicle(
   data: UpdateVehicleData | FormData
 ): Promise<VehicleModel> {
   try {
-    // If data is FormData, send it directly; otherwise convert to FormData if needed
-    let requestData: FormData | UpdateVehicleData = data
+    // If data is FormData, send it directly; otherwise whitelist slim fields.
+    let requestData: FormData | UpdateVehicleData | Record<string, any> = data
     
     // Check if data has File objects (images) that need FormData
     if (data instanceof FormData) {
       requestData = data
     } else {
       const updateData = data as UpdateVehicleData
+
+      // equipment_ids is a relation pivot; keep it even though it's not part of the slim set.
+      const equipmentArray = (updateData as any).equipment_ids || (updateData as any).equipment
+      const slimPayload = pickDmrSlimVehicleFields(updateData as Record<string, any>) as Record<string, any>
+
       // Check if images are present and are File objects
       if (updateData.images && Array.isArray(updateData.images) && updateData.images.length > 0 && updateData.images[0] instanceof File) {
         // Convert to FormData if images are present
@@ -311,21 +353,15 @@ export async function updateVehicle(
           }
         })
         
-        // Handle equipment_ids
-        const equipmentArray = updateData.equipment_ids || updateData.equipment
         if (equipmentArray && Array.isArray(equipmentArray) && equipmentArray.length > 0) {
           equipmentArray.forEach((equipmentId: number | string) => {
             formData.append('equipment_ids[]', String(equipmentId))
           })
         }
-        
-        // Handle other fields
-        Object.keys(updateData).forEach((key) => {
-          if (key === 'images' || key === 'equipment' || key === 'equipment_ids') {
-            return
-          }
-          
-          const value = updateData[key as keyof UpdateVehicleData]
+
+        // Persist only slim `vehicles` columns (DMR contract)
+        Object.keys(slimPayload).forEach((key) => {
+          const value = slimPayload[key]
           if (value !== undefined && value !== null) {
             if (Array.isArray(value)) {
               formData.append(key, JSON.stringify(value))
@@ -336,8 +372,16 @@ export async function updateVehicle(
             }
           }
         })
-        
+
         requestData = formData
+      } else {
+        // JSON request: only send slim fields + equipment_ids
+        requestData = {
+          ...slimPayload,
+          ...(equipmentArray && Array.isArray(equipmentArray) && equipmentArray.length > 0
+            ? { equipment_ids: equipmentArray }
+            : {}),
+        }
       }
     }
     

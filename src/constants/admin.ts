@@ -201,6 +201,19 @@ export const adminSidebarSections: SidebarSection[] = [
         ],
       },
       {
+        title: 'Ownership Tax Rules',
+        url: `${ADMIN_ROUTE_BASE}/ownership-tax-rules`,
+        icon: 'mdi-cash-multiple',
+        permission: 'admin.constants.view',
+        items: [
+          {
+            title: 'Manage Rules',
+            url: `${ADMIN_ROUTE_BASE}/ownership-tax-rules`,
+            permission: 'admin.constants.view',
+          },
+        ],
+      },
+      {
         title: 'Permissions',
         url: `${ADMIN_ROUTE_BASE}/permissions`,
         icon: 'mdi-shield-lock',

@@ -1159,7 +1159,7 @@
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { createVehicle, createVehicleDraft, updateVehicle, getLookupConstants, lookupVehicleByRegistration, getProfile } from '@/api/dealer.api'
+import { createVehicle, createVehicleDraft, updateVehicle, getLookupConstants, fetchVehicleFromNummerplade, getProfile } from '@/api/dealer.api'
 import { loadSubscriptionFeatures } from '@/api/subscription-features.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import type { VehicleModel } from '@/models/vehicle.model'
@@ -1464,6 +1464,7 @@ const form = ref({
   model: '',
   modelId: null as number | null,
   variant: '',
+  dmr_fact_vehicle_id: null as number | null,
   fuelType: '',
   fuelTypeId: null as number | null,
   powerHp: null as number | null,
@@ -1635,7 +1636,7 @@ function getInvalidSteps(): { stepIndex: number; stepLabel: string }[] {
   const f = form.value
 
   // Step 0: Vehicle Lookup
-  if (!f.make || !f.modelId || !f.variant || !f.fuelType || !f.registrationDate) {
+  if (!f.make || !f.modelId || !f.variant || !f.fuelType || !f.registrationDate || f.dmr_fact_vehicle_id == null) {
     invalid.push({ stepIndex: 0, stepLabel: steps.value[0]?.label ?? t('dealer.views.addVehicle.tabLookup') })
   }
 
@@ -1697,14 +1698,16 @@ const performLookup = async () => {
   }
 
   try {
-    const data = await lookupVehicleByRegistration(
-      lookupForm.value.registrationNumber,
-      true // advanced = true
-    )
+    const data = await fetchVehicleFromNummerplade({
+      registration: lookupForm.value.registrationNumber,
+    })
     
     // Clear any previous errors
     lookupError.value = null
     lookupData.value = data
+
+    // DMR identity required by dealer create/update contract
+    form.value.dmr_fact_vehicle_id = data.dmr_fact_vehicle_id ?? data.dmrFactVehicleId ?? null
 
     // Auto-fill form with lookup data
     // Ensure lookup options contain API values (avoid duplicates) and set form values
@@ -2193,6 +2196,13 @@ const saveAsDraft = async () => {
     submitError.value = null
     validationErrors.value = {}
 
+    // DMR identity required by dealer create/update contract
+    if (form.value.dmr_fact_vehicle_id == null) {
+      submitError.value = t('dealer.views.addVehicle.fieldRequired')
+      currentStep.value = 0
+      return
+    }
+
     // Convert form data to API format (similar to submitForm but without validation)
     const nummerpladeData = lookupData.value || {}
     const vehicleData: any = {}
@@ -2204,6 +2214,9 @@ const saveAsDraft = async () => {
     }
 
     // Optional fields - only include if they have values
+    if (form.value.dmr_fact_vehicle_id != null) {
+      vehicleData.dmr_fact_vehicle_id = form.value.dmr_fact_vehicle_id
+    }
     if (form.value.registrationNumber) {
       vehicleData.registration = form.value.registrationNumber
     }
@@ -2475,6 +2488,7 @@ const clearDraft = () => {
   model: '',
   modelId: null,
     variant: '',
+    dmr_fact_vehicle_id: null,
     fuelType: '',
     fuelTypeId: null,
     powerHp: null,
@@ -2586,6 +2600,15 @@ const submitForm = async () => {
     return
   }
 
+  // DMR identity required by dealer create/update contract
+  if (form.value.dmr_fact_vehicle_id == null) {
+    const invalidSteps = getInvalidSteps()
+    const tabNames = invalidSteps.map(s => s.stepLabel).join(', ')
+    submitError.value = t('dealer.views.addVehicle.completeRequiredFieldsIn', { tabs: tabNames })
+    currentStep.value = invalidSteps[0]?.stepIndex ?? 0
+    return
+  }
+
   if (!imagesValid.value) {
     submitError.value = t('dealer.views.addVehicle.minImagesRequired')
     // Scroll to media step
@@ -2624,6 +2647,7 @@ const submitForm = async () => {
 
     const vehicleData: any = {
       title: title,
+      dmr_fact_vehicle_id: form.value.dmr_fact_vehicle_id,
       registration: form.value.registrationNumber,
       vin: form.value.vin,
       brand_id: brand.id,

@@ -583,6 +583,12 @@
                   />
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
+                  <div class="info-field">
+                    <div class="field-label">Calculated Ownership Tax</div>
+                    <div class="field-value">{{ vehicle.calculatedOwnershipTax ? formatPrice(vehicle.calculatedOwnershipTax) : '-' }}</div>
+                  </div>
+                </v-col>
+                <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">First Registration</div>
                     <div class="field-value">{{ vehicle.firstRegistrationDate ? formatDate(vehicle.firstRegistrationDate) : '-' }}</div>
@@ -1834,6 +1840,7 @@ const loadVehicle = async () => {
       title: loadedVehicle.title || undefined,
       registration: loadedVehicle.registration || undefined,
       vin: loadedVehicle.vin || undefined,
+      dmr_fact_vehicle_id: loadedVehicle.dmrFactVehicleId || undefined,
       brand_id: loadedVehicle.brandId || undefined,
       model_id: loadedVehicle.modelId || undefined,
       model_year_id: loadedVehicle.modelYearId || undefined,
@@ -1948,6 +1955,7 @@ const cancelEdit = () => {
     title: vehicle.value.title || undefined,
     registration: vehicle.value.registration || undefined,
     vin: vehicle.value.vin || undefined,
+    dmr_fact_vehicle_id: vehicle.value.dmrFactVehicleId || undefined,
     brand_id: vehicle.value.brandId || undefined,
     model_id: vehicle.value.modelId || undefined,
     model_year_id: vehicle.value.modelYearId || undefined,
