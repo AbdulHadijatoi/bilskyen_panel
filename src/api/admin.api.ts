@@ -591,7 +591,6 @@ export interface UpdateVehicleData {
   towing_weight?: number
   ownership_tax?: number
   first_registration_date?: string
-  last_inspection_date?: string
   km_per_liter?: number
   vehicle_list_status_id?: number
   listing_type_id?: number
