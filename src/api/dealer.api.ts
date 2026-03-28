@@ -82,6 +82,7 @@ const DMR_SLIM_VEHICLE_FIELDS = [
   'title',
   'registration',
   'slug',
+  'vin',
   'price',
   'vehicle_list_status_id',
   'published_at',
@@ -95,6 +96,16 @@ const DMR_SLIM_VEHICLE_FIELDS = [
   'charging_type',
   'condition_id',
   'servicebog',
+  'brand_id',
+  'model_id',
+  'variant_id',
+  'fuel_type_id',
+  'model_year',
+  'km_per_liter',
+  'maximum_weight_kg',
+  'colour_id',
+  'emission_norm_id',
+  'last_inspection_date',
 ] as const
 
 type DmrSlimVehicleField = (typeof DMR_SLIM_VEHICLE_FIELDS)[number]
@@ -116,6 +127,20 @@ function pickDmrSlimVehicleFields(
   }
   if (out.postcode === undefined && input.seller_postcode !== undefined && input.seller_postcode !== null) {
     out.postcode = input.seller_postcode
+  }
+
+  // Legacy request keys -> `vehicles` column names
+  if (out.km_per_liter === undefined && input.fuel_efficiency !== undefined && input.fuel_efficiency !== null) {
+    out.km_per_liter = input.fuel_efficiency
+  }
+  if (out.colour_id === undefined && input.color_id !== undefined && input.color_id !== null) {
+    out.colour_id = input.color_id
+  }
+  if (out.emission_norm_id === undefined && input.euronom_id !== undefined && input.euronom_id !== null) {
+    out.emission_norm_id = input.euronom_id
+  }
+  if (out.model_year === undefined && input.model_year_id !== undefined && input.model_year_id !== null) {
+    out.model_year = input.model_year_id
   }
 
   return out

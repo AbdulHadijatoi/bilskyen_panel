@@ -44,10 +44,15 @@ export interface VehicleModel {
   ownershipTax?: number
   calculatedOwnershipTax?: number
   firstRegistrationDate?: string
+  lastInspectionDate?: string
   fuelEfficiency?: number
   brandId?: number
   modelId?: number
   modelYearId?: number
+  /** DMR colour id (`vehicles.colour_id`) */
+  colourId?: number
+  /** DMR emission norm id (`vehicles.emission_norm_id`) */
+  emissionNormId?: number
   listingTypeId?: number
   transmissionId?: number
   bodyType?: string
@@ -125,10 +130,13 @@ export function mapVehicleFromApi(data: any): VehicleModel {
     ownershipTax: data.ownership_tax,
     calculatedOwnershipTax: data.calculated_ownership_tax,
     firstRegistrationDate: data.first_registration_date,
-    fuelEfficiency: data.fuel_efficiency,
+    lastInspectionDate: data.last_inspection_date,
+    fuelEfficiency: data.km_per_liter ?? data.fuel_efficiency,
     brandId: data.brand_id,
     modelId: data.model_id,
-    modelYearId: data.model_year_id,
+    modelYearId: data.model_year ?? data.model_year_id,
+    colourId: data.colour_id ?? data.color_id,
+    emissionNormId: data.emission_norm_id ?? data.euronom_id,
     listingTypeId: data.listing_type_id,
     transmissionId: data.transmission_id,
     bodyType: data.body_type,

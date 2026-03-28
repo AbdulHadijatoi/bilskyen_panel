@@ -168,26 +168,33 @@
               <v-col cols="12" md="4">
                 <v-autocomplete
                   v-model="form.modelId"
-                  :items="filteredModels"
+                  :items="models"
                   item-title="name"
                   item-value="id"
                   :label="t('dealer.views.addVehicle.model')"
                   density="compact"
                   variant="outlined"
                   :rules="[rules.required]"
+                  :loading="modelsLoading"
+                  :disabled="!selectedBrandId"
                   hide-details="auto"
                 />
               </v-col>
               <v-col cols="12" md="4">
-                <v-text-field
+                <v-combobox
                   v-model="form.variant"
+                  :items="variants"
+                  item-title="name"
+                  item-value="name"
                   :label="t('dealer.views.addVehicle.variant')"
                   density="compact"
                   variant="outlined"
-                    :hint="t('dealer.views.addVehicle.variantHint')"
+                  :hint="t('dealer.views.addVehicle.variantHint')"
                   persistent-hint
                   :rules="[rules.required]"
-                    hide-details="auto"
+                  :loading="variantsLoading"
+                  :disabled="!form.modelId"
+                  hide-details="auto"
                 />
               </v-col>
               <v-col cols="12" md="4">
@@ -203,23 +210,12 @@
                 />
               </v-col>
                 <v-col cols="12" md="4">
-                  <v-text-field
-                    v-model="form.vin"
-                    :label="t('dealer.views.addVehicle.vin')"
-                    density="compact"
-                    variant="outlined"
-                    maxlength="17"
-                    :rules="[rules.vin]"
-                    :readonly="!!lookupData?.vin"
-                    hide-details="auto"
-                  />
-                </v-col>
-                <v-col cols="12" md="4">
                   <MonthYearPicker
                     v-model="form.registrationDate"
                     :label="t('dealer.views.addVehicle.registration')"
                     :rules="[rules.required]"
                     :readonly="!!lookupData?.registrationDate"
+                    :min-year="MODEL_YEAR_MIN"
                   />
                 </v-col>
               </v-row>
@@ -285,19 +281,6 @@
                             hide-details="auto"
                           />
                         </v-col>
-                        <v-col cols="12" md="4">
-                          <v-text-field
-                            v-model.number="form.fuelConsumption"
-                            :label="fuelConsumptionLabel"
-                            :hint="fuelConsumptionHint"
-                            persistent-hint
-                            type="number"
-                            step="any"
-                            density="compact"
-                            variant="outlined"
-                            hide-details="auto"
-                          />
-                        </v-col>
                       </v-row>
                     </div>
                   </div>
@@ -327,6 +310,7 @@
                   v-model="form.firstRegistrationDate"
                   :label="t('dealer.views.addVehicle.firstRegistration')"
                   :rules="[rules.required]"
+                  :min-year="MODEL_YEAR_MIN"
                 />
               </v-col>
               <v-col cols="12" md="4">
@@ -335,6 +319,7 @@
                   :label="t('dealer.views.addVehicle.production')"
                   :hint="t('dealer.views.addVehicle.optional')"
                   persistent-hint
+                  :min-year="MODEL_YEAR_MIN"
                 />
               </v-col>
               <v-col cols="12" md="4">
@@ -350,6 +335,7 @@
                 <MonthYearPicker
                   v-model="form.lastInspectionDate"
                   :label="t('dealer.views.addVehicle.lastInspection')"
+                  :min-year="MODEL_YEAR_MIN"
                 />
               </v-col>
               <v-col cols="12" md="4">
@@ -474,19 +460,6 @@
                     {{ t('dealer.views.addVehicle.consumptionEmissions') }}
                   </h4>
               <v-row dense>
-              <v-col cols="12" md="4">
-                <v-text-field
-                  v-model.number="form.fuelConsumption"
-                  :label="fuelConsumptionLabel"
-                  :hint="fuelConsumptionHint"
-                  persistent-hint
-                  type="number"
-                  step="any"
-                  density="compact"
-                  variant="outlined"
-                    hide-details="auto"
-                />
-              </v-col>
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model="form.euroEmissionClass"
@@ -1160,6 +1133,7 @@ import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { createVehicle, createVehicleDraft, updateVehicle, getLookupConstants, fetchVehicleFromNummerplade, getProfile } from '@/api/dealer.api'
+import { searchLookupModels, searchLookupVariants, type LookupVariantRow } from '@/api/lookup-search.api'
 import { loadSubscriptionFeatures } from '@/api/subscription-features.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import type { VehicleModel } from '@/models/vehicle.model'
@@ -1170,6 +1144,9 @@ import { getFeatureLimit, getSubscriptionFeatures, FeatureKey } from '@/utils/su
 const router = useRouter()
 const { t } = useI18n()
 const { getDisplayMessage } = useErrorMessage()
+
+/** Year dropdowns: align with dealer policy (no model_years from lookup-constants). */
+const MODEL_YEAR_MIN = 1975
 
 // Wizard state
 const currentStep = ref(0)
@@ -1238,10 +1215,38 @@ const selectedBrandId = computed(() => {
   return brand?.id ?? null
 })
 
-const filteredModels = computed(() => {
-  if (!selectedBrandId.value) return []
-  return models.value.filter(model => model.brand_id === selectedBrandId.value)
-})
+const modelsLoading = ref(false)
+const variantsLoading = ref(false)
+/** Skip make/model cascade when applying DMR lookup programmatically */
+const suppressLookupCascade = ref(false)
+
+async function loadModelsForBrand(brandId: number | null) {
+  models.value = []
+  if (brandId == null) return
+  modelsLoading.value = true
+  try {
+    models.value = await searchLookupModels([brandId])
+  } catch (e) {
+    console.error('Failed to load models for brand', e)
+    models.value = []
+  } finally {
+    modelsLoading.value = false
+  }
+}
+
+async function loadVariantsForModel(modelId: number | null) {
+  variants.value = []
+  if (modelId == null) return
+  variantsLoading.value = true
+  try {
+    variants.value = await searchLookupVariants([modelId])
+  } catch (e) {
+    console.error('Failed to load variants for model', e)
+    variants.value = []
+  } finally {
+    variantsLoading.value = false
+  }
+}
 
 const syncModelIdFromName = () => {
   if (!form.value.model || form.value.modelId) return
@@ -1257,49 +1262,6 @@ const syncModelIdFromName = () => {
     form.value.modelId = matchedModel.id
   }
 }
-
-// Computed property for fuel consumption label based on fuel type ID
-// Matching logic from sell-your-car-form.js
-const fuelConsumptionLabel = computed(() => {
-  const fuelTypeId = form.value.fuelTypeId
-  
-  // Electric fuel types: 3 (Electric), 7 (El)
-  const electricFuelTypes = [3, 7]
-  // Hybrid fuel types: 4 (Hybrid), 5 (Plug-in Hybrid)
-  const hybridFuelTypes = [4, 5]
-  
-  if (fuelTypeId && electricFuelTypes.includes(fuelTypeId)) {
-    return t('dealer.views.addVehicle.electricRangeKm')
-  }
-  
-  if (fuelTypeId && hybridFuelTypes.includes(fuelTypeId)) {
-    return t('dealer.views.addVehicle.electricRangeKmPerL')
-  }
-  
-  // Default for Petrol, Diesel, etc.
-  return t('dealer.views.addVehicle.kmPerL')
-})
-
-// Computed property for fuel consumption hint
-const fuelConsumptionHint = computed(() => {
-  const fuelTypeId = form.value.fuelTypeId
-  
-  // Electric fuel types: 3 (Electric), 7 (El)
-  const electricFuelTypes = [3, 7]
-  // Hybrid fuel types: 4 (Hybrid), 5 (Plug-in Hybrid)
-  const hybridFuelTypes = [4, 5]
-  
-  if (fuelTypeId && electricFuelTypes.includes(fuelTypeId)) {
-    return t('dealer.views.addVehicle.fuelConsumptionHintElectric')
-  }
-  
-  if (fuelTypeId && hybridFuelTypes.includes(fuelTypeId)) {
-    return t('dealer.views.addVehicle.fuelConsumptionHintHybrid')
-  }
-  
-  // Default for Petrol, Diesel, etc.
-  return t('dealer.views.addVehicle.fuelConsumptionHintDefault')
-})
 
 // Helper to calculate power in HP from kW (rounded to nearest whole number, e.g. 149.6 -> 150)
 const calculatePowerHp = (powerKw: number | null | undefined): number | null => {
@@ -1373,9 +1335,46 @@ const upsertLookupOption = <T extends LookupOption>(
 // Track if description was manually edited by user
 const isDescriptionManuallyEdited = ref(false)
 
+/** DMR registration lookup: persist CSV + specs on create (same as sell-your-car). */
+function appendLookupEquipmentAndSpecifications(
+  vehicleData: Record<string, unknown>,
+  nummerpladeData: Record<string, unknown>
+) {
+  if (typeof nummerpladeData.equipments === 'string' && nummerpladeData.equipments.trim() !== '') {
+    vehicleData.lookup_equipments = nummerpladeData.equipments.trim()
+  }
+  if (Array.isArray(nummerpladeData.specifications) && nummerpladeData.specifications.length > 0) {
+    vehicleData.lookup_specifications = JSON.stringify(nummerpladeData.specifications)
+  }
+}
+
 // Generate description based on vehicle information and equipment
 const generateDescription = (): string => {
   const parts: string[] = []
+  const d = lookupData.value as Record<string, unknown> | null
+
+  if (d && typeof d.equipments === 'string' && d.equipments.trim() !== '') {
+    const equipItems = d.equipments.split(',').map(s => s.trim()).filter(Boolean)
+    if (equipItems.length > 0) {
+      parts.push(
+        'Equipment (from registration)\n' + equipItems.map(item => `• ${item}`).join('\n')
+      )
+    }
+  }
+
+  if (d && Array.isArray(d.specifications) && d.specifications.length > 0) {
+    const specLines: string[] = []
+    ;(d.specifications as Array<{ name?: string; count?: number }>).forEach(spec => {
+      if (!spec || typeof spec.name !== 'string') return
+      const n = spec.name.trim()
+      if (!n) return
+      const c = spec.count != null ? parseInt(String(spec.count), 10) : 0
+      specLines.push(`• ${n}: ${Number.isNaN(c) ? 0 : c}`)
+    })
+    if (specLines.length > 0) {
+      parts.push('Specifications (from registration)\n' + specLines.join('\n'))
+    }
+  }
   
   // Basic vehicle info
   if (form.value.make && form.value.model) {
@@ -1422,8 +1421,12 @@ const generateDescription = (): string => {
     parts.push(`${form.value.transmissionType} transmission`)
   }
   
-  // Equipment
-  if (form.value.equipment && form.value.equipment.length > 0) {
+  // Equipment from form checkboxes (when no DMR equipments string on lookup)
+  if (
+    !(d && typeof d.equipments === 'string' && d.equipments.trim() !== '') &&
+    form.value.equipment &&
+    form.value.equipment.length > 0
+  ) {
     const equipmentNames: string[] = []
     form.value.equipment.forEach((equipmentId: string) => {
       equipmentTypes.value.forEach(type => {
@@ -1446,15 +1449,7 @@ const generateDescription = (): string => {
     }
   }
   
-  // Combine parts into a readable description
-  let description = parts.join(', ')
-  
-  // Add a closing statement
-  if (description) {
-    description += '.'
-  }
-  
-  return description
+  return parts.length > 0 ? parts.join('\n\n') : ''
 }
 
 // Form data
@@ -1536,7 +1531,7 @@ const vehicleUses = ref<Array<{id: number, name: string}>>([])
 const salesTypes = ref<Array<{id: number, name: string}>>([])
 const priceTypes = ref<Array<{id: number, name: string}>>([])
 const conditions = ref<Array<{id: number, name: string}>>([])
-const variants = ref<Array<{id: number, name: string}>>([])
+const variants = ref<LookupVariantRow[]>([])
 const models = ref<Array<{id: number, name: string, brand_id: number}>>([])
 const drivetrainTypes = ref<Array<{value: string, title: string}>>([])
 const equipmentTypes = ref<Array<{id: number, name: string, equipments: Array<{id: number, name: string}>}>>([])
@@ -1574,8 +1569,8 @@ const loadLookupData = async () => {
     salesTypes.value = data.sales_types || []
     priceTypes.value = data.price_types || []
     conditions.value = data.conditions || []
-    variants.value = data.variants || []
-    models.value = data.vehicle_models || data.models || []
+    variants.value = []
+    models.value = []
     drivetrainTypes.value = data.drivetrain_types || []
     equipmentTypes.value = data.equipment_types || []
   } catch (error) {
@@ -1606,12 +1601,6 @@ const loadDealerProfileForContact = async () => {
 // Validation rules
 const rules = {
   required: (v: any) => !!v || t('dealer.views.addVehicle.fieldRequired'),
-  vin: (v: string) => {
-    if (!v || !String(v).trim()) return true // Optional
-    const s = String(v).trim()
-    if (s.length !== 17) return t('dealer.views.addVehicle.vinExactLength')
-    return /^[A-HJ-NPR-Z0-9]+$/i.test(s) || t('dealer.views.addVehicle.vinFormat')
-  },
   odometer: (v: number | null | undefined) => {
     if (v === null || v === undefined) return true // Optional field
     return (v >= 0 && v <= 12000000000000) || t('dealer.views.addVehicle.odometerRange')
@@ -1640,7 +1629,7 @@ function getInvalidSteps(): { stepIndex: number; stepLabel: string }[] {
     invalid.push({ stepIndex: 0, stepLabel: steps.value[0]?.label ?? t('dealer.views.addVehicle.tabLookup') })
   }
 
-  // Step 1: Vehicle Details (VIN and registration number are optional)
+  // Step 1: Vehicle Details (registration number is optional)
   const odometerValid = f.odometer == null || (f.odometer >= 0 && f.odometer <= 12000000000000)
   if (!f.firstRegistrationDate || !odometerValid) {
     invalid.push({ stepIndex: 1, stepLabel: steps.value[1]?.label ?? t('dealer.views.addVehicle.tabDetails') })
@@ -1693,7 +1682,7 @@ const performLookup = async () => {
   // Reset manual edit flag when starting new lookup
   isDescriptionManuallyEdited.value = false
 
-  if (brands.value.length === 0 || models.value.length === 0) {
+  if (brands.value.length === 0) {
     await loadLookupData()
   }
 
@@ -1709,6 +1698,7 @@ const performLookup = async () => {
     // DMR identity required by dealer create/update contract
     form.value.dmr_fact_vehicle_id = data.dmr_fact_vehicle_id ?? data.dmrFactVehicleId ?? null
 
+    suppressLookupCascade.value = true
     // Auto-fill form with lookup data
     // Ensure lookup options contain API values (avoid duplicates) and set form values
     const apiBrand = data.brand || data.brand_name || data.brand
@@ -1730,23 +1720,25 @@ const performLookup = async () => {
       if (foundBrand) brandId = foundBrand.id
     }
 
-    // Handle model - upsert first, then set form value directly from API if it has an id
-    // Ensure we use the brandId from API or the selected brand (and never pass null)
     const finalBrandId: number | undefined =
       typeof brandId === 'number'
         ? brandId
         : typeof selectedBrandId.value === 'number'
           ? selectedBrandId.value
           : undefined
+
+    if (finalBrandId !== undefined) {
+      await loadModelsForBrand(finalBrandId)
+    }
+
+    // Handle model - upsert first, then set form value directly from API if it has an id
     if (apiModel && typeof apiModel === 'object') {
-      // Upsert model with correct brand_id
       upsertLookupOption(
         models.value,
         { id: apiModel.id, name: apiModel.name },
         finalBrandId !== undefined ? { brand_id: finalBrandId } : undefined
       )
       form.value.model = apiModel.name
-      // Wait for reactivity to update filteredModels before setting modelId
       await nextTick()
       form.value.modelId = apiModel.id
     } else if (apiModel) {
@@ -1757,9 +1749,7 @@ const performLookup = async () => {
         finalBrandId !== undefined ? { brand_id: finalBrandId } : undefined
       )
       form.value.model = modelName
-      // Wait for reactivity to update
       await nextTick()
-      // Try to find model ID after upserting
       const matchedModel = models.value.find(
         (model) =>
           model.brand_id === finalBrandId &&
@@ -1773,6 +1763,16 @@ const performLookup = async () => {
         form.value.modelId = null
         syncModelIdFromName()
       }
+    }
+
+    if (form.value.modelId) {
+      await loadVariantsForModel(form.value.modelId)
+    }
+
+    // Map variant - handle both object and string formats, also check for 'version' field
+    const variantName = data.variant?.name || data.version?.name || data.version || data.variant
+    if (variantName) {
+      form.value.variant = typeof variantName === 'string' ? variantName : variantName.name || ''
     }
 
     // Handle fuel type - upsert first, then set form value
@@ -1793,12 +1793,6 @@ const performLookup = async () => {
         form.value.fuelTypeId = null
       }
       form.value.transmissionType = fuelTypeName
-    }
-
-    // Map variant - handle both object and string formats, also check for 'version' field
-    const variantName = data.variant?.name || data.version?.name || data.version || data.variant
-    if (variantName) {
-      form.value.variant = typeof variantName === 'string' ? variantName : variantName.name || ''
     }
 
     // Map power
@@ -1865,8 +1859,9 @@ const performLookup = async () => {
     }
 
     // Map fuel consumption
-    if (data.fuel_efficiency) {
-      form.value.fuelConsumption = data.fuel_efficiency
+    const kmpl = data.km_per_liter ?? data.fuel_efficiency
+    if (kmpl) {
+      form.value.fuelConsumption = kmpl
     }
 
     // Map drivetrain - handle both string and number formats
@@ -1916,6 +1911,7 @@ const performLookup = async () => {
     lookupSuccess.value = false
     lookupError.value = error.response?.data?.message || error.message || t('dealer.views.addVehicle.failedFetchVehicleData')
   } finally {
+    suppressLookupCascade.value = false
     lookupLoading.value = false
   }
 }
@@ -2312,12 +2308,12 @@ const saveAsDraft = async () => {
     if (nummerpladeData.model_year?.id) {
       const modelYearId = toNumberOrNull(nummerpladeData.model_year.id)
       if (modelYearId !== null) {
-        vehicleData.model_year_id = modelYearId
+        vehicleData.model_year = modelYearId
       }
     } else if (typeof nummerpladeData.model_year === 'number') {
       const modelYearId = toNumberOrNull(nummerpladeData.model_year)
       if (modelYearId !== null) {
-        vehicleData.model_year_id = modelYearId
+        vehicleData.model_year = modelYearId
       }
     }
 
@@ -2370,12 +2366,17 @@ const saveAsDraft = async () => {
     if (form.value.fuelConsumption !== null && form.value.fuelConsumption !== undefined) {
       const fuelEfficiency = toNumberOrNull(form.value.fuelConsumption)
       if (fuelEfficiency !== null) {
-        vehicleData.fuel_efficiency = fuelEfficiency
+        vehicleData.km_per_liter = fuelEfficiency
+      }
+    } else if (nummerpladeData.km_per_liter !== undefined && nummerpladeData.km_per_liter !== null) {
+      const fuelEfficiency = toNumberOrNull(nummerpladeData.km_per_liter)
+      if (fuelEfficiency !== null) {
+        vehicleData.km_per_liter = fuelEfficiency
       }
     } else if (nummerpladeData.fuel_efficiency !== undefined && nummerpladeData.fuel_efficiency !== null) {
       const fuelEfficiency = toNumberOrNull(nummerpladeData.fuel_efficiency)
       if (fuelEfficiency !== null) {
-        vehicleData.fuel_efficiency = fuelEfficiency
+        vehicleData.km_per_liter = fuelEfficiency
       }
     }
 
@@ -2431,6 +2432,8 @@ const saveAsDraft = async () => {
     if (form.value.gearTypeId != null || defaultGearTypeId != null) {
       vehicleData.gear_type_id = form.value.gearTypeId ?? defaultGearTypeId ?? null
     }
+
+    appendLookupEquipmentAndSpecifications(vehicleData, nummerpladeData)
 
     // Check if we have an existing draft vehicle ID
     let savedVehicle: VehicleModel
@@ -2570,6 +2573,9 @@ const clearDraft = () => {
   submitError.value = null
   validationErrors.value = {}
   
+  models.value = []
+  variants.value = []
+
   // Show feedback
   draftSaved.value = false
 }
@@ -2684,16 +2690,16 @@ const submitForm = async () => {
     const defaultGearTypeIdSubmit = gearTypes.value.find(g => g.name === 'Automatic')?.id
     vehicleData.gear_type_id = form.value.gearTypeId ?? defaultGearTypeIdSubmit ?? undefined
 
-    // Add model_year_id from Nummerplade API if available
+    // Add model_year from Nummerplade API if available
     if (nummerpladeData.model_year?.id) {
       const modelYearId = toNumberOrNull(nummerpladeData.model_year.id)
       if (modelYearId !== null) {
-        vehicleData.model_year_id = modelYearId
+        vehicleData.model_year = modelYearId
       }
     } else if (typeof nummerpladeData.model_year === 'number') {
       const modelYearId = toNumberOrNull(nummerpladeData.model_year)
       if (modelYearId !== null) {
-        vehicleData.model_year_id = modelYearId
+        vehicleData.model_year = modelYearId
       }
     }
 
@@ -2705,18 +2711,23 @@ const submitForm = async () => {
       }
     }
 
-    // Add fuel_efficiency from Nummerplade API if available (convert km/L to L/100km if needed)
-    // fuel_efficiency goes to vehicles table, not vehicle_details
+    // Add km_per_liter from Nummerplade API if available (convert km/L to L/100km if needed)
+    // km_per_liter maps to vehicles.km_per_liter
     if (form.value.fuelConsumption !== null && form.value.fuelConsumption !== undefined) {
       const fuelEfficiency = toNumberOrNull(form.value.fuelConsumption)
       if (fuelEfficiency !== null) {
-        vehicleData.fuel_efficiency = fuelEfficiency
+        vehicleData.km_per_liter = fuelEfficiency
+      }
+    } else if (nummerpladeData.km_per_liter !== undefined && nummerpladeData.km_per_liter !== null) {
+      const fuelEfficiency = toNumberOrNull(nummerpladeData.km_per_liter)
+      if (fuelEfficiency !== null) {
+        vehicleData.km_per_liter = fuelEfficiency
       }
     } else if (nummerpladeData.fuel_efficiency !== undefined && nummerpladeData.fuel_efficiency !== null) {
-      // Nummerplade returns km/L
+      // Nummerplade legacy key — km/L
       const fuelEfficiency = toNumberOrNull(nummerpladeData.fuel_efficiency)
       if (fuelEfficiency !== null) {
-        vehicleData.fuel_efficiency = fuelEfficiency
+        vehicleData.km_per_liter = fuelEfficiency
       }
     }
 
@@ -2788,11 +2799,11 @@ const submitForm = async () => {
         vehicleData.fuel_consumption_nedc = fuelConsumptionNedc
       }
     }
-    // fuel_efficiency is already set above from form or API data
+    // km_per_liter is already set above from form or API data
     if (form.value.euroEmissionClass) {
       const euroEmissionValue = String(form.value.euroEmissionClass).trim()
       if (/^\d+$/.test(euroEmissionValue)) {
-        vehicleData.euronom_id = Number(euroEmissionValue)
+        vehicleData.emission_norm_id = Number(euroEmissionValue)
       }
     }
     if (form.value.engineType) {
@@ -2916,7 +2927,7 @@ const submitForm = async () => {
     if (nummerpladeData.technical_total_weight !== undefined && nummerpladeData.technical_total_weight !== null) {
       const technicalTotalWeight = toNumberOrNull(nummerpladeData.technical_total_weight)
       if (technicalTotalWeight !== null) {
-        vehicleData.technical_total_weight = technicalTotalWeight
+        vehicleData.maximum_weight_kg = technicalTotalWeight
       }
     }
     if (nummerpladeData.coupling !== undefined && nummerpladeData.coupling !== null) {
@@ -3051,7 +3062,7 @@ const submitForm = async () => {
     // Note: Nummerplade API IDs might not match our database IDs, so we send the ID
     // and let the backend handle validation. If ID doesn't exist, backend will ignore it.
     if (nummerpladeData.color?.id) {
-      vehicleData.color_id = nummerpladeData.color.id
+      vehicleData.colour_id = nummerpladeData.color.id
     }
 
     // Body type - send ID if available from Nummerplade API
@@ -3091,12 +3102,12 @@ const submitForm = async () => {
     if (nummerpladeData.euronorm?.id) {
       const euronomId = toNumberOrNull(nummerpladeData.euronorm.id)
       if (euronomId !== null) {
-        vehicleData.euronom_id = euronomId
+        vehicleData.emission_norm_id = euronomId
       }
     } else if (typeof nummerpladeData.euronorm === 'number') {
       const euronomId = toNumberOrNull(nummerpladeData.euronorm)
       if (euronomId !== null) {
-        vehicleData.euronom_id = euronomId
+        vehicleData.emission_norm_id = euronomId
       }
     }
 
@@ -3150,6 +3161,8 @@ const submitForm = async () => {
         vehicleData.annual_tax = annualTax
       }
     }
+
+    appendLookupEquipmentAndSpecifications(vehicleData, nummerpladeData)
 
     await createVehicle(vehicleData)
 
@@ -3224,35 +3237,50 @@ watch(
 )
 
 watch(
+  () => form.value.make,
+  async (newMake, oldMake) => {
+    if (suppressLookupCascade.value) return
+    if (newMake === oldMake) return
+    const brand = brands.value.find(b => b.name === newMake)
+    const brandId = brand?.id ?? null
+    form.value.modelId = null
+    form.value.model = ''
+    form.value.variant = ''
+    variants.value = []
+    if (!brandId) {
+      models.value = []
+      return
+    }
+    await loadModelsForBrand(brandId)
+  }
+)
+
+watch(
   () => form.value.modelId,
-  (newModelId) => {
+  async (newModelId, oldModelId) => {
+    if (suppressLookupCascade.value) return
+    if (newModelId === oldModelId) return
+    form.value.variant = ''
     if (!newModelId) {
       form.value.model = ''
+      variants.value = []
       return
     }
     const selectedModel = models.value.find(model => model.id === newModelId)
     if (selectedModel) {
       form.value.model = selectedModel.name
     }
+    await loadVariantsForModel(newModelId)
   }
 )
 
 watch(
   () => [models.value, form.value.model, form.value.make],
   () => {
+    if (suppressLookupCascade.value) return
     syncModelIdFromName()
   },
   { deep: true }
-)
-
-watch(
-  () => form.value.make,
-  (newMake, oldMake) => {
-    if (newMake !== oldMake) {
-      form.value.modelId = null
-      form.value.model = ''
-    }
-  }
 )
 
 // Watch for fuelType changes to update fuelTypeId

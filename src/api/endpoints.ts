@@ -26,6 +26,15 @@ export const AUTH_ENDPOINTS = {
 } as const
 
 /**
+ * Public lookup search (DMR brands / models / variants; no row limit on server)
+ */
+export const LOOKUP_SEARCH_ENDPOINTS = {
+  BRANDS: '/brands',
+  MODELS: '/models',
+  VARIANTS: '/variants',
+} as const
+
+/**
  * Public vehicle endpoints
  */
 export const PUBLIC_VEHICLE_ENDPOINTS = {

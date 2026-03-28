@@ -577,7 +577,8 @@ export interface UpdateVehicleData {
   dmr_fact_vehicle_id?: number
   brand_id?: number
   model_id?: number
-  model_year_id?: number
+  /** Calendar year on `vehicles.model_year` */
+  model_year?: number
   km_driven?: number
   fuel_type_id?: number
   gear_type_id?: number
@@ -590,7 +591,8 @@ export interface UpdateVehicleData {
   towing_weight?: number
   ownership_tax?: number
   first_registration_date?: string
-  fuel_efficiency?: number
+  last_inspection_date?: string
+  km_per_liter?: number
   vehicle_list_status_id?: number
   listing_type_id?: number
   published_at?: string
@@ -599,13 +601,13 @@ export interface UpdateVehicleData {
   // Vehicle details fields
   description?: string
   variant_id?: number
-  color_id?: number
+  colour_id?: number
   body_type_id?: number
   price_type_id?: number
   condition_id?: number
   sales_type_id?: number
   use_id?: number
-  euronom_id?: number
+  emission_norm_id?: number
   transmission_name?: string
   
   // Pricing fields

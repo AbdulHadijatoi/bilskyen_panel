@@ -304,7 +304,7 @@
                   </div>
                   <v-select
                     v-else
-                    v-model="vehicleData.model_year_id"
+                    v-model="vehicleData.model_year"
                     :items="modelYears"
                     item-title="name"
                     item-value="id"
@@ -499,7 +499,7 @@
                   </div>
                   <v-text-field
                     v-else
-                    v-model.number="vehicleData.fuel_efficiency"
+                    v-model.number="vehicleData.km_per_liter"
                     :label="t('dealer.views.vehicleDetail.fuelEfficiency')"
                     type="number"
                     step="0.01"
@@ -627,7 +627,7 @@
                   </div>
                   <v-select
                     v-else
-                    v-model="vehicleData.euronom_id"
+                    v-model="vehicleData.emission_norm_id"
                     :items="euronorms"
                     item-title="name"
                     item-value="id"
@@ -699,7 +699,7 @@
                   </div>
                   <v-select
                     v-else
-                    v-model="vehicleData.color_id"
+                    v-model="vehicleData.colour_id"
                     :items="colors"
                     item-title="name"
                     item-value="id"
@@ -1480,7 +1480,7 @@ const loadVehicle = async () => {
       dmr_fact_vehicle_id: loadedVehicle.dmrFactVehicleId || undefined,
       brand_id: loadedVehicle.brandId || undefined,
       model_id: loadedVehicle.modelId || undefined,
-      model_year_id: loadedVehicle.modelYearId || undefined,
+      model_year: loadedVehicle.modelYearId || undefined,
       variant_id: loadedVehicle.details?.variant_id || undefined,
       version: (loadedVehicle as any).version || undefined,
       km_driven: loadedVehicle.kmDriven || undefined,
@@ -1495,11 +1495,11 @@ const loadVehicle = async () => {
       towing_weight: loadedVehicle.towingWeight || undefined,
       ownership_tax: loadedVehicle.ownershipTax || undefined,
       first_registration_date: loadedVehicle.firstRegistrationDate || undefined,
-      fuel_efficiency: loadedVehicle.fuelEfficiency || undefined,
+      km_per_liter: loadedVehicle.fuelEfficiency || undefined,
       vehicle_list_status_id: loadedVehicle.vehicleListStatusId || undefined,
       // Vehicle details fields (using snake_case as returned from backend)
       description: loadedVehicle.details?.description || undefined,
-      color_id: loadedVehicle.details?.color_id || undefined,
+      colour_id: (loadedVehicle.colourId ?? loadedVehicle.details?.colour_id ?? loadedVehicle.details?.color_id) ?? undefined,
       body_type_id: loadedVehicle.details?.body_type_id || undefined,
       production_date: loadedVehicle.details?.production_date || undefined,
       last_inspection_date: loadedVehicle.details?.last_inspection_date || undefined,
@@ -1515,7 +1515,7 @@ const loadVehicle = async () => {
       fuel_consumption_nedc: loadedVehicle.details?.fuel_consumption_nedc || undefined,
       engine_type: loadedVehicle.details?.engine_type || undefined,
       drive_axles: loadedVehicle.details?.drive_axles || undefined,
-      euronom_id: loadedVehicle.details?.euronom_id || undefined,
+      emission_norm_id: (loadedVehicle.emissionNormId ?? loadedVehicle.details?.emission_norm_id ?? loadedVehicle.details?.euronom_id) ?? undefined,
       use_id: loadedVehicle.details?.use_id || undefined,
       price_type_id: loadedVehicle.details?.price_type_id || undefined,
       condition_id: loadedVehicle.details?.condition_id || undefined,
@@ -1560,7 +1560,7 @@ const cancelEdit = () => {
     dmr_fact_vehicle_id: vehicle.value.dmrFactVehicleId || undefined,
     brand_id: vehicle.value.brandId || undefined,
     model_id: vehicle.value.modelId || undefined,
-    model_year_id: vehicle.value.modelYearId || undefined,
+    model_year: vehicle.value.modelYearId || undefined,
     variant_id: vehicle.value.details?.variant_id || undefined,
     version: (vehicle.value as any).version || undefined,
     km_driven: vehicle.value.kmDriven || undefined,
@@ -1575,11 +1575,11 @@ const cancelEdit = () => {
     towing_weight: vehicle.value.towingWeight || undefined,
     ownership_tax: vehicle.value.ownershipTax || undefined,
     first_registration_date: vehicle.value.firstRegistrationDate || undefined,
-    fuel_efficiency: vehicle.value.fuelEfficiency || undefined,
+    km_per_liter: vehicle.value.fuelEfficiency || undefined,
     vehicle_list_status_id: vehicle.value.vehicleListStatusId || undefined,
     // Vehicle details fields (using snake_case as returned from backend)
     description: vehicle.value.details?.description || undefined,
-    color_id: vehicle.value.details?.color_id || undefined,
+    colour_id: (vehicle.value.colourId ?? vehicle.value.details?.colour_id ?? vehicle.value.details?.color_id) ?? undefined,
     body_type_id: vehicle.value.details?.body_type_id || undefined,
     production_date: vehicle.value.details?.production_date || undefined,
     last_inspection_date: vehicle.value.details?.last_inspection_date || undefined,
@@ -1595,7 +1595,7 @@ const cancelEdit = () => {
     fuel_consumption_nedc: vehicle.value.details?.fuel_consumption_nedc || undefined,
     engine_type: vehicle.value.details?.engine_type || undefined,
     drive_axles: vehicle.value.details?.drive_axles || undefined,
-    euronom_id: vehicle.value.details?.euronom_id || undefined,
+    emission_norm_id: (vehicle.value.emissionNormId ?? vehicle.value.details?.emission_norm_id ?? vehicle.value.details?.euronom_id) ?? undefined,
     use_id: vehicle.value.details?.use_id || undefined,
     price_type_id: vehicle.value.details?.price_type_id || undefined,
     condition_id: vehicle.value.details?.condition_id || undefined,
