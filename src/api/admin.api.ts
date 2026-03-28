@@ -28,6 +28,7 @@ import {
   ADMIN_DASHBOARD_ENDPOINTS,
   ADMIN_FEATURED_VEHICLE_ENDPOINTS,
   ADMIN_OWNERSHIP_TAX_ENDPOINTS,
+  ADMIN_VEHICLE_SPEC_DEFINITIONS_ENDPOINTS,
 } from './endpoints'
 import type { UserModel } from '@/models/user.model'
 import { mapUserFromApi } from '@/models/user.model'
@@ -3030,7 +3031,9 @@ export async function deleteColor(id: number | string): Promise<void> {
 // VARIANTS
 // ============================================================================
 
-export async function getVariants(params?: PaginationParams): Promise<PaginationModel<ConstantModel>> {
+export async function getVariants(
+  params?: PaginationParams & { model_id?: number }
+): Promise<PaginationModel<ConstantModel>> {
   try {
     const response = await httpClient.get<{ data: PaginationModel<ConstantModel> }>(
       ADMIN_CONSTANTS_ENDPOINTS.VARIANTS.LIST,
@@ -3384,7 +3387,9 @@ export async function deleteEuronorm(id: number | string): Promise<void> {
 // VEHICLE MODELS
 // ============================================================================
 
-export async function getVehicleModels(params?: PaginationParams): Promise<PaginationModel<VehicleModelConstant>> {
+export async function getVehicleModels(
+  params?: PaginationParams & { brand_id?: number }
+): Promise<PaginationModel<VehicleModelConstant>> {
   try {
     const response = await httpClient.get<{ data: PaginationModel<VehicleModelConstant> }>(
       ADMIN_CONSTANTS_ENDPOINTS.VEHICLE_MODELS.LIST,
@@ -3985,6 +3990,128 @@ export async function updateOwnershipTaxRule(
 export async function deleteOwnershipTaxRule(id: number | string): Promise<void> {
   try {
     await httpClient.post(ADMIN_OWNERSHIP_TAX_ENDPOINTS.RULES.DELETE(id), {})
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// VEHICLE SPEC DEFINITIONS (CATALOG)
+// ============================================================================
+
+export interface VehicleSpecDefinitionModel {
+  id: number
+  brandId: number
+  modelId: number
+  variantId: number
+  modelYear: number
+  name: string
+  value: string
+  brand?: { id: number; name: string }
+  model?: { id: number; name: string; brand_id?: number }
+  variant?: { id: number; name: string; model_id?: number }
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface VehicleSpecDefinitionPayload {
+  brand_id: number
+  model_id: number
+  variant_id: number
+  model_year: number
+  name: string
+  value: string
+}
+
+function mapVehicleSpecDefinitionFromApi(data: any): VehicleSpecDefinitionModel {
+  return {
+    id: data.id,
+    brandId: data.brand_id,
+    modelId: data.model_id,
+    variantId: data.variant_id,
+    modelYear: data.model_year,
+    name: data.name,
+    value: data.value,
+    brand: data.brand,
+    model: data.model,
+    variant: data.variant,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+  }
+}
+
+export async function getVehicleSpecDefinitions(
+  params?: PaginationParams & {
+    brand_id?: number
+    model_id?: number
+    variant_id?: number
+    model_year?: number
+    search?: string
+  }
+): Promise<PaginationModel<VehicleSpecDefinitionModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<any> }>(
+      ADMIN_VEHICLE_SPEC_DEFINITIONS_ENDPOINTS.LIST,
+      { params }
+    )
+    const data = handleSuccess<PaginationModel<any>>(response)
+    return {
+      ...data,
+      docs: data.docs.map(mapVehicleSpecDefinitionFromApi),
+    }
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getVehicleSpecDefinition(
+  id: number | string
+): Promise<VehicleSpecDefinitionModel> {
+  try {
+    const response = await httpClient.get<{ data: any }>(
+      ADMIN_VEHICLE_SPEC_DEFINITIONS_ENDPOINTS.SHOW(id)
+    )
+    const row = handleSuccess<any>(response)
+    return mapVehicleSpecDefinitionFromApi(row)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function createVehicleSpecDefinition(
+  data: VehicleSpecDefinitionPayload
+): Promise<VehicleSpecDefinitionModel> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      ADMIN_VEHICLE_SPEC_DEFINITIONS_ENDPOINTS.CREATE,
+      data
+    )
+    const row = handleSuccess<any>(response)
+    return mapVehicleSpecDefinitionFromApi(row)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function updateVehicleSpecDefinition(
+  id: number | string,
+  data: Partial<VehicleSpecDefinitionPayload>
+): Promise<VehicleSpecDefinitionModel> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      ADMIN_VEHICLE_SPEC_DEFINITIONS_ENDPOINTS.UPDATE(id),
+      data
+    )
+    const row = handleSuccess<any>(response)
+    return mapVehicleSpecDefinitionFromApi(row)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function deleteVehicleSpecDefinition(id: number | string): Promise<void> {
+  try {
+    await httpClient.post(ADMIN_VEHICLE_SPEC_DEFINITIONS_ENDPOINTS.DELETE(id), {})
   } catch (error) {
     throw handleError(error)
   }

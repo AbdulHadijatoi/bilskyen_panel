@@ -402,6 +402,17 @@ export const ADMIN_OWNERSHIP_TAX_ENDPOINTS = {
 } as const
 
 /**
+ * Vehicle spec definitions catalog (admin)
+ */
+export const ADMIN_VEHICLE_SPEC_DEFINITIONS_ENDPOINTS = {
+  LIST: '/admin/vehicle-spec-definitions',
+  SHOW: (id: number | string) => `/admin/vehicle-spec-definitions/show/${id}`,
+  CREATE: '/admin/vehicle-spec-definitions/create',
+  UPDATE: (id: number | string) => `/admin/vehicle-spec-definitions/update/${id}`,
+  DELETE: (id: number | string) => `/admin/vehicle-spec-definitions/delete/${id}`,
+} as const
+
+/**
  * Admin constants endpoints
  */
 export const ADMIN_CONSTANTS_ENDPOINTS = {

@@ -67,6 +67,12 @@ export const adminSidebarSections: SidebarSection[] = [
         ],
       },
       {
+        title: 'Vehicle spec definitions',
+        url: `${ADMIN_ROUTE_BASE}/vehicle-spec-definitions`,
+        icon: 'mdi-clipboard-list-outline',
+        permission: 'admin.constants.view',
+      },
+      {
         title: 'Pages',
         url: `${ADMIN_ROUTE_BASE}/pages/home-page-content`,
         icon: 'mdi-file-document',

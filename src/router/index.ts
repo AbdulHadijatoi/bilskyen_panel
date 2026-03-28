@@ -163,6 +163,11 @@ const router = createRouter({
           component: () => import('@/views/admin/vehicles/VehicleDetail.vue'),
         },
         {
+          path: 'vehicle-spec-definitions',
+          name: 'admin.vehicle-spec-definitions',
+          component: () => import('@/views/admin/vehicle-spec-definitions/VehicleSpecDefinitions.vue'),
+        },
+        {
           path: 'plans',
           name: 'admin.plans',
           component: () => import('@/views/admin/plans/PlansOverview.vue'),
