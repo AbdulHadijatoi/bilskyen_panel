@@ -207,6 +207,12 @@ export const adminSidebarSections: SidebarSection[] = [
         ],
       },
       {
+        title: 'Brands & models',
+        url: `${ADMIN_ROUTE_BASE}/brands-models-variants`,
+        icon: 'mdi-car-info',
+        permission: 'admin.constants.view',
+      },
+      {
         title: 'Ownership Tax Rules',
         url: `${ADMIN_ROUTE_BASE}/ownership-tax-rules`,
         icon: 'mdi-cash-multiple',

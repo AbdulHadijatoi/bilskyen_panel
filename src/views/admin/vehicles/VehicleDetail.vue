@@ -304,6 +304,7 @@
                     density="compact"
                     hide-details="auto"
                     :disabled="!vehicleData.brand_id"
+                    @update:model-value="onModelChange"
                   />
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
@@ -1733,9 +1734,13 @@ import {
   getVehicleHistory,
   deleteVehicle as deleteVehicleApi,
   getConstantsData,
+  getVehicleModels,
+  getVariants,
   type UpdateVehicleData,
   type UpdateVehicleStatusData,
   type ConstantsData,
+  type VehicleModelConstant,
+  type VariantConstant,
 } from '@/api/admin.api'
 import type { VehicleModel } from '@/models/vehicle.model'
 import type { VehicleImageModel } from '@/models/vehicle.model'
@@ -1786,23 +1791,20 @@ const gearTypes = computed(() => constants.value?.gear_types || [])
 const listingTypes = computed(() => constants.value?.listing_types || [])
 const bodyTypes = computed(() => constants.value?.body_types || [])
 const colors = computed(() => constants.value?.colors || [])
-const variants = computed(() => constants.value?.variants || [])
+const variants = ref<VariantConstant[]>([])
 const types = computed(() => constants.value?.types || [])
 const conditions = computed(() => constants.value?.conditions || [])
 const salesTypes = computed(() => constants.value?.sales_types || [])
 const priceTypes = computed(() => constants.value?.price_types || [])
 const euronorms = computed(() => constants.value?.euronorms || [])
-const vehicleModels = computed(() => constants.value?.vehicle_models || [])
+const vehicleModels = ref<VehicleModelConstant[]>([])
 const vehicleUses = computed(() => constants.value?.vehicle_uses || [])
 const vehicleListStatuses = computed(() => constants.value?.vehicle_list_statuses || [])
 const equipmentTypes = computed(() => constants.value?.equipment_types || [])
 const equipments = computed(() => constants.value?.equipments || [])
 
-// Filter vehicle models by selected brand
-const filteredModels = computed(() => {
-  if (!vehicleData.value.brand_id) return []
-  return vehicleModels.value.filter(model => model.brand_id === vehicleData.value.brand_id)
-})
+// Models for selected brand (loaded via admin vehicle-models API, not bulk constants)
+const filteredModels = computed(() => vehicleModels.value)
 
 // Status options for status update dialog
 const statusOptions = computed(() => {
@@ -1891,12 +1893,43 @@ const loadVehicle = async () => {
       leasing_period_start: (loadedVehicle.details as any)?.leasing_period_start || undefined,
       leasing_period_end: (loadedVehicle.details as any)?.leasing_period_end || undefined,
     }
-    
+
+    await loadVehicleModelsForBrand(vehicleData.value.brand_id)
+    await loadVariantsForModel(vehicleData.value.model_id)
+
     await Promise.all([loadImages(), loadHistory()])
   } catch (err) {
     error.value = (err as ApiErrorModel).message || 'Failed to load vehicle'
   } finally {
     loading.value = false
+  }
+}
+
+const loadVehicleModelsForBrand = async (brandId: number | undefined) => {
+  if (!brandId) {
+    vehicleModels.value = []
+    return
+  }
+  try {
+    const res = await getVehicleModels({ brand_id: brandId, page: 1, limit: 500 })
+    vehicleModels.value = res.docs as VehicleModelConstant[]
+  } catch (err) {
+    console.error('Failed to load vehicle models:', err)
+    vehicleModels.value = []
+  }
+}
+
+const loadVariantsForModel = async (modelId: number | undefined) => {
+  if (!modelId) {
+    variants.value = []
+    return
+  }
+  try {
+    const res = await getVariants({ model_id: modelId, page: 1, limit: 500 })
+    variants.value = res.docs as VariantConstant[]
+  } catch (err) {
+    console.error('Failed to load variants:', err)
+    variants.value = []
   }
 }
 
@@ -1943,8 +1976,15 @@ const loadHistory = async () => {
 }
 
 const onBrandChange = () => {
-  // Reset model_id when brand changes
   vehicleData.value.model_id = undefined
+  vehicleData.value.variant_id = undefined
+  variants.value = []
+  void loadVehicleModelsForBrand(vehicleData.value.brand_id)
+}
+
+const onModelChange = () => {
+  vehicleData.value.variant_id = undefined
+  void loadVariantsForModel(vehicleData.value.model_id)
 }
 
 const cancelEdit = () => {

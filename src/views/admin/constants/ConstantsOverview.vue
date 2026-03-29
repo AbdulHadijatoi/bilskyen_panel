@@ -67,9 +67,9 @@
       :title="currentTab?.label || ''"
       :editing-item="editingItem"
       :loading="saving"
-      :brands="constantsData?.brands || []"
+      :brands="[]"
       :equipment-types="constantsData?.equipment_types || []"
-      :vehicle-models="constantsData?.vehicle_models || []"
+      :vehicle-models="[]"
       :show-brand="currentTab?.showBrand || false"
       :show-equipment-type="currentTab?.showEquipmentType || false"
       :show-model="currentTab?.showModel || false"
@@ -79,33 +79,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import {
   getConstantsData,
-  getBrands,
-  getModelYears,
   getFuelTypes,
   getGearTypes,
   getListingTypes,
   getBodyTypes,
   getColors,
-  getVariants,
   getTypes,
   getConditions,
   getSalesTypes,
   getPriceTypes,
   getEuronorms,
-  getVehicleModels,
   getVehicleUses,
   getVehicleListStatuses,
   getEquipmentTypes,
   getEquipments,
-  createBrand,
-  updateBrand,
-  deleteBrand,
-  createModelYear,
-  updateModelYear,
-  deleteModelYear,
   createFuelType,
   updateFuelType,
   deleteFuelType,
@@ -121,9 +111,6 @@ import {
   createColor,
   updateColor,
   deleteColor,
-  createVariant,
-  updateVariant,
-  deleteVariant,
   createType,
   updateType,
   deleteType,
@@ -139,9 +126,6 @@ import {
   createEuronorm,
   updateEuronorm,
   deleteEuronorm,
-  createVehicleModel,
-  updateVehicleModel,
-  deleteVehicleModel,
   createVehicleUse,
   updateVehicleUse,
   deleteVehicleUse,
@@ -155,9 +139,7 @@ import {
   updateEquipment,
   deleteEquipment,
   type ConstantModel,
-  type VehicleModelConstant,
   type EquipmentConstant,
-  type VariantConstant,
   type ConstantsData,
   type CreateConstantData,
 } from '@/api/admin.api'
@@ -171,7 +153,7 @@ interface TabConfig {
   showBrand?: boolean
   showEquipmentType?: boolean
   showModel?: boolean
-  getItems: (data: ConstantsData) => (ConstantModel | VehicleModelConstant | EquipmentConstant | VariantConstant)[]
+  getItems: (data: ConstantsData) => (ConstantModel | EquipmentConstant)[]
   loadItems: () => Promise<any>
   create: (data: any) => Promise<any>
   update: (id: number | string, data: CreateConstantData) => Promise<any>
@@ -179,24 +161,6 @@ interface TabConfig {
 }
 
 const tabs: TabConfig[] = [
-  {
-    key: 'brands',
-    label: 'Brands',
-    getItems: (data) => data.brands,
-    loadItems: getBrands,
-    create: createBrand,
-    update: updateBrand,
-    delete: deleteBrand,
-  },
-  {
-    key: 'model_years',
-    label: 'Model Years',
-    getItems: (data) => data.model_years,
-    loadItems: getModelYears,
-    create: createModelYear,
-    update: updateModelYear,
-    delete: deleteModelYear,
-  },
   {
     key: 'fuel_types',
     label: 'Fuel Types',
@@ -241,16 +205,6 @@ const tabs: TabConfig[] = [
     create: createColor,
     update: updateColor,
     delete: deleteColor,
-  },
-  {
-    key: 'variants',
-    label: 'Variants',
-    showModel: true,
-    getItems: (data) => data.variants,
-    loadItems: getVariants,
-    create: createVariant,
-    update: updateVariant,
-    delete: deleteVariant,
   },
   {
     key: 'types',
@@ -298,16 +252,6 @@ const tabs: TabConfig[] = [
     delete: deleteEuronorm,
   },
   {
-    key: 'vehicle_models',
-    label: 'Vehicle Models',
-    showBrand: true,
-    getItems: (data) => data.vehicle_models,
-    loadItems: getVehicleModels,
-    create: createVehicleModel,
-    update: updateVehicleModel,
-    delete: deleteVehicleModel,
-  },
-  {
     key: 'vehicle_uses',
     label: 'Vehicle Uses',
     getItems: (data) => data.vehicle_uses,
@@ -346,7 +290,7 @@ const tabs: TabConfig[] = [
   },
 ]
 
-const activeTab = ref('brands')
+const activeTab = ref('fuel_types')
 const constantsData = ref<ConstantsData | null>(null)
 const loadingStates = ref<Record<string, boolean>>({})
 const errors = ref<Record<string, string | null>>({})
@@ -354,7 +298,7 @@ const searchQueries = ref<Record<string, string>>({})
 const showDialog = ref(false)
 const saving = ref(false)
 const currentTab = ref<TabConfig | null>(null)
-const editingItem = ref<ConstantModel | VehicleModelConstant | EquipmentConstant | VariantConstant | null>(null)
+const editingItem = ref<ConstantModel | EquipmentConstant | null>(null)
 
 // Initialize search queries
 tabs.forEach(tab => {
@@ -380,7 +324,7 @@ const handleCreateClick = () => {
   }
 }
 
-const handleEditClick = (item: ConstantModel | VehicleModelConstant | EquipmentConstant | VariantConstant) => {
+const handleEditClick = (item: ConstantModel | EquipmentConstant) => {
   const tab = getCurrentTab()
   if (tab) {
     openEditDialog(tab, item)
@@ -411,7 +355,7 @@ const openCreateDialog = (tab: TabConfig) => {
   showDialog.value = true
 }
 
-const openEditDialog = (tab: TabConfig, item: ConstantModel | VehicleModelConstant | EquipmentConstant | VariantConstant) => {
+const openEditDialog = (tab: TabConfig, item: ConstantModel | EquipmentConstant) => {
   currentTab.value = tab
   editingItem.value = item
   showDialog.value = true

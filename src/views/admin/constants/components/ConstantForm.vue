@@ -51,7 +51,10 @@
         </div>
 
         <div class="form-group" v-if="showModel">
-          <label class="form-label">Model</label>
+          <label class="form-label">
+            Model
+            <span class="required">*</span>
+          </label>
           <v-select
             v-model="formData.model_id"
             :items="vehicleModels"
@@ -62,7 +65,11 @@
             :disabled="loading"
             hide-details
             class="form-select"
+            @blur="modelSelectTouched = true"
           />
+          <p v-if="showModel && !formData.model_id && modelSelectTouched" class="form-error">
+            Model is required
+          </p>
         </div>
 
         <div class="form-group">
@@ -159,11 +166,15 @@ const formData = ref<{
 })
 
 const formTouched = ref(false)
+const modelSelectTouched = ref(false)
 
 const isValid = computed(() => {
-  return !!formData.value.name && 
+  return (
+    !!formData.value.name &&
     (!props.showBrand || !!formData.value.brand_id) &&
-    (!props.showEquipmentType || !!formData.value.equipment_type_id)
+    (!props.showEquipmentType || !!formData.value.equipment_type_id) &&
+    (!props.showModel || !!formData.value.model_id)
+  )
 })
 
 watch(() => props.editingItem, (item) => {
@@ -175,6 +186,7 @@ watch(() => props.editingItem, (item) => {
       model_id: 'model_id' in item ? item.model_id : undefined,
     }
     formTouched.value = false
+    modelSelectTouched.value = false
   } else {
     formData.value = {
       name: '',
@@ -183,6 +195,7 @@ watch(() => props.editingItem, (item) => {
       model_id: undefined,
     }
     formTouched.value = false
+    modelSelectTouched.value = false
   }
 }, { immediate: true })
 
@@ -195,11 +208,15 @@ watch(() => props.modelValue, (isOpen) => {
       model_id: undefined,
     }
     formTouched.value = false
+    modelSelectTouched.value = false
   }
 })
 
 const handleSubmit = () => {
   formTouched.value = true
+  if (props.showModel) {
+    modelSelectTouched.value = true
+  }
   if (isValid.value) {
     const submitData: { name: string; brand_id?: number; equipment_type_id?: number; model_id?: number } = {
       name: formData.value.name,

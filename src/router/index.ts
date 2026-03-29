@@ -264,6 +264,12 @@ const router = createRouter({
           component: () => import('@/views/admin/constants/ConstantsOverview.vue'),
         },
         {
+          path: 'brands-models-variants',
+          name: 'admin.brands-models-variants',
+          component: () =>
+            import('@/views/admin/brands-models-variants/BrandsModelsVariants.vue'),
+        },
+        {
           path: 'ownership-tax-rules',
           name: 'admin.ownership-tax-rules',
           component: () => import('@/views/admin/ownership-tax/OwnershipTaxRules.vue'),

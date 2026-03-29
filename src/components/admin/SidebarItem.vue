@@ -223,6 +223,7 @@ const ADMIN_NAV_TITLE_KEYS: Record<string, string> = {
   Analytics: 'admin.nav.analytics',
   'Audit Logs': 'admin.nav.auditLogs',
   Constants: 'admin.nav.constants',
+  'Brands & models': 'admin.nav.brandsModels',
   Permissions: 'admin.nav.permissions',
   Translations: 'admin.nav.translations',
   'Manage Translations': 'admin.nav.manageTranslations',

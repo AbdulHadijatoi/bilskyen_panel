@@ -146,6 +146,7 @@
       "analytics": "Analyser",
       "auditLogs": "Revisionslog",
       "constants": "Konstanter",
+      "brandsModels": "Brands og modeller",
       "permissions": "Tilladelser",
       "translations": "Oversættelser",
       "manageTranslations": "Administrer oversættelser",
@@ -177,6 +178,7 @@
       "analytics": "Analyser",
       "auditLogs": "Revisionslog",
       "constants": "Konstanter",
+      "brandsModelsVariants": "Brands, modeller og varianter",
       "permissions": "Tilladelser",
       "translations": "Oversættelser",
       "import": "Importer"

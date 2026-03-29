@@ -67,6 +67,7 @@ const ADMIN_BREADCRUMB_KEY_MAP: Record<string, string> = {
   analytics: 'admin.breadcrumb.analytics',
   'audit-logs': 'admin.breadcrumb.auditLogs',
   constants: 'admin.breadcrumb.constants',
+  'brands-models-variants': 'admin.breadcrumb.brandsModelsVariants',
   permissions: 'admin.breadcrumb.permissions',
   translations: 'admin.breadcrumb.translations',
   import: 'admin.breadcrumb.import',

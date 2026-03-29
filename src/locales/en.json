@@ -146,6 +146,7 @@
       "analytics": "Analytics",
       "auditLogs": "Audit Logs",
       "constants": "Constants",
+      "brandsModels": "Brands & models",
       "permissions": "Permissions",
       "translations": "Translations",
       "manageTranslations": "Manage Translations",
@@ -177,6 +178,7 @@
       "analytics": "Analytics",
       "auditLogs": "Audit Logs",
       "constants": "Constants",
+      "brandsModelsVariants": "Brands, models & variants",
       "permissions": "Permissions",
       "translations": "Translations",
       "import": "Import"
