@@ -474,31 +474,6 @@ export async function updateVehiclePrice(
   }
 }
 
-/**
- * Fetch vehicle from Nummerplade API
- */
-export interface FetchFromNummerpladeData {
-  registration?: string
-  vin?: string
-}
-
-/**
- * Fetch vehicle data from Nummerplade API
- */
-export async function fetchVehicleFromNummerplade(
-  data: FetchFromNummerpladeData
-): Promise<any> {
-  try {
-    const response = await httpClient.post<{ data: any }>(
-      DEALER_VEHICLE_ENDPOINTS.FETCH_FROM_NUMMERPLADE,
-      data
-    )
-    return handleSuccess<any>(response)
-  } catch (error) {
-    throw handleError(error)
-  }
-}
-
 // ============================================================================
 // LEADS
 // ============================================================================
@@ -1279,7 +1254,7 @@ export interface LookupVehicleByRegistrationData {
 }
 
 /**
- * Lookup vehicle by registration number using Nummerplade API
+ * Lookup vehicle by registration (internal lookup service; supports advanced mode).
  */
 export async function lookupVehicleByRegistration(
   registration: string,

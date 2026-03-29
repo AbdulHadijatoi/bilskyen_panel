@@ -67,7 +67,7 @@ export const DEALER_VEHICLE_ENDPOINTS = {
   UPDATE_STATUS: (id: number | string) => `/dealer/vehicles/update-status/${id}`,
   UPDATE_EQUIPMENT: (id: number | string) => `/dealer/vehicles/update-equipment/${id}`,
   UPDATE_PRICE: (id: number | string) => `/dealer/vehicles/${id}/price`,
-  FETCH_FROM_NUMMERPLADE: '/dealer/vehicles/fetch-from-nummerplade',
+  LOOKUP_BY_REGISTRATION: '/dealer/vehicles/lookup-by-registration',
 } as const
 
 /**

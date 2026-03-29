@@ -1016,6 +1016,7 @@
         "performanceEmissions": "Ydeevne og emissioner (valgfrit)",
         "powerHp": "Hestekræfter (HK)",
         "powerKw": "Effekt (kW)",
+        "powerKwApproxHpInline": "≈ {hp} HK",
         "registration": "Registrering",
         "startOver": "Start forfra",
         "vin": "STEL-nr.",

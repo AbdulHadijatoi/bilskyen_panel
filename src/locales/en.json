@@ -1012,6 +1012,7 @@
         "performanceEmissions": "Performance & Emissions (Optional)",
         "powerHp": "Power (HP)",
         "powerKw": "Power (kW)",
+        "powerKwApproxHpInline": "≈ {hp} HP",
         "registration": "Registration",
         "startOver": "Start Over",
         "vin": "VIN",

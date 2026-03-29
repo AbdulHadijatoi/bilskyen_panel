@@ -80,8 +80,8 @@
             <!-- Vehicle Image -->
             <div class="vehicle-image">
               <v-img
-                v-if="vehicle.images && vehicle.images.length > 0 && vehicle.images[0]"
-                :src="vehicle.images[0]?.url || vehicle.images[0]?.thumbnailUrl"
+                v-if="sortedVehicleImages.length > 0"
+                :src="sortedVehicleImages[0]?.url || sortedVehicleImages[0]?.thumbnailUrl"
                 :alt="vehicle.title"
                 cover
                 width="100"
@@ -113,9 +113,10 @@
                   <v-icon size="16" color="primary">mdi-currency-usd</v-icon>
                   <span class="text-caption font-weight-bold price-text">{{ formatPrice(vehicle.price) }}</span>
                 </div>
-                <div v-if="vehicle.viewsCount !== undefined && vehicle.viewsCount !== null" class="d-flex align-center gap-1 views-highlight">
+                <div class="d-flex align-center gap-1 views-highlight">
                   <v-icon size="16" color="info">mdi-eye</v-icon>
-                  <span class="text-caption font-weight-bold views-text">{{ formatNumber(vehicle.viewsCount) }}</span>
+                  <span class="text-caption text-medium-emphasis">{{ t('dealer.views.vehicleDetail.viewsCount') }}</span>
+                  <span class="text-caption font-weight-bold views-text">{{ formatNumber(vehicle.viewsCount ?? 0) }}</span>
                 </div>
                 <div>
                   <v-chip
@@ -211,20 +212,6 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">{{ t('dealer.views.vehicleDetail.vin') }}</div>
-                    <div class="field-value">{{ displayValue(vehicle.vin) }}</div>
-                  </div>
-                  <v-text-field
-                    v-else
-                    v-model="vehicleData.vin"
-                    :label="t('dealer.views.vehicleDetail.vin')"
-                    variant="outlined"
-                    density="compact"
-                    hide-details="auto"
-                  />
-                </v-col>
-                <v-col cols="12" sm="6" md="4">
-                  <div v-if="!editMode" class="info-field">
                     <div class="field-label">{{ t('dealer.views.vehicleDetail.price') }}</div>
                     <div class="field-value font-weight-medium">{{ vehicle.price ? formatPrice(vehicle.price) : '-' }}</div>
                   </div>
@@ -237,12 +224,6 @@
                     density="compact"
                     hide-details="auto"
                   />
-                </v-col>
-                <v-col cols="12" sm="6" md="4">
-                  <div v-if="!editMode" class="info-field">
-                    <div class="field-label">{{ t('dealer.views.vehicleDetail.publishedAt') }}</div>
-                    <div class="field-value">{{ vehicle.publishedAt ? formatDate(vehicle.publishedAt) : '-' }}</div>
-                  </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
@@ -283,7 +264,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">{{ t('dealer.views.vehicleDetail.variant') }}</div>
-                    <div class="field-value">{{ displayValue((vehicle as any).version || vehicle.details?.variant_name) }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.variant_name) }}</div>
                   </div>
                   <v-select
                     v-else
@@ -362,7 +343,7 @@
                   </div>
                   <v-select
                     v-else
-                    v-model="vehicleData.vehicle_list_status_id"
+                    v-model="vehicleData.list_status_id"
                     :items="vehicleListStatuses"
                     item-title="name"
                     item-value="id"
@@ -391,12 +372,18 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">{{ t('dealer.views.vehicleDetail.enginePowerHp') }}</div>
-                    <div class="field-value">{{ vehicle.enginePower ? vehicle.enginePower + ' HP' : '-' }}</div>
+                    <div class="field-value">{{
+                      vehicle.enginePowerHp != null
+                        ? vehicle.enginePowerHp + ' HP'
+                        : vehicle.enginePowerKw != null
+                          ? vehicle.enginePowerKw + ' kW'
+                          : '-'
+                    }}</div>
                   </div>
                   <v-text-field
                     v-else
-                    v-model.number="vehicleData.engine_power"
-                    :label="t('dealer.views.vehicleDetail.enginePowerHp')"
+                    v-model.number="vehicleData.engine_power_kw"
+                    :label="t('dealer.views.vehicleDetail.enginePowerHp') + ' (kW)'"
                     type="number"
                     variant="outlined"
                     density="compact"
@@ -515,7 +502,7 @@
                   </div>
                   <v-text-field
                     v-else
-                    v-model.number="vehicleData.co2_emissions"
+                    v-model.number="vehicleData.co2_emission"
                     :label="t('dealer.views.vehicleDetail.co2Emissions')"
                     type="number"
                     variant="outlined"
@@ -574,23 +561,6 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">{{ t('dealer.views.vehicleDetail.transmission') }}</div>
-                    <div class="field-value">{{ displayValue(vehicle.details?.transmission_name || (vehicle as any).transmissionName) }}</div>
-                  </div>
-                  <v-select
-                    v-else
-                    v-model="vehicleData.transmission_id"
-                    :items="transmissions"
-                    item-title="name"
-                    item-value="id"
-                    :label="t('dealer.views.vehicleDetail.transmission')"
-                    variant="outlined"
-                    density="compact"
-                    hide-details="auto"
-                  />
-                </v-col>
-                <v-col cols="12" sm="6" md="4">
-                  <div v-if="!editMode" class="info-field">
                     <div class="field-label">{{ t('dealer.views.vehicleDetail.engineType') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.details?.engine_type) }}</div>
                   </div>
@@ -598,23 +568,6 @@
                     v-else
                     v-model="vehicleData.engine_type"
                     :label="t('dealer.views.vehicleDetail.engineType')"
-                    variant="outlined"
-                    density="compact"
-                    hide-details="auto"
-                  />
-                </v-col>
-                <v-col cols="12" sm="6" md="4">
-                  <div v-if="!editMode" class="info-field">
-                    <div class="field-label">{{ t('dealer.views.vehicleDetail.drivetrain') }}</div>
-                    <div class="field-value">{{ vehicle.details?.drive_axles === 1 ? 'FWD' : vehicle.details?.drive_axles === 2 ? 'AWD' : '-' }}</div>
-                  </div>
-                  <v-select
-                    v-else
-                    v-model="vehicleDataDrivetrain"
-                    :items="drivetrainTypes"
-                    item-title="title"
-                    item-value="value"
-                    :label="t('dealer.views.vehicleDetail.drivetrain')"
                     variant="outlined"
                     density="compact"
                     hide-details="auto"
@@ -644,7 +597,7 @@
                   </div>
                   <v-select
                     v-else
-                    v-model="vehicleData.use_id"
+                    v-model="vehicleData.vehicle_use_id"
                     :items="vehicleUses"
                     item-title="name"
                     item-value="id"
@@ -685,12 +638,6 @@
                     rows="4"
                     hide-details="auto"
                   />
-                </v-col>
-                <v-col cols="12" sm="6" md="4">
-                  <div class="info-field">
-                    <div class="field-label">{{ t('dealer.views.vehicleDetail.viewsCount') }}</div>
-                    <div class="field-value">{{ displayValue(vehicle.details?.views_count) }}</div>
-                  </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
@@ -813,20 +760,6 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">{{ t('dealer.views.vehicleDetail.servicebog') }}</div>
-                    <div class="field-value">{{ displayValue(vehicle.details?.servicebog) }}</div>
-                  </div>
-                  <v-text-field
-                    v-else
-                    v-model="vehicleData.servicebog"
-                    :label="t('dealer.views.vehicleDetail.servicebog')"
-                    variant="outlined"
-                    density="compact"
-                    hide-details="auto"
-                  />
-                </v-col>
-                <v-col cols="12" sm="6" md="4">
-                  <div v-if="!editMode" class="info-field">
                     <div class="field-label">{{ t('dealer.views.vehicleDetail.annualTax') }}</div>
                     <div class="field-value">{{ vehicle.details?.annual_tax ? formatPrice(vehicle.details.annual_tax) : '-' }}</div>
                   </div>
@@ -836,21 +769,6 @@
                     :label="t('dealer.views.vehicleDetail.annualTax')"
                     type="number"
                     step="0.01"
-                    variant="outlined"
-                    density="compact"
-                    hide-details="auto"
-                  />
-                </v-col>
-                <v-col cols="12" sm="6" md="4">
-                  <div v-if="!editMode" class="info-field">
-                    <div class="field-label">{{ t('dealer.views.vehicleDetail.coverImageIndex') }}</div>
-                    <div class="field-value">{{ displayValue(vehicle.details?.cover_image_index) }}</div>
-                  </div>
-                  <v-text-field
-                    v-else
-                    v-model.number="vehicleData.cover_image_index"
-                    :label="t('dealer.views.vehicleDetail.coverImageIndex')"
-                    type="number"
                     variant="outlined"
                     density="compact"
                     hide-details="auto"
@@ -1014,7 +932,7 @@
               </div>
               <div v-else class="images-grid">
                 <div
-                  v-for="image in vehicleImages"
+                  v-for="image in sortedVehicleImages"
                   :key="image.id"
                   class="image-item"
                 >
@@ -1409,8 +1327,6 @@ const salesTypes = computed(() => constants.value?.sales_types || [])
 const euronorms = computed(() => constants.value?.euronorms || [])
 const vehicleUses = computed(() => constants.value?.vehicle_uses || [])
 const modelYears = computed(() => constants.value?.model_years || [])
-const transmissions = computed(() => constants.value?.transmissions || [])
-const drivetrainTypes = computed(() => constants.value?.drivetrain_types || [])
 const vehicleListStatusesFromConstants = computed(() => constants.value?.vehicle_list_statuses || [])
 
 // Subscription plan limits
@@ -1428,33 +1344,18 @@ const filteredModels = computed(() => {
   return vehicleModels.value.filter(model => model.brand_id === vehicleData.value.brand_id)
 })
 
-// Helper to convert drive_axles number to drivetrain string value
-const driveAxlesToDrivetrain = (driveAxles: number | null | undefined): string | undefined => {
-  if (driveAxles === 1) return t('dealer.views.vehicleDetail.drivetrainFwd')
-  if (driveAxles === 2) return t('dealer.views.vehicleDetail.drivetrainAwd')
-  return undefined
-}
+const imageSortKey = (img: VehicleImageModel) => img.sortOrder ?? img.order ?? 0
 
-// Helper to convert drivetrain string value to drive_axles number
-const drivetrainToDriveAxles = (drivetrain: string | undefined): number | undefined => {
-  if (drivetrain === 'FWD') return 1
-  if (drivetrain === 'AWD') return 2
-  return undefined
-}
+/** Gallery + banner: first item is the cover (matches `vehicles.cover_image_index` = 0 after upload/delete). */
+const sortedVehicleImages = computed(() => {
+  const src =
+    vehicleImages.value.length > 0 ? vehicleImages.value : vehicle.value?.images ?? []
+  return [...src].sort((a, b) => imageSortKey(a) - imageSortKey(b))
+})
 
 // Get vehicle list statuses from constants
 const vehicleListStatuses = computed(() => {
   return vehicleListStatusesFromConstants.value
-})
-
-// Computed property for drivetrain that converts between drive_axles and drivetrain string
-const vehicleDataDrivetrain = computed({
-  get: () => {
-    return driveAxlesToDrivetrain(vehicleData.value.drive_axles as number | undefined) || ''
-  },
-  set: (value: string) => {
-    vehicleData.value.drive_axles = drivetrainToDriveAxles(value) as number | undefined
-  }
 })
 
 const loadVehicle = async () => {
@@ -1476,27 +1377,27 @@ const loadVehicle = async () => {
     vehicleData.value = {
       title: loadedVehicle.title || undefined,
       registration: loadedVehicle.registration || undefined,
-      vin: loadedVehicle.vin || undefined,
       dmr_fact_vehicle_id: loadedVehicle.dmrFactVehicleId || undefined,
       brand_id: loadedVehicle.brandId || undefined,
       model_id: loadedVehicle.modelId || undefined,
       model_year: loadedVehicle.modelYearId || undefined,
-      variant_id: loadedVehicle.details?.variant_id || undefined,
-      version: (loadedVehicle as any).version || undefined,
+      variant_id: loadedVehicle.variantId ?? loadedVehicle.details?.variant_id ?? undefined,
       km_driven: loadedVehicle.kmDriven || undefined,
       fuel_type_id: loadedVehicle.fuelTypeId || undefined,
       gear_type_id: loadedVehicle.gearTypeId || undefined,
-      transmission_id: loadedVehicle.details?.transmission_id || undefined,
       price: loadedVehicle.price || undefined,
       battery_capacity: loadedVehicle.batteryCapacity || undefined,
       range_km: loadedVehicle.rangeKm || undefined,
       charging_type: loadedVehicle.chargingType || undefined,
-      engine_power: loadedVehicle.enginePower || undefined,
+      engine_power_kw:
+        loadedVehicle.enginePowerKw ??
+        (loadedVehicle.enginePowerHp == null ? loadedVehicle.enginePower : undefined) ??
+        undefined,
       towing_weight: loadedVehicle.towingWeight || undefined,
       ownership_tax: loadedVehicle.ownershipTax || undefined,
       first_registration_date: loadedVehicle.firstRegistrationDate || undefined,
       km_per_liter: loadedVehicle.fuelEfficiency || undefined,
-      vehicle_list_status_id: loadedVehicle.vehicleListStatusId || undefined,
+      list_status_id: loadedVehicle.vehicleListStatusId || undefined,
       // Vehicle details fields (using snake_case as returned from backend)
       description: loadedVehicle.details?.description || undefined,
       colour_id: (loadedVehicle.colourId ?? loadedVehicle.details?.colour_id ?? loadedVehicle.details?.color_id) ?? undefined,
@@ -1507,16 +1408,13 @@ const loadVehicle = async () => {
       last_inspection_odometer: loadedVehicle.details?.last_inspection_odometer || undefined,
       is_import: loadedVehicle.details?.is_import || undefined,
       is_factory_new: loadedVehicle.details?.is_factory_new || undefined,
-      servicebog: loadedVehicle.details?.servicebog || undefined,
       annual_tax: loadedVehicle.details?.annual_tax || undefined,
-      cover_image_index: loadedVehicle.details?.cover_image_index || undefined,
-      co2_emissions: loadedVehicle.details?.co2_emissions || undefined,
+      co2_emission: loadedVehicle.details?.co2_emissions || undefined,
       fuel_consumption_wltp: loadedVehicle.details?.fuel_consumption_wltp || undefined,
       fuel_consumption_nedc: loadedVehicle.details?.fuel_consumption_nedc || undefined,
       engine_type: loadedVehicle.details?.engine_type || undefined,
-      drive_axles: loadedVehicle.details?.drive_axles || undefined,
       emission_norm_id: (loadedVehicle.emissionNormId ?? loadedVehicle.details?.emission_norm_id ?? loadedVehicle.details?.euronom_id) ?? undefined,
-      use_id: loadedVehicle.details?.use_id || undefined,
+      vehicle_use_id: loadedVehicle.vehicleUseId ?? loadedVehicle.details?.use_id ?? undefined,
       price_type_id: loadedVehicle.details?.price_type_id || undefined,
       condition_id: loadedVehicle.details?.condition_id || undefined,
       sales_type_id: loadedVehicle.details?.sales_type_id || undefined,
@@ -1556,27 +1454,27 @@ const cancelEdit = () => {
   vehicleData.value = {
     title: vehicle.value.title || undefined,
     registration: vehicle.value.registration || undefined,
-    vin: vehicle.value.vin || undefined,
     dmr_fact_vehicle_id: vehicle.value.dmrFactVehicleId || undefined,
     brand_id: vehicle.value.brandId || undefined,
     model_id: vehicle.value.modelId || undefined,
     model_year: vehicle.value.modelYearId || undefined,
-    variant_id: vehicle.value.details?.variant_id || undefined,
-    version: (vehicle.value as any).version || undefined,
+    variant_id: vehicle.value.variantId ?? vehicle.value.details?.variant_id ?? undefined,
     km_driven: vehicle.value.kmDriven || undefined,
     fuel_type_id: vehicle.value.fuelTypeId || undefined,
     gear_type_id: vehicle.value.gearTypeId || undefined,
-    transmission_id: vehicle.value.details?.transmission_id || undefined,
     price: vehicle.value.price || undefined,
     battery_capacity: vehicle.value.batteryCapacity || undefined,
     range_km: vehicle.value.rangeKm || undefined,
     charging_type: vehicle.value.chargingType || undefined,
-    engine_power: vehicle.value.enginePower || undefined,
+    engine_power_kw:
+      vehicle.value.enginePowerKw ??
+      (vehicle.value.enginePowerHp == null ? vehicle.value.enginePower : undefined) ??
+      undefined,
     towing_weight: vehicle.value.towingWeight || undefined,
     ownership_tax: vehicle.value.ownershipTax || undefined,
     first_registration_date: vehicle.value.firstRegistrationDate || undefined,
     km_per_liter: vehicle.value.fuelEfficiency || undefined,
-    vehicle_list_status_id: vehicle.value.vehicleListStatusId || undefined,
+    list_status_id: vehicle.value.vehicleListStatusId || undefined,
     // Vehicle details fields (using snake_case as returned from backend)
     description: vehicle.value.details?.description || undefined,
     colour_id: (vehicle.value.colourId ?? vehicle.value.details?.colour_id ?? vehicle.value.details?.color_id) ?? undefined,
@@ -1587,16 +1485,13 @@ const cancelEdit = () => {
     last_inspection_odometer: vehicle.value.details?.last_inspection_odometer || undefined,
     is_import: vehicle.value.details?.is_import || undefined,
     is_factory_new: vehicle.value.details?.is_factory_new || undefined,
-    servicebog: vehicle.value.details?.servicebog || undefined,
     annual_tax: vehicle.value.details?.annual_tax || undefined,
-    cover_image_index: vehicle.value.details?.cover_image_index || undefined,
-    co2_emissions: vehicle.value.details?.co2_emissions || undefined,
+    co2_emission: vehicle.value.details?.co2_emissions || undefined,
     fuel_consumption_wltp: vehicle.value.details?.fuel_consumption_wltp || undefined,
     fuel_consumption_nedc: vehicle.value.details?.fuel_consumption_nedc || undefined,
     engine_type: vehicle.value.details?.engine_type || undefined,
-    drive_axles: vehicle.value.details?.drive_axles || undefined,
     emission_norm_id: (vehicle.value.emissionNormId ?? vehicle.value.details?.emission_norm_id ?? vehicle.value.details?.euronom_id) ?? undefined,
-    use_id: vehicle.value.details?.use_id || undefined,
+    vehicle_use_id: vehicle.value.vehicleUseId ?? vehicle.value.details?.use_id ?? undefined,
     price_type_id: vehicle.value.details?.price_type_id || undefined,
     condition_id: vehicle.value.details?.condition_id || undefined,
     sales_type_id: vehicle.value.details?.sales_type_id || undefined,
@@ -1614,14 +1509,8 @@ const saveVehicle = async () => {
     updating.value = true
     error.value = null
     
-    // Prepare update data - ensure drive_axles is set correctly from drivetrain
     const updateData: UpdateVehicleData = { ...vehicleData.value }
-    
-    // Convert drivetrain string to drive_axles number if needed
-    if (vehicleDataDrivetrain.value && !updateData.drive_axles) {
-      updateData.drive_axles = drivetrainToDriveAxles(vehicleDataDrivetrain.value) as number | undefined
-    }
-    
+
     // Include equipment_ids if equipment dialog was used
     if (selectedEquipment.value.length > 0) {
       updateData.equipment_ids = selectedEquipment.value
@@ -1815,9 +1704,8 @@ const markAsSold = async () => {
     markingAsSold.value = true
     error.value = null
     
-    // Send vehicle_list_status_id: 3 (Sold) instead of status text
     const statusData: UpdateVehicleStatusData = {
-      vehicle_list_status_id: 3
+      list_status_id: 3,
     }
     
     const updatedVehicle = await updateVehicleStatus(vehicle.value.id, statusData)

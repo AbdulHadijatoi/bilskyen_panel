@@ -74,54 +74,93 @@ function getIdempotencyKey(): string {
 }
 
 /**
- * Slim persisted vehicle fields for dealer create/update (DMR-only contract).
- * Backend persists only these columns on the `vehicles` row.
+ * Persisted `vehicles` columns for dealer create/update (multipart FormData body).
  */
-const DMR_SLIM_VEHICLE_FIELDS = [
+const DEALER_VEHICLE_PERSIST_FIELDS = [
   'dmr_fact_vehicle_id',
   'title',
   'registration',
   'slug',
   'vin',
   'price',
-  'vehicle_list_status_id',
+  'list_status_id',
   'published_at',
   'description',
   'address',
   'postcode',
+  'seller_phone',
   'gear_type_id',
+  'body_type_id',
   'km_driven',
   'battery_capacity',
   'range_km',
   'charging_type',
   'condition_id',
-  'servicebog',
+  'annual_tax',
   'brand_id',
   'model_id',
   'variant_id',
   'fuel_type_id',
   'model_year',
   'km_per_liter',
+  'fuel_consumption_wltp',
+  'fuel_consumption_nedc',
   'maximum_weight_kg',
   'colour_id',
   'emission_norm_id',
   'last_inspection_date',
+  'first_registration_date',
+  'first_registration_year',
+  'production_date',
+  'co2_emission',
+  'engine_power_kw',
+  'engine_power_hp',
+  'engine_displacement_litres',
+  'engine_type',
+  'door_count',
+  'seats_min',
+  'seats_max',
+  'max_speed',
+  'axle_count',
+  'towing_weight',
+  'is_import',
+  'is_factory_new',
+  'sales_type_id',
+  'price_type_id',
+  'vehicle_use_id',
+  'listing_type_id',
+  'category_id',
+  'wholesale_price',
+  'internal_cost_price',
+  'price_without_tax',
+  'wholesale_price_includes_delivery',
+  'cover_image_index',
+  'leasing_enabled',
+  'leasing_type',
+  'leasing_customer_type',
+  'leasing_monthly_payment',
+  'leasing_first_payment',
+  'leasing_residual_value',
+  'leasing_duration',
+  'leasing_annual_mileage',
+  'leasing_total_cost',
+  'registration_status',
 ] as const
 
-type DmrSlimVehicleField = (typeof DMR_SLIM_VEHICLE_FIELDS)[number]
+type DealerVehiclePersistField = (typeof DEALER_VEHICLE_PERSIST_FIELDS)[number]
 
 function pickDmrSlimVehicleFields(
   input: Record<string, any>,
-  options?: { omitVehicleListStatusId?: boolean }
-): Record<DmrSlimVehicleField | 'address' | 'postcode', any> {
+  options?: { omitListStatusId?: boolean }
+): Record<DealerVehiclePersistField | 'address' | 'postcode', any> {
   const out: Record<string, any> = {}
 
-  for (const field of DMR_SLIM_VEHICLE_FIELDS) {
-    if (options?.omitVehicleListStatusId && field === 'vehicle_list_status_id') continue
+  for (const field of DEALER_VEHICLE_PERSIST_FIELDS) {
+    if (options?.omitListStatusId && field === 'list_status_id') continue
     if (input[field] !== undefined && input[field] !== null) out[field] = input[field]
   }
 
-  // Legacy UI keys -> new persisted column names
+  // Legacy UI keys -> `vehicles` column names
   if (out.address === undefined && input.seller_address !== undefined && input.seller_address !== null) {
     out.address = input.seller_address
   }
@@ -129,7 +168,10 @@ function pickDmrSlimVehicleFields(
     out.postcode = input.seller_postcode
   }
 
-  // Legacy request keys -> `vehicles` column names
+  if (out.list_status_id === undefined && input.vehicle_list_status_id !== undefined && input.vehicle_list_status_id !== null) {
+    out.list_status_id = input.vehicle_list_status_id
+  }
+
   if (out.km_per_liter === undefined && input.fuel_efficiency !== undefined && input.fuel_efficiency !== null) {
     out.km_per_liter = input.fuel_efficiency
   }
@@ -146,6 +188,39 @@ function pickDmrSlimVehicleFields(
   return out
 }
 
+/** Multipart form values are strings; MySQL tinyint/boolean columns reject `"true"` / `"false"`. */
+const DEALER_VEHICLE_FORM_BOOLEAN_KEYS = new Set<string>([
+  'wholesale_price_includes_delivery',
+  'leasing_enabled',
+  'is_import',
+  'is_factory_new',
+  'particle_filter',
+  'ncap_test',
+])
+
+function appendVehicleFieldToFormData(formData: FormData, key: string, value: unknown): void {
+  if (value === undefined || value === null) {
+    return
+  }
+  if (DEALER_VEHICLE_FORM_BOOLEAN_KEYS.has(key)) {
+    const truthy =
+      value === true ||
+      value === 1 ||
+      value === '1' ||
+      (typeof value === 'string' &&
+        ['true', 'on', 'yes'].includes(value.toLowerCase().trim()))
+    formData.append(key, truthy ? '1' : '0')
+    return
+  }
+  if (Array.isArray(value)) {
+    formData.append(key, JSON.stringify(value))
+  } else if (typeof value === 'object') {
+    formData.append(key, JSON.stringify(value))
+  } else {
+    formData.append(key, String(value))
+  }
+}
+
 // ============================================================================
 // VEHICLES
 // ============================================================================
@@ -154,6 +229,8 @@ function pickDmrSlimVehicleFields(
  * Get dealer's vehicles with pagination
  */
 export async function getVehicles(params?: PaginationParams & {
+  list_status_id?: number
+  /** @deprecated use list_status_id */
   vehicle_list_status_id?: number
   search?: string
   min_price?: number
@@ -162,9 +239,14 @@ export async function getVehicles(params?: PaginationParams & {
   year?: number
 }): Promise<PaginationModel<VehicleModel>> {
   try {
+    const query: Record<string, any> = params ? { ...params } : {}
+    if (query.list_status_id === undefined && query.vehicle_list_status_id !== undefined) {
+      query.list_status_id = query.vehicle_list_status_id
+      delete query.vehicle_list_status_id
+    }
     const response = await httpClient.get<{ data: PaginationModel<any> }>(
       DEALER_VEHICLE_ENDPOINTS.LIST,
-      { params }
+      { params: query }
     )
     const data = handleSuccess<PaginationModel<any>>(response)
     return {
@@ -203,7 +285,6 @@ export interface CreateVehicleData {
   mileage?: number
   year?: number
   fuel_type_id?: number
-  transmission_id?: number
   body_type?: string
   location_id?: number
   has_carplay?: boolean
@@ -256,16 +337,7 @@ export async function createVehicle(
     // Persist only slim `vehicles` columns (DMR contract)
     const slimPayload = pickDmrSlimVehicleFields(data as Record<string, any>) as Record<string, any>
     Object.keys(slimPayload).forEach((key) => {
-      const value = slimPayload[key]
-      if (value !== undefined && value !== null) {
-        if (Array.isArray(value)) {
-          formData.append(key, JSON.stringify(value))
-        } else if (typeof value === 'object') {
-          formData.append(key, JSON.stringify(value))
-        } else {
-          formData.append(key, String(value))
-        }
-      }
+      appendVehicleFieldToFormData(formData, key, slimPayload[key])
     })
 
     const response = await httpClient.post<{ data: any }>(
@@ -312,18 +384,9 @@ export async function createVehicleDraft(
     
     // Persist only slim `vehicles` columns (DMR contract).
     // Draft status is set server-side, so omit any client-provided `vehicle_list_status_id`.
-    const slimPayload = pickDmrSlimVehicleFields(data as Record<string, any>, { omitVehicleListStatusId: true }) as Record<string, any>
+    const slimPayload = pickDmrSlimVehicleFields(data as Record<string, any>, { omitListStatusId: true }) as Record<string, any>
     Object.keys(slimPayload).forEach((key) => {
-      const value = slimPayload[key]
-      if (value !== undefined && value !== null) {
-        if (Array.isArray(value)) {
-          formData.append(key, JSON.stringify(value))
-        } else if (typeof value === 'object') {
-          formData.append(key, JSON.stringify(value))
-        } else {
-          formData.append(key, String(value))
-        }
-      }
+      appendVehicleFieldToFormData(formData, key, slimPayload[key])
     })
 
     const response = await httpClient.post<{ success: boolean; message?: string; data: any }>(
@@ -386,16 +449,7 @@ export async function updateVehicle(
 
         // Persist only slim `vehicles` columns (DMR contract)
         Object.keys(slimPayload).forEach((key) => {
-          const value = slimPayload[key]
-          if (value !== undefined && value !== null) {
-            if (Array.isArray(value)) {
-              formData.append(key, JSON.stringify(value))
-            } else if (typeof value === 'object') {
-              formData.append(key, JSON.stringify(value))
-            } else {
-              formData.append(key, String(value))
-            }
-          }
+          appendVehicleFieldToFormData(formData, key, slimPayload[key])
         })
 
         requestData = formData
@@ -477,6 +531,8 @@ export async function deleteVehicleImage(
  */
 export interface UpdateVehicleStatusData {
   status?: VehicleStatus
+  list_status_id?: number
+  /** @deprecated use list_status_id */
   vehicle_list_status_id?: number
 }
 
@@ -488,9 +544,14 @@ export async function updateVehicleStatus(
   data: UpdateVehicleStatusData
 ): Promise<VehicleModel> {
   try {
+    const payload: Record<string, any> = { ...data }
+    if (payload.list_status_id === undefined && payload.vehicle_list_status_id !== undefined) {
+      payload.list_status_id = payload.vehicle_list_status_id
+      delete payload.vehicle_list_status_id
+    }
     const response = await httpClient.post<{ data: any }>(
       DEALER_VEHICLE_ENDPOINTS.UPDATE_STATUS(id),
-      data
+      payload
     )
     const vehicleData = handleSuccess<any>(response)
     return mapVehicleFromApi(vehicleData)
@@ -552,22 +613,22 @@ export async function updateVehiclePrice(
 }
 
 /**
- * Fetch vehicle from Nummerplade API
+ * Dealer vehicle preview by registration number or VIN (DMR-backed; POST /dealer/vehicles/lookup-by-registration).
  */
-export interface FetchFromNummerpladeData {
+export interface DealerVehicleLookupPayload {
   registration?: string
   vin?: string
 }
 
 /**
- * Fetch vehicle data from Nummerplade API
+ * Look up vehicle data by registration or VIN for dealer create flow.
  */
-export async function fetchVehicleFromNummerplade(
-  data: FetchFromNummerpladeData
+export async function lookupDealerVehicleByIdentity(
+  data: DealerVehicleLookupPayload
 ): Promise<any> {
   try {
     const response = await httpClient.post<{ data: any }>(
-      DEALER_VEHICLE_ENDPOINTS.FETCH_FROM_NUMMERPLADE,
+      DEALER_VEHICLE_ENDPOINTS.LOOKUP_BY_REGISTRATION,
       data
     )
     return handleSuccess<any>(response)
@@ -1397,7 +1458,7 @@ export interface LookupVehicleByRegistrationData {
 }
 
 /**
- * Lookup vehicle by registration number using Nummerplade API
+ * Lookup vehicle by registration (internal lookup service; supports advanced mode).
  */
 export async function lookupVehicleByRegistration(
   registration: string,

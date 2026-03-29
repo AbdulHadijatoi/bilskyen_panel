@@ -406,7 +406,7 @@ const loadVehicles = async () => {
       limit: 15,
     }
     if (statusFilter.value != null) {
-      params.vehicle_list_status_id = statusFilter.value
+      params.list_status_id = statusFilter.value
     }
     if (search.value) {
       params.search = search.value
