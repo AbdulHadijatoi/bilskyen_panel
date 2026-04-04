@@ -5,7 +5,7 @@
         <div>
           <h1 class="text-h4 font-weight-bold mb-1">Vehicle spec definitions</h1>
           <p class="text-body-2 text-medium-emphasis mb-0">
-            Catalog spec name and value by brand, model, variant, and model year.
+            Catalog spec name and value by brand, model, variant, and inclusive model year range.
           </p>
         </div>
         <v-btn
@@ -119,8 +119,8 @@
             {{ item.variant?.name ?? '—' }}
           </template>
 
-          <template #item.modelYear="{ item }">
-            <span class="font-weight-medium">{{ item.modelYear }}</span>
+          <template #item.yearRange="{ item }">
+            <span class="font-weight-medium">{{ formatYearRange(item.modelYearFrom, item.modelYearTo) }}</span>
           </template>
 
           <template #item.name="{ item }">
@@ -257,11 +257,24 @@
           />
 
           <v-select
-            v-model="form.model_year"
+            v-model="form.model_year_from"
             :items="yearSelectItems"
             item-title="title"
             item-value="value"
-            label="Model year"
+            label="Model year from"
+            variant="outlined"
+            density="comfortable"
+            :disabled="saving"
+            hide-details
+            class="mb-3"
+          />
+
+          <v-select
+            v-model="form.model_year_to"
+            :items="yearSelectItems"
+            item-title="title"
+            item-value="value"
+            label="Model year to"
             variant="outlined"
             density="comfortable"
             :disabled="saving"
@@ -349,7 +362,8 @@ const form = ref({
   brand_id: undefined as number | undefined,
   model_id: undefined as number | undefined,
   variant_id: undefined as number | undefined,
-  model_year: undefined as number | undefined,
+  model_year_from: undefined as number | undefined,
+  model_year_to: undefined as number | undefined,
   name: '',
   value: '',
 })
@@ -364,7 +378,7 @@ const headers = [
   { title: 'Brand', key: 'brand', sortable: false },
   { title: 'Model', key: 'model', sortable: false },
   { title: 'Variant', key: 'variant', sortable: false },
-  { title: 'Year', key: 'modelYear', sortable: false, width: '88px' },
+  { title: 'Years', key: 'yearRange', sortable: false, width: '120px' },
   { title: 'Spec name', key: 'name', sortable: false },
   { title: 'Spec value', key: 'value', sortable: false },
   { title: 'Actions', key: 'actions', sortable: false, width: '120px', align: 'center' as const },
@@ -380,13 +394,22 @@ const yearSelectItems = computed(() => {
   return items
 })
 
+function formatYearRange(from: number, to: number): string {
+  if (from === to) {
+    return String(from)
+  }
+  return `${from}–${to}`
+}
+
 const canSubmit = computed(() => {
   const f = form.value
   return (
     f.brand_id != null &&
     f.model_id != null &&
     f.variant_id != null &&
-    f.model_year != null &&
+    f.model_year_from != null &&
+    f.model_year_to != null &&
+    f.model_year_from <= f.model_year_to &&
     f.name.trim() !== '' &&
     f.value.trim() !== ''
   )
@@ -518,7 +541,8 @@ function resetForm(): void {
     brand_id: undefined,
     model_id: undefined,
     variant_id: undefined,
-    model_year: undefined,
+    model_year_from: undefined,
+    model_year_to: undefined,
     name: '',
     value: '',
   }
@@ -543,7 +567,8 @@ async function openEdit(item: VehicleSpecDefinitionModel): Promise<void> {
       brand_id: item.brandId,
       model_id: item.modelId,
       variant_id: item.variantId,
-      model_year: item.modelYear,
+      model_year_from: item.modelYearFrom,
+      model_year_to: item.modelYearTo,
       name: item.name,
       value: item.value,
     }
@@ -567,7 +592,8 @@ function buildPayload(): VehicleSpecDefinitionPayload {
     brand_id: f.brand_id!,
     model_id: f.model_id!,
     variant_id: f.variant_id!,
-    model_year: f.model_year!,
+    model_year_from: f.model_year_from!,
+    model_year_to: f.model_year_to!,
     name: f.name.trim(),
     value: f.value.trim(),
   }
