@@ -22,14 +22,13 @@
           <p class="text-body-2 text-medium-emphasis">{{ t('dealerComponents.planSubscriptionDialog.pickPlanBelow') }}</p>
         </div>
 
-        <!-- Warning Alert -->
+        <!-- Admin approval -->
         <v-alert
-          v-if="props.hasActiveSubscription"
-          type="warning"
+          type="info"
           variant="tonal"
           density="compact"
           class="mb-6"
-          icon="mdi-alert"
+          icon="mdi-shield-account"
         >
           <div class="font-weight-medium mb-1">{{ t('dealerComponents.planSubscriptionDialog.warningChangePlan') }}</div>
           <div class="text-body-2">
@@ -159,7 +158,6 @@ interface Props {
   plan: PlanModel | null
   show: boolean
   loading?: boolean
-  hasActiveSubscription?: boolean
 }
 
 const props = defineProps<Props>()

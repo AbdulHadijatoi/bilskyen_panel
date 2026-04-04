@@ -43,10 +43,26 @@
               />
             </div>
             <div v-if="activeTab === 'variants'" class="filter-field">
+              <label class="filter-label">Brand</label>
+              <v-select
+                v-model="filterVariantBrandId"
+                :items="brandFilterItems"
+                item-title="name"
+                item-value="id"
+                variant="outlined"
+                density="compact"
+                hide-details
+                clearable
+                placeholder="All brands"
+                class="filter-select"
+                @update:model-value="onFilterVariantBrandChange"
+              />
+            </div>
+            <div v-if="activeTab === 'variants'" class="filter-field">
               <label class="filter-label">Model</label>
               <v-select
                 v-model="filterModelId"
-                :items="modelFilterItems"
+                :items="variantModelFilterItems"
                 item-title="name"
                 item-value="id"
                 variant="outlined"
@@ -81,9 +97,10 @@
             :error="errors[activeTab]"
             :title="getCurrentTab()?.label || ''"
             :search-query="searchQueries[activeTab]"
-            :show-brand="getCurrentTab()?.showBrand || false"
+            :show-brand="activeTab === 'vehicle_models'"
             :show-equipment-type="false"
-            :show-model="getCurrentTab()?.showModel || false"
+            :show-model="false"
+            :show-variant-brand-model="activeTab === 'variants'"
             @edit="(item) => handleEditClick(item)"
             @delete="(id) => handleDeleteClick(id)"
           />
@@ -109,9 +126,10 @@
       :brands="brandsForForm"
       :equipment-types="[]"
       :vehicle-models="vehicleModelsForForm"
-      :show-brand="currentTab?.showBrand || false"
+      :show-brand="currentTab?.key === 'vehicle_models' || currentTab?.key === 'variants'"
       :show-equipment-type="false"
-      :show-model="currentTab?.showModel || false"
+      :show-model="currentTab?.key === 'variants'"
+      :filter-models-by-brand="currentTab?.key === 'variants'"
       @submit="handleSubmit"
     />
   </div>
@@ -149,8 +167,6 @@ const FILTER_MODEL_LIMIT = 2000
 interface TabConfig {
   key: string
   label: string
-  showBrand?: boolean
-  showModel?: boolean
   create: (data: CreateConstantData) => Promise<unknown>
   update: (id: number | string, data: CreateConstantData) => Promise<unknown>
   delete: (id: number | string) => Promise<void>
@@ -167,7 +183,6 @@ const tabs: TabConfig[] = [
   {
     key: 'vehicle_models',
     label: 'Vehicle models',
-    showBrand: true,
     create: (data: CreateConstantData) =>
       createVehicleModel(data as CreateConstantData & { brand_id: number }),
     update: updateVehicleModel,
@@ -176,7 +191,6 @@ const tabs: TabConfig[] = [
   {
     key: 'variants',
     label: 'Variants',
-    showModel: true,
     create: createVariant,
     update: updateVariant,
     delete: deleteVariant,
@@ -205,12 +219,20 @@ const variantsTotalPages = ref(1)
 
 const listLoading = ref(false)
 const filterBrandId = ref<number | null>(null)
+const filterVariantBrandId = ref<number | null>(null)
 const filterModelId = ref<number | null>(null)
 
 const brandsForForm = ref<ConstantModel[]>([])
 const vehicleModelsForForm = ref<VehicleModelConstant[]>([])
 const brandFilterItems = ref<ConstantModel[]>([])
 const modelFilterItems = ref<VehicleModelConstant[]>([])
+
+const variantModelFilterItems = computed(() => {
+  if (!filterVariantBrandId.value) {
+    return modelFilterItems.value
+  }
+  return modelFilterItems.value.filter((m) => m.brand_id === filterVariantBrandId.value)
+})
 
 tabs.forEach((tab) => {
   searchQueries.value[tab.key] = ''
@@ -286,6 +308,7 @@ async function loadVariantsPage() {
     const res = await getVariants({
       page: variantsPage.value,
       limit: PAGE_SIZE,
+      brand_id: filterVariantBrandId.value ?? undefined,
       model_id: filterModelId.value ?? undefined,
     })
     variantsDocs.value = res.docs as VariantConstant[]
@@ -338,6 +361,12 @@ function onPaginationChange() {
 function onFilterBrandChange() {
   vehicleModelsPage.value = 1
   void loadVehicleModelsPage()
+}
+
+function onFilterVariantBrandChange() {
+  filterModelId.value = null
+  variantsPage.value = 1
+  void loadVariantsPage()
 }
 
 function onFilterModelChange() {

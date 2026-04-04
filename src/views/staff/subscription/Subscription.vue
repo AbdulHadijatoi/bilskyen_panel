@@ -10,6 +10,46 @@
       </div>
     </div>
 
+    <v-alert
+      v-if="successMessage"
+      type="success"
+      variant="tonal"
+      class="mb-4"
+      closable
+      @click:close="successMessage = null"
+    >
+      {{ successMessage }}
+    </v-alert>
+
+    <v-alert
+      v-if="pendingChangeRequest"
+      type="info"
+      variant="tonal"
+      class="mb-6"
+    >
+      <div class="font-weight-medium mb-1">{{ t('dealer.views.subscription.pendingRequestTitle') }}</div>
+      <div class="text-body-2 mb-3">
+        {{
+          t('dealer.views.subscription.pendingRequestBody', {
+            plan: pendingChangeRequest.requested_plan?.name || '#' + pendingChangeRequest.requested_plan_id,
+            billing:
+              pendingChangeRequest.billing_cycle === 'yearly'
+                ? t('admin.views.plans.yearly')
+                : t('admin.views.plans.monthly'),
+          })
+        }}
+      </div>
+      <v-btn
+        color="primary"
+        variant="flat"
+        size="small"
+        :loading="cancellingPending"
+        @click="handleCancelPending"
+      >
+        {{ t('dealer.views.subscription.cancelPendingRequest') }}
+      </v-btn>
+    </v-alert>
+
     <!-- Current Subscription (if exists) -->
     <v-card
       v-if="currentSubscription"
@@ -174,11 +214,19 @@
               color="primary"
               variant="flat"
               size="small"
-              @click="openSubscriptionDialog(plan)"
+              class="py-6"
+              :disabled="!!pendingChangeRequest"
               block
+              @click="openSubscriptionDialog(plan)"
             >
-              Select Plan
+              {{ currentSubscription ? 'Change Plan' : 'Select Plan' }}
             </v-btn>
+            <div
+              v-if="pendingChangeRequest"
+              class="text-caption text-medium-emphasis text-center mt-2 px-1"
+            >
+              {{ t('dealer.views.subscription.pendingBlocksNewRequest') }}
+            </div>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -197,9 +245,21 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { getSubscription, getAvailablePlans, createSubscription, type PlanModel, type CreateDealerSubscriptionData } from '@/api/staff.api'
+import { useI18n } from 'vue-i18n'
+import {
+  getSubscription,
+  getAvailablePlans,
+  createSubscription,
+  getPendingSubscriptionChangeRequest,
+  cancelPendingSubscriptionChangeRequest,
+  type PlanModel,
+  type CreateDealerSubscriptionData,
+  type StaffPendingChangeRequestModel,
+} from '@/api/staff.api'
 import PlanSubscriptionDialog from '@/components/staff/PlanSubscriptionDialog.vue'
 import type { ApiErrorModel } from '@/models/api-error.model'
+
+const { t } = useI18n()
 
 const loadingPlans = ref(false)
 const error = ref<string | null>(null)
@@ -208,6 +268,9 @@ const currentSubscription = ref<any>(null)
 const showSubscriptionDialog = ref(false)
 const selectedPlan = ref<PlanModel | null>(null)
 const creatingSubscription = ref(false)
+const pendingChangeRequest = ref<StaffPendingChangeRequestModel | null>(null)
+const successMessage = ref<string | null>(null)
+const cancellingPending = ref(false)
 
 const loadPlans = async () => {
   try {
@@ -230,6 +293,28 @@ const loadCurrentSubscription = async () => {
   } catch (err) {
     // No subscription is fine, just don't show the section
     currentSubscription.value = null
+  }
+}
+
+const loadPendingChangeRequest = async () => {
+  try {
+    pendingChangeRequest.value = await getPendingSubscriptionChangeRequest()
+  } catch {
+    pendingChangeRequest.value = null
+  }
+}
+
+const handleCancelPending = async () => {
+  try {
+    cancellingPending.value = true
+    error.value = null
+    await cancelPendingSubscriptionChangeRequest()
+    successMessage.value = t('dealer.views.subscription.pendingCancelled')
+    await loadPendingChangeRequest()
+  } catch (err) {
+    error.value = (err as ApiErrorModel).message || 'Failed to cancel request'
+  } finally {
+    cancellingPending.value = false
   }
 }
 
@@ -356,10 +441,10 @@ const handleSubscriptionConfirm = async (billingCycle: 'monthly' | 'yearly') => 
       plan_id: selectedPlan.value.id,
       billing_cycle: billingCycle
     }
-    await createSubscription(data)
+    const result = await createSubscription(data)
     closeSubscriptionDialog()
-    // Reload plans and current subscription
-    await Promise.all([loadPlans(), loadCurrentSubscription()])
+    successMessage.value = result.message || t('dealer.views.subscription.requestSubmitted')
+    await Promise.all([loadPlans(), loadCurrentSubscription(), loadPendingChangeRequest()])
   } catch (err) {
     error.value = (err as ApiErrorModel).message || 'Failed to create subscription'
   } finally {
@@ -368,7 +453,7 @@ const handleSubscriptionConfirm = async (billingCycle: 'monthly' | 'yearly') => 
 }
 
 onMounted(async () => {
-  await Promise.all([loadPlans(), loadCurrentSubscription()])
+  await Promise.all([loadPlans(), loadCurrentSubscription(), loadPendingChangeRequest()])
 })
 </script>
 

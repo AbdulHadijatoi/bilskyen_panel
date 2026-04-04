@@ -8,6 +8,19 @@
           <p class="text-body-2 text-medium-emphasis">Pick your preferred plan below</p>
         </div>
 
+        <v-alert
+          type="info"
+          variant="tonal"
+          density="compact"
+          class="mb-6"
+          icon="mdi-shield-account"
+        >
+          <div class="font-weight-medium mb-1">{{ t('dealerComponents.planSubscriptionDialog.warningChangePlan') }}</div>
+          <div class="text-body-2">
+            {{ t('dealerComponents.planSubscriptionDialog.warningChangePlanMessage') }}
+          </div>
+        </v-alert>
+
         <!-- Plan Options -->
         <div class="d-flex flex-column gap-3 mb-6">
           <!-- Monthly Option -->
@@ -120,7 +133,10 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { PlanModel } from '@/api/staff.api'
+
+const { t } = useI18n()
 
 interface Props {
   plan: PlanModel | null

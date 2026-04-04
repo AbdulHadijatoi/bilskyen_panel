@@ -274,6 +274,18 @@
                             hide-details="auto"
                           />
                         </v-col>
+                        <v-col cols="12" md="4">
+                          <v-text-field
+                            v-model.number="form.fuelConsumption"
+                            :label="t('dealer.views.addVehicle.fuelConsumptionKmPerLiter')"
+                            type="number"
+                            density="compact"
+                            variant="outlined"
+                            :hint="t('dealer.views.addVehicle.fuelConsumptionHintDefault')"
+                            persistent-hint
+                            hide-details="auto"
+                          />
+                        </v-col>
                       </v-row>
                     </div>
                   </div>
@@ -539,89 +551,51 @@
 
                 <v-divider class="my-6" />
                 <div class="mb-4">
-              <h4 class="text-subtitle-1 font-weight-semibold mb-4">
-                <v-icon size="20" class="mr-2">mdi-tag-outline</v-icon>
-                {{ t('dealer.views.addVehicle.salesConfiguration') }}
-              </h4>
-          <v-row dense>
-            <v-col cols="12" md="4">
-              <v-select
-                v-model="form.priceTypeId"
-                :items="priceTypes"
-                item-title="name"
-                item-value="id"
-                :label="t('dealer.views.addVehicle.priceType')"
-                density="compact"
-                variant="outlined"
-                hide-details="auto"
-              />
-            </v-col>
-            <v-col cols="12" md="4">
-              <v-select
-                v-model="form.conditionId"
-                :items="conditions"
-                item-title="name"
-                item-value="id"
-                :label="t('dealer.views.addVehicle.condition')"
-                density="compact"
-                variant="outlined"
-                hide-details="auto"
-              />
-            </v-col>
-            <v-col cols="12" md="4">
-              <v-select
-                v-model="form.salesTypeId"
-                :items="salesTypes"
-                item-title="name"
-                item-value="id"
-                :label="t('dealer.views.addVehicle.salesType')"
-                density="compact"
-                variant="outlined"
-                hide-details="auto"
-              />
-            </v-col>
-</v-row>
-        </div>
-
-                <v-divider class="my-6" />
-                <div class="mb-4">
                   <h4 class="text-subtitle-1 font-weight-semibold mb-4">
-                    <v-icon size="20" class="mr-2">mdi-store-marker</v-icon>
-                    {{ t('dealer.views.addVehicle.dealerContactShown') }}
+                    <v-icon size="20" class="mr-2">mdi-tag-outline</v-icon>
+                    {{ t('dealer.views.addVehicle.salesConfiguration') }}
                   </h4>
                   <v-row dense>
                     <v-col cols="12" md="4">
-                      <v-text-field
-                        v-model="form.sellerAddress"
-                        :label="t('dealer.views.addVehicle.address')"
+                      <v-select
+                        v-model="form.salesTypeId"
+                        :items="salesTypes"
+                        item-title="name"
+                        item-value="id"
+                        :label="t('dealer.views.addVehicle.salesType')"
                         density="compact"
                         variant="outlined"
                         hide-details="auto"
-                        :placeholder="t('dealer.views.addVehicle.placeholderStreetCity')"
+                        :rules="[rules.requiredSelect]"
                       />
                     </v-col>
                     <v-col cols="12" md="4">
-                      <v-text-field
-                        v-model="form.sellerPostcode"
-                        :label="t('dealer.views.addVehicle.postalCode')"
+                      <v-select
+                        v-model="form.priceTypeId"
+                        :items="priceTypes"
+                        item-title="name"
+                        item-value="id"
+                        :label="t('dealer.views.addVehicle.priceType')"
                         density="compact"
                         variant="outlined"
                         hide-details="auto"
-                        :placeholder="t('dealer.views.addVehicle.placeholderPostcode')"
+                        clearable
                       />
                     </v-col>
                     <v-col cols="12" md="4">
-                      <v-text-field
-                        v-model="form.sellerPhone"
-                        :label="t('dealer.views.addVehicle.phone')"
+                      <v-select
+                        v-model="form.conditionId"
+                        :items="conditions"
+                        item-title="name"
+                        item-value="id"
+                        :label="t('dealer.views.addVehicle.condition')"
                         density="compact"
                         variant="outlined"
                         hide-details="auto"
-                        :placeholder="t('dealer.views.addVehicle.placeholderContactNumber')"
+                        clearable
                       />
                     </v-col>
                   </v-row>
-                  <p class="text-caption text-medium-emphasis mt-2">{{ t('dealer.views.addVehicle.filledFromProfile') }}</p>
                 </div>
 
                 <v-divider class="my-6" />
@@ -630,80 +604,41 @@
                     <v-icon size="20" class="mr-2">mdi-currency-usd</v-icon>
                     {{ t('dealer.views.addVehicle.pricing') }}
                   </h4>
-              <v-row dense>
-              <v-col cols="12" md="4">
-                <v-text-field
-                  v-model.number="form.retailPrice"
-                    :label="t('dealer.views.addVehicle.retailPrice')"
-                  type="number"
-                  density="compact"
-                  variant="outlined"
-                  prefix="kr"
-                    :hint="t('dealer.views.addVehicle.includingDelivery')"
-                    persistent-hint
-                  :rules="[rules.price]"
-                    hide-details="auto"
-                />
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-text-field
-                  v-model.number="form.wholesalePrice"
-                  :label="t('dealer.views.addVehicle.wholesalePrice')"
-                  type="number"
-                  density="compact"
-                  variant="outlined"
-                  prefix="kr"
-                    hide-details="auto"
-                />
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-text-field
-                  v-model.number="form.priceWithoutTax"
-                  :label="t('dealer.views.addVehicle.priceWithoutTax')"
-                  type="number"
-                  density="compact"
-                  variant="outlined"
-                  prefix="kr"
-                    hide-details="auto"
-                />
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-text-field
-                  v-model.number="form.internalCostPrice"
-                    :label="t('dealer.views.addVehicle.internalCostPrice')"
-                  type="number"
-                  density="compact"
-                  variant="outlined"
-                  prefix="kr"
-                    :hint="t('dealer.views.addVehicle.dealerOnly')"
-                    persistent-hint
-                    hide-details="auto"
-                />
-              </v-col>
-              <v-col cols="12" md="4">
-                <div 
-                  class="checkbox-button-field"
-                  :class="{ 'checkbox-button-field--checked': form.wholesalePriceIncludesDelivery }"
-                  @click="form.wholesalePriceIncludesDelivery = !form.wholesalePriceIncludesDelivery"
-                >
-                  <v-checkbox
-                    v-model="form.wholesalePriceIncludesDelivery"
-                    density="compact"
-                    color="primary"
-                    hide-details
-                    class="checkbox-button-field__checkbox"
-                    @click.stop
-                  />
-                  <span class="checkbox-button-field__label">{{ t('dealer.views.addVehicle.wholesaleIncludesDelivery') }}</span>
+                  <v-row dense>
+                    <v-col cols="12" md="4">
+                      <v-text-field
+                        v-model.number="form.price"
+                        :label="t('dealer.views.addVehicle.price')"
+                        type="number"
+                        density="compact"
+                        variant="outlined"
+                        prefix="kr"
+                        :hint="isLeasingSalesTypeSelected ? t('dealer.views.addVehicle.priceMonthlyLeasingHint') : t('dealer.views.addVehicle.includingDelivery')"
+                        persistent-hint
+                        :rules="[rules.requiredPrice, rules.priceRange]"
+                        hide-details="auto"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="4">
+                      <v-text-field
+                        v-model.number="form.internalCostPrice"
+                        :label="t('dealer.views.addVehicle.internalCostPrice')"
+                        type="number"
+                        density="compact"
+                        variant="outlined"
+                        prefix="kr"
+                        :hint="t('dealer.views.addVehicle.dealerOnly')"
+                        persistent-hint
+                        hide-details="auto"
+                      />
+                    </v-col>
+                  </v-row>
                 </div>
-              </v-col>
-            </v-row>
-            </div>
 
-            <div class="form-section mt-4">
+                <div v-if="isLeasingSalesTypeSelected" class="form-section mt-4 mb-4">
               <div class="section-title mb-3">
                 <v-icon size="18" class="mr-2">mdi-calendar-clock</v-icon>
-                <span class="text-subtitle-2 font-weight-medium">{{ t('dealer.views.addVehicle.leasingDetailsOptional') }}</span>
+                <span class="text-subtitle-2 font-weight-medium">{{ t('dealer.views.addVehicle.leasingDetails') }}</span>
               </div>
                 <v-row dense>
                 <v-col cols="12" md="4">
@@ -713,7 +648,8 @@
                     :label="t('dealer.views.addVehicle.leasingType')"
                     density="compact"
                     variant="outlined"
-                      hide-details="auto"
+                    hide-details="auto"
+                    clearable
                   />
                 </v-col>
                 <v-col cols="12" md="4">
@@ -723,18 +659,8 @@
                     :label="t('dealer.views.addVehicle.customerType')"
                     density="compact"
                     variant="outlined"
-                      hide-details="auto"
-                  />
-                </v-col>
-                <v-col cols="12" md="4">
-                  <v-text-field
-                    v-model.number="form.leasingMonthlyPayment"
-                    :label="t('dealer.views.addVehicle.monthlyPayment')"
-                    type="number"
-                    density="compact"
-                    variant="outlined"
-                    prefix="kr"
-                      hide-details="auto"
+                    hide-details="auto"
+                    clearable
                   />
                 </v-col>
                 <v-col cols="12" md="4">
@@ -787,11 +713,53 @@
                     density="compact"
                     variant="outlined"
                     prefix="kr"
-                      hide-details="auto"
+                    hide-details="auto"
                   />
                 </v-col>
-            </v-row>
-            </div>
+                </v-row>
+                </div>
+
+                <v-divider class="my-6" />
+                <div class="mb-4">
+                  <h4 class="text-subtitle-1 font-weight-semibold mb-4">
+                    <v-icon size="20" class="mr-2">mdi-store-marker</v-icon>
+                    {{ t('dealer.views.addVehicle.dealerContactShown') }}
+                  </h4>
+                  <v-row dense>
+                    <v-col cols="12" md="4">
+                      <v-text-field
+                        v-model="form.sellerAddress"
+                        :label="t('dealer.views.addVehicle.address')"
+                        density="compact"
+                        variant="outlined"
+                        hide-details="auto"
+                        :placeholder="t('dealer.views.addVehicle.placeholderStreetCity')"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="4">
+                      <v-text-field
+                        v-model="form.sellerPostcode"
+                        :label="t('dealer.views.addVehicle.postalCode')"
+                        density="compact"
+                        variant="outlined"
+                        hide-details="auto"
+                        :placeholder="t('dealer.views.addVehicle.placeholderPostcode')"
+                      />
+                    </v-col>
+                    <v-col cols="12" md="4">
+                      <v-text-field
+                        v-model="form.sellerPhone"
+                        :label="t('dealer.views.addVehicle.phone')"
+                        density="compact"
+                        variant="outlined"
+                        hide-details="auto"
+                        :placeholder="t('dealer.views.addVehicle.placeholderContactNumber')"
+                      />
+                    </v-col>
+                  </v-row>
+                  <p class="text-caption text-medium-emphasis mt-2">{{ t('dealer.views.addVehicle.filledFromProfile') }}</p>
+                </div>
+
                 </div>
               </template>
 
@@ -1133,6 +1101,7 @@ import type { VehicleModel } from '@/models/vehicle.model'
 import MonthYearPicker from '@/components/ui/MonthYearPicker.vue'
 import { useErrorMessage } from '@/composables/useErrorMessage'
 import { getFeatureLimit, getSubscriptionFeatures, FeatureKey } from '@/utils/subscriptionFeatures'
+import { SALES_TYPE_LEASING_DETAILS } from '@/constants/salesTypes'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -1606,38 +1575,38 @@ const generateDescription = (): string => {
 // Form data
 const form = ref({
   // Step 1
-  make: '',
-  model: '',
+  make: null as string | null,
+  model: null as string | null,
   modelId: null as number | null,
-  variant: '',
+  variant: null as string | null,
   dmr_fact_vehicle_id: null as number | null,
-  fuelType: '',
+  fuelType: null as string | null,
   fuelTypeId: null as number | null,
   powerKw: null as number | null,
-  registrationDate: '',
-  vin: '',
+  registrationDate: null as string | null,
+  vin: null as string | null,
   co2Emissions: null as number | null,
   fuelConsumptionNedc: null as number | null,
   fuelConsumptionWltp: null as number | null,
   
   // Step 2
-  firstRegistrationDate: '',
-  productionDate: '',
-  registrationNumber: '',
-  lastInspectionDate: '',
+  firstRegistrationDate: null as string | null,
+  productionDate: null as string | null,
+  registrationNumber: null as string | null,
+  lastInspectionDate: null as string | null,
   isImport: false,
   isFactoryNew: false,
   odometer: null as number | null,
-  previousUsage: '',
+  previousUsage: null as string | null,
   
   // Step 3
-  engineType: '',
-  transmissionType: '',
+  engineType: null as string | null,
+  transmissionType: null as string | null,
   gearTypeId: null as number | null,
-  drivetrain: '',
+  drivetrain: null as string | null,
   fuelConsumption: null as number | null,
-  euroEmissionClass: '',
-  servicebog: '',
+  euroEmissionClass: null as string | null,
+  servicebog: null as string | null,
   annualTax: null as number | null,
   
   // Step 4
@@ -1647,28 +1616,23 @@ const form = ref({
   priceTypeId: null as number | null,
   conditionId: 2 as number | null,
   salesTypeId: null as number | null,
-  retailPrice: null as number | null,
-  wholesalePrice: null as number | null,
-  wholesalePriceIncludesDelivery: false,
-  priceWithoutTax: null as number | null,
+  price: null as number | null,
   internalCostPrice: null as number | null,
-  leasingEnabled: false,
-  leasingType: '',
-  leasingCustomerType: '',
-  leasingMonthlyPayment: null as number | null,
+  leasingType: null as string | null,
+  leasingCustomerType: null as string | null,
   leasingFirstPayment: null as number | null,
   leasingResidualValue: null as number | null,
   leasingDuration: null as number | null,
   leasingAnnualMileage: null as number | null,
   leasingTotalCost: null as number | null,
-  sellerAddress: '',
-  sellerPostcode: '',
-  sellerPhone: '',
+  sellerAddress: null as string | null,
+  sellerPostcode: null as string | null,
+  sellerPhone: null as string | null,
   
   // Step 6 (Media)
   images: [] as File[],
   coverImageIndex: 0,
-  description: '',
+  description: null as string | null,
 })
 
 // Lookup data state
@@ -1683,6 +1647,12 @@ const variants = ref<LookupVariantRow[]>([])
 const models = ref<Array<{id: number, name: string, brand_id: number}>>([])
 const drivetrainTypes = ref<Array<{value: string, title: string}>>([])
 const equipmentTypes = ref<Array<{id: number, name: string, equipments: Array<{id: number, name: string}>}>>([])
+
+const isLeasingSalesTypeSelected = computed(() => {
+  const id = form.value.salesTypeId
+  if (id == null) return false
+  return salesTypes.value.some((st) => st.id === id && st.name === SALES_TYPE_LEASING_DETAILS)
+})
 
 // Image previews
 const imagePreviews = ref<string[]>([])
@@ -1748,13 +1718,25 @@ const loadDealerProfileForContact = async () => {
 // Validation rules
 const rules = {
   required: (v: any) => !!v || t('dealer.views.addVehicle.fieldRequired'),
+  requiredSelect: (v: unknown) =>
+    (v !== null && v !== undefined && v !== '') || t('dealer.views.addVehicle.fieldRequired'),
+  requiredPrice: (v: number | null | undefined) => {
+    if (v === null || v === undefined || (typeof v === 'string' && String(v).trim() === '')) {
+      return t('dealer.views.addVehicle.fieldRequired')
+    }
+    const n = Number(v)
+    if (Number.isNaN(n)) return t('dealer.views.addVehicle.fieldRequired')
+    return true
+  },
+  priceRange: (v: number | null | undefined) => {
+    if (v === null || v === undefined || v === ('' as unknown as number)) return true
+    const n = Number(v)
+    if (Number.isNaN(n)) return t('dealer.views.addVehicle.priceRange')
+    return (n >= 0 && n <= 999999999) || t('dealer.views.addVehicle.priceRange')
+  },
   odometer: (v: number | null | undefined) => {
     if (v === null || v === undefined) return true // Optional field
     return (v >= 0 && v <= 12000000000000) || t('dealer.views.addVehicle.odometerRange')
-  },
-  price: (v: number) => {
-    if (v === null || v === undefined) return true
-    return (v >= 0 && v <= 999999999) || t('dealer.views.addVehicle.priceRange')
   },
   description: (v: string) => {
     if (!v) return t('dealer.views.addVehicle.fieldRequired')
@@ -1794,8 +1776,12 @@ function getInvalidSteps(): { stepIndex: number; stepLabel: string }[] {
   }
 
   // Step 4: Pricing & Sales
-  const priceValid = f.retailPrice == null || (f.retailPrice >= 0 && f.retailPrice <= 999999999)
-  if (!priceValid) {
+  if (f.salesTypeId == null || f.salesTypeId === undefined) {
+    invalid.push({ stepIndex: 4, stepLabel: steps.value[4]?.label ?? t('dealer.views.addVehicle.tabPricing') })
+  }
+  const p = f.price
+  const priceNum = p === null || p === undefined || p === ('' as unknown as number) ? NaN : Number(p)
+  if (Number.isNaN(priceNum) || priceNum < 0 || priceNum > 999999999) {
     invalid.push({ stepIndex: 4, stepLabel: steps.value[4]?.label ?? t('dealer.views.addVehicle.tabPricing') })
   }
 
@@ -2018,8 +2004,10 @@ const performLookup = async () => {
       form.value.euroEmissionClass = typeof euronormName === 'string' ? euronormName : euronormName.name || ''
     }
 
-    // Map fuel consumption (km/L from DMR)
-    const kmpl = toNumberOrNull(data.km_per_liter)
+    // Map fuel consumption (km/L for vehicles.km_per_liter)
+    const kmpl =
+      toNumberOrNull(data.km_per_liter) ??
+      toNumberOrNull((data as Record<string, unknown>).fuel_efficiency)
     if (kmpl !== null) {
       form.value.fuelConsumption = kmpl
     }
@@ -2454,8 +2442,8 @@ const saveAsDraft = async () => {
     }
 
     // Price (optional for draft, default to 0 if not provided)
-    if (form.value.retailPrice !== null && form.value.retailPrice !== undefined) {
-      vehicleData.price = toNumberOrNull(form.value.retailPrice) ?? 0
+    if (form.value.price !== null && form.value.price !== undefined) {
+      vehicleData.price = toNumberOrNull(form.value.price) ?? 0
     } else {
       vehicleData.price = 0
     }
@@ -2608,55 +2596,39 @@ const saveAsDraft = async () => {
     if (form.value.engineType) {
       vehicleData.engine_type = form.value.engineType
     }
-    if (form.value.wholesalePrice !== null && form.value.wholesalePrice !== undefined) {
-      const wholesalePrice = toNumberOrNull(form.value.wholesalePrice)
-      if (wholesalePrice !== null) {
-        vehicleData.wholesale_price = wholesalePrice
-      }
-    }
     if (form.value.internalCostPrice !== null && form.value.internalCostPrice !== undefined) {
       const internalCostPrice = toNumberOrNull(form.value.internalCostPrice)
       if (internalCostPrice !== null) {
         vehicleData.internal_cost_price = internalCostPrice
       }
     }
-    if (form.value.priceWithoutTax !== null && form.value.priceWithoutTax !== undefined) {
-      const p = toNumberOrNull(form.value.priceWithoutTax)
-      if (p !== null) {
-        vehicleData.price_without_tax = p
+    if (isLeasingSalesTypeSelected.value) {
+      if (form.value.leasingType) {
+        vehicleData.leasing_type = form.value.leasingType
       }
-    }
-    vehicleData.wholesale_price_includes_delivery = !!form.value.wholesalePriceIncludesDelivery
-    vehicleData.leasing_enabled = !!form.value.leasingEnabled
-    if (form.value.leasingType) {
-      vehicleData.leasing_type = form.value.leasingType
-    }
-    if (form.value.leasingCustomerType) {
-      vehicleData.leasing_customer_type = form.value.leasingCustomerType
-    }
-    const dlm = toNumberOrNull(form.value.leasingMonthlyPayment)
-    if (dlm !== null) {
-      vehicleData.leasing_monthly_payment = dlm
-    }
-    const dlf = toNumberOrNull(form.value.leasingFirstPayment)
-    if (dlf !== null) {
-      vehicleData.leasing_first_payment = dlf
-    }
-    const dlr = toNumberOrNull(form.value.leasingResidualValue)
-    if (dlr !== null) {
-      vehicleData.leasing_residual_value = dlr
-    }
-    const dld = toNumberOrNull(form.value.leasingDuration)
-    if (dld !== null) {
-      vehicleData.leasing_duration = dld
-    }
-    const dla = toNumberOrNull(form.value.leasingAnnualMileage)
-    if (dla !== null) {
-      vehicleData.leasing_annual_mileage = dla
-    }
-    const dlt = toNumberOrNull(form.value.leasingTotalCost)
-    if (dlt !== null) {
-      vehicleData.leasing_total_cost = dlt
+      if (form.value.leasingCustomerType) {
+        vehicleData.leasing_customer_type = form.value.leasingCustomerType
+      }
+      const dlf = toNumberOrNull(form.value.leasingFirstPayment)
+      if (dlf !== null) {
+        vehicleData.leasing_first_payment = dlf
+      }
+      const dlr = toNumberOrNull(form.value.leasingResidualValue)
+      if (dlr !== null) {
+        vehicleData.leasing_residual_value = dlr
+      }
+      const dld = toNumberOrNull(form.value.leasingDuration)
+      if (dld !== null) {
+        vehicleData.leasing_duration = dld
+      }
+      const dla = toNumberOrNull(form.value.leasingAnnualMileage)
+      if (dla !== null) {
+        vehicleData.leasing_annual_mileage = dla
+      }
+      const dlt = toNumberOrNull(form.value.leasingTotalCost)
+      if (dlt !== null) {
+        vehicleData.leasing_total_cost = dlt
+      }
     }
     if (form.value.isImport !== undefined) {
       const isImport = toBooleanInt(form.value.isImport)
@@ -2780,15 +2752,10 @@ const clearDraft = () => {
   priceTypeId: null,
   conditionId: 2,
   salesTypeId: null,
-    retailPrice: null,
-    wholesalePrice: null,
-    wholesalePriceIncludesDelivery: false,
-    priceWithoutTax: null,
+    price: null,
     internalCostPrice: null,
-    leasingEnabled: false,
     leasingType: '',
     leasingCustomerType: '',
-    leasingMonthlyPayment: null,
     leasingFirstPayment: null,
     leasingResidualValue: null,
     leasingDuration: null,
@@ -2909,7 +2876,7 @@ const submitForm = async () => {
       brand_id: brand.id,
       model_id: form.value.modelId ?? undefined,
       fuel_type_id: fuelType.id,
-      price: toNumberOrNull(form.value.retailPrice) ?? 0,
+      price: toNumberOrNull(form.value.price) ?? 0,
       km_driven: toNumberOrNull(form.value.odometer) ?? 0,
       description: form.value.description,
       images: form.value.images,
@@ -3079,12 +3046,6 @@ const submitForm = async () => {
     if (form.value.sellerPhone) {
       vehicleData.seller_phone = form.value.sellerPhone
     }
-    if (form.value.wholesalePrice !== null && form.value.wholesalePrice !== undefined) {
-      const wholesalePrice = toNumberOrNull(form.value.wholesalePrice)
-      if (wholesalePrice !== null) {
-        vehicleData.wholesale_price = wholesalePrice
-      }
-    }
     if (form.value.internalCostPrice !== null && form.value.internalCostPrice !== undefined) {
       const internalCostPrice = toNumberOrNull(form.value.internalCostPrice)
       if (internalCostPrice !== null) {
@@ -3110,44 +3071,33 @@ const submitForm = async () => {
       }
     }
 
-    if (form.value.priceWithoutTax !== null && form.value.priceWithoutTax !== undefined) {
-      const p = toNumberOrNull(form.value.priceWithoutTax)
-      if (p !== null) {
-        vehicleData.price_without_tax = p
+    if (isLeasingSalesTypeSelected.value) {
+      if (form.value.leasingType) {
+        vehicleData.leasing_type = form.value.leasingType
       }
-    }
-    vehicleData.wholesale_price_includes_delivery = !!form.value.wholesalePriceIncludesDelivery
-
-    vehicleData.leasing_enabled = !!form.value.leasingEnabled
-    if (form.value.leasingType) {
-      vehicleData.leasing_type = form.value.leasingType
-    }
-    if (form.value.leasingCustomerType) {
-      vehicleData.leasing_customer_type = form.value.leasingCustomerType
-    }
-    const lm = toNumberOrNull(form.value.leasingMonthlyPayment)
-    if (lm !== null) {
-      vehicleData.leasing_monthly_payment = lm
-    }
-    const lf = toNumberOrNull(form.value.leasingFirstPayment)
-    if (lf !== null) {
-      vehicleData.leasing_first_payment = lf
-    }
-    const lr = toNumberOrNull(form.value.leasingResidualValue)
-    if (lr !== null) {
-      vehicleData.leasing_residual_value = lr
-    }
-    const ld = toNumberOrNull(form.value.leasingDuration)
-    if (ld !== null) {
-      vehicleData.leasing_duration = ld
-    }
-    const la = toNumberOrNull(form.value.leasingAnnualMileage)
-    if (la !== null) {
-      vehicleData.leasing_annual_mileage = la
-    }
-    const lt = toNumberOrNull(form.value.leasingTotalCost)
-    if (lt !== null) {
-      vehicleData.leasing_total_cost = lt
+      if (form.value.leasingCustomerType) {
+        vehicleData.leasing_customer_type = form.value.leasingCustomerType
+      }
+      const lf = toNumberOrNull(form.value.leasingFirstPayment)
+      if (lf !== null) {
+        vehicleData.leasing_first_payment = lf
+      }
+      const lr = toNumberOrNull(form.value.leasingResidualValue)
+      if (lr !== null) {
+        vehicleData.leasing_residual_value = lr
+      }
+      const ld = toNumberOrNull(form.value.leasingDuration)
+      if (ld !== null) {
+        vehicleData.leasing_duration = ld
+      }
+      const la = toNumberOrNull(form.value.leasingAnnualMileage)
+      if (la !== null) {
+        vehicleData.leasing_annual_mileage = la
+      }
+      const lt = toNumberOrNull(form.value.leasingTotalCost)
+      if (lt !== null) {
+        vehicleData.leasing_total_cost = lt
+      }
     }
 
     mergeDmrLookupVehicleFields(vehicleData, nummerpladeData)
@@ -3206,6 +3156,8 @@ const submitForm = async () => {
         'equipment': 3,
         'retail_price': 4,
         'listing_price': 4,
+        'price': 4,
+        'sales_type_id': 4,
         'images': 5,
         'description': 5,
       }
@@ -3293,6 +3245,21 @@ watch(
       }
     } else {
       form.value.fuelTypeId = null
+    }
+  }
+)
+
+watch(
+  () => form.value.salesTypeId,
+  () => {
+    if (!isLeasingSalesTypeSelected.value) {
+      form.value.leasingType = ''
+      form.value.leasingCustomerType = ''
+      form.value.leasingFirstPayment = null
+      form.value.leasingResidualValue = null
+      form.value.leasingDuration = null
+      form.value.leasingAnnualMileage = null
+      form.value.leasingTotalCost = null
     }
   }
 )
@@ -3430,7 +3397,7 @@ const checkUnsavedChanges = (): boolean => {
       form.value.registrationNumber ||
       form.value.vin ||
       form.value.odometer !== null ||
-      form.value.retailPrice !== null ||
+      form.value.price !== null ||
       form.value.description ||
       form.value.images.length > 0 ||
       form.value.equipment.length > 0

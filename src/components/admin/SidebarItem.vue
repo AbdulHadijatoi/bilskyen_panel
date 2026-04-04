@@ -220,6 +220,7 @@ const ADMIN_NAV_TITLE_KEYS: Record<string, string> = {
   'Featured Vehicles': 'admin.nav.featuredVehicles',
   Plans: 'admin.nav.plans',
   Subscriptions: 'admin.nav.subscriptions',
+  'Change requests': 'admin.nav.subscriptionChangeRequests',
   Analytics: 'admin.nav.analytics',
   'Audit Logs': 'admin.nav.auditLogs',
   Constants: 'admin.nav.constants',

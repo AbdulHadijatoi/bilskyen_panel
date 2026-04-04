@@ -1119,16 +1119,60 @@ export interface CreateDealerSubscriptionData {
   starts_at?: string
 }
 
-/**
- * Create a new subscription
- */
-export async function createSubscription(data: CreateDealerSubscriptionData): Promise<any> {
+export interface StaffPendingChangeRequestModel {
+  id: number
+  dealer_id: number
+  requested_plan_id: number
+  billing_cycle: 'monthly' | 'yearly'
+  starts_at?: string | null
+  status: string
+  requested_plan?: PlanModel
+}
+
+export async function getPendingSubscriptionChangeRequest(): Promise<StaffPendingChangeRequestModel | null> {
   try {
-    const response = await httpClient.post<{ data: any }>(
+    const response = await httpClient.get<{ data: StaffPendingChangeRequestModel | null }>(
+      DEALER_SUBSCRIPTION_ENDPOINTS.PENDING_CHANGE_REQUEST
+    )
+    return handleSuccess<StaffPendingChangeRequestModel | null>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function cancelPendingSubscriptionChangeRequest(): Promise<StaffPendingChangeRequestModel> {
+  try {
+    const response = await httpClient.post<{ data: StaffPendingChangeRequestModel }>(
+      DEALER_SUBSCRIPTION_ENDPOINTS.CANCEL_CHANGE_REQUEST,
+      {}
+    )
+    return handleSuccess<StaffPendingChangeRequestModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export interface CreateStaffSubscriptionRequestResult {
+  pending_change_request: StaffPendingChangeRequestModel
+}
+
+/**
+ * Submit a subscription plan request (requires admin approval).
+ */
+export async function createSubscription(
+  data: CreateDealerSubscriptionData
+): Promise<CreateStaffSubscriptionRequestResult & { message?: string }> {
+  try {
+    const response = await httpClient.post<{ data: CreateStaffSubscriptionRequestResult; message?: string }>(
       DEALER_SUBSCRIPTION_ENDPOINTS.CREATE,
       data
     )
-    return handleSuccess<any>(response)
+    const result = handleSuccess<CreateStaffSubscriptionRequestResult>(response)
+    const message =
+      typeof (response.data as { message?: string })?.message === 'string'
+        ? (response.data as { message?: string }).message
+        : undefined
+    return { ...result, message }
   } catch (error) {
     throw handleError(error)
   }

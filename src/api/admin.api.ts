@@ -13,6 +13,7 @@ import {
   ADMIN_VEHICLE_ENDPOINTS,
   ADMIN_PLAN_ENDPOINTS,
   ADMIN_SUBSCRIPTION_ENDPOINTS,
+  ADMIN_SUBSCRIPTION_CHANGE_REQUEST_ENDPOINTS,
   ADMIN_FEATURE_ENDPOINTS,
   ADMIN_PAGE_ENDPOINTS,
   ADMIN_HOME_PAGE_ENDPOINTS,
@@ -27,6 +28,7 @@ import {
   ADMIN_CONSTANTS_ENDPOINTS,
   ADMIN_DASHBOARD_ENDPOINTS,
   ADMIN_FEATURED_VEHICLE_ENDPOINTS,
+  ADMIN_LOCATIONS_ENDPOINTS,
   ADMIN_OWNERSHIP_TAX_ENDPOINTS,
   ADMIN_VEHICLE_SPEC_DEFINITIONS_ENDPOINTS,
 } from './endpoints'
@@ -82,6 +84,16 @@ const DMR_SLIM_VEHICLE_FIELDS = [
   'charging_type',
   'condition_id',
   'servicebog',
+  'sales_type_id',
+  'price_type_id',
+  'internal_cost_price',
+  'leasing_type',
+  'leasing_customer_type',
+  'leasing_first_payment',
+  'leasing_residual_value',
+  'leasing_duration',
+  'leasing_annual_mileage',
+  'leasing_total_cost',
 ] as const
 
 type DmrSlimVehicleField = (typeof DMR_SLIM_VEHICLE_FIELDS)[number]
@@ -611,11 +623,15 @@ export interface UpdateVehicleData {
   transmission_name?: string
   
   // Pricing fields
-  wholesale_price?: number
   internal_cost_price?: number
-  price_without_tax?: number
-  wholesale_price_includes_delivery?: boolean
-  
+  leasing_type?: string
+  leasing_customer_type?: string
+  leasing_first_payment?: number
+  leasing_residual_value?: number
+  leasing_duration?: number
+  leasing_annual_mileage?: number
+  leasing_total_cost?: number
+
   // Technical fields
   engine_type?: string
   drive_axles?: number
@@ -1352,6 +1368,70 @@ export async function getDealerSubscriptions(dealerId: number | string): Promise
       ADMIN_SUBSCRIPTION_ENDPOINTS.DEALER_SUBSCRIPTIONS(dealerId)
     )
     return handleSuccess<SubscriptionModel[]>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export interface SubscriptionChangeRequestModel {
+  id: number
+  dealer_id: number
+  requested_plan_id: number
+  billing_cycle: 'monthly' | 'yearly'
+  starts_at?: string | null
+  status: 'pending' | 'approved' | 'rejected' | 'cancelled'
+  reviewed_by?: number | null
+  reviewed_at?: string | null
+  rejection_reason?: string | null
+  created_at?: string
+  updated_at?: string
+  dealer?: SubscriptionModel['dealer']
+  requested_plan?: SubscriptionModel['plan']
+  reviewed_by_user?: { id: number; name: string; email?: string }
+  current_subscription?: {
+    id: number
+    plan_id: number
+    plan_name?: string
+    subscription_status_id: number
+  } | null
+}
+
+export async function getSubscriptionChangeRequests(params?: PaginationParams & { status?: string }): Promise<
+  PaginationModel<SubscriptionChangeRequestModel>
+> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<SubscriptionChangeRequestModel> }>(
+      ADMIN_SUBSCRIPTION_CHANGE_REQUEST_ENDPOINTS.LIST,
+      { params }
+    )
+    return handleSuccess<PaginationModel<SubscriptionChangeRequestModel>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function approveSubscriptionChangeRequest(id: number | string): Promise<SubscriptionModel & { subscription_features?: Record<string, string> }> {
+  try {
+    const response = await httpClient.post<{ data: SubscriptionModel & { subscription_features?: Record<string, string> } }>(
+      ADMIN_SUBSCRIPTION_CHANGE_REQUEST_ENDPOINTS.APPROVE(id),
+      {}
+    )
+    return handleSuccess(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function rejectSubscriptionChangeRequest(
+  id: number | string,
+  data?: { rejection_reason?: string }
+): Promise<SubscriptionChangeRequestModel> {
+  try {
+    const response = await httpClient.post<{ data: SubscriptionChangeRequestModel }>(
+      ADMIN_SUBSCRIPTION_CHANGE_REQUEST_ENDPOINTS.REJECT(id),
+      data ?? {}
+    )
+    return handleSuccess(response)
   } catch (error) {
     throw handleError(error)
   }
@@ -2567,7 +2647,6 @@ export interface ConstantsData {
   listing_types: ConstantModel[]
   body_types: ConstantModel[]
   colors: ConstantModel[]
-  types: ConstantModel[]
   conditions: ConstantModel[]
   sales_types: ConstantModel[]
   price_types: ConstantModel[]
@@ -2578,15 +2657,51 @@ export interface ConstantsData {
   equipments: EquipmentConstant[]
 }
 
+function asConstantModelArray(v: unknown): ConstantModel[] {
+  return Array.isArray(v) ? (v as ConstantModel[]) : []
+}
+
+function asEquipmentTypeArray(v: unknown): EquipmentTypeConstant[] {
+  return Array.isArray(v) ? (v as EquipmentTypeConstant[]) : []
+}
+
+function asEquipmentArray(v: unknown): EquipmentConstant[] {
+  return Array.isArray(v) ? (v as EquipmentConstant[]) : []
+}
+
+/**
+ * Normalize admin /constants payload (defensive for partial or legacy responses).
+ */
+export function mapConstantsDataFromApi(raw: Record<string, unknown>): ConstantsData {
+  return {
+    brands: asConstantModelArray(raw.brands),
+    model_years: asConstantModelArray(raw.model_years),
+    fuel_types: asConstantModelArray(raw.fuel_types),
+    gear_types: asConstantModelArray(raw.gear_types),
+    listing_types: asConstantModelArray(raw.listing_types),
+    body_types: asConstantModelArray(raw.body_types),
+    colors: asConstantModelArray(raw.colors),
+    conditions: asConstantModelArray(raw.conditions),
+    sales_types: asConstantModelArray(raw.sales_types),
+    price_types: asConstantModelArray(raw.price_types),
+    euronorms: asConstantModelArray(raw.euronorms),
+    vehicle_uses: asConstantModelArray(raw.vehicle_uses),
+    vehicle_list_statuses: asConstantModelArray(raw.vehicle_list_statuses),
+    equipment_types: asEquipmentTypeArray(raw.equipment_types),
+    equipments: asEquipmentArray(raw.equipments),
+  }
+}
+
 /**
  * Get all constants data (cached)
  */
 export async function getConstantsData(): Promise<ConstantsData> {
   try {
-    const response = await httpClient.get<{ data: ConstantsData }>(
+    const response = await httpClient.get<{ data: Record<string, unknown> }>(
       ADMIN_CONSTANTS_ENDPOINTS.GET_ALL
     )
-    return handleSuccess<ConstantsData>(response)
+    const raw = handleSuccess<Record<string, unknown>>(response)
+    return mapConstantsDataFromApi(raw)
   } catch (error) {
     throw handleError(error)
   }
@@ -3030,7 +3145,7 @@ export async function deleteColor(id: number | string): Promise<void> {
 // ============================================================================
 
 export async function getVariants(
-  params?: PaginationParams & { model_id?: number }
+  params?: PaginationParams & { model_id?: number; brand_id?: number }
 ): Promise<PaginationModel<ConstantModel>> {
   try {
     const response = await httpClient.get<{ data: PaginationModel<ConstantModel> }>(
@@ -3081,65 +3196,6 @@ export async function updateVariant(id: number | string, data: UpdateConstantDat
 export async function deleteVariant(id: number | string): Promise<void> {
   try {
     await httpClient.post(ADMIN_CONSTANTS_ENDPOINTS.VARIANTS.DELETE(id), {})
-  } catch (error) {
-    throw handleError(error)
-  }
-}
-
-// ============================================================================
-// TYPES
-// ============================================================================
-
-export async function getTypes(params?: PaginationParams): Promise<PaginationModel<ConstantModel>> {
-  try {
-    const response = await httpClient.get<{ data: PaginationModel<ConstantModel> }>(
-      ADMIN_CONSTANTS_ENDPOINTS.TYPES.LIST,
-      { params }
-    )
-    return handleSuccess<PaginationModel<ConstantModel>>(response)
-  } catch (error) {
-    throw handleError(error)
-  }
-}
-
-export async function getType(id: number | string): Promise<ConstantModel> {
-  try {
-    const response = await httpClient.get<{ data: ConstantModel }>(
-      ADMIN_CONSTANTS_ENDPOINTS.TYPES.SHOW(id)
-    )
-    return handleSuccess<ConstantModel>(response)
-  } catch (error) {
-    throw handleError(error)
-  }
-}
-
-export async function createType(data: CreateConstantData): Promise<ConstantModel> {
-  try {
-    const response = await httpClient.post<{ data: ConstantModel }>(
-      ADMIN_CONSTANTS_ENDPOINTS.TYPES.CREATE,
-      data
-    )
-    return handleSuccess<ConstantModel>(response)
-  } catch (error) {
-    throw handleError(error)
-  }
-}
-
-export async function updateType(id: number | string, data: UpdateConstantData): Promise<ConstantModel> {
-  try {
-    const response = await httpClient.post<{ data: ConstantModel }>(
-      ADMIN_CONSTANTS_ENDPOINTS.TYPES.UPDATE(id),
-      data
-    )
-    return handleSuccess<ConstantModel>(response)
-  } catch (error) {
-    throw handleError(error)
-  }
-}
-
-export async function deleteType(id: number | string): Promise<void> {
-  try {
-    await httpClient.post(ADMIN_CONSTANTS_ENDPOINTS.TYPES.DELETE(id), {})
   } catch (error) {
     throw handleError(error)
   }
@@ -3782,9 +3838,24 @@ export interface FeaturedVehicleModel {
   id: number
   vehicle_id: number
   sort_order: number
-  vehicle?: any // VehicleModel with relationships
+  vehicle?: VehicleModel
   created_at?: string
   updated_at?: string
+}
+
+function mapFeaturedVehicleFromApi(raw: Record<string, unknown>): FeaturedVehicleModel {
+  const vehicle = raw.vehicle
+  return {
+    id: Number(raw.id),
+    vehicle_id: Number(raw.vehicle_id),
+    sort_order: Number(raw.sort_order ?? 0),
+    vehicle:
+      vehicle && typeof vehicle === 'object' && !Array.isArray(vehicle)
+        ? mapVehicleFromApi(vehicle)
+        : undefined,
+    created_at: typeof raw.created_at === 'string' ? raw.created_at : undefined,
+    updated_at: typeof raw.updated_at === 'string' ? raw.updated_at : undefined,
+  }
 }
 
 /**
@@ -3797,11 +3868,15 @@ export async function getFeaturedVehicles(
   }
 ): Promise<PaginationModel<FeaturedVehicleModel>> {
   try {
-    const response = await httpClient.get<{ data: PaginationModel<FeaturedVehicleModel> }>(
+    const response = await httpClient.get<{ data: PaginationModel<Record<string, unknown>> }>(
       ADMIN_FEATURED_VEHICLE_ENDPOINTS.LIST,
       { params }
     )
-    return handleSuccess<PaginationModel<FeaturedVehicleModel>>(response)
+    const data = handleSuccess<PaginationModel<Record<string, unknown>>>(response)
+    return {
+      ...data,
+      docs: (data.docs ?? []).map((row) => mapFeaturedVehicleFromApi(row)),
+    }
   } catch (error) {
     throw handleError(error)
   }
@@ -3822,11 +3897,12 @@ export async function addFeaturedVehicle(
   data: CreateFeaturedVehicleData
 ): Promise<FeaturedVehicleModel> {
   try {
-    const response = await httpClient.post<{ data: FeaturedVehicleModel }>(
+    const response = await httpClient.post<{ data: Record<string, unknown> }>(
       ADMIN_FEATURED_VEHICLE_ENDPOINTS.CREATE,
       data
     )
-    return handleSuccess<FeaturedVehicleModel>(response)
+    const raw = handleSuccess<Record<string, unknown>>(response)
+    return mapFeaturedVehicleFromApi(raw)
   } catch (error) {
     throw handleError(error)
   }
@@ -3847,11 +3923,12 @@ export async function updateFeaturedVehicle(
   data: UpdateFeaturedVehicleData
 ): Promise<FeaturedVehicleModel> {
   try {
-    const response = await httpClient.post<{ data: FeaturedVehicleModel }>(
+    const response = await httpClient.post<{ data: Record<string, unknown> }>(
       ADMIN_FEATURED_VEHICLE_ENDPOINTS.UPDATE(id),
       data
     )
-    return handleSuccess<FeaturedVehicleModel>(response)
+    const raw = handleSuccess<Record<string, unknown>>(response)
+    return mapFeaturedVehicleFromApi(raw)
   } catch (error) {
     throw handleError(error)
   }
@@ -3988,6 +4065,102 @@ export async function updateOwnershipTaxRule(
 export async function deleteOwnershipTaxRule(id: number | string): Promise<void> {
   try {
     await httpClient.post(ADMIN_OWNERSHIP_TAX_ENDPOINTS.RULES.DELETE(id), {})
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// LOCATIONS (ADMIN)
+// ============================================================================
+
+export interface AdminLocationModel {
+  id: number
+  city: string
+  postcode: string
+  region: string
+  countryCode: string
+  latitude: number
+  longitude: number
+}
+
+function mapLocationFromApi(row: any): AdminLocationModel {
+  return {
+    id: Number(row.id),
+    city: String(row.city ?? ''),
+    postcode: String(row.postcode ?? ''),
+    region: String(row.region ?? ''),
+    countryCode: String(row.country_code ?? '').toUpperCase(),
+    latitude: Number(row.latitude),
+    longitude: Number(row.longitude),
+  }
+}
+
+export interface AdminLocationListParams extends PaginationParams {
+  q?: string
+}
+
+export async function getAdminLocations(
+  params?: AdminLocationListParams
+): Promise<PaginationModel<AdminLocationModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<any> }>(
+      ADMIN_LOCATIONS_ENDPOINTS.LIST,
+      { params }
+    )
+    const data = handleSuccess<PaginationModel<any>>(response)
+    return {
+      ...data,
+      docs: data.docs.map(mapLocationFromApi),
+    }
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export interface AdminLocationPayload {
+  city: string
+  postcode: string
+  region: string
+  country_code: string
+  latitude: number
+  longitude: number
+}
+
+export async function createAdminLocation(
+  data: AdminLocationPayload
+): Promise<AdminLocationModel> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      ADMIN_LOCATIONS_ENDPOINTS.CREATE,
+      data
+    )
+    const row = handleSuccess<any>(response)
+    return mapLocationFromApi(row)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function updateAdminLocation(
+  id: number | string,
+  data: Partial<AdminLocationPayload>
+): Promise<AdminLocationModel> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      ADMIN_LOCATIONS_ENDPOINTS.UPDATE(id),
+      data
+    )
+    const row = handleSuccess<any>(response)
+    return mapLocationFromApi(row)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function deleteAdminLocation(id: number | string): Promise<void> {
+  try {
+    await httpClient.post(ADMIN_LOCATIONS_ENDPOINTS.DELETE(id), {})
   } catch (error) {
     throw handleError(error)
   }

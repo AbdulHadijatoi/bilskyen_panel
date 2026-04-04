@@ -450,19 +450,12 @@
                   />
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
-                  <div v-if="!editMode" class="info-field">
+                  <div class="info-field">
                     <div class="field-label">{{ t('dealer.views.vehicleDetail.ownershipTax') }}</div>
-                    <div class="field-value">{{ vehicle.ownershipTax ? formatPrice(vehicle.ownershipTax) : '-' }}</div>
+                    <div class="field-value">
+                      {{ vehicle.ownershipTax != null ? formatPrice(Number(vehicle.ownershipTax)) : '-' }}
+                    </div>
                   </div>
-                  <v-text-field
-                    v-else
-                    v-model.number="vehicleData.ownership_tax"
-                    :label="t('dealer.views.vehicleDetail.ownershipTax')"
-                    type="number"
-                    variant="outlined"
-                    density="compact"
-                    hide-details="auto"
-                  />
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
@@ -705,35 +698,6 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">{{ t('dealer.views.vehicleDetail.lastInspectionResult') }}</div>
-                    <div class="field-value">{{ displayValue(vehicle.details?.last_inspection_result) }}</div>
-                  </div>
-                  <v-text-field
-                    v-else
-                    v-model="vehicleData.last_inspection_result"
-                    :label="t('dealer.views.vehicleDetail.lastInspectionResult')"
-                    variant="outlined"
-                    density="compact"
-                    hide-details="auto"
-                  />
-                </v-col>
-                <v-col cols="12" sm="6" md="4">
-                  <div v-if="!editMode" class="info-field">
-                    <div class="field-label">{{ t('dealer.views.vehicleDetail.lastInspectionOdometer') }}</div>
-                    <div class="field-value">{{ vehicle.details?.last_inspection_odometer ? formatNumber(vehicle.details.last_inspection_odometer) + ' km' : '-' }}</div>
-                  </div>
-                  <v-text-field
-                    v-else
-                    v-model.number="vehicleData.last_inspection_odometer"
-                    :label="t('dealer.views.vehicleDetail.lastInspectionOdometer')"
-                    type="number"
-                    variant="outlined"
-                    density="compact"
-                    hide-details="auto"
-                  />
-                </v-col>
-                <v-col cols="12" sm="6" md="4">
-                  <div v-if="!editMode" class="info-field">
                     <div class="field-label">{{ t('dealer.views.vehicleDetail.isImport') }}</div>
                     <div class="field-value">{{ vehicle.details?.is_import ? 'Yes' : 'No' }}</div>
                   </div>
@@ -756,22 +720,6 @@
                     :label="t('dealer.views.vehicleDetail.isFactoryNew')"
                     density="compact"
                     hide-details
-                  />
-                </v-col>
-                <v-col cols="12" sm="6" md="4">
-                  <div v-if="!editMode" class="info-field">
-                    <div class="field-label">{{ t('dealer.views.vehicleDetail.annualTax') }}</div>
-                    <div class="field-value">{{ vehicle.details?.annual_tax ? formatPrice(vehicle.details.annual_tax) : '-' }}</div>
-                  </div>
-                  <v-text-field
-                    v-else
-                    v-model.number="vehicleData.annual_tax"
-                    :label="t('dealer.views.vehicleDetail.annualTax')"
-                    type="number"
-                    step="0.01"
-                    variant="outlined"
-                    density="compact"
-                    hide-details="auto"
                   />
                 </v-col>
               </v-row>
@@ -843,22 +791,6 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">{{ t('dealer.views.vehicleDetail.wholesalePrice') }}</div>
-                    <div class="field-value">{{ vehicle.details?.wholesale_price ? formatPrice(vehicle.details.wholesale_price) : '-' }}</div>
-                  </div>
-                  <v-text-field
-                    v-else
-                    v-model.number="vehicleData.wholesale_price"
-                    :label="t('dealer.views.vehicleDetail.wholesalePrice')"
-                    type="number"
-                    variant="outlined"
-                    density="compact"
-                    prefix="kr"
-                    hide-details="auto"
-                  />
-                </v-col>
-                <v-col cols="12" sm="6" md="4">
-                  <div v-if="!editMode" class="info-field">
                     <div class="field-label">{{ t('dealer.views.vehicleDetail.internalCostPrice') }}</div>
                     <div class="field-value">{{ vehicle.details?.internal_cost_price ? formatPrice(vehicle.details.internal_cost_price) : '-' }}</div>
                   </div>
@@ -873,15 +805,59 @@
                     hide-details="auto"
                   />
                 </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+
+          <v-card
+            v-if="showLeasingBlock"
+            variant="flat"
+            class="info-card mb-3"
+            elevation="0"
+          >
+            <v-card-title class="card-title">
+              <v-icon size="18" class="mr-2">mdi-calendar-clock</v-icon>
+              <span class="text-subtitle-1">{{ t('dealer.views.addVehicle.leasingDetails') }}</span>
+            </v-card-title>
+            <v-card-text class="pa-3">
+              <v-row dense>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">{{ t('dealer.views.vehicleDetail.priceWithoutTax') }}</div>
-                    <div class="field-value">{{ vehicle.details?.price_without_tax ? formatPrice(vehicle.details.price_without_tax) : '-' }}</div>
+                    <div class="field-label">{{ t('dealer.views.addVehicle.leasingType') }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.leasing_type) }}</div>
                   </div>
                   <v-text-field
                     v-else
-                    v-model.number="vehicleData.price_without_tax"
-                    :label="t('dealer.views.vehicleDetail.priceWithoutTax')"
+                    v-model="vehicleData.leasing_type"
+                    :label="t('dealer.views.addVehicle.leasingType')"
+                    variant="outlined"
+                    density="compact"
+                    hide-details="auto"
+                  />
+                </v-col>
+                <v-col cols="12" sm="6" md="4">
+                  <div v-if="!editMode" class="info-field">
+                    <div class="field-label">{{ t('dealer.views.addVehicle.customerType') }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.leasing_customer_type) }}</div>
+                  </div>
+                  <v-text-field
+                    v-else
+                    v-model="vehicleData.leasing_customer_type"
+                    :label="t('dealer.views.addVehicle.customerType')"
+                    variant="outlined"
+                    density="compact"
+                    hide-details="auto"
+                  />
+                </v-col>
+                <v-col cols="12" sm="6" md="4">
+                  <div v-if="!editMode" class="info-field">
+                    <div class="field-label">{{ t('dealer.views.addVehicle.firstPayment') }}</div>
+                    <div class="field-value">{{ vehicle.details?.leasing_first_payment != null ? formatPrice(Number(vehicle.details.leasing_first_payment)) : '-' }}</div>
+                  </div>
+                  <v-text-field
+                    v-else
+                    v-model.number="vehicleData.leasing_first_payment"
+                    :label="t('dealer.views.addVehicle.firstPayment')"
                     type="number"
                     variant="outlined"
                     density="compact"
@@ -891,15 +867,64 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">{{ t('dealer.views.vehicleDetail.wholesaleIncludesDelivery') }}</div>
-                    <div class="field-value">{{ vehicle.details?.wholesale_price_includes_delivery ? 'Yes' : 'No' }}</div>
+                    <div class="field-label">{{ t('dealer.views.addVehicle.residualValue') }}</div>
+                    <div class="field-value">{{ vehicle.details?.leasing_residual_value != null ? formatPrice(Number(vehicle.details.leasing_residual_value)) : '-' }}</div>
                   </div>
-                  <v-checkbox
+                  <v-text-field
                     v-else
-                    v-model="vehicleData.wholesale_price_includes_delivery"
-                    :label="t('dealer.views.vehicleDetail.wholesaleIncludesDelivery')"
+                    v-model.number="vehicleData.leasing_residual_value"
+                    :label="t('dealer.views.addVehicle.residualValue')"
+                    type="number"
+                    variant="outlined"
                     density="compact"
-                    hide-details
+                    prefix="kr"
+                    hide-details="auto"
+                  />
+                </v-col>
+                <v-col cols="12" sm="6" md="4">
+                  <div v-if="!editMode" class="info-field">
+                    <div class="field-label">{{ t('dealer.views.addVehicle.durationMonths') }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.leasing_duration) }}</div>
+                  </div>
+                  <v-text-field
+                    v-else
+                    v-model.number="vehicleData.leasing_duration"
+                    :label="t('dealer.views.addVehicle.durationMonths')"
+                    type="number"
+                    variant="outlined"
+                    density="compact"
+                    hide-details="auto"
+                  />
+                </v-col>
+                <v-col cols="12" sm="6" md="4">
+                  <div v-if="!editMode" class="info-field">
+                    <div class="field-label">{{ t('dealer.views.addVehicle.annualMileage') }}</div>
+                    <div class="field-value">{{ displayValue(vehicle.details?.leasing_annual_mileage) }}</div>
+                  </div>
+                  <v-text-field
+                    v-else
+                    v-model.number="vehicleData.leasing_annual_mileage"
+                    :label="t('dealer.views.addVehicle.annualMileage')"
+                    type="number"
+                    variant="outlined"
+                    density="compact"
+                    hide-details="auto"
+                  />
+                </v-col>
+                <v-col cols="12" sm="6" md="4">
+                  <div v-if="!editMode" class="info-field">
+                    <div class="field-label">{{ t('dealer.views.addVehicle.totalCostOverTerm') }}</div>
+                    <div class="field-value">{{ vehicle.details?.leasing_total_cost != null ? formatPrice(Number(vehicle.details.leasing_total_cost)) : '-' }}</div>
+                  </div>
+                  <v-text-field
+                    v-else
+                    v-model.number="vehicleData.leasing_total_cost"
+                    :label="t('dealer.views.addVehicle.totalCostOverTerm')"
+                    type="number"
+                    variant="outlined"
+                    density="compact"
+                    prefix="kr"
+                    hide-details="auto"
                   />
                 </v-col>
               </v-row>
@@ -1280,6 +1305,7 @@ import type { VehicleModel } from '@/models/vehicle.model'
 import type { VehicleImageModel } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import { getFeatureLimit, FeatureKey } from '@/utils/subscriptionFeatures'
+import { SALES_TYPE_LEASING_DETAILS } from '@/constants/salesTypes'
 
 const route = useRoute()
 const router = useRouter()
@@ -1324,6 +1350,15 @@ const variants = computed(() => constants.value?.variants || [])
 const priceTypes = computed(() => constants.value?.price_types || [])
 const conditions = computed(() => constants.value?.conditions || [])
 const salesTypes = computed(() => constants.value?.sales_types || [])
+const isLeasingSalesTypeEditing = computed(() => {
+  const id = vehicleData.value.sales_type_id
+  if (id == null) return false
+  return salesTypes.value.some((st) => st.id === id && st.name === SALES_TYPE_LEASING_DETAILS)
+})
+const showLeasingBlock = computed(() => {
+  if (editMode.value) return isLeasingSalesTypeEditing.value
+  return vehicle.value?.details?.sales_type_name === SALES_TYPE_LEASING_DETAILS
+})
 const euronorms = computed(() => constants.value?.euronorms || [])
 const vehicleUses = computed(() => constants.value?.vehicle_uses || [])
 const modelYears = computed(() => constants.value?.model_years || [])
@@ -1394,7 +1429,6 @@ const loadVehicle = async () => {
         (loadedVehicle.enginePowerHp == null ? loadedVehicle.enginePower : undefined) ??
         undefined,
       towing_weight: loadedVehicle.towingWeight || undefined,
-      ownership_tax: loadedVehicle.ownershipTax || undefined,
       first_registration_date: loadedVehicle.firstRegistrationDate || undefined,
       km_per_liter: loadedVehicle.fuelEfficiency || undefined,
       list_status_id: loadedVehicle.vehicleListStatusId || undefined,
@@ -1404,11 +1438,8 @@ const loadVehicle = async () => {
       body_type_id: loadedVehicle.details?.body_type_id || undefined,
       production_date: loadedVehicle.details?.production_date || undefined,
       last_inspection_date: loadedVehicle.details?.last_inspection_date || undefined,
-      last_inspection_result: loadedVehicle.details?.last_inspection_result || undefined,
-      last_inspection_odometer: loadedVehicle.details?.last_inspection_odometer || undefined,
       is_import: loadedVehicle.details?.is_import || undefined,
       is_factory_new: loadedVehicle.details?.is_factory_new || undefined,
-      annual_tax: loadedVehicle.details?.annual_tax || undefined,
       co2_emission: loadedVehicle.details?.co2_emissions || undefined,
       fuel_consumption_wltp: loadedVehicle.details?.fuel_consumption_wltp || undefined,
       fuel_consumption_nedc: loadedVehicle.details?.fuel_consumption_nedc || undefined,
@@ -1418,10 +1449,14 @@ const loadVehicle = async () => {
       price_type_id: loadedVehicle.details?.price_type_id || undefined,
       condition_id: loadedVehicle.details?.condition_id || undefined,
       sales_type_id: loadedVehicle.details?.sales_type_id || undefined,
-      wholesale_price: loadedVehicle.details?.wholesale_price || undefined,
       internal_cost_price: loadedVehicle.details?.internal_cost_price || undefined,
-      price_without_tax: loadedVehicle.details?.price_without_tax || undefined,
-      wholesale_price_includes_delivery: loadedVehicle.details?.wholesale_price_includes_delivery || undefined,
+      leasing_type: (loadedVehicle.details as any)?.leasing_type || undefined,
+      leasing_customer_type: (loadedVehicle.details as any)?.leasing_customer_type || undefined,
+      leasing_first_payment: (loadedVehicle.details as any)?.leasing_first_payment ?? undefined,
+      leasing_residual_value: (loadedVehicle.details as any)?.leasing_residual_value ?? undefined,
+      leasing_duration: (loadedVehicle.details as any)?.leasing_duration ?? undefined,
+      leasing_annual_mileage: (loadedVehicle.details as any)?.leasing_annual_mileage ?? undefined,
+      leasing_total_cost: (loadedVehicle.details as any)?.leasing_total_cost ?? undefined,
     }
   } catch (err) {
     error.value = (err as ApiErrorModel).message || t('dealer.views.vehicleDetail.failedLoadVehicle')
@@ -1471,7 +1506,6 @@ const cancelEdit = () => {
       (vehicle.value.enginePowerHp == null ? vehicle.value.enginePower : undefined) ??
       undefined,
     towing_weight: vehicle.value.towingWeight || undefined,
-    ownership_tax: vehicle.value.ownershipTax || undefined,
     first_registration_date: vehicle.value.firstRegistrationDate || undefined,
     km_per_liter: vehicle.value.fuelEfficiency || undefined,
     list_status_id: vehicle.value.vehicleListStatusId || undefined,
@@ -1481,11 +1515,8 @@ const cancelEdit = () => {
     body_type_id: vehicle.value.details?.body_type_id || undefined,
     production_date: vehicle.value.details?.production_date || undefined,
     last_inspection_date: vehicle.value.details?.last_inspection_date || undefined,
-    last_inspection_result: vehicle.value.details?.last_inspection_result || undefined,
-    last_inspection_odometer: vehicle.value.details?.last_inspection_odometer || undefined,
     is_import: vehicle.value.details?.is_import || undefined,
     is_factory_new: vehicle.value.details?.is_factory_new || undefined,
-    annual_tax: vehicle.value.details?.annual_tax || undefined,
     co2_emission: vehicle.value.details?.co2_emissions || undefined,
     fuel_consumption_wltp: vehicle.value.details?.fuel_consumption_wltp || undefined,
     fuel_consumption_nedc: vehicle.value.details?.fuel_consumption_nedc || undefined,
@@ -1495,10 +1526,14 @@ const cancelEdit = () => {
     price_type_id: vehicle.value.details?.price_type_id || undefined,
     condition_id: vehicle.value.details?.condition_id || undefined,
     sales_type_id: vehicle.value.details?.sales_type_id || undefined,
-    wholesale_price: vehicle.value.details?.wholesale_price || undefined,
     internal_cost_price: vehicle.value.details?.internal_cost_price || undefined,
-    price_without_tax: vehicle.value.details?.price_without_tax || undefined,
-    wholesale_price_includes_delivery: vehicle.value.details?.wholesale_price_includes_delivery || undefined,
+    leasing_type: (vehicle.value.details as any)?.leasing_type || undefined,
+    leasing_customer_type: (vehicle.value.details as any)?.leasing_customer_type || undefined,
+    leasing_first_payment: (vehicle.value.details as any)?.leasing_first_payment ?? undefined,
+    leasing_residual_value: (vehicle.value.details as any)?.leasing_residual_value ?? undefined,
+    leasing_duration: (vehicle.value.details as any)?.leasing_duration ?? undefined,
+    leasing_annual_mileage: (vehicle.value.details as any)?.leasing_annual_mileage ?? undefined,
+    leasing_total_cost: (vehicle.value.details as any)?.leasing_total_cost ?? undefined,
   }
 }
 
@@ -1768,6 +1803,22 @@ const displayValue = (value: any): string => {
 }
 
 // Watch for equipment dialog to load equipment when opened
+watch(
+  () => vehicleData.value.sales_type_id,
+  () => {
+    if (!editMode.value) return
+    if (!isLeasingSalesTypeEditing.value) {
+      vehicleData.value.leasing_type = undefined
+      vehicleData.value.leasing_customer_type = undefined
+      vehicleData.value.leasing_first_payment = undefined
+      vehicleData.value.leasing_residual_value = undefined
+      vehicleData.value.leasing_duration = undefined
+      vehicleData.value.leasing_annual_mileage = undefined
+      vehicleData.value.leasing_total_cost = undefined
+    }
+  }
+)
+
 watch(showEquipmentDialog, (newVal) => {
   if (newVal && vehicle.value) {
     loadingEquipment.value = true

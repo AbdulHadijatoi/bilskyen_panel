@@ -147,6 +147,8 @@ export const DEALER_SUBSCRIPTION_ENDPOINTS = {
   HISTORY: '/dealer/subscription/history',
   PLANS: '/dealer/plans',
   CREATE: '/dealer/subscription',
+  PENDING_CHANGE_REQUEST: '/dealer/subscription/change-request',
+  CANCEL_CHANGE_REQUEST: '/dealer/subscription/change-request/cancel',
 } as const
 
 /**
@@ -250,6 +252,12 @@ export const ADMIN_SUBSCRIPTION_ENDPOINTS = {
   CANCEL: (id: number | string) => `/admin/subscriptions/${id}/cancel`,
   RENEW: (id: number | string) => `/admin/subscriptions/${id}/renew`,
   DEALER_SUBSCRIPTIONS: (dealerId: number | string) => `/admin/subscriptions/dealer/${dealerId}`,
+} as const
+
+export const ADMIN_SUBSCRIPTION_CHANGE_REQUEST_ENDPOINTS = {
+  LIST: '/admin/subscription-change-requests',
+  APPROVE: (id: number | string) => `/admin/subscription-change-requests/${id}/approve`,
+  REJECT: (id: number | string) => `/admin/subscription-change-requests/${id}/reject`,
 } as const
 
 /**
@@ -389,6 +397,16 @@ export const ADMIN_FEATURED_VEHICLE_ENDPOINTS = {
 } as const
 
 /**
+ * Locations dataset (admin) — city / postcode / coordinates for forms
+ */
+export const ADMIN_LOCATIONS_ENDPOINTS = {
+  LIST: '/admin/locations',
+  CREATE: '/admin/locations/create',
+  UPDATE: (id: number | string) => `/admin/locations/update/${id}`,
+  DELETE: (id: number | string) => `/admin/locations/delete/${id}`,
+} as const
+
+/**
  * Ownership tax rules endpoints (admin)
  */
 export const ADMIN_OWNERSHIP_TAX_ENDPOINTS = {
@@ -472,13 +490,6 @@ export const ADMIN_CONSTANTS_ENDPOINTS = {
     CREATE: '/admin/variants/create',
     UPDATE: (id: number | string) => `/admin/variants/update/${id}`,
     DELETE: (id: number | string) => `/admin/variants/delete/${id}`,
-  },
-  TYPES: {
-    LIST: '/admin/types',
-    SHOW: (id: number | string) => `/admin/types/show/${id}`,
-    CREATE: '/admin/types/create',
-    UPDATE: (id: number | string) => `/admin/types/update/${id}`,
-    DELETE: (id: number | string) => `/admin/types/delete/${id}`,
   },
   CONDITIONS: {
     LIST: '/admin/conditions',

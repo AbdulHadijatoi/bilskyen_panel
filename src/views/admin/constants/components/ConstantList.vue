@@ -22,10 +22,24 @@
     </div>
 
     <!-- List Items -->
-    <div v-else class="list-table" :class="{ 'has-meta': showBrand || showEquipmentType || showModel }">
+    <div
+      v-else
+      class="list-table"
+      :class="{
+        'has-meta': showMetaColumn,
+        'has-variant-meta': showVariantBrandModel,
+      }"
+    >
       <div class="table-header">
         <div class="table-cell name-cell">Name</div>
-        <div v-if="showBrand || showEquipmentType || showModel" class="table-cell meta-cell">
+        <template v-if="showVariantBrandModel">
+          <div class="table-cell meta-cell">Brand</div>
+          <div class="table-cell meta-cell">Model</div>
+        </template>
+        <div
+          v-else-if="showBrand || showEquipmentType || showModel"
+          class="table-cell meta-cell"
+        >
           <template v-if="showBrand">Brand</template>
           <template v-else-if="showEquipmentType">Type</template>
           <template v-else-if="showModel">Model</template>
@@ -41,7 +55,26 @@
           <div class="table-cell name-cell">
             <span class="cell-content">{{ item.name }}</span>
           </div>
-          <div v-if="showBrand || showEquipmentType || showModel" class="table-cell meta-cell">
+          <template v-if="showVariantBrandModel">
+            <div class="table-cell meta-cell">
+              <span class="cell-content">
+                {{
+                  'model' in item && item.model?.brand?.name
+                    ? item.model.brand.name
+                    : '—'
+                }}
+              </span>
+            </div>
+            <div class="table-cell meta-cell">
+              <span class="cell-content">
+                {{ 'model' in item && item.model?.name ? item.model.name : '—' }}
+              </span>
+            </div>
+          </template>
+          <div
+            v-else-if="showBrand || showEquipmentType || showModel"
+            class="table-cell meta-cell"
+          >
             <span class="cell-content">
               <template v-if="showBrand && 'brand' in item && item.brand">
                 {{ item.brand.name }}
@@ -94,6 +127,8 @@ interface Props {
   showBrand?: boolean
   showEquipmentType?: boolean
   showModel?: boolean
+  /** Variants: separate Brand + Model columns (uses `item.model.brand` / `item.model`) */
+  showVariantBrandModel?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -103,7 +138,16 @@ const props = withDefaults(defineProps<Props>(), {
   showBrand: false,
   showEquipmentType: false,
   showModel: false,
+  showVariantBrandModel: false,
 })
+
+const showMetaColumn = computed(
+  () =>
+    props.showVariantBrandModel ||
+    props.showBrand ||
+    props.showEquipmentType ||
+    props.showModel,
+)
 
 defineEmits<{
   edit: [item: ConstantModel | VehicleModelConstant | EquipmentConstant | VariantConstant]
@@ -115,12 +159,23 @@ const filteredItems = computed(() => {
     return props.items
   }
   const query = props.searchQuery.toLowerCase()
-  return props.items.filter(item => 
-    item.name.toLowerCase().includes(query) ||
-    (props.showBrand && 'brand' in item && item.brand?.name.toLowerCase().includes(query)) ||
-    (props.showEquipmentType && 'equipment_type' in item && item.equipment_type?.name.toLowerCase().includes(query)) ||
-    (props.showModel && 'model' in item && item.model?.name.toLowerCase().includes(query))
-  )
+  return props.items.filter((item) => {
+    if (item.name.toLowerCase().includes(query)) return true
+    if (props.showVariantBrandModel && 'model' in item) {
+      const m = item.model
+      if (m?.name?.toLowerCase().includes(query)) return true
+      if (m?.brand?.name?.toLowerCase().includes(query)) return true
+    }
+    if (props.showBrand && 'brand' in item && item.brand?.name.toLowerCase().includes(query)) return true
+    if (
+      props.showEquipmentType &&
+      'equipment_type' in item &&
+      item.equipment_type?.name.toLowerCase().includes(query)
+    )
+      return true
+    if (props.showModel && 'model' in item && item.model?.name.toLowerCase().includes(query)) return true
+    return false
+  })
 })
 </script>
 
@@ -175,9 +230,14 @@ const filteredItems = computed(() => {
   grid-template-columns: 1fr 120px;
 }
 
-.list-table.has-meta .table-header,
-.list-table.has-meta .table-row {
+.list-table.has-meta:not(.has-variant-meta) .table-header,
+.list-table.has-meta:not(.has-variant-meta) .table-row {
   grid-template-columns: 1fr 200px 120px;
+}
+
+.list-table.has-variant-meta .table-header,
+.list-table.has-variant-meta .table-row {
+  grid-template-columns: 1fr minmax(120px, 1fr) minmax(120px, 1fr) 120px;
 }
 
 .table-header {

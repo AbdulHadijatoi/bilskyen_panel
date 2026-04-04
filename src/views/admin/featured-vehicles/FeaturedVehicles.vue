@@ -103,11 +103,11 @@
 
           <template v-slot:item.status="{ item }">
             <v-chip
-              :color="getStatusColor(item.vehicle?.vehicle_list_status_id)"
+              :color="getStatusColor(item.vehicle?.vehicleListStatusId)"
               size="x-small"
               variant="flat"
             >
-              {{ getStatusName(item.vehicle?.vehicle_list_status_id) }}
+              {{ getStatusName(item.vehicle?.vehicleListStatusId) }}
             </v-chip>
           </template>
 

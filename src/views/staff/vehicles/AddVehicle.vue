@@ -749,17 +749,6 @@
                 </v-col>
                 <v-col cols="12" md="4">
                   <v-text-field
-                    v-model.number="form.leasingMonthlyPayment"
-                    label="Monthly Payment"
-                    type="number"
-                    density="compact"
-                    variant="outlined"
-                    prefix="kr"
-                      hide-details="auto"
-                  />
-                </v-col>
-                <v-col cols="12" md="4">
-                  <v-text-field
                     v-model.number="form.leasingFirstPayment"
                     label="First Payment"
                     type="number"
@@ -1559,7 +1548,6 @@ const form = ref({
   leasingEnabled: false,
   leasingType: '',
   leasingCustomerType: '',
-  leasingMonthlyPayment: null as number | null,
   leasingFirstPayment: null as number | null,
   leasingResidualValue: null as number | null,
   leasingDuration: null as number | null,
@@ -2491,7 +2479,6 @@ const clearDraft = () => {
     leasingEnabled: false,
     leasingType: '',
     leasingCustomerType: '',
-    leasingMonthlyPayment: null,
     leasingFirstPayment: null,
     leasingResidualValue: null,
     leasingDuration: null,

@@ -130,15 +130,11 @@ const DEALER_VEHICLE_PERSIST_FIELDS = [
   'vehicle_use_id',
   'listing_type_id',
   'category_id',
-  'wholesale_price',
   'internal_cost_price',
-  'price_without_tax',
-  'wholesale_price_includes_delivery',
   'cover_image_index',
   'leasing_enabled',
   'leasing_type',
   'leasing_customer_type',
-  'leasing_monthly_payment',
   'leasing_first_payment',
   'leasing_residual_value',
   'leasing_duration',
@@ -190,7 +186,6 @@ function pickDmrSlimVehicleFields(
 
 /** Multipart form values are strings; MySQL tinyint/boolean columns reject `"true"` / `"false"`. */
 const DEALER_VEHICLE_FORM_BOOLEAN_KEYS = new Set<string>([
-  'wholesale_price_includes_delivery',
   'leasing_enabled',
   'is_import',
   'is_factory_new',
@@ -1315,24 +1310,66 @@ export interface CreateDealerSubscriptionData {
   starts_at?: string
 }
 
+export interface DealerPendingChangeRequestModel {
+  id: number
+  dealer_id: number
+  requested_plan_id: number
+  billing_cycle: 'monthly' | 'yearly'
+  starts_at?: string | null
+  status: string
+  requested_plan?: PlanModel
+}
+
 /**
- * Create a new subscription
+ * Pending subscription change request (awaiting admin approval)
  */
-export async function createSubscription(data: CreateDealerSubscriptionData): Promise<any> {
+export async function getPendingSubscriptionChangeRequest(): Promise<DealerPendingChangeRequestModel | null> {
   try {
-    const response = await httpClient.post<{ data: any }>(
+    const response = await httpClient.get<{ data: DealerPendingChangeRequestModel | null }>(
+      DEALER_SUBSCRIPTION_ENDPOINTS.PENDING_CHANGE_REQUEST
+    )
+    return handleSuccess<DealerPendingChangeRequestModel | null>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Cancel pending subscription change request
+ */
+export async function cancelPendingSubscriptionChangeRequest(): Promise<DealerPendingChangeRequestModel> {
+  try {
+    const response = await httpClient.post<{ data: DealerPendingChangeRequestModel }>(
+      DEALER_SUBSCRIPTION_ENDPOINTS.CANCEL_CHANGE_REQUEST,
+      {}
+    )
+    return handleSuccess<DealerPendingChangeRequestModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export interface CreateDealerSubscriptionRequestResult {
+  pending_change_request: DealerPendingChangeRequestModel
+}
+
+/**
+ * Submit a subscription plan request (requires admin approval; does not change plan immediately).
+ */
+export async function createSubscription(
+  data: CreateDealerSubscriptionData
+): Promise<CreateDealerSubscriptionRequestResult & { message?: string }> {
+  try {
+    const response = await httpClient.post<{ data: CreateDealerSubscriptionRequestResult; message?: string }>(
       DEALER_SUBSCRIPTION_ENDPOINTS.CREATE,
       data
     )
-    const result = handleSuccess<any>(response)
-    
-    // Update subscription features in auth store if provided
-    if (result.subscription_features) {
-      const authStore = useAuthStore()
-      authStore.setSubscriptionFeatures(result.subscription_features)
-    }
-    
-    return result
+    const result = handleSuccess<CreateDealerSubscriptionRequestResult>(response)
+    const message =
+      typeof (response.data as { message?: string })?.message === 'string'
+        ? (response.data as { message?: string }).message
+        : undefined
+    return { ...result, message }
   } catch (error) {
     throw handleError(error)
   }

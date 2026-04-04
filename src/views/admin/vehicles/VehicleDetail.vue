@@ -638,21 +638,6 @@
               <v-row dense>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Wholesale Price</div>
-                    <div class="field-value">{{ (vehicle.details as any)?.wholesale_price ? formatPrice((vehicle.details as any).wholesale_price) : '-' }}</div>
-                  </div>
-                  <v-text-field
-                    v-else
-                    v-model.number="vehicleData.wholesale_price"
-                    label="Wholesale Price"
-                    type="number"
-                    variant="outlined"
-                    density="compact"
-                    hide-details="auto"
-                  />
-                </v-col>
-                <v-col cols="12" sm="6" md="4">
-                  <div v-if="!editMode" class="info-field">
                     <div class="field-label">Internal Cost Price</div>
                     <div class="field-value">{{ (vehicle.details as any)?.internal_cost_price ? formatPrice((vehicle.details as any).internal_cost_price) : '-' }}</div>
                   </div>
@@ -666,15 +651,59 @@
                     hide-details="auto"
                   />
                 </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+
+          <v-card
+            v-if="showLeasingBlockAdmin"
+            variant="flat"
+            class="info-card mb-3"
+            elevation="0"
+          >
+            <v-card-title class="card-title">
+              <v-icon size="18" class="mr-2">mdi-calendar-clock</v-icon>
+              <span class="text-subtitle-1">Leasing details</span>
+            </v-card-title>
+            <v-card-text class="pa-3">
+              <v-row dense>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Price Without Tax</div>
-                    <div class="field-value">{{ (vehicle.details as any)?.price_without_tax ? formatPrice((vehicle.details as any).price_without_tax) : '-' }}</div>
+                    <div class="field-label">Leasing type</div>
+                    <div class="field-value">{{ displayValue((vehicle.details as any)?.leasing_type) }}</div>
                   </div>
                   <v-text-field
                     v-else
-                    v-model.number="vehicleData.price_without_tax"
-                    label="Price Without Tax"
+                    v-model="vehicleData.leasing_type"
+                    label="Leasing type"
+                    variant="outlined"
+                    density="compact"
+                    hide-details="auto"
+                  />
+                </v-col>
+                <v-col cols="12" sm="6" md="4">
+                  <div v-if="!editMode" class="info-field">
+                    <div class="field-label">Customer type</div>
+                    <div class="field-value">{{ displayValue((vehicle.details as any)?.leasing_customer_type) }}</div>
+                  </div>
+                  <v-text-field
+                    v-else
+                    v-model="vehicleData.leasing_customer_type"
+                    label="Customer type"
+                    variant="outlined"
+                    density="compact"
+                    hide-details="auto"
+                  />
+                </v-col>
+                <v-col cols="12" sm="6" md="4">
+                  <div v-if="!editMode" class="info-field">
+                    <div class="field-label">First payment</div>
+                    <div class="field-value">{{ (vehicle.details as any)?.leasing_first_payment != null ? formatPrice(Number((vehicle.details as any).leasing_first_payment)) : '-' }}</div>
+                  </div>
+                  <v-text-field
+                    v-else
+                    v-model.number="vehicleData.leasing_first_payment"
+                    label="First payment"
                     type="number"
                     variant="outlined"
                     density="compact"
@@ -683,15 +712,62 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Wholesale Price Includes Delivery</div>
-                    <div class="field-value">{{ (vehicle.details as any)?.wholesale_price_includes_delivery ? 'Yes' : 'No' }}</div>
+                    <div class="field-label">Residual value</div>
+                    <div class="field-value">{{ (vehicle.details as any)?.leasing_residual_value != null ? formatPrice(Number((vehicle.details as any).leasing_residual_value)) : '-' }}</div>
                   </div>
-                  <v-checkbox
+                  <v-text-field
                     v-else
-                    v-model="vehicleData.wholesale_price_includes_delivery"
-                    label="Wholesale Price Includes Delivery"
+                    v-model.number="vehicleData.leasing_residual_value"
+                    label="Residual value"
+                    type="number"
+                    variant="outlined"
                     density="compact"
-                    hide-details
+                    hide-details="auto"
+                  />
+                </v-col>
+                <v-col cols="12" sm="6" md="4">
+                  <div v-if="!editMode" class="info-field">
+                    <div class="field-label">Duration (months)</div>
+                    <div class="field-value">{{ displayValue((vehicle.details as any)?.leasing_duration) }}</div>
+                  </div>
+                  <v-text-field
+                    v-else
+                    v-model.number="vehicleData.leasing_duration"
+                    label="Duration (months)"
+                    type="number"
+                    variant="outlined"
+                    density="compact"
+                    hide-details="auto"
+                  />
+                </v-col>
+                <v-col cols="12" sm="6" md="4">
+                  <div v-if="!editMode" class="info-field">
+                    <div class="field-label">Annual mileage</div>
+                    <div class="field-value">{{ displayValue((vehicle.details as any)?.leasing_annual_mileage) }}</div>
+                  </div>
+                  <v-text-field
+                    v-else
+                    v-model.number="vehicleData.leasing_annual_mileage"
+                    label="Annual mileage"
+                    type="number"
+                    variant="outlined"
+                    density="compact"
+                    hide-details="auto"
+                  />
+                </v-col>
+                <v-col cols="12" sm="6" md="4">
+                  <div v-if="!editMode" class="info-field">
+                    <div class="field-label">Total leasing cost</div>
+                    <div class="field-value">{{ (vehicle.details as any)?.leasing_total_cost != null ? formatPrice(Number((vehicle.details as any).leasing_total_cost)) : '-' }}</div>
+                  </div>
+                  <v-text-field
+                    v-else
+                    v-model.number="vehicleData.leasing_total_cost"
+                    label="Total leasing cost"
+                    type="number"
+                    variant="outlined"
+                    density="compact"
+                    hide-details="auto"
                   />
                 </v-col>
               </v-row>
@@ -1742,6 +1818,7 @@ import {
   type VehicleModelConstant,
   type VariantConstant,
 } from '@/api/admin.api'
+import { SALES_TYPE_LEASING_DETAILS } from '@/constants/salesTypes'
 import type { VehicleModel } from '@/models/vehicle.model'
 import type { VehicleImageModel } from '@/models/vehicle.model'
 import { VehicleStatus } from '@/models/vehicle.model'
@@ -1792,9 +1869,17 @@ const listingTypes = computed(() => constants.value?.listing_types || [])
 const bodyTypes = computed(() => constants.value?.body_types || [])
 const colors = computed(() => constants.value?.colors || [])
 const variants = ref<VariantConstant[]>([])
-const types = computed(() => constants.value?.types || [])
 const conditions = computed(() => constants.value?.conditions || [])
 const salesTypes = computed(() => constants.value?.sales_types || [])
+const isLeasingSalesTypeEditingAdmin = computed(() => {
+  const id = vehicleData.value.sales_type_id
+  if (id == null) return false
+  return salesTypes.value.some((st) => st.id === id && st.name === SALES_TYPE_LEASING_DETAILS)
+})
+const showLeasingBlockAdmin = computed(() => {
+  if (editMode.value) return isLeasingSalesTypeEditingAdmin.value
+  return vehicle.value?.details?.sales_type_name === SALES_TYPE_LEASING_DETAILS
+})
 const priceTypes = computed(() => constants.value?.price_types || [])
 const euronorms = computed(() => constants.value?.euronorms || [])
 const vehicleModels = ref<VehicleModelConstant[]>([])
@@ -1872,10 +1957,14 @@ const loadVehicle = async () => {
       sales_type_id: (loadedVehicle.details as any)?.sales_type_id || undefined,
       use_id: (loadedVehicle.details as any)?.use_id || undefined,
       emission_norm_id: (loadedVehicle.emissionNormId ?? (loadedVehicle.details as any)?.emission_norm_id ?? (loadedVehicle.details as any)?.euronom_id) ?? undefined,
-      wholesale_price: (loadedVehicle.details as any)?.wholesale_price || undefined,
       internal_cost_price: (loadedVehicle.details as any)?.internal_cost_price || undefined,
-      price_without_tax: (loadedVehicle.details as any)?.price_without_tax || undefined,
-      wholesale_price_includes_delivery: (loadedVehicle.details as any)?.wholesale_price_includes_delivery || undefined,
+      leasing_type: (loadedVehicle.details as any)?.leasing_type || undefined,
+      leasing_customer_type: (loadedVehicle.details as any)?.leasing_customer_type || undefined,
+      leasing_first_payment: (loadedVehicle.details as any)?.leasing_first_payment ?? undefined,
+      leasing_residual_value: (loadedVehicle.details as any)?.leasing_residual_value ?? undefined,
+      leasing_duration: (loadedVehicle.details as any)?.leasing_duration ?? undefined,
+      leasing_annual_mileage: (loadedVehicle.details as any)?.leasing_annual_mileage ?? undefined,
+      leasing_total_cost: (loadedVehicle.details as any)?.leasing_total_cost ?? undefined,
       engine_type: loadedVehicle.details?.engine_type || undefined,
       drive_axles: (loadedVehicle.details as any)?.drive_axles || undefined,
       co2_emissions: (loadedVehicle.details as any)?.co2_emissions || undefined,
@@ -2025,10 +2114,14 @@ const cancelEdit = () => {
     sales_type_id: (vehicle.value.details as any)?.sales_type_id || undefined,
     use_id: (vehicle.value.details as any)?.use_id || undefined,
     emission_norm_id: (vehicle.value.emissionNormId ?? (vehicle.value.details as any)?.emission_norm_id ?? (vehicle.value.details as any)?.euronom_id) ?? undefined,
-    wholesale_price: (vehicle.value.details as any)?.wholesale_price || undefined,
     internal_cost_price: (vehicle.value.details as any)?.internal_cost_price || undefined,
-    price_without_tax: (vehicle.value.details as any)?.price_without_tax || undefined,
-    wholesale_price_includes_delivery: (vehicle.value.details as any)?.wholesale_price_includes_delivery || undefined,
+    leasing_type: (vehicle.value.details as any)?.leasing_type || undefined,
+    leasing_customer_type: (vehicle.value.details as any)?.leasing_customer_type || undefined,
+    leasing_first_payment: (vehicle.value.details as any)?.leasing_first_payment ?? undefined,
+    leasing_residual_value: (vehicle.value.details as any)?.leasing_residual_value ?? undefined,
+    leasing_duration: (vehicle.value.details as any)?.leasing_duration ?? undefined,
+    leasing_annual_mileage: (vehicle.value.details as any)?.leasing_annual_mileage ?? undefined,
+    leasing_total_cost: (vehicle.value.details as any)?.leasing_total_cost ?? undefined,
     engine_type: vehicle.value.details?.engine_type || undefined,
     drive_axles: (vehicle.value.details as any)?.drive_axles || undefined,
     co2_emissions: (vehicle.value.details as any)?.co2_emissions || undefined,

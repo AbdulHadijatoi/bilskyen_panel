@@ -157,6 +157,11 @@ export const adminSidebarSections: SidebarSection[] = [
             url: `${ADMIN_ROUTE_BASE}/subscriptions`,
             permission: 'admin.subscriptions.view',
           },
+          {
+            title: 'Change requests',
+            url: `${ADMIN_ROUTE_BASE}/subscription-change-requests`,
+            permission: 'admin.subscription_change_requests.view',
+          },
         ],
       },
       // Features menu item hidden - managed through backend/migrations only
@@ -224,6 +229,12 @@ export const adminSidebarSections: SidebarSection[] = [
             permission: 'admin.constants.view',
           },
         ],
+      },
+      {
+        title: 'Locations',
+        url: `${ADMIN_ROUTE_BASE}/locations`,
+        icon: 'mdi-map-marker-radius',
+        permission: 'admin.constants.view',
       },
       {
         title: 'Permissions',

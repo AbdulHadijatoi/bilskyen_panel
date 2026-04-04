@@ -21,7 +21,10 @@
 
       <div class="dialog-content">
         <div class="form-group" v-if="showBrand">
-          <label class="form-label">Brand</label>
+          <label class="form-label">
+            Brand
+            <span class="required">*</span>
+          </label>
           <v-select
             v-model="formData.brand_id"
             :items="brands"
@@ -32,7 +35,11 @@
             :disabled="loading"
             hide-details
             class="form-select"
+            @blur="brandSelectTouched = true"
           />
+          <p v-if="showBrand && !formData.brand_id && brandSelectTouched" class="form-error">
+            Brand is required
+          </p>
         </div>
 
         <div class="form-group" v-if="showEquipmentType">
@@ -57,12 +64,12 @@
           </label>
           <v-select
             v-model="formData.model_id"
-            :items="vehicleModels"
+            :items="modelsForSelect"
             item-title="name"
             item-value="id"
             variant="outlined"
             density="comfortable"
-            :disabled="loading"
+            :disabled="loading || (filterModelsByBrand && !formData.brand_id)"
             hide-details
             class="form-select"
             @blur="modelSelectTouched = true"
@@ -135,6 +142,8 @@ interface Props {
   showBrand?: boolean
   showEquipmentType?: boolean
   showModel?: boolean
+  /** When true with showBrand+showModel, only models for the selected brand are listed */
+  filterModelsByBrand?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -146,6 +155,7 @@ const props = withDefaults(defineProps<Props>(), {
   showBrand: false,
   showEquipmentType: false,
   showModel: false,
+  filterModelsByBrand: false,
 })
 
 const emit = defineEmits<{
@@ -167,6 +177,14 @@ const formData = ref<{
 
 const formTouched = ref(false)
 const modelSelectTouched = ref(false)
+const brandSelectTouched = ref(false)
+
+const modelsForSelect = computed(() => {
+  if (!props.filterModelsByBrand || !formData.value.brand_id) {
+    return props.vehicleModels
+  }
+  return props.vehicleModels.filter((m) => m.brand_id === formData.value.brand_id)
+})
 
 const isValid = computed(() => {
   return (
@@ -177,16 +195,33 @@ const isValid = computed(() => {
   )
 })
 
+function variantBrandIdFromItem(
+  item: ConstantModel | VehicleModelConstant | EquipmentConstant | VariantConstant,
+): number | undefined {
+  if (!('model_id' in item) || item.model_id == null) return undefined
+  const m = (item as VariantConstant).model
+  if (m?.brand_id != null) return m.brand_id
+  if (m?.brand?.id != null) return m.brand.id
+  return undefined
+}
+
 watch(() => props.editingItem, (item) => {
   if (item) {
+    const baseBrand =
+      'brand_id' in item && item.brand_id != null
+        ? item.brand_id
+        : props.filterModelsByBrand && props.showModel
+          ? variantBrandIdFromItem(item)
+          : undefined
     formData.value = {
       name: item.name,
-      brand_id: 'brand_id' in item ? item.brand_id : undefined,
+      brand_id: baseBrand,
       equipment_type_id: 'equipment_type_id' in item ? item.equipment_type_id : undefined,
       model_id: 'model_id' in item ? item.model_id : undefined,
     }
     formTouched.value = false
     modelSelectTouched.value = false
+    brandSelectTouched.value = false
   } else {
     formData.value = {
       name: '',
@@ -196,6 +231,7 @@ watch(() => props.editingItem, (item) => {
     }
     formTouched.value = false
     modelSelectTouched.value = false
+    brandSelectTouched.value = false
   }
 }, { immediate: true })
 
@@ -209,11 +245,26 @@ watch(() => props.modelValue, (isOpen) => {
     }
     formTouched.value = false
     modelSelectTouched.value = false
+    brandSelectTouched.value = false
   }
 })
 
+watch(
+  () => formData.value.brand_id,
+  () => {
+    if (!props.filterModelsByBrand || !formData.value.model_id) return
+    const ok = modelsForSelect.value.some((m) => m.id === formData.value.model_id)
+    if (!ok) {
+      formData.value.model_id = undefined
+    }
+  },
+)
+
 const handleSubmit = () => {
   formTouched.value = true
+  if (props.showBrand) {
+    brandSelectTouched.value = true
+  }
   if (props.showModel) {
     modelSelectTouched.value = true
   }

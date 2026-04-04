@@ -183,6 +183,11 @@ const router = createRouter({
           component: () => import('@/views/admin/subscriptions/SubscriptionsOverview.vue'),
         },
         {
+          path: 'subscription-change-requests',
+          name: 'admin.subscription-change-requests',
+          component: () => import('@/views/admin/subscriptions/SubscriptionChangeRequests.vue'),
+        },
+        {
           path: 'subscriptions/:id',
           name: 'admin.subscriptions.detail',
           component: () => import('@/views/admin/subscriptions/SubscriptionDetail.vue'),
@@ -273,6 +278,11 @@ const router = createRouter({
           path: 'ownership-tax-rules',
           name: 'admin.ownership-tax-rules',
           component: () => import('@/views/admin/ownership-tax/OwnershipTaxRules.vue'),
+        },
+        {
+          path: 'locations',
+          name: 'admin.locations',
+          component: () => import('@/views/admin/locations/LocationsManagement.vue'),
         },
         {
           path: 'permissions',

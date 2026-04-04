@@ -44,7 +44,7 @@
 import { ref, computed, watch } from 'vue'
 
 interface Props {
-  modelValue?: string
+  modelValue?: string | null
   label?: string
   rules?: any[]
   readonly?: boolean
