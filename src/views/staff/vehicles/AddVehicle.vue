@@ -1396,27 +1396,46 @@ const generateDescription = (): string => {
   const parts: string[] = []
   const d = lookupData.value as Record<string, unknown> | null
 
-  if (d && typeof d.equipments === 'string' && d.equipments.trim() !== '') {
-    const equipItems = d.equipments.split(',').map(s => s.trim()).filter(Boolean)
-    if (equipItems.length > 0) {
-      parts.push(
-        'Equipment (from registration)\n' + equipItems.map(item => `• ${item}`).join('\n')
-      )
-    }
-  }
-
+  const specEquipNames: string[] = []
+  const specLines: string[] = []
   if (d && Array.isArray(d.specifications) && d.specifications.length > 0) {
-    const specLines: string[] = []
     ;(d.specifications as Array<{ name?: string; count?: number }>).forEach(spec => {
       if (!spec || typeof spec.name !== 'string') return
       const n = spec.name.trim()
       if (!n) return
       const c = spec.count != null ? parseInt(String(spec.count), 10) : 0
+      if (!Number.isNaN(c) && (c === 0 || c === 1)) {
+        if (c === 1) specEquipNames.push(n)
+        return
+      }
       specLines.push(`• ${n}: ${Number.isNaN(c) ? 0 : c}`)
     })
-    if (specLines.length > 0) {
-      parts.push('Specifications (from registration)\n' + specLines.join('\n'))
-    }
+  }
+
+  const seenEquipLower = new Set<string>()
+  const equipItems: string[] = []
+  const pushEquipUnique = (name: string) => {
+    const trimmed = name.trim()
+    if (!trimmed) return
+    const key = trimmed.toLowerCase()
+    if (seenEquipLower.has(key)) return
+    seenEquipLower.add(key)
+    equipItems.push(trimmed)
+  }
+
+  if (d && typeof d.equipments === 'string' && d.equipments.trim() !== '') {
+    d.equipments.split(',').forEach(s => pushEquipUnique(s))
+  }
+  specEquipNames.forEach(n => pushEquipUnique(n))
+
+  if (equipItems.length > 0) {
+    parts.push(
+      'Equipment:\n' + equipItems.map(item => `• ${item}`).join('\n')
+    )
+  }
+
+  if (specLines.length > 0) {
+    parts.push('Specifications:\n' + specLines.join('\n'))
   }
   
   // Basic vehicle info
@@ -1464,9 +1483,9 @@ const generateDescription = (): string => {
     parts.push(`${form.value.transmissionType} transmission`)
   }
   
-  // Equipment from form checkboxes (when no DMR equipments string on lookup)
+  // Equipment from form checkboxes (when no registration-derived equipment from lookup)
   if (
-    !(d && typeof d.equipments === 'string' && d.equipments.trim() !== '') &&
+    equipItems.length === 0 &&
     form.value.equipment &&
     form.value.equipment.length > 0
   ) {
