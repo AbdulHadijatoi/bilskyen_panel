@@ -1110,6 +1110,23 @@ const { getDisplayMessage } = useErrorMessage()
 /** Year dropdowns: align with dealer policy (no model_years from lookup-constants). */
 const MODEL_YEAR_MIN = 1975
 
+/** If lookup did not provide model_year, use calendar year from first_registration_date (backend does the same). */
+function ensureModelYearFromFirstRegistration(vehicleData: Record<string, unknown>): void {
+  const my = vehicleData.model_year
+  if (my !== null && my !== undefined && my !== '' && Number(my) > 0) {
+    return
+  }
+  const dateStr = vehicleData.first_registration_date
+  if (typeof dateStr !== 'string' || !dateStr) {
+    return
+  }
+  const y = parseInt(dateStr.slice(0, 4), 10)
+  if (!Number.isFinite(y) || y < MODEL_YEAR_MIN) {
+    return
+  }
+  vehicleData.model_year = y
+}
+
 // Wizard state
 const currentStep = ref(0)
 const visitedSteps = ref<Set<number>>(new Set([0])) // Track visited steps
@@ -2677,6 +2694,7 @@ const saveAsDraft = async () => {
     }
 
     appendLookupEquipmentAndSpecifications(vehicleData, nummerpladeData)
+    ensureModelYearFromFirstRegistration(vehicleData)
 
     // Check if we have an existing draft vehicle ID
     let savedVehicle: VehicleModel
@@ -3137,6 +3155,7 @@ const submitForm = async () => {
     }
 
     appendLookupEquipmentAndSpecifications(vehicleData, nummerpladeData)
+    ensureModelYearFromFirstRegistration(vehicleData)
 
     await createVehicle(vehicleData)
 

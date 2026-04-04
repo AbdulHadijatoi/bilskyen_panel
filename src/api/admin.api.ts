@@ -4180,7 +4180,7 @@ export interface VehicleSpecDefinitionModel {
   id: number
   brandId: number
   modelId: number
-  variantId: number
+  variantId: number | null
   modelYearFrom: number
   modelYearTo: number
   name: string
@@ -4195,7 +4195,7 @@ export interface VehicleSpecDefinitionModel {
 export interface VehicleSpecDefinitionPayload {
   brand_id: number
   model_id: number
-  variant_id: number
+  variant_id?: number | null
   model_year_from: number
   model_year_to: number
   name: string
@@ -4207,7 +4207,7 @@ function mapVehicleSpecDefinitionFromApi(data: any): VehicleSpecDefinitionModel 
     id: data.id,
     brandId: data.brand_id,
     modelId: data.model_id,
-    variantId: data.variant_id,
+    variantId: data.variant_id != null ? data.variant_id : null,
     modelYearFrom: data.model_year_from,
     modelYearTo: data.model_year_to,
     name: data.name,

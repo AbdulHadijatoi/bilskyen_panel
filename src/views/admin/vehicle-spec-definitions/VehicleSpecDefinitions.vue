@@ -5,7 +5,7 @@
         <div>
           <h1 class="text-h4 font-weight-bold mb-1">Vehicle spec definitions</h1>
           <p class="text-body-2 text-medium-emphasis mb-0">
-            Catalog spec name and value by brand, model, variant, and inclusive model year range.
+            Catalog spec name and value by brand, model, optional variant, and inclusive model year range.
           </p>
         </div>
         <v-btn
@@ -246,15 +246,19 @@
             :items="dialogVariants"
             item-title="name"
             item-value="id"
-            label="Variant"
+            label="Variant (optional)"
             variant="outlined"
             density="comfortable"
+            clearable
             :disabled="saving || !form.model_id"
             :loading="loadingDialogVariants"
             hide-details
             class="mb-3"
             :no-data-text="form.model_id ? 'No variants for this model' : 'Select a model first'"
           />
+          <p class="text-caption text-medium-emphasis mb-3">
+            Leave empty for model-wide specs (all variants). Listings without a variant only show these rows.
+          </p>
 
           <v-select
             v-model="form.model_year_from"
@@ -406,7 +410,6 @@ const canSubmit = computed(() => {
   return (
     f.brand_id != null &&
     f.model_id != null &&
-    f.variant_id != null &&
     f.model_year_from != null &&
     f.model_year_to != null &&
     f.model_year_from <= f.model_year_to &&
@@ -566,7 +569,7 @@ async function openEdit(item: VehicleSpecDefinitionModel): Promise<void> {
     form.value = {
       brand_id: item.brandId,
       model_id: item.modelId,
-      variant_id: item.variantId,
+      variant_id: item.variantId ?? undefined,
       model_year_from: item.modelYearFrom,
       model_year_to: item.modelYearTo,
       name: item.name,
@@ -591,7 +594,7 @@ function buildPayload(): VehicleSpecDefinitionPayload {
   return {
     brand_id: f.brand_id!,
     model_id: f.model_id!,
-    variant_id: f.variant_id!,
+    variant_id: f.variant_id ?? null,
     model_year_from: f.model_year_from!,
     model_year_to: f.model_year_to!,
     name: f.name.trim(),
