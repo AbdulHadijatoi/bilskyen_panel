@@ -413,14 +413,14 @@
       <v-card>
         <v-card-title class="d-flex align-center">
           <v-icon color="error" class="mr-2">mdi-alert-circle</v-icon>
-          Delete User
+          {{ t('admin.views.users.deleteUser') }}
         </v-card-title>
         <v-card-text>
           <p class="text-body-1">
-            Are you sure you want to delete <strong>{{ userToDelete?.name }}</strong>?
+            {{ t('common.confirmDeleteLead') }}<strong>{{ userToDelete?.name }}</strong>{{ t('common.confirmDeleteTrail') }}
           </p>
           <p class="text-body-2 text-medium-emphasis mt-2">
-            This action will soft delete the user account. The user will no longer be able to access the system.
+            {{ t('common.softDeleteUserWarning') }}
           </p>
         </v-card-text>
         <v-card-actions>
@@ -431,7 +431,7 @@
             @click="deleteUser"
             :loading="deleting"
           >
-            Delete User
+            {{ t('admin.views.users.deleteUser') }}
           </v-btn>
         </v-card-actions>
       </v-card>

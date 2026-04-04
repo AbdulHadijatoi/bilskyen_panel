@@ -258,8 +258,9 @@ import {
 } from '@/api/dealer.api'
 import PlanSubscriptionDialog from '@/components/dealer/PlanSubscriptionDialog.vue'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import { featureDisplayName } from '@/utils/featureDisplay'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const loadingPlans = ref(false)
 const error = ref<string | null>(null)
@@ -367,14 +368,6 @@ const formatDate = (date?: string) => {
   })
 }
 
-const formatFeatureKey = (key: string) => {
-  // Convert snake_case to Title Case
-  return key
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ')
-}
-
 const getFilteredFeatures = (plan: PlanModel) => {
   if (!plan.features || plan.features.length === 0) return []
   
@@ -394,27 +387,30 @@ const getFilteredFeatures = (plan: PlanModel) => {
 
 const formatFeatureDisplay = (feature: any) => {
   const key = feature.key || ''
-  const formattedKey = formatFeatureKey(key)
+  const name = featureDisplayName(
+    { key, label_en: feature.label_en, label_da: feature.label_da },
+    locale.value
+  )
   const valueTypeId = feature.feature_value_type_id || feature.featureValueType?.id || feature.feature_value_type?.id
   const value = feature.pivot?.value || feature.value
   
   // Boolean features: just show the key name
   if (valueTypeId === 1) { // BOOLEAN
-    return formattedKey
+    return name
   }
   
   // Number features: show "Key Name: value"
   if (valueTypeId === 2) { // NUMBER
-    return `${formattedKey}: ${value}`
+    return `${name}: ${value}`
   }
   
   // Text features: show "Key Name: value"
   if (valueTypeId === 3) { // TEXT
-    return `${formattedKey}: ${value}`
+    return `${name}: ${value}`
   }
   
   // Fallback: just show key name
-  return formattedKey
+  return name
 }
 
 const isPlanActive = (plan: PlanModel) => {

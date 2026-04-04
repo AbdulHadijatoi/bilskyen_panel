@@ -310,30 +310,42 @@
                   <div class="d-flex align-center flex-grow-1">
                     <v-icon size="16" class="mr-2 feature-icon">mdi-check</v-icon>
                     <div class="flex-grow-1">
-                      <div class="text-body-2 font-weight-medium">{{ formatFeatureKey(feature.key) }}</div>
+                      <div class="text-body-2 font-weight-medium">{{ featureDisplayName(feature) }}</div>
+                      <div class="text-caption text-medium-emphasis font-mono">{{ feature.key }}</div>
                       <div class="text-caption text-medium-emphasis">
                         Value: <span class="font-weight-medium">{{ feature.pivot?.value || feature.value || 'Not set' }}</span>
                       </div>
                     </div>
                   </div>
-                  <div v-if="editMode" class="d-flex gap-1">
+                  <div class="d-flex gap-1">
                     <v-btn
                       icon
                       variant="text"
                       size="x-small"
-                      @click="openEditFeatureValueDialog(feature)"
+                      title="Edit display names (translations)"
+                      @click="openEditFeatureLabelsDialog(feature)"
                     >
-                      <v-icon size="18">mdi-pencil</v-icon>
+                      <v-icon size="18">mdi-translate</v-icon>
                     </v-btn>
-                    <v-btn
-                      icon
-                      variant="text"
-                      size="x-small"
-                      color="error"
-                      @click="removeFeature(feature.id)"
-                    >
-                      <v-icon size="18">mdi-delete</v-icon>
-                    </v-btn>
+                    <template v-if="editMode">
+                      <v-btn
+                        icon
+                        variant="text"
+                        size="x-small"
+                        @click="openEditFeatureValueDialog(feature)"
+                      >
+                        <v-icon size="18">mdi-pencil</v-icon>
+                      </v-btn>
+                      <v-btn
+                        icon
+                        variant="text"
+                        size="x-small"
+                        color="error"
+                        @click="removeFeature(feature.id)"
+                      >
+                        <v-icon size="18">mdi-delete</v-icon>
+                      </v-btn>
+                    </template>
                   </div>
                 </div>
               </div>
@@ -513,6 +525,54 @@
         </v-card>
       </v-dialog>
 
+      <!-- Edit feature display names (EN / DA) -->
+      <v-dialog v-model="showEditFeatureLabelsDialog" max-width="520" scrollable persistent>
+        <v-card variant="flat" class="dialog-card">
+          <v-card-title class="pa-3 section-header">
+            <span class="text-subtitle-2 font-weight-medium">Feature display names</span>
+          </v-card-title>
+          <v-divider class="section-divider" />
+          <v-card-text class="pa-3 section-content">
+            <p v-if="labelingFeature" class="text-caption text-medium-emphasis mb-3">
+              Internal key: <span class="font-mono">{{ labelingFeature.key }}</span>
+            </p>
+            <p class="text-caption text-medium-emphasis mb-3">
+              Shown to dealers on the subscription page. Leave blank to use the automatic name from the key
+              (e.g. <span class="font-mono">max_images</span> → “Max Images”).
+            </p>
+            <v-text-field
+              v-model="featureLabelEnDraft"
+              label="Display name (English)"
+              variant="outlined"
+              density="compact"
+              class="mb-2"
+              clearable
+            />
+            <v-text-field
+              v-model="featureLabelDaDraft"
+              label="Display name (Danish)"
+              variant="outlined"
+              density="compact"
+              clearable
+            />
+          </v-card-text>
+          <v-divider class="section-divider" />
+          <v-card-actions class="pa-3 dialog-actions">
+            <v-spacer />
+            <v-btn variant="text" size="small" @click="closeEditFeatureLabelsDialog">Cancel</v-btn>
+            <v-btn
+              color="primary"
+              variant="flat"
+              @click="saveFeatureLabels"
+              :loading="savingFeatureLabels"
+              size="small"
+            >
+              Save
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
       <!-- Success Snackbar -->
       <v-snackbar
         v-model="snackbar.show"
@@ -532,6 +592,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import {
   getPlan,
   updatePlan as updatePlanApi,
@@ -545,6 +606,7 @@ import {
   getFeatures,
   getRoles,
   getDealers,
+  updateFeature,
   type UpdatePlanData,
   type PlanModel,
   type SyncPlanAvailabilityData,
@@ -552,9 +614,11 @@ import {
   type AssignFeatureData
 } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import { featureDisplayName as featureDisplayNameUtil } from '@/utils/featureDisplay'
 
 const route = useRoute()
 const router = useRouter()
+const { locale } = useI18n()
 
 const loading = ref(false)
 const loadingFeatures = ref(false)
@@ -598,6 +662,11 @@ const editingFeatureValue = ref('')
 const addingFeature = ref(false)
 const updatingFeatureValue = ref(false)
 const loadingAllFeatures = ref(false)
+const showEditFeatureLabelsDialog = ref(false)
+const labelingFeature = ref<any>(null)
+const featureLabelEnDraft = ref('')
+const featureLabelDaDraft = ref('')
+const savingFeatureLabels = ref(false)
 
 // Snackbar for notifications
 const snackbar = ref({
@@ -634,6 +703,62 @@ const formatFeatureKey = (key: string) => {
     .split('_')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ')
+}
+
+const featureDisplayName = (feature: any) =>
+  featureDisplayNameUtil(
+    {
+      key: feature.key || '',
+      label_en: feature.label_en,
+      label_da: feature.label_da,
+    },
+    locale.value
+  )
+
+const openEditFeatureLabelsDialog = (feature: any) => {
+  labelingFeature.value = feature
+  featureLabelEnDraft.value = feature.label_en ?? ''
+  featureLabelDaDraft.value = feature.label_da ?? ''
+  showEditFeatureLabelsDialog.value = true
+}
+
+const closeEditFeatureLabelsDialog = () => {
+  showEditFeatureLabelsDialog.value = false
+  labelingFeature.value = null
+  featureLabelEnDraft.value = ''
+  featureLabelDaDraft.value = ''
+}
+
+const saveFeatureLabels = async () => {
+  if (!labelingFeature.value) return
+  const id = labelingFeature.value.id
+  try {
+    savingFeatureLabels.value = true
+    const updated = await updateFeature(id, {
+      label_en: featureLabelEnDraft.value.trim() || null,
+      label_da: featureLabelDaDraft.value.trim() || null,
+    })
+    const patch = {
+      label_en: updated.label_en ?? null,
+      label_da: updated.label_da ?? null,
+    }
+    const i = features.value.findIndex((f) => f.id === id)
+    if (i !== -1) {
+      features.value[i] = { ...features.value[i], ...patch }
+    }
+    const j = allFeatures.value.findIndex((f) => f.id === id)
+    if (j !== -1) {
+      allFeatures.value[j] = { ...allFeatures.value[j], ...patch }
+    }
+    labelingFeature.value = { ...labelingFeature.value, ...patch }
+    showSnackbar('Feature display names saved', 'success')
+    closeEditFeatureLabelsDialog()
+  } catch (err) {
+    error.value = (err as ApiErrorModel).message || 'Failed to save display names'
+    showSnackbar((err as ApiErrorModel).message || 'Failed to save display names', 'error')
+  } finally {
+    savingFeatureLabels.value = false
+  }
 }
 
 const loadPlan = async () => {

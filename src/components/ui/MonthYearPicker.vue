@@ -42,6 +42,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 interface Props {
   modelValue?: string | null
@@ -71,20 +72,22 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
-const months = [
-  { title: 'January', value: '01' },
-  { title: 'February', value: '02' },
-  { title: 'March', value: '03' },
-  { title: 'April', value: '04' },
-  { title: 'May', value: '05' },
-  { title: 'June', value: '06' },
-  { title: 'July', value: '07' },
-  { title: 'August', value: '08' },
-  { title: 'September', value: '09' },
-  { title: 'October', value: '10' },
-  { title: 'November', value: '11' },
-  { title: 'December', value: '12' },
-]
+const { t } = useI18n()
+
+const months = computed(() => [
+  { title: t('calendar.january'), value: '01' },
+  { title: t('calendar.february'), value: '02' },
+  { title: t('calendar.march'), value: '03' },
+  { title: t('calendar.april'), value: '04' },
+  { title: t('calendar.may'), value: '05' },
+  { title: t('calendar.june'), value: '06' },
+  { title: t('calendar.july'), value: '07' },
+  { title: t('calendar.august'), value: '08' },
+  { title: t('calendar.september'), value: '09' },
+  { title: t('calendar.october'), value: '10' },
+  { title: t('calendar.november'), value: '11' },
+  { title: t('calendar.december'), value: '12' },
+])
 
 const years = computed(() => {
   const yearList = []
@@ -100,16 +103,16 @@ const selectedYear = ref<string>('')
 // Computed labels for month and year fields
 const monthLabel = computed(() => {
   if (props.label) {
-    return `${props.label} Month`
+    return t('calendar.monthOf', { label: props.label })
   }
-  return 'Month'
+  return t('calendar.month')
 })
 
 const yearLabel = computed(() => {
   if (props.label) {
-    return `${props.label} Year`
+    return t('calendar.yearOf', { label: props.label })
   }
-  return 'Year'
+  return t('calendar.year')
 })
 
 // Parse modelValue (format: "YYYY-MM")

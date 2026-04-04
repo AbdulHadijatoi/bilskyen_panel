@@ -267,25 +267,25 @@
     >
       <v-card>
         <v-card-title class="text-h6 font-weight-bold">
-          Delete Vehicle
+          {{ t('dealer.views.vehicles.deleteVehicle') }}
         </v-card-title>
         <v-card-text>
           <p class="text-body-1">
-            Are you sure you want to delete <strong>{{ vehicleToDelete?.title || `Vehicle #${vehicleToDelete?.id}` }}</strong>?
+            {{ t('common.confirmDeleteLead') }}<strong>{{ vehicleToDelete?.title || t('common.vehicleTitleFallback', { id: vehicleToDelete?.id }) }}</strong>{{ t('common.confirmDeleteTrail') }}
           </p>
           <p class="text-body-2 text-medium-emphasis mt-2">
-            This action will soft delete the vehicle. The vehicle will no longer be visible in the system.
+            {{ t('common.softDeleteVehicleWarning') }}
           </p>
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="showDeleteDialog = false">Cancel</v-btn>
+          <v-btn variant="text" @click="showDeleteDialog = false">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="error"
             @click="deleteVehicle"
             :loading="deleting"
           >
-            Delete Vehicle
+            {{ t('dealer.views.vehicles.deleteVehicle') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -296,6 +296,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { getVehicles, deleteVehicle as deleteVehicleApi } from '@/api/staff.api'
 import { hasPermission } from '@/utils/permissions'
 import type { PaginationModel } from '@/models/pagination.model'
@@ -304,6 +305,7 @@ import type { VehicleStatus } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const loading = ref(false)
 const error = ref<string | null>(null)

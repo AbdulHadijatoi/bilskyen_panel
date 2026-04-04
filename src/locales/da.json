@@ -74,7 +74,40 @@
     "userFallback": "Bruger",
     "toggleSidebar": "Skift sidebar",
     "justNow": "Lige nu",
-    "warning": "Advarsel"
+    "warning": "Advarsel",
+    "softDeleteVehicleWarning": "Handlingen vil soft-slette køretøjet. Køretøjet vil ikke længere være synligt i systemet.",
+    "softDeleteUserWarning": "Handlingen vil soft-slette brugerkontoen. Brugeren vil ikke længere kunne tilgå systemet.",
+    "vehicleTitleFallback": "Køretøj #{id}",
+    "confirmDeleteLead": "Er du sikker på, at du vil slette ",
+    "confirmDeleteTrail": "?",
+    "deleteTranslationLead": "Er du sikker på, at du vil slette oversættelsesnøglen ",
+    "deleteTranslationTrail": "? Denne handling kan ikke fortrydes.",
+    "deleteFeatureConfirm": "Er du sikker på, at du vil slette denne funktion? Denne handling kan ikke fortrydes."
+  },
+  "calendar": {
+    "month": "Måned",
+    "year": "År",
+    "monthOf": "{label} måned",
+    "yearOf": "{label} år",
+    "january": "januar",
+    "february": "februar",
+    "march": "marts",
+    "april": "april",
+    "may": "maj",
+    "june": "juni",
+    "july": "juli",
+    "august": "august",
+    "september": "september",
+    "october": "oktober",
+    "november": "november",
+    "december": "december",
+    "sun": "søn",
+    "mon": "man",
+    "tue": "tir",
+    "wed": "ons",
+    "thu": "tor",
+    "fri": "fre",
+    "sat": "lør"
   },
   "footer": {
     "copyright": "© {year} {name}. Alle rettigheder forbeholdes.",
@@ -384,6 +417,12 @@
         "dealerNamePlaceholder": "Forhandlernavn...",
         "userNamePlaceholder": "Brugernavn...",
         "deleteVehicle": "Slet køretøj"
+      },
+      "vehicleDetail": {
+        "title": "Køretøjsdetaljer",
+        "viewSubtitle": "Se og administrer alle køretøjsoplysninger, billeder, udstyr og historik",
+        "editVehicle": "Rediger køretøj",
+        "loadingVehicle": "Indlæser køretøjsoplysninger…"
       },
       "plans": {
         "title": "Abonnementsplaner",
@@ -1011,7 +1050,10 @@
         "fuelConsumptionNedc": "Brændstofforbrug NEDC (L/100km)",
         "enginePowerHp": "Motoreffekt (HK)",
         "towingWeightKg": "Trækvægt (kg)",
-        "batteryCapacityKwh": "Batterikapacitet (kWh)"
+        "batteryCapacityKwh": "Batterikapacitet (kWh)",
+        "moreImagesSlotHint": "Du kan tilføje op til {count} billede(r) mere.",
+        "planMaxImagesError": "Din plan tillader højst {max} billeder pr. køretøj. Fjern nogle eksisterende billeder eller upload færre.",
+        "planMaxEquipmentError": "Din plan tillader højst {max} udstyrspunkter pr. køretøj. Fravælg nogle."
       },
       "addVehicle": {
         "title": "Tilføj køretøj",

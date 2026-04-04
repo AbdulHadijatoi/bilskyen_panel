@@ -123,6 +123,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import {
   getFeatures,
   deleteFeature as deleteFeatureApi,
@@ -131,6 +132,7 @@ import {
 import type { ApiErrorModel } from '@/models/api-error.model'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -191,7 +193,7 @@ const viewFeature = (id: number) => {
 }
 
 const deleteFeature = async (id: number | string) => {
-  if (!confirm('Are you sure you want to delete this feature? This action cannot be undone.')) return
+  if (!confirm(t('common.deleteFeatureConfirm'))) return
 
   try {
     await deleteFeatureApi(id)

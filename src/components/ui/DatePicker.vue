@@ -80,6 +80,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 interface Props {
   modelValue?: string
@@ -107,17 +108,38 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
+const { t, locale } = useI18n()
+
 const menuOpen = ref(false)
 const currentDate = ref(new Date())
 
-const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-const months = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
-]
+const weekDays = computed(() => [
+  t('calendar.sun'),
+  t('calendar.mon'),
+  t('calendar.tue'),
+  t('calendar.wed'),
+  t('calendar.thu'),
+  t('calendar.fri'),
+  t('calendar.sat'),
+])
+
+const monthNames = computed(() => [
+  t('calendar.january'),
+  t('calendar.february'),
+  t('calendar.march'),
+  t('calendar.april'),
+  t('calendar.may'),
+  t('calendar.june'),
+  t('calendar.july'),
+  t('calendar.august'),
+  t('calendar.september'),
+  t('calendar.october'),
+  t('calendar.november'),
+  t('calendar.december'),
+])
 
 const currentMonthYear = computed(() => {
-  return `${months[currentDate.value.getMonth()]} ${currentDate.value.getFullYear()}`
+  return `${monthNames.value[currentDate.value.getMonth()]} ${currentDate.value.getFullYear()}`
 })
 
 const selectedDate = computed(() => {
@@ -173,16 +195,18 @@ const calendarDays = computed(() => {
   return days
 })
 
+const displayLocale = computed(() => (locale.value === 'da' ? 'da-DK' : 'en-GB'))
+
 const displayValue = computed(() => {
   if (!props.modelValue) return ''
   // Format YYYY-MM-DD to a readable format
   if (props.modelValue.match(/^\d{4}-\d{2}-\d{2}$/)) {
     const date = new Date(props.modelValue + 'T00:00:00')
     if (isNaN(date.getTime())) return props.modelValue
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+    return date.toLocaleDateString(displayLocale.value, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
     })
   }
   return props.modelValue

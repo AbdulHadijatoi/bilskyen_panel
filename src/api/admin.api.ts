@@ -1453,6 +1453,10 @@ export interface FeatureModel {
     name: string
   }
   description: string
+  /** Optional English display name (overrides title-cased key). */
+  label_en?: string | null
+  /** Optional Danish display name. */
+  label_da?: string | null
   created_at?: string
 }
 
@@ -1521,6 +1525,8 @@ export interface UpdateFeatureData {
   key?: string
   feature_value_type_id?: number
   description?: string
+  label_en?: string | null
+  label_da?: string | null
 }
 
 /**

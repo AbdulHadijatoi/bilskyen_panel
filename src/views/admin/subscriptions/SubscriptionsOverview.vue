@@ -332,7 +332,7 @@
               size="x-small"
               variant="tonal"
             >
-              {{ item.auto_renew ? 'Yes' : 'No' }}
+              {{ item.auto_renew ? t('common.yes') : t('common.no') }}
             </v-chip>
           </template>
           <template #item.actions="{ item }">

@@ -13,9 +13,9 @@
           <v-icon size="20">mdi-arrow-left</v-icon>
         </v-btn>
         <div class="flex-grow-1">
-          <h1 class="text-h5 font-weight-bold mb-1">Vehicle Details</h1>
+          <h1 class="text-h5 font-weight-bold mb-1">{{ t('dealer.views.vehicleDetail.title') }}</h1>
           <p class="text-caption text-medium-emphasis mb-0">
-            View and manage all vehicle information, images, and equipment
+            {{ t('dealer.views.vehicleDetail.viewSubtitle') }}
           </p>
         </div>
         <v-btn
@@ -25,7 +25,7 @@
           @click="editMode = true"
           size="small"
         >
-          Edit Vehicle
+          {{ t('dealer.views.vehicleDetail.editVehicle') }}
         </v-btn>
         <div v-else-if="vehicle && editMode" class="d-flex gap-2">
           <v-btn
@@ -33,7 +33,7 @@
             @click="cancelEdit"
             size="small"
           >
-            Cancel
+            {{ t('common.cancel') }}
           </v-btn>
           <v-btn
             color="primary"
@@ -42,7 +42,7 @@
             :loading="updating"
             size="small"
           >
-            Save Changes
+            {{ t('dealer.views.profile.saveChanges') }}
           </v-btn>
         </div>
       </div>
@@ -51,7 +51,7 @@
     <!-- Loading State -->
     <div v-if="loading" class="loading-container">
       <v-progress-circular indeterminate color="primary" size="48" />
-      <p class="text-body-2 text-medium-emphasis mt-3">Loading vehicle information...</p>
+      <p class="text-body-2 text-medium-emphasis mt-3">{{ t('dealer.views.vehicleDetail.loadingVehicle') }}</p>
     </div>
 
     <!-- Error State -->
@@ -63,7 +63,7 @@
       class="mb-4"
       density="compact"
     >
-      <v-alert-title>Error</v-alert-title>
+      <v-alert-title>{{ t('dealer.views.vehicleDetail.error') }}</v-alert-title>
       {{ error }}
     </v-alert>
 
@@ -771,7 +771,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Is Import</div>
-                    <div class="field-value">{{ vehicle.details?.is_import ? 'Yes' : 'No' }}</div>
+                    <div class="field-value">{{ vehicle.details?.is_import ? t('common.yes') : t('common.no') }}</div>
                   </div>
                   <v-checkbox
                     v-else
@@ -784,7 +784,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Is Factory New</div>
-                    <div class="field-value">{{ vehicle.details?.is_factory_new ? 'Yes' : 'No' }}</div>
+                    <div class="field-value">{{ vehicle.details?.is_factory_new ? t('common.yes') : t('common.no') }}</div>
                   </div>
                   <v-checkbox
                     v-else
@@ -1342,26 +1342,26 @@
       <v-card>
         <v-card-title class="d-flex align-center text-subtitle-1">
           <v-icon color="success" size="18" class="mr-2">mdi-check-circle</v-icon>
-          Mark as Sold
+          {{ t('dealer.views.vehicleDetail.markAsSold') }}
         </v-card-title>
         <v-card-text class="pa-3">
           <p class="text-body-2">
-            Are you sure you want to mark <strong>{{ vehicle?.title || `Vehicle #${vehicle?.id}` }}</strong> as sold?
+            {{ t('dealer.views.vehicleDetail.markAsSoldConfirm', { name: vehicleDisplayTitle }) }}
           </p>
           <p class="text-caption text-medium-emphasis mt-1">
-            This will update the vehicle status to "Sold". The vehicle will be marked as sold in the system.
+            {{ t('dealer.views.vehicleDetail.markAsSoldDescription') }}
           </p>
         </v-card-text>
         <v-card-actions class="pa-3">
           <v-spacer />
-          <v-btn variant="text" size="small" @click="showMarkAsSoldDialog = false">Cancel</v-btn>
+          <v-btn variant="text" size="small" @click="showMarkAsSoldDialog = false">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="success"
             size="small"
             @click="markAsSold"
             :loading="markingAsSold"
           >
-            Mark as Sold
+            {{ t('dealer.views.vehicleDetail.markAsSold') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -1372,26 +1372,26 @@
       <v-card>
         <v-card-title class="d-flex align-center text-subtitle-1">
           <v-icon color="error" size="18" class="mr-2">mdi-delete</v-icon>
-          Delete Vehicle
+          {{ t('dealer.views.vehicles.deleteVehicle') }}
         </v-card-title>
         <v-card-text class="pa-3">
           <p class="text-body-2">
-            Are you sure you want to delete <strong>{{ vehicle?.title || `Vehicle #${vehicle?.id}` }}</strong>?
+            {{ t('common.confirmDeleteLead') }}<strong>{{ vehicle?.title || t('common.vehicleTitleFallback', { id: vehicle?.id }) }}</strong>{{ t('common.confirmDeleteTrail') }}
           </p>
           <p class="text-caption text-medium-emphasis mt-1">
-            This action will soft delete the vehicle. The vehicle will no longer be visible in the system.
+            {{ t('common.softDeleteVehicleWarning') }}
           </p>
         </v-card-text>
         <v-card-actions class="pa-3">
           <v-spacer />
-          <v-btn variant="text" size="small" @click="showDeleteDialog = false">Cancel</v-btn>
+          <v-btn variant="text" size="small" @click="showDeleteDialog = false">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="error"
             size="small"
             @click="deleteVehicle"
             :loading="deleting"
           >
-            Delete
+            {{ t('dealer.views.vehicleDetail.delete') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -1402,6 +1402,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import {
   getVehicle,
   updateVehicle,
@@ -1425,10 +1426,18 @@ import { SALES_TYPE_LEASING_DETAILS } from '@/constants/salesTypes'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 
 const loading = ref(false)
 const error = ref<string | null>(null)
 const vehicle = ref<VehicleModel | null>(null)
+
+const vehicleDisplayTitle = computed(() => {
+  const v = vehicle.value
+  if (!v) return ''
+  return v.title || t('common.vehicleTitleFallback', { id: String(v.id) })
+})
+
 const vehicleImages = ref<VehicleImageModel[]>([])
 const editMode = ref(false)
 const updating = ref(false)

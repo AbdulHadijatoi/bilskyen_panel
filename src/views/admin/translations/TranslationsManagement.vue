@@ -189,7 +189,7 @@
           <v-spacer />
           <v-btn variant="text" @click="closeEditDialog">{{ t('common.cancel') }}</v-btn>
           <v-btn color="primary" @click="saveTranslation" :loading="saving">
-            Save
+            {{ t('common.save') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -201,14 +201,13 @@
       <v-card>
         <v-card-title class="text-h6">{{ t('common.confirmDelete') }}</v-card-title>
         <v-card-text>
-          Are you sure you want to delete the translation key
-          <code>{{ deletingTranslation?.key }}</code>? This action cannot be undone.
+          {{ t('common.deleteTranslationLead') }}<code>{{ deletingTranslation?.key }}</code>{{ t('common.deleteTranslationTrail') }}
         </v-card-text>
         <v-card-actions>
           <v-spacer />
           <v-btn variant="text" @click="showDeleteDialog = false">{{ t('common.cancel') }}</v-btn>
           <v-btn color="error" @click="deleteTranslation" :loading="deleting">
-            Delete
+            {{ t('common.delete') }}
           </v-btn>
         </v-card-actions>
       </v-card>

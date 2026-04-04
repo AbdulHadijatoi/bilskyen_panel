@@ -13,9 +13,9 @@
           <v-icon size="20">mdi-arrow-left</v-icon>
         </v-btn>
         <div class="flex-grow-1">
-          <h1 class="text-h5 font-weight-bold mb-1">Vehicle Details</h1>
+          <h1 class="text-h5 font-weight-bold mb-1">{{ t('admin.views.vehicleDetail.title') }}</h1>
           <p class="text-caption text-medium-emphasis mb-0">
-            View and manage all vehicle information, images, equipment, and history
+            {{ t('admin.views.vehicleDetail.viewSubtitle') }}
           </p>
         </div>
         <v-btn
@@ -25,7 +25,7 @@
           @click="editMode = true"
           size="small"
         >
-          Edit Vehicle
+          {{ t('admin.views.vehicleDetail.editVehicle') }}
         </v-btn>
         <div v-else-if="vehicle && editMode" class="d-flex gap-2">
           <v-btn
@@ -33,7 +33,7 @@
             @click="cancelEdit"
             size="small"
           >
-            Cancel
+            {{ t('common.cancel') }}
           </v-btn>
           <v-btn
             color="primary"
@@ -42,7 +42,7 @@
             :loading="updating"
             size="small"
           >
-            Save Changes
+            {{ t('dealer.views.profile.saveChanges') }}
           </v-btn>
         </div>
       </div>
@@ -51,7 +51,7 @@
     <!-- Loading State -->
     <div v-if="loading" class="loading-container">
       <v-progress-circular indeterminate color="primary" size="48" />
-      <p class="text-body-2 text-medium-emphasis mt-3">Loading vehicle information...</p>
+      <p class="text-body-2 text-medium-emphasis mt-3">{{ t('admin.views.vehicleDetail.loadingVehicle') }}</p>
     </div>
 
     <!-- Error State -->
@@ -1092,7 +1092,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">NCAP Five</div>
-                    <div class="field-value">{{ vehicle.details?.ncap_five ? 'Yes' : (vehicle.details?.ncap_five === false ? 'No' : '-') }}</div>
+                    <div class="field-value">{{ vehicle.details?.ncap_five ? t('common.yes') : (vehicle.details?.ncap_five === false ? t('common.no') : '-') }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
@@ -1222,7 +1222,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Is Import</div>
-                    <div class="field-value">{{ vehicle.details?.is_import ? 'Yes' : (vehicle.details?.is_import === false ? 'No' : '-') }}</div>
+                    <div class="field-value">{{ vehicle.details?.is_import ? t('common.yes') : (vehicle.details?.is_import === false ? t('common.no') : '-') }}</div>
                   </div>
                   <v-checkbox
                     v-else
@@ -1235,7 +1235,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">Is Factory New</div>
-                    <div class="field-value">{{ vehicle.details?.is_factory_new ? 'Yes' : (vehicle.details?.is_factory_new === false ? 'No' : '-') }}</div>
+                    <div class="field-value">{{ vehicle.details?.is_factory_new ? t('common.yes') : (vehicle.details?.is_factory_new === false ? t('common.no') : '-') }}</div>
                   </div>
                   <v-checkbox
                     v-else
@@ -1612,7 +1612,7 @@
         </v-card-text>
         <v-card-actions class="pa-3">
           <v-spacer />
-          <v-btn variant="text" size="small" @click="cancelImageUpload">Cancel</v-btn>
+          <v-btn variant="text" size="small" @click="cancelImageUpload">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="primary"
             size="small"
@@ -1640,7 +1640,7 @@
         </v-card-text>
         <v-card-actions class="pa-3">
           <v-spacer />
-          <v-btn variant="text" size="small" @click="showDeleteImageDialog = false">Cancel</v-btn>
+          <v-btn variant="text" size="small" @click="showDeleteImageDialog = false">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="error"
             size="small"
@@ -1686,7 +1686,7 @@
         </v-card-text>
         <v-card-actions class="pa-3">
           <v-spacer />
-          <v-btn variant="text" size="small" @click="cancelEquipmentEdit">Cancel</v-btn>
+          <v-btn variant="text" size="small" @click="cancelEquipmentEdit">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="primary"
             size="small"
@@ -1716,7 +1716,7 @@
         </v-card-text>
         <v-card-actions class="pa-3">
           <v-spacer />
-          <v-btn variant="text" size="small" @click="showMarkAsSoldDialog = false">Cancel</v-btn>
+          <v-btn variant="text" size="small" @click="showMarkAsSoldDialog = false">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="success"
             size="small"
@@ -1750,7 +1750,7 @@
         </v-card-text>
         <v-card-actions class="pa-3">
           <v-spacer />
-          <v-btn variant="text" size="small" @click="cancelStatusUpdate">Cancel</v-btn>
+          <v-btn variant="text" size="small" @click="cancelStatusUpdate">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="primary"
             size="small"
@@ -1769,26 +1769,26 @@
       <v-card>
         <v-card-title class="d-flex align-center text-subtitle-1">
           <v-icon color="error" size="18" class="mr-2">mdi-delete</v-icon>
-          Delete Vehicle
+          {{ t('admin.views.vehicles.deleteVehicle') }}
         </v-card-title>
         <v-card-text class="pa-3">
           <p class="text-body-2">
-            Are you sure you want to delete <strong>{{ vehicle?.title || `Vehicle #${vehicle?.id}` }}</strong>?
+            {{ t('common.confirmDeleteLead') }}<strong>{{ vehicle?.title || t('common.vehicleTitleFallback', { id: vehicle?.id }) }}</strong>{{ t('common.confirmDeleteTrail') }}
           </p>
           <p class="text-caption text-medium-emphasis mt-1">
-            This action will soft delete the vehicle. The vehicle will no longer be visible in the system.
+            {{ t('common.softDeleteVehicleWarning') }}
           </p>
         </v-card-text>
         <v-card-actions class="pa-3">
           <v-spacer />
-          <v-btn variant="text" size="small" @click="showDeleteDialog = false">Cancel</v-btn>
+          <v-btn variant="text" size="small" @click="showDeleteDialog = false">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="error"
             size="small"
             @click="deleteVehicle"
             :loading="deleting"
           >
-            Delete
+            {{ t('common.delete') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -1799,6 +1799,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import {
   getVehicle,
   updateVehicle,
@@ -1826,6 +1827,7 @@ import type { ApiErrorModel } from '@/models/api-error.model'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 
 const loading = ref(false)
 const error = ref<string | null>(null)

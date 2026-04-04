@@ -294,10 +294,10 @@
         </v-card-title>
         <v-card-text>
           <p class="text-body-1">
-            Are you sure you want to delete <strong>{{ vehicleToDelete?.title || `Vehicle #${vehicleToDelete?.id}` }}</strong>?
+            {{ t('common.confirmDeleteLead') }}<strong>{{ vehicleToDelete?.title || t('common.vehicleTitleFallback', { id: vehicleToDelete?.id }) }}</strong>{{ t('common.confirmDeleteTrail') }}
           </p>
           <p class="text-body-2 text-medium-emphasis mt-2">
-            This action will soft delete the vehicle. The vehicle will no longer be visible in the system.
+            {{ t('common.softDeleteVehicleWarning') }}
           </p>
         </v-card-text>
         <v-card-actions>

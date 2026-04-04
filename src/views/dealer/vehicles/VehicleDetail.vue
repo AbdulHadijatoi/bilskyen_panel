@@ -699,7 +699,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">{{ t('dealer.views.vehicleDetail.isImport') }}</div>
-                    <div class="field-value">{{ vehicle.details?.is_import ? 'Yes' : 'No' }}</div>
+                    <div class="field-value">{{ vehicle.details?.is_import ? t('common.yes') : t('common.no') }}</div>
                   </div>
                   <v-checkbox
                     v-else
@@ -712,7 +712,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">{{ t('dealer.views.vehicleDetail.isFactoryNew') }}</div>
-                    <div class="field-value">{{ vehicle.details?.is_factory_new ? 'Yes' : 'No' }}</div>
+                    <div class="field-value">{{ vehicle.details?.is_factory_new ? t('common.yes') : t('common.no') }}</div>
                   </div>
                   <v-checkbox
                     v-else
@@ -1042,7 +1042,7 @@
                 <div class="info-item">
                   <div class="info-item-label">
                     <v-icon size="16" class="mr-1">mdi-calendar-plus</v-icon>
-                    Created At
+                    {{ t('common.createdAt') }}
                   </div>
                   <div class="info-item-value">
                     {{ vehicle.createdAt ? formatDate(vehicle.createdAt) : '-' }}
@@ -1052,7 +1052,7 @@
                 <div class="info-item">
                   <div class="info-item-label">
                     <v-icon size="16" class="mr-1">mdi-calendar-edit</v-icon>
-                    Updated At
+                    {{ t('common.updatedAt') }}
                   </div>
                   <div class="info-item-value">
                     {{ vehicle.updatedAt ? formatDate(vehicle.updatedAt) : '-' }}
@@ -1071,7 +1071,7 @@
       <v-card>
         <v-card-title class="d-flex align-center text-subtitle-1">
           <v-icon color="primary" size="18" class="mr-2">mdi-upload</v-icon>
-          Upload Vehicle Images
+          {{ t('dealer.views.vehicleDetail.uploadVehicleImages') }}
           <v-chip v-if="maxVehicleImages > 0" size="x-small" class="ml-2" color="primary" variant="tonal">
             {{ vehicleImages.length }}/{{ maxVehicleImages }}
           </v-chip>
@@ -1086,7 +1086,7 @@
             density="compact"
             prepend-icon="mdi-image"
             hide-details="auto"
-            :hint="maxVehicleImages > 0 ? `You can add up to ${remainingImageSlots} more image(s).` : undefined"
+            :hint="maxVehicleImages > 0 ? t('dealer.views.vehicleDetail.moreImagesSlotHint', { count: remainingImageSlots }) : undefined"
           />
         </v-card-text>
         <v-card-actions class="pa-3">
@@ -1099,7 +1099,7 @@
             :loading="uploadingImages"
             :disabled="!imageFiles || imageFiles.length === 0 || (maxVehicleImages > 0 && vehicleImages.length + (imageFiles?.length || 0) > maxVehicleImages)"
           >
-            Upload
+            {{ t('common.upload') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -1110,11 +1110,11 @@
       <v-card>
         <v-card-title class="d-flex align-center text-subtitle-1">
           <v-icon color="error" size="18" class="mr-2">mdi-delete</v-icon>
-          Delete Image
+          {{ t('dealer.views.vehicleDetail.deleteImageTitle') }}
         </v-card-title>
         <v-card-text class="pa-3">
           <p class="text-body-2">
-            Are you sure you want to delete this image?
+            {{ t('dealer.views.vehicleDetail.deleteImageConfirmFull') }}
           </p>
         </v-card-text>
         <v-card-actions class="pa-3">
@@ -1126,7 +1126,7 @@
             @click="deleteImage"
             :loading="deletingImage"
           >
-            Delete
+            {{ t('dealer.views.vehicleDetail.delete') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -1137,7 +1137,7 @@
       <v-card>
         <v-card-title class="d-flex align-center text-subtitle-1">
           <v-icon color="primary" size="18" class="mr-2">mdi-cog</v-icon>
-          Edit Equipment
+          {{ t('dealer.views.vehicleDetail.editEquipmentTitle') }}
           <v-chip v-if="maxEquipmentPerVehicle > 0" size="x-small" class="ml-2" color="primary" variant="tonal">
             {{ selectedEquipment.length }}/{{ maxEquipmentPerVehicle }}
           </v-chip>
@@ -1176,7 +1176,7 @@
             @click="saveEquipment"
             :loading="savingEquipment"
           >
-            Save
+            {{ t('dealer.views.vehicleDetail.save') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -1187,11 +1187,11 @@
       <v-card>
         <v-card-title class="d-flex align-center text-subtitle-1">
           <v-icon color="primary" size="18" class="mr-2">mdi-update</v-icon>
-          Update Vehicle Status
+          {{ t('dealer.views.vehicleDetail.updateStatusTitle') }}
         </v-card-title>
         <v-card-text class="pa-3">
           <p class="text-body-2 mb-3">
-            Current status: <strong>{{ vehicle?.status || vehicle?.vehicleListStatusName || '-' }}</strong>
+            {{ t('dealer.views.vehicleDetail.currentStatus') }} <strong>{{ vehicle?.status || vehicle?.vehicleListStatusName || '-' }}</strong>
           </p>
           <v-select
             v-model="selectedStatus"
@@ -1214,7 +1214,7 @@
             :loading="updatingStatus"
             :disabled="!selectedStatus || selectedStatus === (vehicle?.status || vehicle?.vehicleListStatusName)"
           >
-            Update Status
+            {{ t('dealer.views.vehicleDetail.updateStatus') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -1225,11 +1225,11 @@
       <v-card>
         <v-card-title class="d-flex align-center text-subtitle-1">
           <v-icon color="success" size="18" class="mr-2">mdi-check-circle</v-icon>
-          Mark as Sold
+          {{ t('dealer.views.vehicleDetail.markAsSold') }}
         </v-card-title>
         <v-card-text class="pa-3">
           <p class="text-body-2">
-            {{ t('dealer.views.vehicleDetail.markAsSoldConfirm', { name: vehicle?.title || `Vehicle #${vehicle?.id}` }) }}
+            {{ t('dealer.views.vehicleDetail.markAsSoldConfirm', { name: vehicleDisplayTitle }) }}
           </p>
           <p class="text-caption text-medium-emphasis mt-1">
             {{ t('dealer.views.vehicleDetail.markAsSoldDescription') }}
@@ -1244,7 +1244,7 @@
             @click="markAsSold"
             :loading="markingAsSold"
           >
-            Mark as Sold
+            {{ t('dealer.views.vehicleDetail.markAsSold') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -1255,14 +1255,14 @@
       <v-card>
         <v-card-title class="d-flex align-center text-subtitle-1">
           <v-icon color="error" size="18" class="mr-2">mdi-delete</v-icon>
-          Delete Vehicle
+          {{ t('dealer.views.vehicleDetail.deleteVehicleTitle') }}
         </v-card-title>
         <v-card-text class="pa-3">
           <p class="text-body-2">
-            Are you sure you want to delete <strong>{{ vehicle?.title || `Vehicle #${vehicle?.id}` }}</strong>?
+            {{ t('common.confirmDeleteLead') }}<strong>{{ vehicle?.title || t('common.vehicleTitleFallback', { id: vehicle?.id }) }}</strong>{{ t('common.confirmDeleteTrail') }}
           </p>
           <p class="text-caption text-medium-emphasis mt-1">
-            This action will soft delete the vehicle. The vehicle will no longer be visible in the system.
+            {{ t('common.softDeleteVehicleWarning') }}
           </p>
         </v-card-text>
         <v-card-actions class="pa-3">
@@ -1274,7 +1274,7 @@
             @click="deleteVehicle"
             :loading="deleting"
           >
-            Delete
+            {{ t('dealer.views.vehicleDetail.delete') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -1314,6 +1314,13 @@ const { t } = useI18n()
 const loading = ref(false)
 const error = ref<string | null>(null)
 const vehicle = ref<VehicleModel | null>(null)
+
+const vehicleDisplayTitle = computed(() => {
+  const v = vehicle.value
+  if (!v) return ''
+  return v.title || t('common.vehicleTitleFallback', { id: String(v.id) })
+})
+
 const vehicleImages = ref<VehicleImageModel[]>([])
 const editMode = ref(false)
 const updating = ref(false)
@@ -1573,7 +1580,7 @@ const uploadImages = async () => {
 
   const maxImg = maxVehicleImages.value
   if (maxImg > 0 && vehicleImages.value.length + imageFiles.value.length > maxImg) {
-    error.value = `Your plan allows up to ${maxImg} images per vehicle. Remove some existing images or add fewer new ones.`
+    error.value = t('dealer.views.vehicleDetail.planMaxImagesError', { max: maxImg })
     return
   }
 
@@ -1632,7 +1639,7 @@ const saveEquipment = async () => {
 
   const maxEquip = maxEquipmentPerVehicle.value
   if (maxEquip > 0 && selectedEquipment.value.length > maxEquip) {
-    error.value = `Your plan allows up to ${maxEquip} equipment items per vehicle. Please deselect some.`
+    error.value = t('dealer.views.vehicleDetail.planMaxEquipmentError', { max: maxEquip })
     return
   }
 

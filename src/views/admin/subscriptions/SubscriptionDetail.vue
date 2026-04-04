@@ -124,7 +124,7 @@
               <div class="d-flex align-center justify-space-between">
                 <div>
                   <div class="text-caption text-medium-emphasis mb-1">Auto Renew</div>
-                  <div class="text-h6 font-weight-bold">{{ subscription.auto_renew ? 'Yes' : 'No' }}</div>
+                  <div class="text-h6 font-weight-bold">{{ subscription.auto_renew ? t('common.yes') : t('common.no') }}</div>
                 </div>
                 <v-avatar :color="subscription.auto_renew ? 'success' : 'grey'" size="40">
                   <v-icon color="white">{{ subscription.auto_renew ? 'mdi-check-circle' : 'mdi-close-circle' }}</v-icon>
@@ -293,7 +293,7 @@
                     <v-card-text class="pa-3">
                       <div class="d-flex align-center mb-2">
                         <v-icon class="mr-2" color="success" size="18">mdi-check</v-icon>
-                        <div class="text-body-2 font-weight-medium">{{ feature.key }}</div>
+                        <div class="text-body-2 font-weight-medium">{{ subscriptionFeatureLabel(feature) }}</div>
                       </div>
                       <div class="text-caption text-medium-emphasis">
                         Value: <strong>{{ feature.pivot?.value || 'N/A' }}</strong>
@@ -429,6 +429,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import {
   getSubscription,
   updateSubscription,
@@ -438,9 +439,21 @@ import {
   type SubscriptionModel
 } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import { featureDisplayName } from '@/utils/featureDisplay'
 
 const route = useRoute()
 const router = useRouter()
+const { t, locale } = useI18n()
+
+const subscriptionFeatureLabel = (feature: { key?: string; label_en?: string | null; label_da?: string | null }) =>
+  featureDisplayName(
+    {
+      key: feature.key || '',
+      label_en: feature.label_en,
+      label_da: feature.label_da,
+    },
+    locale.value
+  )
 
 const loading = ref(false)
 const error = ref<string | null>(null)
