@@ -1157,6 +1157,7 @@
         "clickToUpload": "Click to upload or drag and drop",
         "uploadHintFormats": "PNG, JPG, GIF up to 20MB each",
         "uploadMinOneImage": "Please upload at least 1 image",
+        "uploadImagesOptionalHint": "Photos are optional. You can save the listing without images and add them later from the vehicle page.",
         "vehicleDescription": "Vehicle Description",
         "descriptionHint": "Description will be auto-generated based on vehicle information. You can edit it manually.",
         "fixErrorsStrong": "Please fix the following errors:",

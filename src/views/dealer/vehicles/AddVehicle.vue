@@ -814,12 +814,12 @@
                     </label>
                     <v-alert
                       v-if="form.images.length === 0"
-                      type="error"
+                      type="info"
                       variant="tonal"
                       density="compact"
                       class="mt-2"
                     >
-                      {{ t('dealer.views.addVehicle.uploadMinOneImage') }}
+                      {{ t('dealer.views.addVehicle.uploadImagesOptionalHint') }}
                     </v-alert>
                   </div>
 
@@ -1171,7 +1171,8 @@ const maxEquipmentPerVehicle = computed(() => getFeatureLimit(FeatureKey.MAX_EQU
 // Computed property to check if images are valid
 const imagesValid = computed(() => {
   const max = maxVehicleImages.value
-  return form.value.images && form.value.images.length >= 1 && (max <= 0 || form.value.images.length <= max)
+  const n = form.value.images?.length ?? 0
+  return max <= 0 || n <= max
 })
 
 // Lookup state
@@ -1821,11 +1822,11 @@ function getInvalidSteps(): { stepIndex: number; stepLabel: string }[] {
     invalid.push({ stepIndex: 4, stepLabel: steps.value[4]?.label ?? t('dealer.views.addVehicle.tabPricing') })
   }
 
-  // Step 5: Media
+  // Step 5: Media (images optional; description required)
   const descValid = f.description && f.description.length >= 1 && f.description.length <= 5000
   const maxImg = maxVehicleImages.value
   const imagesCountOk = maxImg <= 0 || imagePreviews.value.length <= maxImg
-  if (!(imagePreviews.value.length >= 1) || !descValid || !imagesCountOk) {
+  if (!descValid || !imagesCountOk) {
     invalid.push({ stepIndex: 5, stepLabel: steps.value[5]?.label ?? t('dealer.views.addVehicle.tabMedia') })
   }
 
@@ -2866,13 +2867,6 @@ const submitForm = async () => {
     const tabNames = invalidSteps.map(s => s.stepLabel).join(', ')
     submitError.value = t('dealer.views.addVehicle.completeRequiredFieldsIn', { tabs: tabNames })
     currentStep.value = invalidSteps[0]?.stepIndex ?? 0
-    return
-  }
-
-  if (!imagesValid.value) {
-    submitError.value = t('dealer.views.addVehicle.minImagesRequired')
-    // Scroll to media step
-    currentStep.value = 5
     return
   }
 
