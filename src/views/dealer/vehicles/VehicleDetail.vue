@@ -1212,7 +1212,7 @@
             size="small"
             @click="updateStatus"
             :loading="updatingStatus"
-            :disabled="!selectedStatus || selectedStatus === (vehicle?.status || vehicle?.vehicleListStatusName)"
+            :disabled="selectedStatus == null || selectedStatus === vehicle?.vehicleListStatusId"
           >
             {{ t('dealer.views.vehicleDetail.updateStatus') }}
           </v-btn>
@@ -1299,7 +1299,6 @@ import {
   type UpdateVehicleStatusData,
   type LookupConstantsResponse,
 } from '@/api/dealer.api'
-import type { VehicleStatus } from '@/models/vehicle.model'
 import { VehicleStatus as VehicleStatusEnum } from '@/models/vehicle.model'
 import type { VehicleModel } from '@/models/vehicle.model'
 import type { VehicleImageModel } from '@/models/vehicle.model'
@@ -1340,7 +1339,7 @@ const showDeleteDialog = ref(false)
 const showStatusDialog = ref(false)
 const showMarkAsSoldDialog = ref(false)
 const updatingStatus = ref(false)
-const selectedStatus = ref<VehicleStatus | ''>('')
+const selectedStatus = ref<number | null>(null)
 const markingAsSold = ref(false)
 const loadingConstants = ref(false)
 
@@ -1686,49 +1685,35 @@ const deleteVehicle = async () => {
   }
 }
 
-// Status options for the status update dialog - map from constants to API format
-// API accepts: draft, published, unpublished, archived
-const statusOptions = computed(() => {
-  const validApiStatuses = ['draft', 'published', 'unpublished', 'archived']
-  
-  return vehicleListStatusesFromConstants.value
-    .map(status => {
-      // Map status name to API format (lowercase)
-      const apiValue = status.name.toLowerCase()
-      
-      // Only include statuses that are valid for the API
-      if (validApiStatuses.includes(apiValue)) {
-        return {
-          label: status.name,
-          value: apiValue
-        }
-      }
-      return null
-    })
-    .filter((option): option is { label: string; value: string } => option !== null)
-})
+// Status options: use DB ids + localized names from lookup constants (names are not English slugs).
+const statusOptions = computed(() =>
+  vehicleListStatusesFromConstants.value.map((status) => ({
+    label: status.name,
+    value: status.id,
+  }))
+)
 
 const cancelStatusUpdate = () => {
   showStatusDialog.value = false
-  selectedStatus.value = ''
+  selectedStatus.value = null
 }
 
 const updateStatus = async () => {
-  if (!vehicle.value || !selectedStatus.value) return
+  if (!vehicle.value || selectedStatus.value == null) return
 
   try {
     updatingStatus.value = true
     error.value = null
     
     const statusData: UpdateVehicleStatusData = {
-      status: selectedStatus.value as VehicleStatus
+      list_status_id: selectedStatus.value,
     }
     
     const updatedVehicle = await updateVehicleStatus(vehicle.value.id, statusData)
     vehicle.value = updatedVehicle
     
     showStatusDialog.value = false
-    selectedStatus.value = ''
+    selectedStatus.value = null
     
     // Reload vehicle to get updated status
     await loadVehicle()
@@ -1842,9 +1827,7 @@ watch(showEquipmentDialog, (newVal) => {
 // Watch for status dialog to initialize selected status
 watch(showStatusDialog, (newVal) => {
   if (newVal && vehicle.value) {
-    // Initialize with current status (convert to lowercase for API)
-    const currentStatus = (vehicle.value.status || vehicle.value.vehicleListStatusName || '').toLowerCase()
-    selectedStatus.value = currentStatus as VehicleStatus || ''
+    selectedStatus.value = vehicle.value.vehicleListStatusId ?? null
   }
 })
 
