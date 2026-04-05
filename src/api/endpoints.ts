@@ -521,6 +521,7 @@ export const ADMIN_CONSTANTS_ENDPOINTS = {
   },
   VEHICLE_MODELS: {
     LIST: '/admin/vehicle-models',
+    FOR_LISTING_FILTERS: '/admin/vehicle-models/for-listing-filters',
     SHOW: (id: number | string) => `/admin/vehicle-models/show/${id}`,
     CREATE: '/admin/vehicle-models/create',
     UPDATE: (id: number | string) => `/admin/vehicle-models/update/${id}`,

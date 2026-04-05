@@ -326,7 +326,7 @@ import {
   createVehicleSpecDefinition,
   deleteVehicleSpecDefinition,
   getBrands,
-  getVehicleModels,
+  getVehicleModelsForListingFilters,
   getVariants,
   getVehicleSpecDefinitions,
   updateVehicleSpecDefinition,
@@ -426,7 +426,11 @@ async function loadModelsForBrand(brandId: number): Promise<void> {
     const batch = 500
     let hasMore = true
     while (hasMore) {
-      const data = await getVehicleModels({ brand_id: brandId, limit: batch, page: p })
+      const data = await getVehicleModelsForListingFilters({
+        brand_id: brandId,
+        limit: batch,
+        page: p,
+      })
       acc.push(...data.docs)
       hasMore = data.hasNextPage === true
       p += 1

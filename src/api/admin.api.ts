@@ -3461,6 +3461,21 @@ export async function getVehicleModels(
   }
 }
 
+/** Published-inventory models + shortened names (Vehicle Spec Definitions, etc.). */
+export async function getVehicleModelsForListingFilters(
+  params?: PaginationParams & { brand_id?: number }
+): Promise<PaginationModel<VehicleModelConstant>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<VehicleModelConstant> }>(
+      ADMIN_CONSTANTS_ENDPOINTS.VEHICLE_MODELS.FOR_LISTING_FILTERS,
+      { params }
+    )
+    return handleSuccess<PaginationModel<VehicleModelConstant>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
 export async function getVehicleModel(id: number | string): Promise<VehicleModelConstant> {
   try {
     const response = await httpClient.get<{ data: VehicleModelConstant }>(
