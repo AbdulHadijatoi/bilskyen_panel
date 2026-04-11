@@ -4,7 +4,7 @@ export type SupportedLocale = 'en' | 'da'
 
 const i18n = createI18n({
   legacy: false,
-  locale: 'en',
+  locale: 'da',
   fallbackLocale: 'en',
   messages: {},
 })

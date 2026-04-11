@@ -780,6 +780,42 @@
                   
                 ></div>
               </div>
+              <div class="editable-field">
+                <div class="field-label">Contact email</div>
+                <div
+                  contenteditable
+                  class="editable-text"
+                  :data-key="'footer_contact_email'"
+                  @blur="handleContentChange"
+                  @input="handleInput"
+                  :data-placeholder="getPlaceholder('footer_contact_email')"
+                  @focus="handleFocus"
+                ></div>
+              </div>
+              <div class="editable-field">
+                <div class="field-label">Contact phone</div>
+                <div
+                  contenteditable
+                  class="editable-text"
+                  :data-key="'footer_contact_phone'"
+                  @blur="handleContentChange"
+                  @input="handleInput"
+                  :data-placeholder="getPlaceholder('footer_contact_phone')"
+                  @focus="handleFocus"
+                ></div>
+              </div>
+              <div class="editable-field full-width">
+                <div class="field-label">Address (footer)</div>
+                <div
+                  contenteditable
+                  class="editable-text"
+                  :data-key="'footer_about_address'"
+                  @blur="handleContentChange"
+                  @input="handleInput"
+                  :data-placeholder="getPlaceholder('footer_about_address')"
+                  @focus="handleFocus"
+                ></div>
+              </div>
             </div>
           </v-expansion-panel-text>
         </v-expansion-panel>
@@ -852,6 +888,9 @@ const sectionDefinitions: Record<string, { placeholder: string }> = {
   footer_cta_title: { placeholder: 'Ready to Find Your Next Vehicle?' },
   footer_cta_description: { placeholder: 'Visit our showroom or browse our inventory online. Our team is ready to help you find the perfect vehicle that fits your needs and budget.' },
   footer_about_description: { placeholder: 'Bilskyen - Driving trust and value with quality pre-owned vehicles for every journey.' },
+  footer_contact_email: { placeholder: 'info@bilskyen.dk' },
+  footer_contact_phone: { placeholder: '+45 12 34 56 78' },
+  footer_about_address: { placeholder: '123 Dealership Lane, Copenhagen, Denmark' },
   stat_1_value: { placeholder: '100+' },
   stat_1_title: { placeholder: 'Quality Vehicles' },
   stat_1_description: { placeholder: 'Thoroughly inspected vehicles in our inventory' },

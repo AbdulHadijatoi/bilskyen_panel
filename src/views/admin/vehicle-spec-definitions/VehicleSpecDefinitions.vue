@@ -301,7 +301,7 @@
             label="Spec value"
             variant="outlined"
             density="comfortable"
-            rows="3"
+            rows="6"
             :disabled="saving"
             hide-details
           />
