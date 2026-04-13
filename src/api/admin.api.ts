@@ -4012,11 +4012,10 @@ function mapOwnershipTaxRuleFromApi(data: any): OwnershipTaxRuleModel {
   }
 }
 
-export async function getDmrDriveEnergies(limit = 500): Promise<DmrDriveEnergyModel[]> {
+export async function getDmrDriveEnergies(): Promise<DmrDriveEnergyModel[]> {
   try {
     const response = await httpClient.get<{ data: any[] }>(
       ADMIN_OWNERSHIP_TAX_ENDPOINTS.DMR_DRIVE_ENERGIES,
-      { params: { limit } }
     )
     const rows = handleSuccess<any[]>(response)
     return rows.map(mapDmrDriveEnergyFromApi)

@@ -422,13 +422,11 @@ import {
   createOwnershipTaxRule,
   deleteOwnershipTaxRule,
   getDmrDriveEnergies,
-  getModelYears,
   getOwnershipTaxRules,
   updateOwnershipTaxRule,
   type DmrDriveEnergyModel,
   type OwnershipTaxRuleModel,
 } from '@/api/admin.api'
-import type { ConstantModel } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
 const loading = ref(false)
@@ -445,20 +443,20 @@ const totalDocs = ref(0)
 const totalPages = ref(1)
 
 const driveEnergies = ref<DmrDriveEnergyModel[]>([])
-const modelYears = ref<ConstantModel[]>([])
+
+/** Matches {@see AdminOwnershipTaxRuleController} validation (registration years). */
+const REGISTRATION_YEAR_MIN = 1900
+const REGISTRATION_YEAR_MAX = 2100
 
 const search = ref('')
 const fuelFilter = ref<number | null>(null)
 
 const yearOptions = computed(() => {
-  return modelYears.value
-    .map((y) => {
-      const n = Number.parseInt(String(y.name), 10)
-      if (!Number.isFinite(n)) return null
-      return { label: String(y.name), value: n }
-    })
-    .filter((x): x is { label: string; value: number } => x !== null)
-    .sort((a, b) => a.value - b.value)
+  const opts: { label: string; value: number }[] = []
+  for (let y = REGISTRATION_YEAR_MIN; y <= REGISTRATION_YEAR_MAX; y++) {
+    opts.push({ label: String(y), value: y })
+  }
+  return opts
 })
 
 const showDialog = ref(false)
@@ -579,12 +577,7 @@ const filteredRules = computed(() => {
 })
 
 const loadLookups = async () => {
-  const [energies, yearsPage] = await Promise.all([
-    getDmrDriveEnergies(1000),
-    getModelYears({ limit: 500, page: 1 }),
-  ])
-  driveEnergies.value = energies
-  modelYears.value = yearsPage.docs
+  driveEnergies.value = await getDmrDriveEnergies()
 }
 
 const loadRules = async () => {
