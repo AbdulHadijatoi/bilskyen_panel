@@ -4194,14 +4194,14 @@ export interface VehicleSpecDefinitionModel {
   id: number
   brandId: number
   modelId: number
-  variantId: number | null
+  variantIds: number[] | null
   modelYearFrom: number
   modelYearTo: number
   name: string
   value: string
   brand?: { id: number; name: string }
   model?: { id: number; name: string; brand_id?: number }
-  variant?: { id: number; name: string; model_id?: number }
+  variants?: { id: number; name: string; model_id?: number }[]
   createdAt?: string
   updatedAt?: string
 }
@@ -4209,7 +4209,7 @@ export interface VehicleSpecDefinitionModel {
 export interface VehicleSpecDefinitionPayload {
   brand_id: number
   model_id: number
-  variant_id?: number | null
+  variant_ids?: number[] | null
   model_year_from: number
   model_year_to: number
   name: string
@@ -4217,18 +4217,25 @@ export interface VehicleSpecDefinitionPayload {
 }
 
 function mapVehicleSpecDefinitionFromApi(data: any): VehicleSpecDefinitionModel {
+  const rawIds = data.variant_ids
+  let variantIds: number[] | null = null
+  if (Array.isArray(rawIds) && rawIds.length > 0) {
+    variantIds = rawIds.map((x: unknown) => Number(x)).filter((n) => Number.isFinite(n) && n > 0)
+    if (variantIds.length === 0) variantIds = null
+  }
+
   return {
     id: data.id,
     brandId: data.brand_id,
     modelId: data.model_id,
-    variantId: data.variant_id != null ? data.variant_id : null,
+    variantIds,
     modelYearFrom: data.model_year_from,
     modelYearTo: data.model_year_to,
     name: data.name,
     value: data.value,
     brand: data.brand,
     model: data.model,
-    variant: data.variant,
+    variants: Array.isArray(data.variants) ? data.variants : undefined,
     createdAt: data.created_at,
     updatedAt: data.updated_at,
   }

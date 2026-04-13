@@ -5,7 +5,7 @@
         <div>
           <h1 class="text-h4 font-weight-bold mb-1">Vehicle spec definitions</h1>
           <p class="text-body-2 text-medium-emphasis mb-0">
-            Catalog spec name and value by brand, model, optional variant, and inclusive model year range.
+            Catalog spec name and value by brand, model, optional variants (multi-select), and inclusive model year range.
           </p>
         </div>
         <v-btn
@@ -115,8 +115,8 @@
             {{ item.model?.name ?? '—' }}
           </template>
 
-          <template #item.variant="{ item }">
-            {{ item.variant?.name ?? '—' }}
+          <template #item.variants="{ item }">
+            <span class="text-body-2">{{ formatVariantsCell(item) }}</span>
           </template>
 
           <template #item.yearRange="{ item }">
@@ -186,7 +186,7 @@
       </v-card-text>
     </v-card>
 
-    <v-dialog v-model="showDialog" max-width="560" scrollable persistent>
+    <v-dialog v-model="showDialog" max-width="640" scrollable persistent>
       <v-card>
         <v-card-title class="d-flex align-center">
           <v-icon class="mr-2" size="18" color="primary">mdi-clipboard-list-outline</v-icon>
@@ -242,13 +242,16 @@
           />
 
           <v-select
-            v-model="form.variant_id"
+            v-model="form.variant_ids"
             :items="dialogVariants"
             item-title="name"
             item-value="id"
-            label="Variant (optional)"
+            label="Variants (optional)"
             variant="outlined"
             density="comfortable"
+            multiple
+            chips
+            closable-chips
             clearable
             :disabled="saving || !form.model_id"
             :loading="loadingDialogVariants"
@@ -257,7 +260,7 @@
             :no-data-text="form.model_id ? 'No variants for this model' : 'Select a model first'"
           />
           <p class="text-caption text-medium-emphasis mb-3">
-            Leave empty for model-wide specs (all variants). Listings without a variant only show these rows.
+            Leave empty for model-wide specs (all variants). Variant-specific rows appear only when the listing’s variant is one of those selected. Listings without a variant only show model-wide rows.
           </p>
 
           <v-select
@@ -365,7 +368,7 @@ const editingId = ref<number | null>(null)
 const form = ref({
   brand_id: undefined as number | undefined,
   model_id: undefined as number | undefined,
-  variant_id: undefined as number | undefined,
+  variant_ids: [] as number[],
   model_year_from: undefined as number | undefined,
   model_year_to: undefined as number | undefined,
   name: '',
@@ -381,7 +384,7 @@ const pageSizeOptions = [
 const headers = [
   { title: 'Brand', key: 'brand', sortable: false },
   { title: 'Model', key: 'model', sortable: false },
-  { title: 'Variant', key: 'variant', sortable: false },
+  { title: 'Variants', key: 'variants', sortable: false },
   { title: 'Years', key: 'yearRange', sortable: false, width: '120px' },
   { title: 'Spec name', key: 'name', sortable: false },
   { title: 'Spec value', key: 'value', sortable: false },
@@ -403,6 +406,18 @@ function formatYearRange(from: number, to: number): string {
     return String(from)
   }
   return `${from}–${to}`
+}
+
+function formatVariantsCell(item: VehicleSpecDefinitionModel): string {
+  const ids = item.variantIds
+  if (!ids?.length) {
+    return 'All variants'
+  }
+  const names = (item.variants ?? []).map((v) => v.name).filter(Boolean)
+  if (names.length) {
+    return names.join(', ')
+  }
+  return ids.join(', ')
 }
 
 const canSubmit = computed(() => {
@@ -467,7 +482,7 @@ watch(
   async (brandId) => {
     if (suppressCascade.value) return
     form.value.model_id = undefined
-    form.value.variant_id = undefined
+    form.value.variant_ids = []
     dialogModels.value = []
     dialogVariants.value = []
     if (brandId == null) return
@@ -479,7 +494,7 @@ watch(
   () => form.value.model_id,
   async (modelId) => {
     if (suppressCascade.value) return
-    form.value.variant_id = undefined
+    form.value.variant_ids = []
     dialogVariants.value = []
     if (modelId == null) return
     await loadVariantsForModel(modelId)
@@ -547,7 +562,7 @@ function resetForm(): void {
   form.value = {
     brand_id: undefined,
     model_id: undefined,
-    variant_id: undefined,
+    variant_ids: [],
     model_year_from: undefined,
     model_year_to: undefined,
     name: '',
@@ -573,7 +588,7 @@ async function openEdit(item: VehicleSpecDefinitionModel): Promise<void> {
     form.value = {
       brand_id: item.brandId,
       model_id: item.modelId,
-      variant_id: item.variantId ?? undefined,
+      variant_ids: [...(item.variantIds ?? [])],
       model_year_from: item.modelYearFrom,
       model_year_to: item.modelYearTo,
       name: item.name,
@@ -598,7 +613,7 @@ function buildPayload(): VehicleSpecDefinitionPayload {
   return {
     brand_id: f.brand_id!,
     model_id: f.model_id!,
-    variant_id: f.variant_id ?? null,
+    variant_ids: f.variant_ids.length > 0 ? [...f.variant_ids] : null,
     model_year_from: f.model_year_from!,
     model_year_to: f.model_year_to!,
     name: f.name.trim(),
