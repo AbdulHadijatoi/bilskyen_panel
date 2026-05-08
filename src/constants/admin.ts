@@ -109,6 +109,11 @@ export const adminSidebarSections: SidebarSection[] = [
             permission: 'admin.pages.update',
           },
           {
+            title: 'Social Links',
+            url: `${ADMIN_ROUTE_BASE}/pages/social-links`,
+            permission: 'admin.pages.update',
+          },
+          {
             title: 'SEO Content',
             url: `${ADMIN_ROUTE_BASE}/pages/seo-content`,
             permission: 'admin.pages.update',

@@ -243,6 +243,11 @@ const router = createRouter({
           component: () => import('@/views/admin/login-page-content/LoginPageContentManagement.vue'),
         },
         {
+          path: 'pages/social-links',
+          name: 'admin.social-links',
+          component: () => import('@/views/admin/social-links/SocialLinksManagement.vue'),
+        },
+        {
           path: 'pages/seo-content',
           name: 'admin.seo-content',
           component: () => import('@/views/admin/seo-content/SeoContentManagement.vue'),
