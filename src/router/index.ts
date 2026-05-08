@@ -192,17 +192,16 @@ const router = createRouter({
           name: 'admin.subscriptions.detail',
           component: () => import('@/views/admin/subscriptions/SubscriptionDetail.vue'),
         },
-        // Features routes hidden - managed through backend/migrations only
-        // {
-        //   path: 'features',
-        //   name: 'admin.features',
-        //   component: () => import('@/views/admin/features/FeaturesOverview.vue'),
-        // },
-        // {
-        //   path: 'features/:id',
-        //   name: 'admin.features.detail',
-        //   component: () => import('@/views/admin/features/FeatureDetail.vue'),
-        // },
+        {
+          path: 'features',
+          name: 'admin.features',
+          component: () => import('@/views/admin/features/FeaturesOverview.vue'),
+        },
+        {
+          path: 'features/:id',
+          name: 'admin.features.detail',
+          component: () => import('@/views/admin/features/FeatureDetail.vue'),
+        },
         // Pages overview route removed - redirect to home page content management
         {
           path: 'pages',

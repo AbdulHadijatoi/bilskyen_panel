@@ -164,18 +164,19 @@ export const adminSidebarSections: SidebarSection[] = [
           },
         ],
       },
-      // Features menu item hidden - managed through backend/migrations only
-      // {
-      //   title: 'Features',
-      //   url: `${ADMIN_ROUTE_BASE}/features`,
-      //   icon: 'mdi-star',
-      //   items: [
-      //     {
-      //       title: 'Overview',
-      //       url: `${ADMIN_ROUTE_BASE}/features`,
-      //     },
-      //   ],
-      // },
+      {
+        title: 'Features',
+        url: `${ADMIN_ROUTE_BASE}/features`,
+        icon: 'mdi-star',
+        permission: 'admin.features.view',
+        items: [
+          {
+            title: 'Overview',
+            url: `${ADMIN_ROUTE_BASE}/features`,
+            permission: 'admin.features.view',
+          },
+        ],
+      },
     ],
   },
   {
