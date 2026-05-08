@@ -362,28 +362,72 @@
           </v-card-title>
           <v-divider class="section-divider" />
           <v-card-text class="pa-3 section-content">
-            <v-autocomplete
-              v-model="selectedFeatureId"
-              :items="availableFeatures"
-              item-title="key"
-              item-value="id"
-              label="Feature *"
+            <v-btn-toggle
+              v-model="addFeatureMode"
+              mandatory
               variant="outlined"
               density="compact"
-              :loading="loadingAllFeatures"
-              :rules="[v => !!v || 'Required']"
               class="mb-3"
             >
-              <template #item="{ props, item }">
-                <v-list-item v-bind="props" density="compact">
-                  <v-list-item-title>{{ item.raw.key }}</v-list-item-title>
-                  <v-list-item-subtitle>{{ item.raw.description || 'No description' }}</v-list-item-subtitle>
-                </v-list-item>
-              </template>
-            </v-autocomplete>
+              <v-btn value="existing" size="small">Use Existing</v-btn>
+              <v-btn value="create" size="small">Create New</v-btn>
+            </v-btn-toggle>
+
+            <template v-if="addFeatureMode === 'existing'">
+              <v-autocomplete
+                v-model="selectedFeatureId"
+                :items="availableFeatures"
+                item-title="key"
+                item-value="id"
+                label="Feature *"
+                variant="outlined"
+                density="compact"
+                :loading="loadingAllFeatures"
+                :rules="[v => !!v || 'Required']"
+                class="mb-3"
+              >
+                <template #item="{ props, item }">
+                  <v-list-item v-bind="props" density="compact">
+                    <v-list-item-title>{{ item.raw.key }}</v-list-item-title>
+                    <v-list-item-subtitle>{{ item.raw.description || 'No description' }}</v-list-item-subtitle>
+                  </v-list-item>
+                </template>
+              </v-autocomplete>
+            </template>
+            <template v-else>
+              <v-text-field
+                v-model="newFeatureKey"
+                label="Feature key *"
+                variant="outlined"
+                density="compact"
+                hint="Use lowercase letters, numbers, underscore or hyphen"
+                persistent-hint
+                :rules="newFeatureKeyRules"
+                class="mb-2"
+              />
+              <v-select
+                v-model="newFeatureTypeId"
+                :items="featureTypeOptions"
+                item-title="label"
+                item-value="value"
+                label="Feature type *"
+                variant="outlined"
+                density="compact"
+                :rules="[v => !!v || 'Required']"
+                class="mb-2"
+              />
+              <v-text-field
+                v-model="newFeatureDescription"
+                label="Description *"
+                variant="outlined"
+                density="compact"
+                :rules="[v => !!v?.trim() || 'Required']"
+                class="mb-3"
+              />
+            </template>
             <!-- Boolean Feature: Dropdown -->
             <v-select
-              v-if="getFeatureValueTypeId(selectedFeatureId) === 1"
+              v-if="getCurrentAddFeatureTypeId() === 1"
               v-model="featureValue"
               :items="booleanOptions"
               item-title="label"
@@ -395,23 +439,23 @@
             />
             <!-- Number Feature: Number Input -->
             <v-text-field
-              v-else-if="getFeatureValueTypeId(selectedFeatureId) === 2"
+              v-else-if="getCurrentAddFeatureTypeId() === 2"
               v-model.number="featureValue"
               label="Value *"
               type="number"
               variant="outlined"
               density="compact"
-              :placeholder="getFeatureValuePlaceholder(selectedFeatureId)"
+              :placeholder="getFeatureValuePlaceholder(addFeatureMode === 'existing' ? selectedFeatureId : null, newFeatureTypeId)"
               :rules="[v => v !== null && v !== undefined && v !== '' || 'Required']"
             />
             <!-- Text Feature: Text Input -->
             <v-text-field
-              v-else-if="getFeatureValueTypeId(selectedFeatureId) === 3"
+              v-else-if="getCurrentAddFeatureTypeId() === 3"
               v-model="featureValue"
               label="Value *"
               variant="outlined"
               density="compact"
-              :placeholder="getFeatureValuePlaceholder(selectedFeatureId)"
+              :placeholder="getFeatureValuePlaceholder(addFeatureMode === 'existing' ? selectedFeatureId : null, newFeatureTypeId)"
               :rules="[v => !!v || 'Required']"
             />
             <!-- Default: Text Input (fallback) -->
@@ -421,13 +465,19 @@
               label="Value *"
               variant="outlined"
               density="compact"
-              :placeholder="getFeatureValuePlaceholder(selectedFeatureId)"
+              :placeholder="getFeatureValuePlaceholder(addFeatureMode === 'existing' ? selectedFeatureId : null, newFeatureTypeId)"
               :rules="[v => !!v || 'Required']"
             />
-            <v-alert v-if="selectedFeatureId" type="info" variant="tonal" density="compact" class="mt-3 compact-alert">
+            <v-alert v-if="addFeatureMode === 'existing' && selectedFeatureId" type="info" variant="tonal" density="compact" class="mt-3 compact-alert">
               <div class="text-caption">
                 <strong>Type:</strong> {{ getFeatureValueTypeName(selectedFeatureId) }}<br>
                 <strong>Description:</strong> {{ getSelectedFeatureDescription(selectedFeatureId) }}
+              </div>
+            </v-alert>
+            <v-alert v-else-if="addFeatureMode === 'create' && newFeatureTypeId" type="info" variant="tonal" density="compact" class="mt-3 compact-alert">
+              <div class="text-caption">
+                <strong>Type:</strong> {{ getFeatureValueTypeNameFromTypeId(newFeatureTypeId) }}<br>
+                <strong>Description:</strong> {{ (newFeatureDescription || 'No description').trim() || 'No description' }}
               </div>
             </v-alert>
           </v-card-text>
@@ -440,7 +490,7 @@
               variant="flat"
               @click="addFeature"
               :loading="addingFeature"
-              :disabled="!selectedFeatureId || (getFeatureValueTypeId(selectedFeatureId) === 1 && !featureValue)"
+              :disabled="!canSubmitAddFeature"
               size="small"
             >
               Add
@@ -603,6 +653,7 @@ import {
   updatePlanPricing as updatePlanPricingApi,
   removeFeature as removeFeatureApi,
   assignFeature,
+  createFeature,
   getFeatures,
   getRoles,
   getDealers,
@@ -655,10 +706,14 @@ const showAddFeatureDialog = ref(false)
 const showEditFeatureValueDialog = ref(false)
 const availableFeatures = ref<any[]>([])
 const allFeatures = ref<any[]>([])
+const addFeatureMode = ref<'existing' | 'create'>('existing')
 const selectedFeatureId = ref<number | null>(null)
-const featureValue = ref('')
+const featureValue = ref<string | number | null>('')
+const newFeatureKey = ref('')
+const newFeatureTypeId = ref<number | null>(null)
+const newFeatureDescription = ref('')
 const editingFeature = ref<any>(null)
-const editingFeatureValue = ref('')
+const editingFeatureValue = ref<string | number | null>('')
 const addingFeature = ref(false)
 const updatingFeatureValue = ref(false)
 const loadingAllFeatures = ref(false)
@@ -684,12 +739,42 @@ const activeStatusOptions = [
   { title: 'Active', value: true },
   { title: 'Inactive', value: false },
 ]
+const featureTypeOptions = [
+  { label: 'Boolean', value: 1 },
+  { label: 'Number', value: 2 },
+  { label: 'Text', value: 3 },
+]
+const featureKeyRegex = /^[a-z0-9_-]+$/
 
 const activeStatus = computed({
   get: () => planData.value.is_active,
   set: (value: boolean) => {
     planData.value.is_active = value
   }
+})
+
+const newFeatureKeyRules = [
+  (v: string) => !!v?.trim() || 'Required',
+  (v: string) => featureKeyRegex.test(v?.trim() || '') || 'Use only lowercase letters, numbers, underscore, or hyphen',
+  (v: string) => isNewFeatureKeyUnique(v) || 'Feature key already exists',
+]
+
+const canSubmitAddFeature = computed(() => {
+  const typeId = getCurrentAddFeatureTypeId()
+  if (!typeId || !isFeatureValueProvided(featureValue.value)) return false
+
+  if (addFeatureMode.value === 'existing') {
+    return !!selectedFeatureId.value
+  }
+
+  const key = newFeatureKey.value.trim()
+  return (
+    !!key &&
+    featureKeyRegex.test(key) &&
+    isNewFeatureKeyUnique(key) &&
+    !!newFeatureTypeId.value &&
+    !!newFeatureDescription.value.trim()
+  )
 })
 
 const formatPrice = (priceInCents: number, currency: string) => {
@@ -960,13 +1045,47 @@ const loadAllFeatures = async () => {
   }
 }
 
+const isFeatureValueProvided = (value: unknown) =>
+  value !== null && value !== undefined && value !== ''
+
+const isNewFeatureKeyUnique = (key: string) => {
+  const normalized = key.trim().toLowerCase()
+  if (!normalized) return false
+  return !allFeatures.value.some((feature) => (feature?.key || '').toLowerCase() === normalized)
+}
+
+const getCurrentAddFeatureTypeId = () => {
+  if (addFeatureMode.value === 'create') return newFeatureTypeId.value
+  return getFeatureValueTypeId(selectedFeatureId.value)
+}
+
+const normalizeFeatureValue = (featureTypeId: number | null, value: string | number | null): string | null => {
+  if (!featureTypeId || !isFeatureValueProvided(value)) {
+    return null
+  }
+
+  if (featureTypeId === 1) {
+    return value === 'true' || value === 1 || value === '1' ? 'true' : 'false'
+  }
+
+  if (featureTypeId === 2) {
+    return String(value).trim()
+  }
+
+  return String(value).trim()
+}
+
 const openAddFeatureDialog = async () => {
   try {
     await loadAllFeatures()
     const assignedFeatureIds = features.value.map(f => f.id)
     availableFeatures.value = allFeatures.value.filter(f => !assignedFeatureIds.includes(f.id))
+    addFeatureMode.value = 'existing'
     selectedFeatureId.value = null
     featureValue.value = ''
+    newFeatureKey.value = ''
+    newFeatureTypeId.value = null
+    newFeatureDescription.value = ''
     showAddFeatureDialog.value = true
   } catch (err) {
     error.value = 'Failed to load features'
@@ -975,25 +1094,50 @@ const openAddFeatureDialog = async () => {
 
 const closeAddFeatureDialog = () => {
   showAddFeatureDialog.value = false
+  addFeatureMode.value = 'existing'
   selectedFeatureId.value = null
   featureValue.value = ''
+  newFeatureKey.value = ''
+  newFeatureTypeId.value = null
+  newFeatureDescription.value = ''
 }
 
 const addFeature = async () => {
-  if (!selectedFeatureId.value || !plan.value) return
+  if (!plan.value || !canSubmitAddFeature.value) return
 
   try {
     addingFeature.value = true
+    let featureId = selectedFeatureId.value
+    const featureTypeId = getCurrentAddFeatureTypeId()
+
+    if (addFeatureMode.value === 'create') {
+      const createdFeature = await createFeature({
+        key: newFeatureKey.value.trim(),
+        feature_value_type_id: newFeatureTypeId.value as number,
+        description: newFeatureDescription.value.trim()
+      })
+      featureId = createdFeature.id
+    }
+
+    if (!featureId) {
+      throw new Error('Feature is required')
+    }
+
     const data: AssignFeatureData = {
-      feature_id: selectedFeatureId.value,
-      value: featureValue.value || null
+      feature_id: featureId,
+      value: normalizeFeatureValue(featureTypeId, featureValue.value)
     }
     await assignFeature(plan.value.id, data)
-    showAddFeatureDialog.value = false
+    closeAddFeatureDialog()
+    await loadAllFeatures()
     await loadFeatures()
+    const assignedFeatureIds = features.value.map(f => f.id)
+    availableFeatures.value = allFeatures.value.filter(f => !assignedFeatureIds.includes(f.id))
     error.value = null
+    showSnackbar('Feature added successfully', 'success')
   } catch (err) {
     error.value = (err as ApiErrorModel).message || 'Failed to add feature'
+    showSnackbar((err as ApiErrorModel).message || 'Failed to add feature', 'error')
   } finally {
     addingFeature.value = false
   }
@@ -1023,9 +1167,10 @@ const updateFeatureValue = async () => {
   try {
     updatingFeatureValue.value = true
     await removeFeatureApi(plan.value.id, editingFeature.value.id)
+    const normalizedValue = normalizeFeatureValue(editingFeature.value.feature_value_type_id, editingFeatureValue.value)
     const data: AssignFeatureData = {
       feature_id: editingFeature.value.id,
-      value: editingFeatureValue.value || null
+      value: normalizedValue
     }
     await assignFeature(plan.value.id, data)
     showEditFeatureValueDialog.value = false
@@ -1063,11 +1208,18 @@ const getFeatureValueTypeId = (featureId: number | null) => {
   return feature?.feature_value_type_id || null
 }
 
-const getFeatureValuePlaceholder = (featureId: number | null) => {
-  if (!featureId) return 'Enter value...'
-  const feature = allFeatures.value.find(f => f.id === featureId)
-  if (!feature) return 'Enter value...'
-  const typeId = feature.feature_value_type_id
+const getFeatureValueTypeNameFromTypeId = (typeId: number | null) => {
+  const types: Record<number, string> = {
+    1: 'Boolean',
+    2: 'Number',
+    3: 'Text',
+  }
+  return typeId ? (types[typeId] || 'Unknown') : 'Unknown'
+}
+
+const getFeatureValuePlaceholder = (featureId: number | null, explicitTypeId: number | null = null) => {
+  const typeId = explicitTypeId || getFeatureValueTypeId(featureId)
+  if (!typeId) return 'Enter value...'
   const placeholders: Record<number, string> = {
     1: 'Select true or false',
     2: 'e.g., 10, 50, 100',

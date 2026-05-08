@@ -1068,7 +1068,7 @@ export async function getPlanFeatures(id: number | string): Promise<any[]> {
  */
 export interface AssignFeatureData {
   feature_id: number
-  value?: string | null
+  value: string | number | boolean | null
 }
 
 /**
