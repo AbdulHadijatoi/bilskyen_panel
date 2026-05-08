@@ -76,74 +76,18 @@
       <Breadcrumb />
 
       <div style="flex-grow: 1;" />
-
-      <div class="language-switch-wrapper">
-        <v-menu location="bottom end" offset="8">
-          <template #activator="{ props }">
-            <button
-              v-bind="props"
-              type="button"
-              class="language-switch"
-              :aria-label="t('common.language')"
-              :title="t('common.language')"
-              :style="{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.375rem',
-                borderRadius: '0.375rem',
-                padding: '0.5rem',
-                backgroundColor: 'var(--secondary)',
-                color: 'var(--secondary-foreground)',
-                border: 'none',
-                cursor: 'pointer',
-                fontSize: '0.8125rem',
-                fontWeight: 500,
-                transition: 'background-color 0.2s',
-              }"
-            >
-              <v-icon size="16">mdi-translate</v-icon>
-              <span class="language-code">{{ localeStore.locale.toUpperCase() }}</span>
-              <v-icon size="14">mdi-chevron-down</v-icon>
-            </button>
-          </template>
-          <v-list density="compact" min-width="140">
-            <v-list-item
-              v-for="option in languageOptions"
-              :key="option.value"
-              :title="option.label"
-              :active="localeStore.locale === option.value"
-              @click="setLocale(option.value)"
-            />
-          </v-list>
-        </v-menu>
-      </div>
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { LayoutPanelLeft } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
-import type { SupportedLocale } from '@/plugins/i18n'
 import { useSidebarStore } from '@/stores/sidebar'
-import { useLocaleStore } from '@/stores/locale.store'
 import Breadcrumb from '../dealer/Breadcrumb.vue'
 
 const { t } = useI18n()
 const sidebarStore = useSidebarStore()
-const localeStore = useLocaleStore()
-
-const languageOptions = computed<Array<{ value: SupportedLocale; label: string }>>(() => [
-  { value: 'en', label: t('common.english') },
-  { value: 'da', label: t('common.danish') },
-])
-
-async function setLocale(locale: SupportedLocale) {
-  if (localeStore.locale === locale) return
-  await localeStore.setLocale(locale)
-}
 </script>
 
 <style scoped>
@@ -214,12 +158,5 @@ async function setLocale(locale: SupportedLocale) {
   opacity: 1 !important;
 }
 
-.language-switch-wrapper {
-  flex-shrink: 0;
-}
-
-.language-switch:hover {
-  opacity: 0.9;
-}
 </style>
 
