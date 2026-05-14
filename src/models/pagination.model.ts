@@ -18,6 +18,8 @@ export interface PaginationModel<T> {
   totalDocs?: number
   total?: number
   totalPages?: number
+  /** Admin vehicles index: `list_status_id` → row count (same filters as `docs`). */
+  list_status_counts?: Record<string, number>
 }
 
 /**

@@ -546,6 +546,9 @@ export async function getVehicles(params?: PaginationParams & {
   brand_id?: number
   model_id?: number
   model_year_id?: number
+  /** Legacy / panel filter: same as `list_status_id` on the vehicles row */
+  vehicle_list_status_id?: number
+  list_status_id?: number
   status?: VehicleStatus
   search?: string
 }): Promise<PaginationModel<VehicleModel>> {
