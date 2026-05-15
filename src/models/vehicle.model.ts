@@ -4,6 +4,8 @@
  * Maps backend vehicle response to TypeScript interface
  */
 
+import { listStatusNameFromId } from '@/constants/vehicle-list-status'
+
 /**
  * Vehicle list status (matches backend VehicleListStatus constants)
  */
@@ -198,8 +200,16 @@ export function mapVehicleFromApi(data: any): VehicleModel {
       ? (listRel as { id: number }).id
       : undefined
 
+  const listStatusId =
+    data.list_status_id ??
+    data.vehicle_list_status_id ??
+    listStatusIdFromRel
+
   const vehicleListStatusName =
-    data.vehicle_list_status_name ?? statusNameFromRel
+    data.vehicle_list_status_name ??
+    statusNameFromRel ??
+    listStatusNameFromId(listStatusId != null ? Number(listStatusId) : undefined)
+
   const statusFromApi = data.status
   const statusResolved =
     typeof statusFromApi === 'string' && statusFromApi !== ''
@@ -263,9 +273,7 @@ export function mapVehicleFromApi(data: any): VehicleModel {
     specs: data.specs,
     equipment: data.equipment,
     vehicleListStatusId:
-      data.list_status_id ??
-      data.vehicle_list_status_id ??
-      listStatusIdFromRel,
+      listStatusId != null ? Number(listStatusId) : undefined,
     vehicleListStatusName,
     status: statusResolved as VehicleModel['status'],
     publishedAt: data.published_at,

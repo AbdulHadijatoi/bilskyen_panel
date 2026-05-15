@@ -241,7 +241,7 @@
               size="small"
               variant="flat"
             >
-              {{ item.status || item.vehicleListStatusName || 'N/A' }}
+              {{ formatListStatusLabel(item) }}
             </v-chip>
           </template>
 
@@ -326,6 +326,7 @@ import type { VehicleModel } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import {
   VEHICLE_LIST_STATUS_ID,
+  formatListStatusLabel,
   listStatusCountFromPayload,
 } from '@/constants/vehicle-list-status'
 
