@@ -237,7 +237,7 @@
 
           <template #item.status="{ item }">
             <v-chip
-              :color="getStatusColor(item.status)"
+              :color="getListStatusChipColor(item)"
               size="small"
               variant="flat"
             >
@@ -324,6 +324,10 @@ import { getVehicles, deleteVehicle as deleteVehicleApi, getConstantsData } from
 import type { PaginationModel } from '@/models/pagination.model'
 import type { VehicleModel } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import {
+  VEHICLE_LIST_STATUS_ID,
+  listStatusCountFromPayload,
+} from '@/constants/vehicle-list-status'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -375,17 +379,17 @@ const headers = [
   { title: 'Actions', key: 'actions', sortable: false, width: '120px', align: 'center' as const },
 ]
 
-const publishedCount = computed(() => {
-  return vehicles.value.docs.filter(v => v.status === 'published' || v.vehicleListStatusName === 'published').length
-})
+const publishedCount = computed(() =>
+  listStatusCountFromPayload(vehicles.value.list_status_counts, VEHICLE_LIST_STATUS_ID.PUBLISHED)
+)
 
-const draftCount = computed(() => {
-  return vehicles.value.docs.filter(v => v.status === 'draft' || v.vehicleListStatusName === 'draft').length
-})
+const draftCount = computed(() =>
+  listStatusCountFromPayload(vehicles.value.list_status_counts, VEHICLE_LIST_STATUS_ID.DRAFT)
+)
 
-const soldCount = computed(() => {
-  return vehicles.value.docs.filter(v => v.status === 'sold' || v.vehicleListStatusName === 'sold').length
-})
+const soldCount = computed(() =>
+  listStatusCountFromPayload(vehicles.value.list_status_counts, VEHICLE_LIST_STATUS_ID.SOLD)
+)
 
 const loadVehicles = async () => {
   try {
@@ -396,7 +400,7 @@ const loadVehicles = async () => {
       limit: 15,
     }
     if (statusFilter.value != null) {
-      params.vehicle_list_status_id = statusFilter.value
+      params.list_status_id = statusFilter.value
     }
     if (search.value) {
       params.search = search.value
@@ -452,6 +456,13 @@ const deleteVehicle = async () => {
   }
 }
 
+const LIST_STATUS_CHIP_COLORS: Record<number, string> = {
+  [VEHICLE_LIST_STATUS_ID.DRAFT]: 'grey',
+  [VEHICLE_LIST_STATUS_ID.PUBLISHED]: 'success',
+  [VEHICLE_LIST_STATUS_ID.SOLD]: 'info',
+  [VEHICLE_LIST_STATUS_ID.ARCHIVED]: 'warning',
+}
+
 const getStatusColor = (status?: string) => {
   const colors: Record<string, string> = {
     draft: 'grey',
@@ -460,6 +471,14 @@ const getStatusColor = (status?: string) => {
     archived: 'warning',
   }
   return colors[status?.toLowerCase() || ''] || 'grey'
+}
+
+const getListStatusChipColor = (item: VehicleModel) => {
+  const id = item.vehicleListStatusId
+  if (id != null && LIST_STATUS_CHIP_COLORS[id] != null) {
+    return LIST_STATUS_CHIP_COLORS[id]
+  }
+  return getStatusColor(item.status || item.vehicleListStatusName)
 }
 
 const formatPrice = (price?: number) => {
