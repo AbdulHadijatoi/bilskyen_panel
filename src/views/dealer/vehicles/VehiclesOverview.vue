@@ -9,15 +9,26 @@
           {{ t('dealer.views.vehicles.subtitle') }}
         </p>
       </div>
-      <v-btn
-        v-if="hasPermission('dealer.vehicles.create')"
-        color="primary"
-        prepend-icon="mdi-plus"
+      <div class="d-flex gap-2 flex-wrap">
+        <v-btn
+          v-if="hasPermission('dealer.vehicles.create')"
+          variant="outlined"
+          prepend-icon="mdi-upload"
           size="default"
-        :to="{ name: 'dealer.vehicles.add' }"
-      >
-        {{ t('dealer.views.vehicles.addVehicle') }}
-      </v-btn>
+          @click="showImportDialog = true"
+        >
+          {{ t('dealer.views.vehicles.import.bulkImport') }}
+        </v-btn>
+        <v-btn
+          v-if="hasPermission('dealer.vehicles.create')"
+          color="primary"
+          prepend-icon="mdi-plus"
+          size="default"
+          :to="{ name: 'dealer.vehicles.add' }"
+        >
+          {{ t('dealer.views.vehicles.addVehicle') }}
+        </v-btn>
+      </div>
     </div>
     </div>
 
@@ -290,6 +301,11 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <VehicleBulkImportDialog
+      v-model="showImportDialog"
+      @imported="onImportCompleted"
+    />
   </div>
 </template>
 
@@ -298,6 +314,7 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { getVehicles, deleteVehicle as deleteVehicleApi, getLookupConstants } from '@/api/dealer.api'
+import VehicleBulkImportDialog from '@/components/dealer/vehicles/VehicleBulkImportDialog.vue'
 import { hasPermission } from '@/utils/permissions'
 import type { PaginationModel } from '@/models/pagination.model'
 import type { VehicleModel } from '@/models/vehicle.model'
@@ -321,6 +338,7 @@ const vehicles = ref<PaginationModel<VehicleModel>>({
   totalDocs: 0,
 })
 const currentPage = ref(1)
+const showImportDialog = ref(false)
 const showDeleteDialog = ref(false)
 const vehicleToDelete = ref<VehicleModel | null>(null)
 const deleting = ref(false)
@@ -437,6 +455,10 @@ const viewVehicle = (id: number) => {
 const confirmDelete = (vehicle: VehicleModel) => {
   vehicleToDelete.value = vehicle
   showDeleteDialog.value = true
+}
+
+const onImportCompleted = async () => {
+  await Promise.all([loadVehicles(), loadStatusCounts()])
 }
 
 const deleteVehicle = async () => {

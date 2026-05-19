@@ -803,7 +803,38 @@
         "allStatuses": "All Statuses",
         "archived": "Archived",
         "vehicle": "Vehicle",
-        "price": "Price"
+        "price": "Price",
+        "import": {
+          "bulkImport": "Bulk import",
+          "title": "Bulk import vehicles",
+          "description": "Upload an Excel or CSV file to create multiple vehicle listings. Imported vehicles are published automatically. Images can be added later on each vehicle.",
+          "sampleTitle": "Example row format",
+          "sampleHint": "Copy this format into your spreadsheet. If registration or VIN is provided, DMR data fills empty fields; your file values override DMR when filled in.",
+          "downloadTemplate": "Download template",
+          "fileLabel": "Import file (.xlsx, .xls, .csv)",
+          "validateOnly": "Validate only",
+          "import": "Import",
+          "created": "Created",
+          "failed": "Failed",
+          "warnings": "Rows with warnings",
+          "row": "Row",
+          "registration": "Registration",
+          "details": "Details",
+          "imagesNote": "Vehicles were created without images. Open each listing to upload photos.",
+          "templateFailed": "Could not download template.",
+          "importFailed": "Import failed.",
+          "importComplete": "Import complete. {created} vehicle(s) created from {total} row(s).",
+          "importCompleteWithFailures": "Import complete. {created} created, {failed} failed ({total} rows).",
+          "importCompleteNone": "Import finished. No vehicles were created ({failed} of {total} rows failed).",
+          "validateComplete": "Validation complete. {valid} of {total} rows look ready to import.",
+          "validateCompleteWithFailures": "Validation complete. {valid} rows OK, {failed} need fixes ({total} rows).",
+          "status": {
+            "created": "Created",
+            "created_with_warnings": "Created (warnings)",
+            "failed": "Failed",
+            "validated": "Valid"
+          }
+        }
       },
       "analytics": {
         "errorLoading": "Error Loading Analytics",

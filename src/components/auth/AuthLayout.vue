@@ -1,12 +1,13 @@
 <template>
   <div
     class="auth-layout"
+    :class="{ 'auth-layout--centered': !showSidebar }"
     :style="{
       backgroundColor: 'var(--background)',
       color: 'var(--foreground)',
     }"
   >
-    <div class="auth-layout-left">
+    <div v-if="showSidebar" class="auth-layout-left">
       <div class="auth-layout-left-header">
         <router-link to="/" class="auth-logo-link">
           <img
@@ -49,11 +50,19 @@ import { APP } from '@/constants/app'
 import { BRANDING } from '@/constants/branding'
 import { useThemeStore } from '@/stores/theme'
 
+withDefaults(
+  defineProps<{
+    showSidebar?: boolean
+  }>(),
+  {
+    showSidebar: true,
+  },
+)
+
 const themeStore = useThemeStore()
 const vuetifyTheme = useTheme()
 
 onMounted(() => {
-  // Set Vuetify theme instance in the store if not already set
   if (!vuetifyTheme) return
   themeStore.setVuetifyTheme(vuetifyTheme)
 })
@@ -79,10 +88,16 @@ onMounted(() => {
 }
 
 @media (min-width: 1024px) {
-  .auth-layout {
+  .auth-layout:not(.auth-layout--centered) {
     grid-template-columns: 1fr 1fr;
     padding: 0;
   }
+}
+
+.auth-layout--centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .auth-layout-left {
@@ -180,7 +195,7 @@ onMounted(() => {
 }
 
 @media (min-width: 1024px) {
-  .auth-layout-right-header {
+  .auth-layout:not(.auth-layout--centered) .auth-layout-right-header {
     display: none;
   }
 }
@@ -208,4 +223,3 @@ onMounted(() => {
   }
 }
 </style>
-

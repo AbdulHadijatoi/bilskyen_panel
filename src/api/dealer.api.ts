@@ -618,6 +618,84 @@ export interface DealerVehicleLookupPayload {
 /**
  * Look up vehicle data by registration or VIN for dealer create flow.
  */
+export interface VehicleImportRowIssue {
+  field: string
+  value: string
+  message: string
+}
+
+export interface VehicleImportRowResult {
+  row: number
+  status: 'created' | 'created_with_warnings' | 'failed' | 'validated'
+  vehicle_id?: number | null
+  registration?: string | null
+  warnings: VehicleImportRowIssue[]
+  errors: VehicleImportRowIssue[]
+}
+
+export interface VehicleImportResult {
+  summary: {
+    total: number
+    created: number
+    failed: number
+    warnings: number
+  }
+  rows: VehicleImportRowResult[]
+}
+
+export interface VehicleImportSample {
+  headers: string[]
+  row: Record<string, string>
+}
+
+/**
+ * Download bulk import Excel template.
+ */
+export async function downloadVehicleImportTemplate(): Promise<void> {
+  const response = await httpClient.get(DEALER_VEHICLE_ENDPOINTS.IMPORT_TEMPLATE, {
+    responseType: 'blob',
+  })
+  const blob = new Blob([response.data], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  })
+  const url = window.URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = 'vehicle-import-template.xlsx'
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  window.URL.revokeObjectURL(url)
+}
+
+/**
+ * Fetch sample row metadata for inline UI table.
+ */
+export async function getVehicleImportSample(): Promise<VehicleImportSample> {
+  const response = await httpClient.get<{ data: VehicleImportSample }>(
+    DEALER_VEHICLE_ENDPOINTS.IMPORT_SAMPLE
+  )
+  return handleSuccess<VehicleImportSample>(response)
+}
+
+/**
+ * Bulk import vehicles from Excel/CSV.
+ */
+export async function importVehicles(
+  file: File,
+  options?: { dryRun?: boolean }
+): Promise<VehicleImportResult> {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  const response = await httpClient.post<{ data: VehicleImportResult }>(
+    DEALER_VEHICLE_ENDPOINTS.IMPORT,
+    formData,
+    { params: options?.dryRun ? { dry_run: 1 } : undefined }
+  )
+  return handleSuccess<VehicleImportResult>(response)
+}
+
 export async function lookupDealerVehicleByIdentity(
   data: DealerVehicleLookupPayload
 ): Promise<any> {

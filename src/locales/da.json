@@ -804,7 +804,38 @@
         "allStatuses": "Alle status",
         "archived": "Arkiveret",
         "vehicle": "Køretøj",
-        "price": "Pris"
+        "price": "Pris",
+        "import": {
+          "bulkImport": "Masseimport",
+          "title": "Masseimport af køretøjer",
+          "description": "Upload en Excel- eller CSV-fil for at oprette flere køretøjsannoncer. Importerede køretøjer publiceres automatisk. Billeder kan tilføjes senere på hvert køretøj.",
+          "sampleTitle": "Eksempel på rækkeformat",
+          "sampleHint": "Kopiér dette format til dit regneark. Hvis registrering eller stelnummer angives, udfylder DMR tomme felter; dine filværdier har forrang når de er udfyldt.",
+          "downloadTemplate": "Download skabelon",
+          "fileLabel": "Importfil (.xlsx, .xls, .csv)",
+          "validateOnly": "Kun validering",
+          "import": "Importer",
+          "created": "Oprettet",
+          "failed": "Fejlet",
+          "warnings": "Rækker med advarsler",
+          "row": "Række",
+          "registration": "Registrering",
+          "details": "Detaljer",
+          "imagesNote": "Køretøjer blev oprettet uden billeder. Åbn hver annonce for at uploade fotos.",
+          "templateFailed": "Kunne ikke hente skabelon.",
+          "importFailed": "Import mislykkedes.",
+          "importComplete": "Import fuldført. {created} køretøj(er) oprettet ud af {total} rækker.",
+          "importCompleteWithFailures": "Import fuldført. {created} oprettet, {failed} fejlede ({total} rækker).",
+          "importCompleteNone": "Import afsluttet. Ingen køretøjer blev oprettet ({failed} af {total} rækker fejlede).",
+          "validateComplete": "Validering fuldført. {valid} af {total} rækker er klar til import.",
+          "validateCompleteWithFailures": "Validering fuldført. {valid} rækker OK, {failed} skal rettes ({total} rækker).",
+          "status": {
+            "created": "Oprettet",
+            "created_with_warnings": "Oprettet (advarsler)",
+            "failed": "Fejlet",
+            "validated": "Gyldig"
+          }
+        }
       },
       "analytics": {
         "errorLoading": "Fejl ved indlæsning af analyser",
