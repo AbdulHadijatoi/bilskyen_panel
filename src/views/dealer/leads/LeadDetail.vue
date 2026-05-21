@@ -281,68 +281,6 @@
               </v-row>
             </v-card-text>
           </v-card>
-
-          <!-- Messages -->
-          <v-card
-            variant="outlined"
-            :style="{
-              backgroundColor: 'var(--card)',
-              color: 'var(--card-foreground)',
-              borderColor: 'var(--border)',
-            }"
-          >
-            <v-card-title>{{ t('dealer.views.leadsDetail.messages') }}</v-card-title>
-            <v-card-text>
-              <div v-if="messages.length === 0" class="text-center text-medium-emphasis py-4">
-                <v-icon size="48" color="grey-lighten-1">mdi-message-outline</v-icon>
-                <div class="mt-2">{{ t('dealer.views.leadsDetail.noMessagesYet') }}</div>
-              </div>
-              <div v-else class="d-flex flex-column gap-2 mb-4" style="max-height: 400px; overflow-y: auto;">
-                <v-card
-                  v-for="message in messages"
-                  :key="message.id"
-                  variant="outlined"
-                  :style="{
-                    backgroundColor: message.isFromCustomer ? 'var(--muted)' : 'var(--card)',
-                    borderColor: 'var(--border)',
-                  }"
-                >
-                  <v-card-text>
-                    <div class="d-flex justify-space-between align-start mb-2">
-                      <div>
-                        <div class="font-weight-medium">
-                          {{ message.user?.name || 'Unknown' }}
-                        </div>
-                        <div class="text-caption text-medium-emphasis">
-                          {{ formatLeadDateFull(message.createdAt) }}
-                        </div>
-                      </div>
-                    </div>
-                    <div class="text-body-2">{{ message.message }}</div>
-                  </v-card-text>
-                </v-card>
-              </div>
-
-              <!-- Send Message -->
-              <v-textarea
-                v-model="newMessage"
-                :label="t('dealer.views.leadsDetail.sendMessage')"
-                variant="outlined"
-                rows="3"
-                class="mb-2"
-                :placeholder="t('dealer.views.leadsDetail.messagePlaceholder')"
-              />
-              <v-btn
-                color="primary"
-                prepend-icon="mdi-send"
-                @click="sendMessage"
-                :loading="sending"
-                :disabled="!newMessage.trim()"
-              >
-                Send Message
-              </v-btn>
-            </v-card-text>
-          </v-card>
         </v-col>
 
         <!-- Sidebar -->
@@ -468,8 +406,8 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { getLead, updateLeadStage, updateLeadIntent, updateLeadCategory, getLeadMessages, sendLeadMessage, assignLead as assignLeadApi, getStaff } from '@/api/dealer.api'
-import type { LeadModel, LeadMessageModel } from '@/models/lead.model'
+import { getLead, updateLeadStage, updateLeadIntent, updateLeadCategory, assignLead as assignLeadApi, getStaff } from '@/api/dealer.api'
+import type { LeadModel } from '@/models/lead.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import {
   getStageName,
@@ -490,10 +428,7 @@ const { t } = useI18n()
 const loading = ref(false)
 const error = ref<string | null>(null)
 const lead = ref<LeadModel | null>(null)
-const messages = ref<LeadMessageModel[]>([])
-const sending = ref(false)
 const updating = ref(false)
-const newMessage = ref('')
 const assignDialog = ref(false)
 const selectedStaffId = ref<number | null>(null)
 const staffMembers = ref<any[]>([])
@@ -557,21 +492,6 @@ const updateCategory = async () => {
   }
 }
 
-const sendMessage = async () => {
-  if (!lead.value || !newMessage.value.trim()) return
-
-  try {
-    sending.value = true
-    await sendLeadMessage(lead.value.id, { message: newMessage.value })
-    newMessage.value = ''
-    await loadMessages()
-  } catch (err) {
-    error.value = (err as ApiErrorModel).message || t('dealer.views.leadsDetail.failedSendMessage')
-  } finally {
-    sending.value = false
-  }
-}
-
 const assignLead = () => {
   assignDialog.value = true
 }
@@ -612,50 +532,6 @@ const loadLead = async () => {
   }
 }
 
-const loadMessages = async () => {
-  const leadId = route.params.id as string
-  if (!leadId) return
-
-  try {
-    const loadedMessages = await getLeadMessages(leadId)
-    
-    // Ensure loadedMessages is an array
-    let messagesArray: any[] = []
-    if (Array.isArray(loadedMessages)) {
-      messagesArray = loadedMessages
-    } else if (loadedMessages && typeof loadedMessages === 'object') {
-      // Handle case where response is wrapped in { data: [...] } or { messages: [...] }
-      const responseObj = loadedMessages as Record<string, any>
-      if ('data' in responseObj && Array.isArray(responseObj.data)) {
-        messagesArray = responseObj.data
-      } else if ('messages' in responseObj && Array.isArray(responseObj.messages)) {
-        messagesArray = responseObj.messages
-      }
-    }
-    
-    messages.value = messagesArray.map((msg: any) => ({
-      id: msg.id,
-      leadId: msg.lead_id,
-      userId: msg.user_id,
-      message: msg.message,
-      isFromCustomer: msg.is_from_customer ?? false,
-      createdAt: msg.created_at,
-      updatedAt: msg.updated_at,
-      // Ensure user object is properly mapped, preserving all user data
-      user: msg.user ? {
-        id: msg.user.id,
-        name: msg.user.name,
-        email: msg.user.email,
-        phone: msg.user.phone,
-        ...msg.user, // Include any other user fields
-      } : null,
-    }))
-  } catch (err) {
-    console.error('Failed to load messages:', err)
-    messages.value = [] // Set to empty array on error
-  }
-}
-
 const loadStaff = async () => {
   try {
     const staff = await getStaff()
@@ -677,13 +553,13 @@ const formatPrice = (price?: number) => {
 }
 
 onMounted(async () => {
-  await Promise.all([loadLead(), loadMessages(), loadStaff()])
+  await Promise.all([loadLead(), loadStaff()])
 })
 
 // Watch route params to reload data when navigating to a different lead
 watch(() => route.params.id, async (newId, oldId) => {
   if (newId && newId !== oldId) {
-    await Promise.all([loadLead(), loadMessages()])
+    await loadLead()
   }
 })
 </script>
