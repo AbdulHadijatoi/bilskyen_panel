@@ -123,7 +123,7 @@ const router = createRouter({
           path: 'analytics',
           name: 'dealer.analytics',
           component: () => import('@/views/dealer/analytics/Analytics.vue'),
-          meta: { requiresAuth: true, permission: 'dealer.analytics.view' },
+          meta: { requiresAuth: true, permission: 'dealer.analytics.view', feature: 'analytics' },
         },
         {
           path: 'profile',

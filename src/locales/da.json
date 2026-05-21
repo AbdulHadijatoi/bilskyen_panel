@@ -547,7 +547,12 @@
         "relatedTargetId": "Relateret mål-ID"
       },
       "analytics": {
-        "title": "Analyser"
+        "title": "Analyser",
+        "subtitle": "Systemomfattende analyser og forretningsindsigt",
+        "loadingData": "Indlæser analyser...",
+        "errorLoading": "Fejl ved indlæsning af analyser",
+        "partialLoadWarning": "Nogle sektioner kunne ikke indlæses",
+        "failedLoadOverview": "Kunne ikke indlæse overbliksanalyser"
       },
       "permissions": {
         "title": "Tilladelsesadministration",
@@ -875,7 +880,8 @@
         "featured": "Fremhævet",
         "nonFeatured": "Ikke fremhævet",
         "featureUsage": "Funktionsbrug",
-        "failedLoadOverview": "Kunne ikke indlæse overbliksanalyser"
+        "failedLoadOverview": "Kunne ikke indlæse overbliksanalyser",
+        "partialLoadWarning": "Nogle sektioner kunne ikke indlæses"
       },
       "auditLogs": {
         "title": "Revisionslog",

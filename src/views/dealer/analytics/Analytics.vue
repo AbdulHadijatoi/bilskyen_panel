@@ -11,8 +11,20 @@
       <DateRangeFilter v-model="dateRange" @update:model-value="loadAllAnalytics" />
     </div>
 
+    <v-alert
+      v-if="sectionErrors.length"
+      type="warning"
+      variant="tonal"
+      class="mb-4"
+    >
+      <v-alert-title>{{ t('dealer.views.analytics.partialLoadWarning') }}</v-alert-title>
+      <ul class="mb-0 pl-4">
+        <li v-for="(msg, index) in sectionErrors" :key="index">{{ msg }}</li>
+      </ul>
+    </v-alert>
+
     <!-- Loading State -->
-    <div v-if="loading && !overview" class="loading-container">
+    <div v-if="isAnyLoading && !overview" class="loading-container">
       <v-progress-circular indeterminate color="primary" size="64" />
       <p class="text-body-1 text-medium-emphasis mt-4">{{ t('dealer.views.analytics.loadingData') }}</p>
     </div>
@@ -366,7 +378,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
   getAnalyticsOverview,
@@ -404,6 +416,21 @@ const loadingLeads = ref(false)
 const loadingVehicles = ref(false)
 const loadingMarketing = ref(false)
 const loadingSubscription = ref(false)
+const sectionErrors = ref<string[]>([])
+
+const isAnyLoading = computed(
+  () =>
+    loading.value ||
+    loadingLeads.value ||
+    loadingVehicles.value ||
+    loadingMarketing.value ||
+    loadingSubscription.value
+)
+
+const recordSectionError = (section: string, err: unknown) => {
+  const message = (err as ApiErrorModel).message || section
+  sectionErrors.value.push(`${section}: ${message}`)
+}
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('da-DK', {
@@ -424,13 +451,10 @@ const formatDate = (dateString: string) => {
 
 const loadOverview = async () => {
   try {
-    loading.value = true
     error.value = null
     overview.value = await getAnalyticsOverview(dateRange.value)
   } catch (err) {
     error.value = (err as ApiErrorModel).message || t('dealer.views.analytics.failedLoadOverview')
-  } finally {
-    loading.value = false
   }
 }
 
@@ -439,7 +463,7 @@ const loadLeads = async () => {
     loadingLeads.value = true
     leadAnalytics.value = await getAnalyticsLeads(dateRange.value)
   } catch (err) {
-    console.error('Failed to load lead analytics:', err)
+    recordSectionError(t('dealer.views.analytics.leadAnalytics'), err)
   } finally {
     loadingLeads.value = false
   }
@@ -450,7 +474,7 @@ const loadVehicles = async () => {
     loadingVehicles.value = true
     vehicleAnalytics.value = await getAnalyticsVehicles(dateRange.value)
   } catch (err) {
-    console.error('Failed to load vehicle analytics:', err)
+    recordSectionError(t('dealer.views.analytics.vehiclePerformance'), err)
   } finally {
     loadingVehicles.value = false
   }
@@ -461,7 +485,7 @@ const loadMarketing = async () => {
     loadingMarketing.value = true
     marketing.value = await getAnalyticsMarketing(dateRange.value)
   } catch (err) {
-    console.error('Failed to load marketing analytics:', err)
+    recordSectionError(t('dealer.views.analytics.marketingAnalytics'), err)
   } finally {
     loadingMarketing.value = false
   }
@@ -472,13 +496,15 @@ const loadSubscription = async () => {
     loadingSubscription.value = true
     subscription.value = await getAnalyticsSubscription()
   } catch (err) {
-    console.error('Failed to load subscription analytics:', err)
+    recordSectionError(t('dealer.views.analytics.featureUsage'), err)
   } finally {
     loadingSubscription.value = false
   }
 }
 
 const loadAllAnalytics = async () => {
+  sectionErrors.value = []
+  loading.value = true
   await Promise.all([
     loadOverview(),
     loadLeads(),
@@ -486,6 +512,7 @@ const loadAllAnalytics = async () => {
     loadMarketing(),
     loadSubscription(),
   ])
+  loading.value = false
 }
 
 onMounted(() => {

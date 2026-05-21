@@ -65,7 +65,7 @@ const ADMIN_BREADCRUMB_KEY_MAP: Record<string, string> = {
   'social-links': 'admin.breadcrumb.socialLinks',
   'seo-content': 'admin.breadcrumb.seoContent',
   'featured-vehicles': 'admin.breadcrumb.featuredVehicles',
-  analytics: 'admin.breadcrumb.analytics',
+  analytics: 'dealer.views.analytics.title',
   'audit-logs': 'admin.breadcrumb.auditLogs',
   constants: 'admin.breadcrumb.constants',
   'brands-models-variants': 'admin.breadcrumb.brandsModelsVariants',

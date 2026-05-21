@@ -547,7 +547,12 @@
         "relatedTargetId": "Related Target ID"
       },
       "analytics": {
-        "title": "Analytics"
+        "title": "Analytics",
+        "subtitle": "System-wide analytics and business insights",
+        "loadingData": "Loading analytics data...",
+        "errorLoading": "Error Loading Analytics",
+        "partialLoadWarning": "Some sections could not be loaded",
+        "failedLoadOverview": "Failed to load overview analytics"
       },
       "permissions": {
         "title": "Permissions Management",
@@ -874,7 +879,8 @@
         "featured": "Featured",
         "nonFeatured": "Non-Featured",
         "featureUsage": "Feature Usage",
-        "failedLoadOverview": "Failed to load overview analytics"
+        "failedLoadOverview": "Failed to load overview analytics",
+        "partialLoadWarning": "Some sections could not be loaded"
       },
       "auditLogs": {
         "title": "Audit Logs",

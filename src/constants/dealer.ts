@@ -96,6 +96,13 @@ export const dealerSidebarSections: SidebarSection[] = [
         permission: 'dealer.audit.view',
         feature: 'audit_logs',
       },
+      {
+        title: 'Analytics',
+        url: `${DEALER_ROUTE_BASE}analytics`,
+        icon: 'mdi-chart-line',
+        permission: 'dealer.analytics.view',
+        feature: 'analytics',
+      },
     ],
   },
 ]
