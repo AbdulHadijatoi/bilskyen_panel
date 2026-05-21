@@ -48,3 +48,37 @@ export function listStatusCountFromPayload(
   const n = typeof raw === 'number' ? raw : Number(raw)
   return Number.isFinite(n) ? n : 0
 }
+
+/** Vuetify chip colors keyed by {@link VEHICLE_LIST_STATUS_ID} (locale-independent). */
+export const LIST_STATUS_CHIP_COLORS: Record<number, string> = {
+  [VEHICLE_LIST_STATUS_ID.DRAFT]: 'grey',
+  [VEHICLE_LIST_STATUS_ID.PUBLISHED]: 'success',
+  [VEHICLE_LIST_STATUS_ID.SOLD]: 'info',
+  [VEHICLE_LIST_STATUS_ID.ARCHIVED]: 'warning',
+}
+
+const LIST_STATUS_CHIP_COLORS_BY_NAME: Record<string, string> = {
+  draft: 'grey',
+  published: 'success',
+  sold: 'info',
+  archived: 'warning',
+}
+
+/**
+ * Resolve chip color from `list_status_id` when present; fall back to English slug names only.
+ */
+export function listStatusChipColor(options: {
+  vehicleListStatusId?: number | null
+  status?: string
+  vehicleListStatusName?: string
+}): string {
+  const id =
+    options.vehicleListStatusId != null && Number.isFinite(Number(options.vehicleListStatusId))
+      ? Number(options.vehicleListStatusId)
+      : null
+  if (id != null && LIST_STATUS_CHIP_COLORS[id] != null) {
+    return LIST_STATUS_CHIP_COLORS[id]
+  }
+  const slug = listStatusNameFromId(id) ?? (options.status || options.vehicleListStatusName)?.toLowerCase()
+  return LIST_STATUS_CHIP_COLORS_BY_NAME[slug || ''] || 'grey'
+}

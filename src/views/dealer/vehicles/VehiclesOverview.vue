@@ -225,11 +225,11 @@
           
           <template #item.status="{ item }">
             <v-chip
-              :color="getStatusColor(item.status || item.vehicleListStatusName)"
+              :color="listStatusChipColor(item)"
               size="small"
               variant="flat"
             >
-              {{ item.status || item.vehicleListStatusName || t('common.na') }}
+              {{ formatListStatusLabel(item) }}
             </v-chip>
           </template>
           
@@ -310,15 +310,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { getVehicles, deleteVehicle as deleteVehicleApi, getLookupConstants } from '@/api/dealer.api'
+import { getVehicles, deleteVehicle as deleteVehicleApi } from '@/api/dealer.api'
 import VehicleBulkImportDialog from '@/components/dealer/vehicles/VehicleBulkImportDialog.vue'
 import { hasPermission } from '@/utils/permissions'
 import type { PaginationModel } from '@/models/pagination.model'
 import type { VehicleModel } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import {
+  VEHICLE_LIST_STATUS_ID,
+  formatListStatusLabel,
+  listStatusChipColor,
+  listStatusCountFromPayload,
+} from '@/constants/vehicle-list-status'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -343,27 +349,13 @@ const showDeleteDialog = ref(false)
 const vehicleToDelete = ref<VehicleModel | null>(null)
 const deleting = ref(false)
 
-const vehicleListStatuses = ref<Array<{ id: number; name: string }>>([])
-
-const statusFilterOptions = computed(() => {
-  const options: Array<{ label: string; value: number | null }> = [
-    { label: t('dealer.views.vehicles.allStatuses'), value: null },
-  ]
-
-  const pushIfFound = (match: string, labelKey: string) => {
-    const found = vehicleListStatuses.value.find(
-      (s) => String(s.name || '').toLowerCase() === match
-    )
-    if (found?.id != null) options.push({ label: t(labelKey), value: found.id })
-  }
-
-  pushIfFound('draft', 'dealer.views.vehicles.draft')
-  pushIfFound('published', 'dealer.views.vehicles.published')
-  pushIfFound('sold', 'dealer.views.vehicles.sold')
-  pushIfFound('archived', 'dealer.views.vehicles.archived')
-
-  return options
-})
+const statusFilterOptions = computed(() => [
+  { label: t('dealer.views.vehicles.allStatuses'), value: null },
+  { label: t('dealer.views.vehicles.draft'), value: VEHICLE_LIST_STATUS_ID.DRAFT },
+  { label: t('dealer.views.vehicles.published'), value: VEHICLE_LIST_STATUS_ID.PUBLISHED },
+  { label: t('dealer.views.vehicles.sold'), value: VEHICLE_LIST_STATUS_ID.SOLD },
+  { label: t('dealer.views.vehicles.archived'), value: VEHICLE_LIST_STATUS_ID.ARCHIVED },
+])
 
 const headers = computed(() => [
   { title: 'ID', key: 'id', width: '100px', sortable: false },
@@ -373,47 +365,17 @@ const headers = computed(() => [
   { title: t('common.actions'), key: 'actions', sortable: false, width: '120px', align: 'center' as const },
 ])
 
-// Status counts - fetch all vehicles for accurate counts
-const statusCounts = ref({
-  published: 0,
-  draft: 0,
-  sold: 0,
-  archived: 0,
-})
+const publishedCount = computed(() =>
+  listStatusCountFromPayload(vehicles.value.list_status_counts, VEHICLE_LIST_STATUS_ID.PUBLISHED)
+)
 
-const publishedCount = computed(() => statusCounts.value.published)
-const draftCount = computed(() => statusCounts.value.draft)
-const soldCount = computed(() => statusCounts.value.sold)
+const draftCount = computed(() =>
+  listStatusCountFromPayload(vehicles.value.list_status_counts, VEHICLE_LIST_STATUS_ID.DRAFT)
+)
 
-// Load status counts separately
-const loadStatusCounts = async () => {
-  try {
-    // Fetch all vehicles without pagination to get accurate counts
-    const response = await getVehicles({ limit: 1000, page: 1 })
-    
-    // Count vehicles by status
-    statusCounts.value = {
-      published: response.docs.filter(v => {
-        const status = v.status?.toLowerCase() || v.vehicleListStatusName?.toLowerCase() || ''
-        return status === 'published'
-      }).length,
-      draft: response.docs.filter(v => {
-        const status = v.status?.toLowerCase() || v.vehicleListStatusName?.toLowerCase() || ''
-        return status === 'draft'
-      }).length,
-      sold: response.docs.filter(v => {
-        const status = v.status?.toLowerCase() || v.vehicleListStatusName?.toLowerCase() || ''
-        return status === 'sold'
-      }).length,
-      archived: response.docs.filter(v => {
-        const status = v.status?.toLowerCase() || v.vehicleListStatusName?.toLowerCase() || ''
-        return status === 'archived'
-      }).length,
-    }
-  } catch (err) {
-    console.error('Failed to load status counts:', err)
-  }
-}
+const soldCount = computed(() =>
+  listStatusCountFromPayload(vehicles.value.list_status_counts, VEHICLE_LIST_STATUS_ID.SOLD)
+)
 
 const loadVehicles = async () => {
   try {
@@ -458,7 +420,7 @@ const confirmDelete = (vehicle: VehicleModel) => {
 }
 
 const onImportCompleted = async () => {
-  await Promise.all([loadVehicles(), loadStatusCounts()])
+  await loadVehicles()
 }
 
 const deleteVehicle = async () => {
@@ -470,22 +432,12 @@ const deleteVehicle = async () => {
     await deleteVehicleApi(vehicleToDelete.value.id)
     showDeleteDialog.value = false
     vehicleToDelete.value = null
-    await Promise.all([loadVehicles(), loadStatusCounts()])
+    await loadVehicles()
   } catch (err) {
     error.value = (err as ApiErrorModel).message || t('dealer.views.vehicles.failedDeleteVehicle')
   } finally {
     deleting.value = false
   }
-}
-
-const getStatusColor = (status?: string) => {
-  const colors: Record<string, string> = {
-    draft: 'grey',
-    published: 'success',
-    sold: 'info',
-    archived: 'warning',
-  }
-  return colors[status?.toLowerCase() || ''] || 'grey'
 }
 
 const formatPrice = (price?: number) => {
@@ -498,14 +450,8 @@ const formatPrice = (price?: number) => {
   }).format(price)
 }
 
-onMounted(async () => {
-  try {
-    const data = await getLookupConstants()
-    vehicleListStatuses.value = data.vehicle_list_statuses || []
-  } catch (err) {
-    console.error('Failed to load vehicle list statuses:', err)
-  }
-  await Promise.all([loadVehicles(), loadStatusCounts()])
+onMounted(() => {
+  loadVehicles()
 })
 </script>
 
