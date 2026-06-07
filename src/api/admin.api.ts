@@ -41,6 +41,7 @@ import { mapDealerFromApi } from '@/models/dealer.model'
 import type { PaginationModel, PaginationParams } from '@/models/pagination.model'
 import type { VehicleStatus } from '@/models/vehicle.model'
 import type { SubscriptionStatus } from '@/models/dealer.model'
+import { pickVehiclePersistFields, type VehiclePersistField } from '@/constants/vehicle-persist-fields'
 import type { 
   HomePageSectionModel, 
   HomePageContentMap,
@@ -62,62 +63,11 @@ function getIdempotencyKey(): string {
   return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`
 }
 
-/**
- * Slim persisted vehicle fields for admin update (DMR-only contract).
- * Backend persists only these columns on the `vehicles` row.
- */
-const DMR_SLIM_VEHICLE_FIELDS = [
-  'dmr_fact_vehicle_id',
-  'title',
-  'registration',
-  'slug',
-  'price',
-  'vehicle_list_status_id',
-  'published_at',
-  'description',
-  'address',
-  'postcode',
-  'gear_type_id',
-  'km_driven',
-  'battery_capacity',
-  'range_km',
-  'charging_type',
-  'condition_id',
-  'servicebog',
-  'sales_type_id',
-  'price_type_id',
-  'internal_cost_price',
-  'leasing_type',
-  'leasing_customer_type',
-  'leasing_first_payment',
-  'leasing_residual_value',
-  'leasing_duration',
-  'leasing_annual_mileage',
-  'leasing_total_cost',
-] as const
-
-type DmrSlimVehicleField = (typeof DMR_SLIM_VEHICLE_FIELDS)[number]
-
 function pickDmrSlimVehicleFields(
   input: Record<string, any>,
-  options?: { omitVehicleListStatusId?: boolean }
-): Record<DmrSlimVehicleField, any> {
-  const out: Record<string, any> = {}
-
-  for (const field of DMR_SLIM_VEHICLE_FIELDS) {
-    if (options?.omitVehicleListStatusId && field === 'vehicle_list_status_id') continue
-    if (input[field] !== undefined && input[field] !== null) out[field] = input[field]
-  }
-
-  // Legacy UI keys -> new persisted column names
-  if (out.address === undefined && input.seller_address !== undefined && input.seller_address !== null) {
-    out.address = input.seller_address
-  }
-  if (out.postcode === undefined && input.seller_postcode !== undefined && input.seller_postcode !== null) {
-    out.postcode = input.seller_postcode
-  }
-
-  return out as Record<DmrSlimVehicleField, any>
+  options?: { omitListStatusId?: boolean }
+): Partial<Record<VehiclePersistField, unknown>> {
+  return pickVehiclePersistFields(input, options)
 }
 
 // ============================================================================
@@ -583,83 +533,11 @@ export async function getVehicle(id: number | string): Promise<VehicleModel> {
 }
 
 /**
- * Update vehicle data
+ * Update vehicle data — only `vehicles` table columns (see VehiclePersistField).
  */
-export interface UpdateVehicleData {
-  // Basic vehicle fields
-  title?: string
-  registration?: string
-  vin?: string
-  dmr_fact_vehicle_id?: number
-  brand_id?: number
-  model_id?: number
-  /** Calendar year on `vehicles.model_year` */
-  model_year?: number
-  km_driven?: number
-  fuel_type_id?: number
-  gear_type_id?: number
-  transmission_id?: number
-  price?: number
-  battery_capacity?: number
-  range_km?: number
-  charging_type?: string
-  engine_power?: number
-  towing_weight?: number
-  ownership_tax?: number
-  first_registration_date?: string
-  km_per_liter?: number
-  vehicle_list_status_id?: number
-  listing_type_id?: number
-  published_at?: string
-  version?: string
-  
-  // Vehicle details fields
-  description?: string
-  variant_id?: number
-  colour_id?: number
-  body_type_id?: number
-  price_type_id?: number
-  condition_id?: number
-  sales_type_id?: number
-  use_id?: number
-  emission_norm_id?: number
-  transmission_name?: string
-  
-  // Pricing fields
-  internal_cost_price?: number
-  leasing_type?: string
-  leasing_customer_type?: string
-  leasing_first_payment?: number
-  leasing_residual_value?: number
-  leasing_duration?: number
-  leasing_annual_mileage?: number
-  leasing_total_cost?: number
-
-  // Technical fields
-  engine_type?: string
-  drive_axles?: number
-  co2_emissions?: number
-  fuel_consumption_wltp?: number
-  fuel_consumption_nedc?: number
-  
-  // Dates
-  production_date?: string
-  last_inspection_date?: string
-  last_inspection_result?: string
-  last_inspection_odometer?: number
-  
-  // Flags
-  is_import?: boolean
-  is_factory_new?: boolean
-  
-  // Other details
-  servicebog?: string
-  annual_tax?: number
-  cover_image_index?: number
-  leasing_period_start?: string
-  leasing_period_end?: string
-  
-  // Equipment
+export type UpdateVehicleData = {
+  [K in VehiclePersistField]?: string | number | boolean | null
+} & {
   equipment_ids?: number[]
 }
 
