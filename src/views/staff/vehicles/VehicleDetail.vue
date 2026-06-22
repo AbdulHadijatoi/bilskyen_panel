@@ -110,7 +110,7 @@
                   <span class="text-caption">{{ vehicle.registration }}</span>
                 </div>
                 <div v-if="vehicle.price" class="d-flex align-center gap-1 price-highlight">
-                  <v-icon size="16" color="primary">mdi-currency-usd</v-icon>
+                  <v-icon size="16" color="primary">mdi-cash</v-icon>
                   <span class="text-caption font-weight-bold price-text">{{ formatPrice(vehicle.price) }}</span>
                 </div>
                 <div v-if="vehicle.viewsCount !== undefined && vehicle.viewsCount !== null" class="d-flex align-center gap-1 views-highlight">
@@ -850,7 +850,7 @@
             elevation="0"
           >
             <v-card-title class="card-title">
-              <v-icon size="18" class="mr-2">mdi-currency-usd</v-icon>
+              <v-icon size="18" class="mr-2">mdi-cash</v-icon>
               <span class="text-subtitle-1">Pricing Information</span>
             </v-card-title>
             <v-card-text class="pa-3">

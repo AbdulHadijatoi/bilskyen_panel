@@ -42,7 +42,7 @@
           >
             <div class="d-flex justify-space-between align-center">
               <p class="text-sm mb-0">{{ overview.type }}</p>
-              <v-icon v-if="overview.type === 'Revenue'" size="small">mdi-currency-usd</v-icon>
+              <v-icon v-if="overview.type === 'Revenue'" size="small">mdi-cash</v-icon>
               <v-icon v-else-if="overview.type === 'Expense'" size="small">mdi-receipt-text</v-icon>
               <v-icon v-else-if="overview.type === 'Net Profit'" size="small">mdi-chart-line</v-icon>
               <v-icon v-else-if="overview.type === 'Profit Margin'" size="small">mdi-percent</v-icon>
@@ -104,7 +104,7 @@
         <v-card-text class="d-flex flex-column" style="gap: 0.25rem;">
           <div class="d-flex justify-space-between align-center">
             <p class="text-sm mb-0">{{ overview.type }}</p>
-            <v-icon v-if="overview.type === 'Revenue'" size="small">mdi-currency-usd</v-icon>
+            <v-icon v-if="overview.type === 'Revenue'" size="small">mdi-cash</v-icon>
             <v-icon v-else-if="overview.type === 'Expense'" size="small">mdi-receipt-text</v-icon>
             <v-icon v-else-if="overview.type === 'Net Profit'" size="small">mdi-chart-line</v-icon>
             <v-icon v-else-if="overview.type === 'Profit Margin'" size="small">mdi-percent</v-icon>

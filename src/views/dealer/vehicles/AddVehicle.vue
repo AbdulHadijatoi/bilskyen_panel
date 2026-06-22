@@ -601,7 +601,7 @@
                 <v-divider class="my-6" />
                 <div class="mb-4">
                   <h4 class="text-subtitle-1 font-weight-semibold mb-4">
-                    <v-icon size="20" class="mr-2">mdi-currency-usd</v-icon>
+                    <v-icon size="20" class="mr-2">mdi-cash</v-icon>
                     {{ t('dealer.views.addVehicle.pricing') }}
                   </h4>
                   <v-row dense>

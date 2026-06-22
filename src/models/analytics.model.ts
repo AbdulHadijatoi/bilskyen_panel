@@ -106,6 +106,7 @@ export interface LeadAnalytics {
     count: number
   }>
   by_source: Array<{
+    source_id?: number | null
     source: string
     count: number
   }>
@@ -170,10 +171,12 @@ export interface DealerLeadAnalytics {
     lead_count: number
   }>
   by_source: Array<{
+    source_id?: number | null
     source: string
     count: number
   }>
   status_breakdown: Array<{
+    stage_id?: number | null
     stage: string
     count: number
   }>

@@ -47,42 +47,42 @@
       <v-row class="mb-6">
         <v-col cols="12" sm="6" md="3">
           <MetricCard
-            title="Total Vehicles"
+            :title="t('admin.views.analytics.totalVehicles')"
             :value="overview.vehicles.total_listed"
             icon="mdi-car"
             icon-color="success"
-            :subtitle="`${overview.vehicles.active} active`"
+            :subtitle="`${overview.vehicles.active} ${t('admin.views.analytics.active')}`"
             subtitle-icon="mdi-check-circle"
           />
         </v-col>
         <v-col cols="12" sm="6" md="3">
           <MetricCard
-            title="Total Dealers"
+            :title="t('admin.views.analytics.totalDealers')"
             :value="overview.dealers.total"
             icon="mdi-store"
             icon-color="info"
-            :subtitle="`${overview.dealers.active} active`"
+            :subtitle="`${overview.dealers.active} ${t('admin.views.analytics.active')}`"
             subtitle-icon="mdi-check-circle"
           />
         </v-col>
         <v-col cols="12" sm="6" md="3">
           <MetricCard
-            title="Total Leads"
+            :title="t('admin.views.analytics.totalLeads')"
             :value="overview.leads.total"
             icon="mdi-phone-in-talk"
             icon-color="primary"
-            :subtitle="`${overview.leads.by_type.enquiry + overview.leads.by_type.phone} enquiries`"
+            :subtitle="`${overview.leads.by_type.enquiry + overview.leads.by_type.phone} ${t('admin.views.analytics.enquiries')}`"
             subtitle-icon="mdi-phone"
           />
         </v-col>
         <v-col cols="12" sm="6" md="3">
           <MetricCard
-            title="Conversion Rate"
+            :title="t('admin.views.analytics.conversionRate')"
             :value="overview.conversion_rate"
             icon="mdi-chart-line"
             icon-color="warning"
             format="percentage"
-            :subtitle="`${overview.vehicles.sold} sold vehicles`"
+            :subtitle="`${overview.vehicles.sold} ${t('admin.views.analytics.soldVehicles')}`"
             subtitle-icon="mdi-check-circle"
           />
         </v-col>
@@ -91,8 +91,8 @@
       <!-- Revenue Analytics -->
       <v-card variant="outlined" class="mb-6" style="border-color: rgba(0, 0, 0, 0.12);">
         <v-card-title class="d-flex align-center">
-          <v-icon size="20" class="mr-2">mdi-currency-usd</v-icon>
-          <span>Revenue Analytics</span>
+          <v-icon size="20" class="mr-2">mdi-cash</v-icon>
+          <span>{{ t('admin.views.analytics.revenueAnalytics') }}</span>
         </v-card-title>
         <v-card-text>
           <div v-if="loadingRevenue" class="text-center py-4">
@@ -102,7 +102,7 @@
             <v-row>
               <v-col cols="12" md="4">
                 <MetricCard
-                  title="Total Revenue"
+                  :title="t('admin.views.analytics.totalRevenue')"
                   :value="revenue.total_subscription_revenue"
                   icon="mdi-cash-multiple"
                   icon-color="success"
@@ -112,7 +112,7 @@
               </v-col>
               <v-col cols="12" md="4">
                 <MetricCard
-                  title="Monthly Recurring"
+                  :title="t('admin.views.analytics.monthlyRecurring')"
                   :value="revenue.monthly_recurring_revenue"
                   icon="mdi-calendar-month"
                   icon-color="primary"
@@ -122,11 +122,11 @@
               </v-col>
               <v-col cols="12" md="4">
                 <MetricCard
-                  title="Active Subscriptions"
+                  :title="t('admin.views.analytics.activeSubscriptions')"
                   :value="revenue.subscriptions.active"
                   icon="mdi-check-circle"
                   icon-color="success"
-                  :badge="`${revenue.subscriptions.churned} churned`"
+                  :badge="`${revenue.subscriptions.churned} ${t('admin.views.analytics.churned')}`"
                   badge-color="error"
                   card-class="mb-0"
                 />
@@ -134,15 +134,15 @@
             </v-row>
             <v-row class="mt-4">
               <v-col cols="12">
-                <h3 class="text-h6 mb-4">Revenue by Plan</h3>
+                <h3 class="text-h6 mb-4">{{ t('admin.views.analytics.revenueByPlan') }}</h3>
                 <v-table>
                   <thead>
                     <tr>
-                      <th>Plan Name</th>
-                      <th>Active Subscriptions</th>
-                      <th>Price</th>
-                      <th>Billing Cycle</th>
-                      <th>Revenue</th>
+                      <th>{{ t('admin.views.analytics.planName') }}</th>
+                      <th>{{ t('admin.views.analytics.activeSubscriptionsCol') }}</th>
+                      <th>{{ t('admin.views.analytics.price') }}</th>
+                      <th>{{ t('admin.views.analytics.billingCycle') }}</th>
+                      <th>{{ t('admin.views.analytics.revenue') }}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -150,7 +150,7 @@
                       <td>{{ plan.plan_name }}</td>
                       <td>{{ plan.active_subscriptions }}</td>
                       <td>{{ formatPrice(plan.price) }}</td>
-                      <td>{{ plan.billing_cycle }}</td>
+                      <td>{{ formatBillingCycle(plan.billing_cycle) }}</td>
                       <td>{{ formatPrice(plan.revenue) }}</td>
                     </tr>
                   </tbody>
@@ -165,7 +165,7 @@
       <v-card variant="outlined" class="mb-6" style="border-color: rgba(0, 0, 0, 0.12);">
         <v-card-title class="d-flex align-center">
           <v-icon size="20" class="mr-2">mdi-store</v-icon>
-          <span>Dealer Performance</span>
+          <span>{{ t('admin.views.analytics.dealerPerformance') }}</span>
         </v-card-title>
         <v-card-text>
           <div v-if="loadingDealers" class="text-center py-4">
@@ -174,57 +174,57 @@
           <div v-else-if="dealers">
             <v-row>
               <v-col cols="12" md="4">
-                <h3 class="text-h6 mb-3">Top Dealers by Listings</h3>
+                <h3 class="text-h6 mb-3">{{ t('admin.views.analytics.topDealersByListings') }}</h3>
                 <v-table>
                   <thead>
                     <tr>
-                      <th>CVR</th>
-                      <th>City</th>
-                      <th>Listings</th>
+                      <th>{{ t('admin.views.analytics.cvr') }}</th>
+                      <th>{{ t('admin.views.analytics.city') }}</th>
+                      <th>{{ t('admin.views.analytics.listings') }}</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr v-for="dealer in dealers.top_by_listings.slice(0, 5)" :key="dealer.dealer_id">
                       <td>{{ dealer.cvr }}</td>
-                      <td>{{ dealer.city || 'N/A' }}</td>
+                      <td>{{ dealer.city || t('common.na') }}</td>
                       <td>{{ dealer.listings_count }}</td>
                     </tr>
                   </tbody>
                 </v-table>
               </v-col>
               <v-col cols="12" md="4">
-                <h3 class="text-h6 mb-3">Top Dealers by Leads</h3>
+                <h3 class="text-h6 mb-3">{{ t('admin.views.analytics.topDealersByLeads') }}</h3>
                 <v-table>
                   <thead>
                     <tr>
-                      <th>CVR</th>
-                      <th>City</th>
-                      <th>Leads</th>
+                      <th>{{ t('admin.views.analytics.cvr') }}</th>
+                      <th>{{ t('admin.views.analytics.city') }}</th>
+                      <th>{{ t('admin.views.analytics.leads') }}</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr v-for="dealer in dealers.top_by_leads.slice(0, 5)" :key="dealer.dealer_id">
                       <td>{{ dealer.cvr }}</td>
-                      <td>{{ dealer.city || 'N/A' }}</td>
+                      <td>{{ dealer.city || t('common.na') }}</td>
                       <td>{{ dealer.leads_count }}</td>
                     </tr>
                   </tbody>
                 </v-table>
               </v-col>
       <v-col cols="12" md="4">
-                <h3 class="text-h6 mb-3">Top Dealers by Sold</h3>
+                <h3 class="text-h6 mb-3">{{ t('admin.views.analytics.topDealersBySold') }}</h3>
                 <v-table>
                   <thead>
                     <tr>
-                      <th>CVR</th>
-                      <th>City</th>
-                      <th>Sold</th>
+                      <th>{{ t('admin.views.analytics.cvr') }}</th>
+                      <th>{{ t('admin.views.analytics.city') }}</th>
+                      <th>{{ t('admin.views.analytics.sold') }}</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr v-for="dealer in dealers.top_by_sold.slice(0, 5)" :key="dealer.dealer_id">
                       <td>{{ dealer.cvr }}</td>
-                      <td>{{ dealer.city || 'N/A' }}</td>
+                      <td>{{ dealer.city || t('common.na') }}</td>
                       <td>{{ dealer.sold_count }}</td>
                     </tr>
                   </tbody>
@@ -239,7 +239,7 @@
       <v-card variant="outlined" class="mb-6" style="border-color: rgba(0, 0, 0, 0.12);">
         <v-card-title class="d-flex align-center">
           <v-icon size="20" class="mr-2">mdi-car</v-icon>
-          <span>Vehicle Analytics</span>
+          <span>{{ t('admin.views.analytics.vehicleAnalytics') }}</span>
         </v-card-title>
           <v-card-text>
             <div v-if="loadingVehicles" class="text-center py-4">
@@ -248,13 +248,13 @@
           <div v-else-if="vehicles">
             <v-row>
               <v-col cols="12" md="6">
-                <h3 class="text-h6 mb-3">Vehicles by Category</h3>
+                <h3 class="text-h6 mb-3">{{ t('admin.views.analytics.vehiclesByCategory') }}</h3>
                 <PieChart
                   v-if="vehicles.by_category.length > 0"
                   :data="{
                     labels: vehicles.by_category.map((v) => v.category),
                     datasets: [{
-                      label: 'Vehicles',
+                      label: t('admin.views.analytics.vehicles'),
                       data: vehicles.by_category.map((v) => v.count),
                       backgroundColor: [
                         'rgba(54, 162, 235, 0.8)',
@@ -268,13 +268,13 @@
                 />
               </v-col>
               <v-col cols="12" md="6">
-                <h3 class="text-h6 mb-3">Vehicles by Fuel Type</h3>
+                <h3 class="text-h6 mb-3">{{ t('admin.views.analytics.vehiclesByFuelType') }}</h3>
                 <BarChart
                   v-if="vehicles.by_fuel_type.length > 0"
                   :data="{
                     labels: vehicles.by_fuel_type.map((v) => v.fuel_type),
                     datasets: [{
-                      label: 'Vehicles',
+                      label: t('admin.views.analytics.vehicles'),
                       data: vehicles.by_fuel_type.map((v) => v.count),
                       backgroundColor: 'rgba(54, 162, 235, 0.8)',
                     }],
@@ -284,13 +284,13 @@
             </v-row>
             <v-row class="mt-4">
               <v-col cols="12" md="6">
-                <h3 class="text-h6 mb-3">Vehicles by Price Range</h3>
+                <h3 class="text-h6 mb-3">{{ t('admin.views.analytics.vehiclesByPriceRange') }}</h3>
                 <BarChart
                   v-if="vehicles.by_price_range.length > 0"
                   :data="{
                     labels: vehicles.by_price_range.map((v) => v.range),
                     datasets: [{
-                      label: 'Vehicles',
+                      label: t('admin.views.analytics.vehicles'),
                       data: vehicles.by_price_range.map((v) => v.count),
                       backgroundColor: 'rgba(75, 192, 192, 0.8)',
                     }],
@@ -298,13 +298,13 @@
                 />
               </v-col>
               <v-col cols="12" md="6">
-                <h3 class="text-h6 mb-3">Most Viewed Vehicles</h3>
+                <h3 class="text-h6 mb-3">{{ t('admin.views.analytics.mostViewedVehicles') }}</h3>
                 <v-table>
                   <thead>
                     <tr>
-                      <th>Vehicle</th>
-                      <th>Registration</th>
-                      <th>Views</th>
+                      <th>{{ t('admin.views.analytics.vehicle') }}</th>
+                      <th>{{ t('admin.views.analytics.registration') }}</th>
+                      <th>{{ t('admin.views.analytics.views') }}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -316,7 +316,7 @@
                   </tbody>
                 </v-table>
                 <div class="mt-2">
-                  <strong>Average Days to Sell:</strong> {{ vehicles.average_days_to_sell }} days
+                  <strong>{{ t('admin.views.analytics.averageDaysToSell') }}</strong> {{ vehicles.average_days_to_sell }} {{ t('admin.views.analytics.days') }}
                 </div>
               </v-col>
             </v-row>
@@ -328,7 +328,7 @@
       <v-card variant="outlined" class="mb-6" style="border-color: rgba(0, 0, 0, 0.12);">
         <v-card-title class="d-flex align-center">
           <v-icon size="20" class="mr-2">mdi-phone-in-talk</v-icon>
-          <span>Lead Analytics</span>
+          <span>{{ t('admin.views.analytics.leadAnalytics') }}</span>
         </v-card-title>
           <v-card-text>
             <div v-if="loadingLeads" class="text-center py-4">
@@ -337,13 +337,13 @@
           <div v-else-if="leads">
             <v-row>
               <v-col cols="12" md="6">
-                <h3 class="text-h6 mb-3">Leads Over Time</h3>
+                <h3 class="text-h6 mb-3">{{ t('admin.views.analytics.leadsOverTime') }}</h3>
                 <LineChart
                   v-if="leads.over_time.length > 0"
                   :data="{
                     labels: leads.over_time.map((l) => l.date),
                     datasets: [{
-                      label: 'Leads',
+                      label: t('admin.views.analytics.leads'),
                       data: leads.over_time.map((l) => l.count),
                       borderColor: 'rgba(54, 162, 235, 1)',
                       backgroundColor: 'rgba(54, 162, 235, 0.2)',
@@ -353,13 +353,13 @@
                 />
               </v-col>
               <v-col cols="12" md="6">
-                <h3 class="text-h6 mb-3">Leads by Source</h3>
+                <h3 class="text-h6 mb-3">{{ t('admin.views.analytics.leadsBySource') }}</h3>
                 <PieChart
                   v-if="leads.by_source.length > 0"
                   :data="{
-                    labels: leads.by_source.map((l) => l.source),
+                    labels: leads.by_source.map((l) => getLeadSourceName(l.source)),
                     datasets: [{
-                      label: 'Leads',
+                      label: t('admin.views.analytics.leads'),
                       data: leads.by_source.map((l) => l.count),
                       backgroundColor: [
                         'rgba(54, 162, 235, 0.8)',
@@ -377,19 +377,19 @@
               <v-col cols="12">
                 <div class="d-flex gap-4 mb-4">
                   <div>
-                    <strong>Conversion Rate:</strong> {{ leads.conversion_rate }}%
+                    <strong>{{ t('admin.views.analytics.conversionRateLabel') }}</strong> {{ leads.conversion_rate }}%
                   </div>
                   <div>
-                    <strong>Unanswered Leads:</strong> {{ leads.unanswered_count }}
+                    <strong>{{ t('admin.views.analytics.unansweredLeads') }}</strong> {{ leads.unanswered_count }}
                   </div>
                 </div>
-                <h3 class="text-h6 mb-3">Top Vehicles by Leads</h3>
+                <h3 class="text-h6 mb-3">{{ t('admin.views.analytics.topVehiclesByLeads') }}</h3>
                 <v-table>
                   <thead>
                     <tr>
-                      <th>Vehicle</th>
-                      <th>Registration</th>
-                      <th>Leads</th>
+                      <th>{{ t('admin.views.analytics.vehicle') }}</th>
+                      <th>{{ t('admin.views.analytics.registration') }}</th>
+                      <th>{{ t('admin.views.analytics.leads') }}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -410,7 +410,7 @@
       <v-card variant="outlined" class="mb-6" style="border-color: rgba(0, 0, 0, 0.12);">
         <v-card-title class="d-flex align-center">
           <v-icon size="20" class="mr-2">mdi-account-group</v-icon>
-          <span>User Activity</span>
+          <span>{{ t('admin.views.analytics.userActivity') }}</span>
         </v-card-title>
           <v-card-text>
           <div v-if="loadingActivity" class="text-center py-4">
@@ -419,13 +419,13 @@
           <div v-else-if="activity">
             <v-row>
               <v-col cols="12" md="6">
-                <h3 class="text-h6 mb-3">Login Activity</h3>
+                <h3 class="text-h6 mb-3">{{ t('admin.views.analytics.loginActivity') }}</h3>
                 <LineChart
                   v-if="activity.login_activity.length > 0"
                   :data="{
                     labels: activity.login_activity.map((a) => a.date),
                     datasets: [{
-                      label: 'Logins',
+                      label: t('admin.views.analytics.logins'),
                       data: activity.login_activity.map((a) => a.count),
                       borderColor: 'rgba(75, 192, 192, 1)',
                       backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -435,13 +435,13 @@
                 />
               </v-col>
               <v-col cols="12" md="6">
-                <h3 class="text-h6 mb-3">Listing Creation Trends</h3>
+                <h3 class="text-h6 mb-3">{{ t('admin.views.analytics.listingCreationTrends') }}</h3>
                 <LineChart
                   v-if="activity.listing_creation_trends.length > 0"
                   :data="{
                     labels: activity.listing_creation_trends.map((a) => a.date),
                     datasets: [{
-                      label: 'Listings Created',
+                      label: t('admin.views.analytics.listingsCreated'),
                       data: activity.listing_creation_trends.map((a) => a.count),
                       borderColor: 'rgba(255, 99, 132, 1)',
                       backgroundColor: 'rgba(255, 99, 132, 0.2)',
@@ -483,6 +483,7 @@ import MetricCard from '@/components/analytics/MetricCard.vue'
 import LineChart from '@/components/charts/LineChart.vue'
 import BarChart from '@/components/charts/BarChart.vue'
 import PieChart from '@/components/charts/PieChart.vue'
+import { getLeadSourceName } from '@/utils/leadHelpers'
 
 const { t } = useI18n()
 const dateRange = ref<DateRange>('30d')
@@ -518,6 +519,12 @@ const recordSectionError = (section: string, err: unknown) => {
   sectionErrors.value.push(`${section}: ${message}`)
 }
 
+const formatBillingCycle = (cycle: string) => {
+  if (cycle === 'monthly') return t('admin.views.analytics.billingMonthly')
+  if (cycle === 'yearly') return t('admin.views.analytics.billingYearly')
+  return cycle
+}
+
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('da-DK', {
     style: 'currency',
@@ -541,7 +548,7 @@ const loadRevenue = async () => {
     loadingRevenue.value = true
     revenue.value = await getAnalyticsRevenue(dateRange.value)
   } catch (err) {
-    recordSectionError('Revenue Analytics', err)
+    recordSectionError(t('admin.views.analytics.revenueAnalytics'), err)
   } finally {
     loadingRevenue.value = false
   }
@@ -552,7 +559,7 @@ const loadDealers = async () => {
     loadingDealers.value = true
     dealers.value = await getAnalyticsDealers(dateRange.value)
   } catch (err) {
-    recordSectionError('Dealer Performance', err)
+    recordSectionError(t('admin.views.analytics.dealerPerformance'), err)
   } finally {
     loadingDealers.value = false
   }
@@ -563,7 +570,7 @@ const loadVehicles = async () => {
     loadingVehicles.value = true
     vehicles.value = await getAnalyticsVehicles(dateRange.value)
   } catch (err) {
-    recordSectionError('Vehicle Analytics', err)
+    recordSectionError(t('admin.views.analytics.vehicleAnalytics'), err)
   } finally {
     loadingVehicles.value = false
   }
@@ -574,7 +581,7 @@ const loadLeads = async () => {
     loadingLeads.value = true
     leads.value = await getAnalyticsLeads(dateRange.value)
   } catch (err) {
-    recordSectionError('Lead Analytics', err)
+    recordSectionError(t('admin.views.analytics.leadAnalytics'), err)
   } finally {
     loadingLeads.value = false
   }
@@ -585,7 +592,7 @@ const loadActivity = async () => {
     loadingActivity.value = true
     activity.value = await getAnalyticsActivity(dateRange.value)
   } catch (err) {
-    recordSectionError('User Activity', err)
+    recordSectionError(t('admin.views.analytics.userActivity'), err)
   } finally {
     loadingActivity.value = false
   }

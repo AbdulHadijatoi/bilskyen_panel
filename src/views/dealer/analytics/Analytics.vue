@@ -109,7 +109,7 @@
                   :data="{
                     labels: leadAnalytics.over_time.map((l) => l.date),
                     datasets: [{
-                      label: 'Leads',
+                      label: t('dealer.views.analytics.leads'),
                       data: leadAnalytics.over_time.map((l) => l.count),
                       borderColor: 'rgba(54, 162, 235, 1)',
                       backgroundColor: 'rgba(54, 162, 235, 0.2)',
@@ -123,9 +123,9 @@
                 <PieChart
                   v-if="leadAnalytics.by_source.length > 0"
                   :data="{
-                    labels: leadAnalytics.by_source.map((l) => l.source),
+                    labels: leadAnalytics.by_source.map((l) => getLeadSourceName(l.source)),
                     datasets: [{
-                      label: 'Leads',
+                      label: t('dealer.views.analytics.leads'),
                       data: leadAnalytics.by_source.map((l) => l.count),
                       backgroundColor: [
                         'rgba(54, 162, 235, 0.8)',
@@ -145,9 +145,9 @@
                 <PieChart
                   v-if="leadAnalytics.status_breakdown.length > 0"
                   :data="{
-                    labels: leadAnalytics.status_breakdown.map((s) => s.stage),
+                    labels: leadAnalytics.status_breakdown.map((s) => s.stage_id ? getLeadStageName(s.stage_id) : s.stage),
                     datasets: [{
-                      label: 'Leads',
+                      label: t('dealer.views.analytics.leads'),
                       data: leadAnalytics.status_breakdown.map((s) => s.count),
                       backgroundColor: [
                         'rgba(54, 162, 235, 0.8)',
@@ -291,12 +291,12 @@
                     labels: [t('dealer.views.analytics.featured'), t('dealer.views.analytics.nonFeatured')],
                     datasets: [
                       {
-                        label: 'Views',
+                        label: t('dealer.views.analytics.views'),
                         data: [marketing.featured_vs_non_featured.featured_views, marketing.featured_vs_non_featured.non_featured_views],
                         backgroundColor: 'rgba(54, 162, 235, 0.8)',
                       },
                       {
-                        label: 'Leads',
+                        label: t('dealer.views.analytics.leads'),
                         data: [marketing.featured_vs_non_featured.featured_leads, marketing.featured_vs_non_featured.non_featured_leads],
                         backgroundColor: 'rgba(75, 192, 192, 0.8)',
                       },
@@ -400,6 +400,7 @@ import MetricCard from '@/components/analytics/MetricCard.vue'
 import LineChart from '@/components/charts/LineChart.vue'
 import BarChart from '@/components/charts/BarChart.vue'
 import PieChart from '@/components/charts/PieChart.vue'
+import { getLeadSourceName, getLeadStageName } from '@/utils/leadHelpers'
 
 const { t } = useI18n()
 const dateRange = ref<DateRange>('30d')

@@ -572,7 +572,7 @@ const getTypeIcon = (type: string) => {
     [EnquiryType.GENERAL]: 'mdi-email',
     [EnquiryType.SALES]: 'mdi-cash',
     [EnquiryType.TEST_DRIVE]: 'mdi-car',
-    [EnquiryType.PRICE_ENQUIRY]: 'mdi-currency-usd',
+    [EnquiryType.PRICE_ENQUIRY]: 'mdi-cash',
     [EnquiryType.FINANCING]: 'mdi-bank',
     [EnquiryType.INSURANCE]: 'mdi-shield',
     [EnquiryType.SERVICE]: 'mdi-wrench',

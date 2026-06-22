@@ -29,7 +29,7 @@
                   padding: '0.5rem',
                 }"
               >
-                <v-icon size="small">mdi-currency-usd</v-icon>
+                <v-icon size="small">mdi-cash</v-icon>
               </div>
               <div class="flex-1">
                 <p class="text-sm font-medium mb-0" style="color: var(--muted-foreground);">Total Revenue</p>

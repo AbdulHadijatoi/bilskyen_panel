@@ -1,20 +1,11 @@
 /**
  * Lead Helper Utilities
- * 
+ *
  * Helper functions for lead intent, category, and stage display
  */
 
 import { LeadIntent, LeadStage } from '@/models/lead.model'
-
-/**
- * Lead Intent display names
- */
-export const LEAD_INTENT_NAMES: Record<number, string> = {
-  [LeadIntent.LOW]: 'Low',
-  [LeadIntent.MEDIUM]: 'Medium',
-  [LeadIntent.HIGH]: 'High',
-  [LeadIntent.VERY_HIGH]: 'Very High',
-}
+import i18n from '@/plugins/i18n'
 
 /**
  * Lead Intent colors (Vuetify color names)
@@ -24,32 +15,6 @@ export const LEAD_INTENT_COLORS: Record<number, string> = {
   [LeadIntent.MEDIUM]: 'yellow',
   [LeadIntent.HIGH]: 'orange',
   [LeadIntent.VERY_HIGH]: 'red',
-}
-
-/**
- * Lead Category display names
- */
-export const LEAD_CATEGORY_NAMES: Record<number, string> = {
-  1: 'Price Negotiation',
-  2: 'Financing Request',
-  3: 'WhatsApp Clicked',
-  4: 'Email Clicked',
-  5: 'Enquiry Form',
-  6: 'Phone Revealed',
-  7: 'Test Drive Request',
-}
-
-/**
- * Lead Stage display names
- */
-export const LEAD_STAGE_NAMES: Record<number, string> = {
-  [LeadStage.NEW]: 'New',
-  [LeadStage.CONTACTED]: 'Contacted',
-  [LeadStage.QUALIFIED]: 'Qualified',
-  [LeadStage.QUOTED]: 'Quoted',
-  [LeadStage.NEGOTIATING]: 'Negotiating',
-  [LeadStage.WON]: 'Won',
-  [LeadStage.LOST]: 'Lost',
 }
 
 /**
@@ -65,12 +30,22 @@ export const LEAD_STAGE_COLORS: Record<number, string> = {
   [LeadStage.LOST]: 'error',
 }
 
+function t(key: string, params?: Record<string, unknown>): string {
+  return i18n.global.t(key, params ?? {})
+}
+
+function translateById(group: 'leadCategories' | 'leadStages' | 'leadIntents', id: number): string {
+  const key = `common.${group}.${id}`
+  const result = i18n.global.t(key)
+  return typeof result === 'string' ? result : String(id)
+}
+
 /**
  * Get lead intent display name
  */
 export function getLeadIntentName(intentId?: number | null): string {
-  if (!intentId) return 'Not Set'
-  return LEAD_INTENT_NAMES[intentId] || 'Unknown'
+  if (!intentId) return t('common.notSet')
+  return translateById('leadIntents', intentId)
 }
 
 /**
@@ -85,15 +60,25 @@ export function getLeadIntentColor(intentId?: number | null): string {
  * Get lead category display name
  */
 export function getLeadCategoryName(categoryId?: number | null): string {
-  if (!categoryId) return 'Not Set'
-  return LEAD_CATEGORY_NAMES[categoryId] || 'Unknown'
+  if (!categoryId) return t('common.notSet')
+  return translateById('leadCategories', categoryId)
 }
 
 /**
  * Get lead stage display name
  */
 export function getLeadStageName(stageId: number): string {
-  return LEAD_STAGE_NAMES[stageId] || 'Unknown'
+  return translateById('leadStages', stageId)
+}
+
+/**
+ * Get lead source display name
+ */
+export function getLeadSourceName(source?: string | null): string {
+  if (!source) return t('common.leadSources.Unknown')
+  const key = `common.leadSources.${source}`
+  const result = i18n.global.t(key)
+  return typeof result === 'string' && result !== key ? result : source
 }
 
 /**
@@ -109,12 +94,13 @@ export const getStageColor = getLeadStageColor
 export const getIntentName = getLeadIntentName
 export const getIntentColor = getLeadIntentColor
 export const getCategoryName = getLeadCategoryName
+export const getSourceName = getLeadSourceName
 
 /**
  * Format date for display
  */
 export function formatLeadDate(date?: string | null): string {
-  if (!date) return 'N/A'
+  if (!date) return t('common.na')
   const d = new Date(date)
   const now = new Date()
   const diffMs = now.getTime() - d.getTime()
@@ -122,20 +108,24 @@ export function formatLeadDate(date?: string | null): string {
   const diffHours = Math.floor(diffMs / 3600000)
   const diffDays = Math.floor(diffMs / 86400000)
 
-  if (diffMins < 1) return 'Just now'
-  if (diffMins < 60) return `${diffMins}m ago`
-  if (diffHours < 24) return `${diffHours}h ago`
-  if (diffDays < 7) return `${diffDays}d ago`
-  
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: d.getFullYear() !== now.getFullYear() ? 'numeric' : undefined })
+  if (diffMins < 1) return t('common.justNow')
+  if (diffMins < 60) return t('common.minutesAgo', { count: diffMins })
+  if (diffHours < 24) return t('common.hoursAgo', { count: diffHours })
+  if (diffDays < 7) return t('common.daysAgo', { count: diffDays })
+
+  return d.toLocaleDateString('da-DK', {
+    month: 'short',
+    day: 'numeric',
+    year: d.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
+  })
 }
 
 /**
  * Format full date for display
  */
 export function formatLeadDateFull(date?: string | null): string {
-  if (!date) return 'N/A'
-  return new Date(date).toLocaleString('en-US', {
+  if (!date) return t('common.na')
+  return new Date(date).toLocaleString('da-DK', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -148,9 +138,9 @@ export function formatLeadDateFull(date?: string | null): string {
  * Get intent options for select
  */
 export function getIntentOptions() {
-  return Object.entries(LEAD_INTENT_NAMES).map(([id, name]) => ({
+  return Object.keys(LEAD_INTENT_COLORS).map((id) => ({
     id: Number(id),
-    name,
+    name: getLeadIntentName(Number(id)),
     color: LEAD_INTENT_COLORS[Number(id)],
   }))
 }
@@ -159,9 +149,9 @@ export function getIntentOptions() {
  * Get category options for select
  */
 export function getCategoryOptions() {
-  return Object.entries(LEAD_CATEGORY_NAMES).map(([id, name]) => ({
-    id: Number(id),
-    name,
+  return [1, 2, 3, 4, 5, 6, 7, 8].map((id) => ({
+    id,
+    name: getLeadCategoryName(id),
   }))
 }
 
@@ -169,9 +159,9 @@ export function getCategoryOptions() {
  * Get stage options for select
  */
 export function getStageOptions() {
-  return Object.entries(LEAD_STAGE_NAMES).map(([id, name]) => ({
+  return Object.keys(LEAD_STAGE_COLORS).map((id) => ({
     id: Number(id),
-    name,
+    name: getLeadStageName(Number(id)),
     color: LEAD_STAGE_COLORS[Number(id)],
   }))
 }

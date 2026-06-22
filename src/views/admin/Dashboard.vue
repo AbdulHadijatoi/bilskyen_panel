@@ -216,7 +216,7 @@
           <v-card variant="flat" class="secondary-stat-card" elevation="1">
             <v-card-text class="pa-3">
               <div class="d-flex align-center gap-2 mb-2">
-                <v-icon size="20" color="warning">mdi-currency-usd</v-icon>
+                <v-icon size="20" color="warning">mdi-cash</v-icon>
                 <span class="text-caption text-medium-emphasis">{{ t('admin.views.dashboard.avgVehiclePrice') }}</span>
               </div>
               <div class="text-h6 font-weight-bold">{{ formatPrice(stats.overview.vehicles.average_price) }}</div>

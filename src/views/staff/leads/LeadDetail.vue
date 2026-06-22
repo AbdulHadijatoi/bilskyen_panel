@@ -257,7 +257,7 @@
                 <v-col cols="12" md="6" v-if="lead.vehicle.price">
                   <div class="mb-2">
                     <div class="text-caption text-medium-emphasis">Price</div>
-                    <div class="font-weight-medium">{{ formatPrice(lead.vehicle.price) }}</div>
+                    <div class="font-weight-medium">{{ formatCurrency(lead.vehicle.price) }}</div>
                   </div>
                 </v-col>
               </v-row>
@@ -463,6 +463,7 @@ import {
   getIntentOptions,
   getCategoryOptions,
 } from '@/utils/leadHelpers'
+import { formatCurrency } from '@/utils/formatCurrency'
 
 const route = useRoute()
 const router = useRouter()
@@ -648,13 +649,6 @@ const loadStaff = async () => {
   }
 }
 
-const formatPrice = (price?: number) => {
-  if (!price) return 'N/A'
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(price)
-}
 
 onMounted(async () => {
   await Promise.all([loadLead(), loadMessages(), loadStaff()])
