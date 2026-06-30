@@ -214,6 +214,7 @@ const NAV_TITLE_KEYS: Record<string, string> = {
   Enquiries: 'nav.enquiries',
   Staff: 'nav.staff',
   Subscription: 'nav.subscription',
+  Analytics: 'nav.analytics',
   'Audit Logs': 'nav.auditLogs',
 }
 

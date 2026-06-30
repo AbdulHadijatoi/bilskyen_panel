@@ -145,7 +145,7 @@
                 <PieChart
                   v-if="leadAnalytics.status_breakdown.length > 0"
                   :data="{
-                    labels: leadAnalytics.status_breakdown.map((s) => s.stage_id ? getLeadStageName(s.stage_id) : s.stage),
+                    labels: leadAnalytics.status_breakdown.map((s) => s.stage_id ? getLeadStageName(s.stage_id) : translateApiPlaceholder(s.stage)),
                     datasets: [{
                       label: t('dealer.views.analytics.leads'),
                       data: leadAnalytics.status_breakdown.map((s) => s.count),
@@ -175,8 +175,8 @@
                   </thead>
                   <tbody>
                     <tr v-for="vehicle in leadAnalytics.by_vehicle.slice(0, 10)" :key="vehicle.vehicle_id">
-                      <td>{{ vehicle.title }}</td>
-                      <td>{{ vehicle.registration }}</td>
+                      <td>{{ translateApiPlaceholder(vehicle.title) }}</td>
+                      <td>{{ translateApiPlaceholder(vehicle.registration) }}</td>
                       <td>{{ vehicle.lead_count }}</td>
                     </tr>
                   </tbody>
@@ -211,8 +211,8 @@
                   </thead>
                   <tbody>
                     <tr v-for="vehicle in vehicleAnalytics.most_viewed.slice(0, 10)" :key="vehicle.vehicle_id">
-                      <td>{{ vehicle.title }}</td>
-                      <td>{{ vehicle.registration }}</td>
+                      <td>{{ translateApiPlaceholder(vehicle.title) }}</td>
+                      <td>{{ translateApiPlaceholder(vehicle.registration) }}</td>
                       <td>{{ vehicle.view_count }}</td>
                     </tr>
                   </tbody>
@@ -230,8 +230,8 @@
                   </thead>
                   <tbody>
                     <tr v-for="vehicle in vehicleAnalytics.highest_leads.slice(0, 10)" :key="vehicle.vehicle_id">
-                      <td>{{ vehicle.title }}</td>
-                      <td>{{ vehicle.registration }}</td>
+                      <td>{{ translateApiPlaceholder(vehicle.title) }}</td>
+                      <td>{{ translateApiPlaceholder(vehicle.registration) }}</td>
                       <td>{{ vehicle.lead_count }}</td>
                     </tr>
                   </tbody>
@@ -257,7 +257,7 @@
                   </thead>
                   <tbody>
                     <tr v-for="change in vehicleAnalytics.price_change_history.slice(0, 10)" :key="change.vehicle_id">
-                      <td>{{ change.title }}</td>
+                      <td>{{ translateApiPlaceholder(change.title) }}</td>
                       <td>{{ formatPrice(change.old_price) }}</td>
                       <td>{{ formatPrice(change.new_price) }}</td>
                       <td :class="change.price_change < 0 ? 'text-success' : 'text-error'">
@@ -307,22 +307,22 @@
               <v-col cols="12" md="6">
                 <div class="d-flex flex-column gap-4">
                   <div>
-                    <strong>Featured Vehicles:</strong> {{ marketing.featured_vs_non_featured.featured_vehicles }}
+                    <strong>{{ t('dealer.views.analytics.featuredVehiclesCount') }}</strong> {{ marketing.featured_vs_non_featured.featured_vehicles }}
                   </div>
                   <div>
-                    <strong>Featured Views:</strong> {{ marketing.featured_vs_non_featured.featured_views }}
+                    <strong>{{ t('dealer.views.analytics.featuredViewsCount') }}</strong> {{ marketing.featured_vs_non_featured.featured_views }}
                   </div>
                   <div>
-                    <strong>Featured Leads:</strong> {{ marketing.featured_vs_non_featured.featured_leads }}
+                    <strong>{{ t('dealer.views.analytics.featuredLeadsCount') }}</strong> {{ marketing.featured_vs_non_featured.featured_leads }}
                   </div>
                   <div>
-                    <strong>Non-Featured Vehicles:</strong> {{ marketing.featured_vs_non_featured.non_featured_vehicles }}
+                    <strong>{{ t('dealer.views.analytics.nonFeaturedVehiclesCount') }}</strong> {{ marketing.featured_vs_non_featured.non_featured_vehicles }}
                   </div>
                   <div>
-                    <strong>Non-Featured Views:</strong> {{ marketing.featured_vs_non_featured.non_featured_views }}
+                    <strong>{{ t('dealer.views.analytics.nonFeaturedViewsCount') }}</strong> {{ marketing.featured_vs_non_featured.non_featured_views }}
                   </div>
                   <div>
-                    <strong>Non-Featured Leads:</strong> {{ marketing.featured_vs_non_featured.non_featured_leads }}
+                    <strong>{{ t('dealer.views.analytics.nonFeaturedLeadsCount') }}</strong> {{ marketing.featured_vs_non_featured.non_featured_leads }}
                   </div>
                 </div>
               </v-col>
@@ -335,7 +335,7 @@
       <v-card variant="outlined" class="mb-6" style="border-color: rgba(0, 0, 0, 0.12);">
         <v-card-title class="d-flex align-center">
           <v-icon size="20" class="mr-2">mdi-crown</v-icon>
-          <span>Subscription & Limits</span>
+          <span>{{ t('dealer.views.analytics.subscriptionLimits') }}</span>
         </v-card-title>
         <v-card-text>
           <div v-if="loadingSubscription" class="text-center py-4">
@@ -345,20 +345,20 @@
             <v-row>
               <v-col cols="12" md="6">
                 <div class="mb-4">
-                  <strong>Plan Name:</strong> {{ subscription.plan_name }}
+                  <strong>{{ t('dealer.views.analytics.planName') }}</strong> {{ getPlanDisplayName(subscription.plan_slug, subscription.plan_name) }}
                 </div>
                 <div class="mb-4">
-                  <strong>Status:</strong> {{ subscription.status }}
+                  <strong>{{ t('dealer.views.analytics.status') }}</strong> {{ formatSubscriptionStatus(subscription.status_id, subscription.status) }}
                 </div>
                 <div v-if="subscription.renewal_date" class="mb-4">
-                  <strong>Renewal Date:</strong> {{ formatDate(subscription.renewal_date) }}
+                  <strong>{{ t('dealer.views.analytics.renewalDate') }}</strong> {{ formatDate(subscription.renewal_date) }}
                 </div>
               </v-col>
               <v-col cols="12" md="6">
                 <h3 class="text-h6 mb-3">{{ t('dealer.views.analytics.featureUsage') }}</h3>
                 <div v-for="feature in subscription.features" :key="feature.feature_key" class="mb-4">
                   <div class="d-flex justify-space-between mb-1">
-                    <span>{{ feature.feature_name }}</span>
+                    <span>{{ getFeatureDisplayName(feature) }}</span>
                     <span>{{ feature.used }} / {{ feature.limit }}</span>
                   </div>
                   <v-progress-linear
@@ -401,6 +401,12 @@ import LineChart from '@/components/charts/LineChart.vue'
 import BarChart from '@/components/charts/BarChart.vue'
 import PieChart from '@/components/charts/PieChart.vue'
 import { getLeadSourceName, getLeadStageName } from '@/utils/leadHelpers'
+import {
+  translateApiPlaceholder,
+  getPlanDisplayName,
+  formatSubscriptionStatus,
+  getFeatureDisplayName,
+} from '@/utils/analyticsDisplay'
 
 const { t } = useI18n()
 const dateRange = ref<DateRange>('30d')

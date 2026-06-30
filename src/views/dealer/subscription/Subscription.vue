@@ -259,6 +259,7 @@ import {
 import PlanSubscriptionDialog from '@/components/dealer/PlanSubscriptionDialog.vue'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import { featureDisplayName } from '@/utils/featureDisplay'
+import { getSubscriptionStatusLabel } from '@/utils/analyticsDisplay'
 
 const { t, locale } = useI18n()
 
@@ -348,16 +349,7 @@ const getStatusColor = (statusId?: number) => {
   return colors[statusId || 0] || 'grey'
 }
 
-const getStatusLabel = (statusId?: number) => {
-  const labels: Record<number, string> = {
-    1: t('dealer.views.subscription.statusTrial'),
-    2: t('dealer.views.subscription.statusActive'),
-    3: t('dealer.views.subscription.statusExpired'),
-    4: t('dealer.views.subscription.statusCanceled'),
-    5: t('dealer.views.subscription.statusScheduled')
-  }
-  return labels[statusId || 0] || t('dealer.views.subscription.statusUnknown')
-}
+const getStatusLabel = getSubscriptionStatusLabel
 
 const formatDate = (date?: string) => {
   if (!date) return t('common.na')

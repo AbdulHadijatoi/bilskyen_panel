@@ -259,6 +259,7 @@ import {
 import PlanSubscriptionDialog from '@/components/staff/PlanSubscriptionDialog.vue'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import { featureDisplayName } from '@/utils/featureDisplay'
+import { getSubscriptionStatusLabel } from '@/utils/analyticsDisplay'
 
 const { t, locale } = useI18n()
 
@@ -348,16 +349,7 @@ const getStatusColor = (statusId?: number) => {
   return colors[statusId || 0] || 'grey'
 }
 
-const getStatusLabel = (statusId?: number) => {
-  const labels: Record<number, string> = {
-    1: 'Trial',
-    2: 'Active',
-    3: 'Expired',
-    4: 'Canceled',
-    5: 'Scheduled'
-  }
-  return labels[statusId || 0] || 'Unknown'
-}
+const getStatusLabel = getSubscriptionStatusLabel
 
 const formatDate = (date?: string) => {
   if (!date) return 'N/A'
