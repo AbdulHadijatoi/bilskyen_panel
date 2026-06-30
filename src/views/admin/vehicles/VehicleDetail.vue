@@ -69,6 +69,48 @@
 
     <!-- Vehicle Content -->
     <div v-else-if="vehicle" class="vehicle-content">
+      <v-alert
+        v-if="showExpiryBanner"
+        type="warning"
+        variant="tonal"
+        density="compact"
+        class="mb-4"
+      >
+        {{ expiryBannerText }}
+      </v-alert>
+
+      <v-alert
+        v-if="isPendingReview"
+        type="info"
+        variant="tonal"
+        density="compact"
+        class="mb-4"
+      >
+        {{ t('admin.views.vehicleDetail.pendingReviewBanner') }}
+        <template #append>
+          <div class="d-flex gap-2">
+            <v-btn
+              color="success"
+              variant="flat"
+              size="small"
+              :loading="approvingListing"
+              @click="handleApproveListing"
+            >
+              {{ t('admin.views.vehicles.approveListing') }}
+            </v-btn>
+            <v-btn
+              color="error"
+              variant="outlined"
+              size="small"
+              :loading="rejectingListing"
+              @click="handleRejectListing"
+            >
+              {{ t('admin.views.vehicleDetail.rejectListing') }}
+            </v-btn>
+          </div>
+        </template>
+      </v-alert>
+
       <!-- Vehicle Profile Header Card -->
       <v-card
         variant="flat"
@@ -1428,6 +1470,100 @@
 
         <!-- Right Column - Additional Information -->
         <v-col cols="12" lg="4">
+          <!-- Listing Lifecycle -->
+          <v-card variant="flat" class="info-card mb-3" elevation="0">
+            <v-card-title class="card-title">
+              <v-icon size="18" class="mr-2">mdi-calendar-clock</v-icon>
+              <span class="text-subtitle-1">{{ t('admin.views.vehicleDetail.listingLifecycle') }}</span>
+            </v-card-title>
+            <v-card-text class="pa-3">
+              <div class="info-list">
+                <div class="info-item">
+                  <div class="info-item-label">{{ t('admin.views.vehicleDetail.listingStatus') }}</div>
+                  <div class="info-item-value">
+                    <v-chip
+                      :color="getStatusColor(vehicle.status || vehicle.vehicleListStatusName)"
+                      size="x-small"
+                      variant="flat"
+                    >
+                      {{ vehicle.status || vehicle.vehicleListStatusName || '-' }}
+                    </v-chip>
+                  </div>
+                </div>
+                <v-divider class="my-2" />
+                <div class="info-item">
+                  <div class="info-item-label">{{ t('admin.views.vehicleDetail.publishedAt') }}</div>
+                  <div class="info-item-value">{{ vehicle.publishedAt ? formatDate(vehicle.publishedAt) : '-' }}</div>
+                </div>
+                <v-divider class="my-2" />
+                <div class="info-item">
+                  <div class="info-item-label">{{ t('admin.views.vehicleDetail.expiresAt') }}</div>
+                  <div class="info-item-value">
+                    {{ vehicle.expiresAt ? formatDate(vehicle.expiresAt) : t('admin.views.vehicleDetail.noExpiry') }}
+                    <span v-if="daysUntilExpiry != null" class="text-caption text-medium-emphasis d-block">
+                      {{ daysUntilExpiry <= 0
+                        ? t('admin.views.vehicleDetail.listingExpired')
+                        : t('admin.views.vehicleDetail.daysUntilExpiry', { days: daysUntilExpiry }) }}
+                    </span>
+                  </div>
+                </div>
+                <template v-if="vehicle.listingBillingStartedAt">
+                  <v-divider class="my-2" />
+                  <div class="info-item">
+                    <div class="info-item-label">{{ t('admin.views.vehicleDetail.billingStartedAt') }}</div>
+                    <div class="info-item-value">{{ formatDate(vehicle.listingBillingStartedAt) }}</div>
+                  </div>
+                </template>
+                <template v-if="vehicle.listingBillingPausedAt">
+                  <v-divider class="my-2" />
+                  <div class="info-item">
+                    <div class="info-item-label">{{ t('admin.views.vehicleDetail.billingPausedAt') }}</div>
+                    <div class="info-item-value">{{ formatDate(vehicle.listingBillingPausedAt) }}</div>
+                  </div>
+                </template>
+              </div>
+
+              <div class="d-flex flex-wrap gap-2 mt-4">
+                <v-btn
+                  v-if="isPendingReview"
+                  color="success"
+                  variant="flat"
+                  size="small"
+                  :loading="approvingListing"
+                  @click="handleApproveListing"
+                >
+                  {{ t('admin.views.vehicles.approveListing') }}
+                </v-btn>
+                <v-btn
+                  v-if="isPendingReview"
+                  color="error"
+                  variant="outlined"
+                  size="small"
+                  :loading="rejectingListing"
+                  @click="handleRejectListing"
+                >
+                  {{ t('admin.views.vehicleDetail.rejectListing') }}
+                </v-btn>
+                <v-btn
+                  color="primary"
+                  variant="outlined"
+                  size="small"
+                  :loading="renewingListing"
+                  @click="handleRenewListing"
+                >
+                  {{ t('admin.views.vehicleDetail.renewListing') }}
+                </v-btn>
+                <v-btn
+                  variant="outlined"
+                  size="small"
+                  @click="openLifecycleDialog"
+                >
+                  {{ t('admin.views.vehicleDetail.manageExpiry') }}
+                </v-btn>
+              </div>
+            </v-card-text>
+          </v-card>
+
           <!-- Vehicle Information Sidebar -->
           <v-card
             variant="flat"
@@ -1683,15 +1819,15 @@
       <v-card>
         <v-card-title class="d-flex align-center text-subtitle-1">
           <v-icon color="primary" size="18" class="mr-2">mdi-update</v-icon>
-          Update Vehicle Status
+          {{ t('admin.views.vehicleDetail.updateListingStatus') }}
         </v-card-title>
         <v-card-text class="pa-3">
           <v-select
-            v-model="selectedStatus"
+            v-model="selectedStatusId"
             :items="statusOptions"
             item-title="label"
             item-value="value"
-            label="New Status"
+            :label="t('admin.views.vehicleDetail.listingStatus')"
             variant="outlined"
             density="compact"
             hide-details="auto"
@@ -1705,9 +1841,66 @@
             size="small"
             @click="updateStatus"
             :loading="updatingStatus"
-            :disabled="!selectedStatus || selectedStatus === (vehicle?.status || vehicle?.vehicleListStatusName)?.toLowerCase()"
+            :disabled="!selectedStatusId || selectedStatusId === vehicle?.vehicleListStatusId"
           >
-            Update Status
+            {{ t('admin.views.vehicleDetail.updateListingStatus') }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Listing lifecycle dialog -->
+    <v-dialog v-model="showLifecycleDialog" max-width="520">
+      <v-card>
+        <v-card-title class="text-subtitle-1">
+          {{ t('admin.views.vehicleDetail.manageExpiry') }}
+        </v-card-title>
+        <v-card-text class="pa-3">
+          <v-text-field
+            v-model="lifecycleExpiresAt"
+            :label="t('admin.views.vehicleDetail.expiresAt')"
+            type="datetime-local"
+            variant="outlined"
+            density="compact"
+            class="mb-3"
+            hide-details="auto"
+          />
+          <v-text-field
+            v-model="lifecyclePublishedAt"
+            :label="t('admin.views.vehicleDetail.publishedAt')"
+            type="datetime-local"
+            variant="outlined"
+            density="compact"
+            hide-details="auto"
+          />
+        </v-card-text>
+        <v-card-actions class="pa-3 flex-wrap gap-2">
+          <v-btn
+            variant="outlined"
+            size="small"
+            :loading="updatingLifecycle"
+            @click="handleRecalculateExpiry"
+          >
+            {{ t('admin.views.vehicleDetail.recalculateExpiry') }}
+          </v-btn>
+          <v-btn
+            variant="outlined"
+            size="small"
+            color="warning"
+            :loading="updatingLifecycle"
+            @click="handleClearExpiry"
+          >
+            {{ t('admin.views.vehicleDetail.clearExpiry') }}
+          </v-btn>
+          <v-spacer />
+          <v-btn variant="text" size="small" @click="showLifecycleDialog = false">{{ t('common.cancel') }}</v-btn>
+          <v-btn
+            color="primary"
+            size="small"
+            :loading="updatingLifecycle"
+            @click="handleSaveLifecycle"
+          >
+            {{ t('common.save') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -1753,6 +1946,10 @@ import {
   getVehicle,
   updateVehicle,
   updateVehicleStatus,
+  approvePendingVehicle,
+  rejectPendingVehicle,
+  renewAdminVehicleListing,
+  updateVehicleListingLifecycle,
   getVehicleImages,
   updateVehicleImages,
   deleteVehicleImage,
@@ -1764,6 +1961,7 @@ import {
   getVariants,
   type UpdateVehicleData,
   type UpdateVehicleStatusData,
+  type UpdateVehicleListingLifecycleData,
   type ConstantsData,
   type VehicleModelConstant,
   type VariantConstant,
@@ -1773,6 +1971,7 @@ import type { VehicleModel } from '@/models/vehicle.model'
 import type { VehicleImageModel } from '@/models/vehicle.model'
 import { VehicleStatus } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import { VEHICLE_LIST_STATUS_ID } from '@/constants/vehicle-list-status'
 
 const route = useRoute()
 const router = useRouter()
@@ -1866,8 +2065,15 @@ const selectedEquipment = ref<number[]>([])
 const savingEquipment = ref(false)
 const showDeleteDialog = ref(false)
 const showStatusDialog = ref(false)
+const showLifecycleDialog = ref(false)
 const updatingStatus = ref(false)
-const selectedStatus = ref<VehicleStatus | ''>('')
+const updatingLifecycle = ref(false)
+const renewingListing = ref(false)
+const approvingListing = ref(false)
+const rejectingListing = ref(false)
+const selectedStatusId = ref<number | null>(null)
+const lifecycleExpiresAt = ref('')
+const lifecyclePublishedAt = ref('')
 const showMarkAsSoldDialog = ref(false)
 const markingAsSold = ref(false)
 
@@ -1926,25 +2132,57 @@ const equipments = computed(() => constants.value?.equipments || [])
 const filteredModels = computed(() => vehicleModels.value)
 
 // Status options for status update dialog
-const statusOptions = computed(() => {
-  const validApiStatuses = ['draft', 'published', 'unpublished', 'archived']
-  
-  return vehicleListStatuses.value
-    .map(status => {
-      // Map status name to API format (lowercase)
-      const apiValue = status.name.toLowerCase()
-      
-      // Only include statuses that are valid for the API
-      if (validApiStatuses.includes(apiValue)) {
-        return {
-          label: status.name,
-          value: apiValue
-        }
-      }
-      return null
-    })
-    .filter((option): option is { label: string; value: string } => option !== null)
+const statusOptions = computed(() =>
+  vehicleListStatuses.value.map((status) => ({
+    label: status.name,
+    value: status.id,
+  }))
+)
+
+const isPendingReview = computed(
+  () => vehicle.value?.vehicleListStatusId === VEHICLE_LIST_STATUS_ID.PENDING_REVIEW
+)
+
+const daysUntilExpiry = computed(() => {
+  const expiresAt = vehicle.value?.expiresAt
+  if (!expiresAt) return null
+  const diff = new Date(expiresAt).getTime() - Date.now()
+  return Math.ceil(diff / (1000 * 60 * 60 * 24))
 })
+
+const showExpiryBanner = computed(() => {
+  const days = daysUntilExpiry.value
+  if (days == null) return false
+  const status = vehicle.value?.vehicleListStatusName?.toLowerCase() || vehicle.value?.status?.toLowerCase()
+  return status === 'published' && days <= 14
+})
+
+const expiryBannerText = computed(() => {
+  const days = daysUntilExpiry.value
+  if (days == null) return ''
+  if (days <= 0) return t('admin.views.vehicleDetail.listingExpired')
+  return t('admin.views.vehicleDetail.daysUntilExpiry', { days })
+})
+
+function toDatetimeLocalValue(value?: string | null): string {
+  if (!value) return ''
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
+}
+
+function fromDatetimeLocalValue(value: string): string | null {
+  if (!value) return null
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? null : date.toISOString()
+}
+
+function openLifecycleDialog() {
+  lifecycleExpiresAt.value = toDatetimeLocalValue(vehicle.value?.expiresAt)
+  lifecyclePublishedAt.value = toDatetimeLocalValue(vehicle.value?.publishedAt)
+  showLifecycleDialog.value = true
+}
 
 const loadVehicle = async () => {
   const vehicleId = route.params.id as string
@@ -2181,33 +2419,102 @@ const cancelEquipmentEdit = () => {
 
 const cancelStatusUpdate = () => {
   showStatusDialog.value = false
-  selectedStatus.value = ''
+  selectedStatusId.value = null
 }
 
 const updateStatus = async () => {
-  if (!vehicle.value || !selectedStatus.value) return
+  if (!vehicle.value || selectedStatusId.value == null) return
 
   try {
     updatingStatus.value = true
     error.value = null
-    
+
     const statusData: UpdateVehicleStatusData = {
-      status: selectedStatus.value as VehicleStatus
+      list_status_id: selectedStatusId.value,
     }
-    
+
     const updatedVehicle = await updateVehicleStatus(vehicle.value.id, statusData)
     vehicle.value = updatedVehicle
-    
+
     showStatusDialog.value = false
-    selectedStatus.value = ''
-    
-    // Reload vehicle to get updated status
+    selectedStatusId.value = null
+
     await loadVehicle()
   } catch (err) {
     error.value = (err as ApiErrorModel).message || 'Failed to update vehicle status'
   } finally {
     updatingStatus.value = false
   }
+}
+
+const handleApproveListing = async () => {
+  if (!vehicle.value) return
+  try {
+    approvingListing.value = true
+    vehicle.value = await approvePendingVehicle(vehicle.value.id)
+    await loadVehicle()
+  } catch (err) {
+    error.value = (err as ApiErrorModel).message || t('admin.views.vehicleDetail.approveFailed')
+  } finally {
+    approvingListing.value = false
+  }
+}
+
+const handleRejectListing = async () => {
+  if (!vehicle.value) return
+  try {
+    rejectingListing.value = true
+    vehicle.value = await rejectPendingVehicle(vehicle.value.id, {
+      list_status_id: VEHICLE_LIST_STATUS_ID.DRAFT,
+    })
+    await loadVehicle()
+  } catch (err) {
+    error.value = (err as ApiErrorModel).message || t('admin.views.vehicleDetail.rejectFailed')
+  } finally {
+    rejectingListing.value = false
+  }
+}
+
+const handleRenewListing = async () => {
+  if (!vehicle.value) return
+  try {
+    renewingListing.value = true
+    vehicle.value = await renewAdminVehicleListing(vehicle.value.id)
+    await loadVehicle()
+  } catch (err) {
+    error.value = (err as ApiErrorModel).message || t('admin.views.vehicleDetail.renewFailed')
+  } finally {
+    renewingListing.value = false
+  }
+}
+
+const runLifecycleUpdate = async (data: UpdateVehicleListingLifecycleData) => {
+  if (!vehicle.value) return
+  updatingLifecycle.value = true
+  try {
+    vehicle.value = await updateVehicleListingLifecycle(vehicle.value.id, data)
+    showLifecycleDialog.value = false
+    await loadVehicle()
+  } catch (err) {
+    error.value = (err as ApiErrorModel).message || t('admin.views.vehicleDetail.lifecycleUpdateFailed')
+  } finally {
+    updatingLifecycle.value = false
+  }
+}
+
+const handleSaveLifecycle = async () => {
+  await runLifecycleUpdate({
+    expires_at: fromDatetimeLocalValue(lifecycleExpiresAt.value),
+    published_at: fromDatetimeLocalValue(lifecyclePublishedAt.value),
+  })
+}
+
+const handleRecalculateExpiry = async () => {
+  await runLifecycleUpdate({ recalculate_expiry: true })
+}
+
+const handleClearExpiry = async () => {
+  await runLifecycleUpdate({ clear_expiry: true })
 }
 
 const markAsSold = async () => {
@@ -2219,7 +2526,7 @@ const markAsSold = async () => {
     
     // Use 'sold' status for admin API
     const statusData: UpdateVehicleStatusData = {
-      status: VehicleStatus.SOLD
+      list_status_id: VEHICLE_LIST_STATUS_ID.SOLD,
     }
     
     const updatedVehicle = await updateVehicleStatus(vehicle.value.id, statusData)
@@ -2317,9 +2624,7 @@ watch(showEquipmentDialog, (newVal) => {
 // Watch for status dialog to initialize selected status
 watch(showStatusDialog, (newVal) => {
   if (newVal && vehicle.value) {
-    // Initialize with current status (convert to lowercase for API)
-    const currentStatus = (vehicle.value.status || vehicle.value.vehicleListStatusName || '').toLowerCase()
-    selectedStatus.value = currentStatus as VehicleStatus || ''
+    selectedStatusId.value = vehicle.value.vehicleListStatusId ?? null
   }
 })
 

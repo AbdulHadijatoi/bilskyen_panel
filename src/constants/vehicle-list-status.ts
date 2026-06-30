@@ -7,6 +7,7 @@ export const VEHICLE_LIST_STATUS_ID = {
   PUBLISHED: 2,
   SOLD: 3,
   ARCHIVED: 4,
+  PENDING_REVIEW: 5,
 } as const
 
 export type VehicleListStatusId =
@@ -18,6 +19,7 @@ const VEHICLE_LIST_STATUS_LABEL_BY_ID: Record<number, string> = {
   [VEHICLE_LIST_STATUS_ID.PUBLISHED]: 'published',
   [VEHICLE_LIST_STATUS_ID.SOLD]: 'sold',
   [VEHICLE_LIST_STATUS_ID.ARCHIVED]: 'archived',
+  [VEHICLE_LIST_STATUS_ID.PENDING_REVIEW]: 'pending_review',
 }
 
 export function listStatusNameFromId(statusId: number | null | undefined): string | undefined {
@@ -55,6 +57,7 @@ export const LIST_STATUS_CHIP_COLORS: Record<number, string> = {
   [VEHICLE_LIST_STATUS_ID.PUBLISHED]: 'success',
   [VEHICLE_LIST_STATUS_ID.SOLD]: 'info',
   [VEHICLE_LIST_STATUS_ID.ARCHIVED]: 'warning',
+  [VEHICLE_LIST_STATUS_ID.PENDING_REVIEW]: 'orange',
 }
 
 const LIST_STATUS_CHIP_COLORS_BY_NAME: Record<string, string> = {
@@ -62,6 +65,7 @@ const LIST_STATUS_CHIP_COLORS_BY_NAME: Record<string, string> = {
   published: 'success',
   sold: 'info',
   archived: 'warning',
+  pending_review: 'orange',
 }
 
 /**

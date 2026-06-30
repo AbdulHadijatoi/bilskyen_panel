@@ -420,7 +420,7 @@ const closeSubscriptionDialog = () => {
   selectedPlan.value = null
 }
 
-const handleSubscriptionConfirm = async (billingCycle: 'monthly' | 'yearly') => {
+const handleSubscriptionConfirm = async (billingCycle: 'monthly' | 'yearly' | 'usage_daily') => {
   if (!selectedPlan.value) return
 
   try {

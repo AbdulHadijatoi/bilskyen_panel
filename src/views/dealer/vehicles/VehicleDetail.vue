@@ -69,6 +69,26 @@
 
     <!-- Vehicle Content -->
     <div v-else-if="vehicle" class="vehicle-content">
+      <v-alert
+        v-if="showExpiryBanner"
+        type="warning"
+        variant="tonal"
+        density="compact"
+        class="mb-4"
+      >
+        {{ expiryBannerText }}
+        <template #append>
+          <v-btn
+            color="warning"
+            variant="flat"
+            size="small"
+            :loading="renewingListing"
+            @click="handleRenewListing"
+          >
+            {{ t('dealer.views.vehicleDetail.renewListing') }}
+          </v-btn>
+        </template>
+      </v-alert>
       <!-- Vehicle Profile Header Card -->
       <v-card
         variant="flat"
@@ -1290,6 +1310,7 @@ import {
   getVehicle,
   updateVehicle,
   updateVehicleStatus,
+  renewVehicleListing,
   updateVehicleEquipment,
   deleteVehicle as deleteVehicleApi,
   uploadVehicleImages,
@@ -1320,6 +1341,39 @@ const vehicleDisplayTitle = computed(() => {
   return v.title || t('common.vehicleTitleFallback', { id: String(v.id) })
 })
 
+const daysUntilExpiry = computed(() => {
+  const expiresAt = vehicle.value?.expiresAt
+  if (!expiresAt) return null
+  const diff = new Date(expiresAt).getTime() - Date.now()
+  return Math.ceil(diff / (1000 * 60 * 60 * 24))
+})
+
+const showExpiryBanner = computed(() => {
+  const days = daysUntilExpiry.value
+  if (days == null) return false
+  const status = vehicle.value?.vehicleListStatusName?.toLowerCase() || vehicle.value?.status?.toLowerCase()
+  return status === 'published' && days <= 14
+})
+
+const expiryBannerText = computed(() => {
+  const days = daysUntilExpiry.value
+  if (days == null) return ''
+  if (days <= 0) return t('dealer.views.vehicleDetail.listingExpired')
+  return t('dealer.views.vehicleDetail.listingExpiresIn', { days })
+})
+
+async function handleRenewListing() {
+  if (!vehicle.value) return
+  try {
+    renewingListing.value = true
+    vehicle.value = await renewVehicleListing(vehicle.value.id)
+  } catch (err) {
+    error.value = (err as ApiErrorModel).message || t('dealer.views.vehicleDetail.renewListingFailed')
+  } finally {
+    renewingListing.value = false
+  }
+}
+
 const vehicleImages = ref<VehicleImageModel[]>([])
 const editMode = ref(false)
 const updating = ref(false)
@@ -1341,6 +1395,7 @@ const showMarkAsSoldDialog = ref(false)
 const updatingStatus = ref(false)
 const selectedStatus = ref<number | null>(null)
 const markingAsSold = ref(false)
+const renewingListing = ref(false)
 const loadingConstants = ref(false)
 
 // Constants data

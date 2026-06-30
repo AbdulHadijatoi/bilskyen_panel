@@ -15,12 +15,12 @@ const router = createRouter({
       name: 'auth.login',
       component: () => import('@/views/auth/Login.vue'),
     },
-    // Staff login route - hidden for now
-    // {
-    //   path: '/auth/staff-login',
-    //   name: 'auth.staff-login',
-    //   component: () => import('@/views/auth/StaffLogin.vue'),
-    // },
+    // Staff login route
+    {
+      path: '/auth/staff-login',
+      name: 'auth.staff-login',
+      component: () => import('@/views/auth/StaffLogin.vue'),
+    },
     {
       path: '/auth/register',
       name: 'auth.register',
@@ -191,6 +191,11 @@ const router = createRouter({
           path: 'subscriptions/:id',
           name: 'admin.subscriptions.detail',
           component: () => import('@/views/admin/subscriptions/SubscriptionDetail.vue'),
+        },
+        {
+          path: 'invoices',
+          name: 'admin.invoices',
+          component: () => import('@/views/admin/invoices/InvoicesOverview.vue'),
         },
         {
           path: 'features',

@@ -35,7 +35,9 @@
             billing:
               pendingChangeRequest.billing_cycle === 'yearly'
                 ? t('admin.views.plans.yearly')
-                : t('admin.views.plans.monthly'),
+                : pendingChangeRequest.billing_cycle === 'usage_daily'
+                  ? t('dealer.views.subscription.payAsYouGo')
+                  : t('admin.views.plans.monthly'),
           })
         }}
       </div>
@@ -89,6 +91,30 @@
               <div class="text-caption text-medium-emphasis">{{ t('dealer.views.subscription.endDate') }}</div>
               <div>{{ formatDate(currentSubscription.ends_at) }}</div>
             </div>
+          </v-col>
+        </v-row>
+      </v-card-text>
+    </v-card>
+
+    <v-card v-if="usageSummary?.is_usage_plan" variant="elevated" elevation="1" class="mb-6">
+      <v-card-title class="pa-4">{{ t('dealer.views.subscription.usageTitle') }}</v-card-title>
+      <v-card-text class="pa-4">
+        <v-row>
+          <v-col cols="12" md="4">
+            <div class="text-caption text-medium-emphasis">{{ t('dealer.views.subscription.publishedListings') }}</div>
+            <div class="text-h6">{{ usageSummary.published_listings }}</div>
+          </v-col>
+          <v-col cols="12" md="4">
+            <div class="text-caption text-medium-emphasis">{{ t('dealer.views.subscription.dailyRate') }}</div>
+            <div class="text-h6">{{ formatPrice(usageSummary.daily_rate_cents, 'DKK') }} / {{ t('dealer.views.subscription.perListingPerDay') }}</div>
+          </v-col>
+          <v-col cols="12" md="4">
+            <div class="text-caption text-medium-emphasis">{{ t('dealer.views.subscription.chargedThisMonth') }}</div>
+            <div class="text-h6">{{ formatPrice(usageSummary.total_charged_cents, 'DKK') }}</div>
+          </v-col>
+          <v-col cols="12">
+            <div class="text-caption text-medium-emphasis">{{ t('dealer.views.subscription.estimatedMonthly') }}</div>
+            <div>{{ formatPrice(usageSummary.estimated_monthly_cents, 'DKK') }}</div>
           </v-col>
         </v-row>
       </v-card-text>
@@ -155,18 +181,24 @@
             
             <!-- Pricing -->
             <div v-if="getCurrentPricing(plan)" class="mb-3">
-              <div class="text-h5 font-weight-bold mb-1">
-                <template v-if="getCurrentPricing(plan)?.monthly">
-                  {{ formatPrice(getCurrentPricing(plan)!.monthly!.price, getCurrentPricing(plan)!.monthly!.currency) }}
-                </template>
-                <template v-else-if="getCurrentPricing(plan)?.yearly">
-                  {{ formatPrice(getCurrentPricing(plan)!.yearly!.price, getCurrentPricing(plan)!.yearly!.currency) }}
-                </template>
-                <span class="text-body-2 font-weight-normal text-medium-emphasis">{{ t('dealer.views.subscription.perMonth') }}</span>
+              <div v-if="plan.billing_model === 'usage_daily'" class="text-h5 font-weight-bold mb-1">
+                {{ formatPrice(plan.price_per_listing_per_day || 0, 'DKK') }}
+                <span class="text-body-2 font-weight-normal text-medium-emphasis">{{ t('dealer.views.subscription.perListingPerDay') }}</span>
               </div>
-              <div v-if="getCurrentPricing(plan)?.yearly && getCurrentPricing(plan)?.monthly" class="text-caption text-medium-emphasis">
-                {{ t('dealer.views.subscription.orPerYear', { price: formatPrice(getCurrentPricing(plan)!.yearly!.price, getCurrentPricing(plan)!.yearly!.currency) }) }}
-              </div>
+              <template v-else>
+                <div class="text-h5 font-weight-bold mb-1">
+                  <template v-if="getCurrentPricing(plan)?.monthly">
+                    {{ formatPrice(getCurrentPricing(plan)!.monthly!.price, getCurrentPricing(plan)!.monthly!.currency) }}
+                  </template>
+                  <template v-else-if="getCurrentPricing(plan)?.yearly">
+                    {{ formatPrice(getCurrentPricing(plan)!.yearly!.price, getCurrentPricing(plan)!.yearly!.currency) }}
+                  </template>
+                  <span class="text-body-2 font-weight-normal text-medium-emphasis">{{ t('dealer.views.subscription.perMonth') }}</span>
+                </div>
+                <div v-if="getCurrentPricing(plan)?.yearly && getCurrentPricing(plan)?.monthly" class="text-caption text-medium-emphasis">
+                  {{ t('dealer.views.subscription.orPerYear', { price: formatPrice(getCurrentPricing(plan)!.yearly!.price, getCurrentPricing(plan)!.yearly!.currency) }) }}
+                </div>
+              </template>
             </div>
             <div v-else class="mb-3">
               <div class="text-h6 font-weight-bold text-medium-emphasis">{{ t('dealer.views.subscription.noPricing') }}</div>
@@ -252,9 +284,11 @@ import {
   createSubscription,
   getPendingSubscriptionChangeRequest,
   cancelPendingSubscriptionChangeRequest,
+  getSubscriptionUsage,
   type PlanModel,
   type CreateDealerSubscriptionData,
   type DealerPendingChangeRequestModel,
+  type DealerSubscriptionUsageModel,
 } from '@/api/dealer.api'
 import PlanSubscriptionDialog from '@/components/dealer/PlanSubscriptionDialog.vue'
 import type { ApiErrorModel } from '@/models/api-error.model'
@@ -271,6 +305,7 @@ const showSubscriptionDialog = ref(false)
 const selectedPlan = ref<PlanModel | null>(null)
 const creatingSubscription = ref(false)
 const pendingChangeRequest = ref<DealerPendingChangeRequestModel | null>(null)
+const usageSummary = ref<DealerSubscriptionUsageModel | null>(null)
 const successMessage = ref<string | null>(null)
 const cancellingPending = ref(false)
 
@@ -303,6 +338,14 @@ const loadPendingChangeRequest = async () => {
     pendingChangeRequest.value = await getPendingSubscriptionChangeRequest()
   } catch {
     pendingChangeRequest.value = null
+  }
+}
+
+const loadUsageSummary = async () => {
+  try {
+    usageSummary.value = await getSubscriptionUsage()
+  } catch {
+    usageSummary.value = null
   }
 }
 
@@ -420,7 +463,7 @@ const closeSubscriptionDialog = () => {
   selectedPlan.value = null
 }
 
-const handleSubscriptionConfirm = async (billingCycle: 'monthly' | 'yearly') => {
+const handleSubscriptionConfirm = async (billingCycle: 'monthly' | 'yearly' | 'usage_daily') => {
   if (!selectedPlan.value) return
 
   try {
@@ -432,7 +475,7 @@ const handleSubscriptionConfirm = async (billingCycle: 'monthly' | 'yearly') => 
     const result = await createSubscription(data)
     closeSubscriptionDialog()
     successMessage.value = result.message || t('dealer.views.subscription.requestSubmitted')
-    await Promise.all([loadPlans(), loadCurrentSubscription(), loadPendingChangeRequest()])
+    await Promise.all([loadPlans(), loadCurrentSubscription(), loadPendingChangeRequest(), loadUsageSummary()])
   } catch (err) {
     error.value = (err as ApiErrorModel).message || t('dealer.views.subscription.failedCreateSubscription')
   } finally {
@@ -441,7 +484,7 @@ const handleSubscriptionConfirm = async (billingCycle: 'monthly' | 'yearly') => 
 }
 
 onMounted(async () => {
-  await Promise.all([loadPlans(), loadCurrentSubscription(), loadPendingChangeRequest()])
+  await Promise.all([loadPlans(), loadCurrentSubscription(), loadPendingChangeRequest(), loadUsageSummary()])
 })
 </script>
 

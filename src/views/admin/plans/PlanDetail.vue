@@ -112,6 +112,28 @@
                     :min="0"
                   />
                 </v-col>
+                <v-col cols="12" md="6">
+                  <v-select
+                    v-model="planData.billing_model"
+                    :items="billingModelOptions"
+                    label="Billing model"
+                    variant="outlined"
+                    density="compact"
+                    :readonly="!editMode"
+                    :disabled="!editMode"
+                  />
+                </v-col>
+                <v-col v-if="planData.billing_model === 'usage_daily'" cols="12" md="6">
+                  <v-text-field
+                    v-model.number="planData.price_per_listing_per_day"
+                    label="Price per listing per day (øre)"
+                    type="number"
+                    variant="outlined"
+                    density="compact"
+                    :readonly="!editMode"
+                    :min="0"
+                  />
+                </v-col>
               </v-row>
               <v-btn
                 v-if="editMode"
@@ -683,7 +705,13 @@ const planData = ref<UpdatePlanData>({
   description: '',
   is_active: true,
   trial_days: null,
+  billing_model: 'subscription',
+  price_per_listing_per_day: null,
 })
+const billingModelOptions = [
+  { title: 'Subscription (monthly/yearly)', value: 'subscription' },
+  { title: 'Pay-as-you-go (daily per listing)', value: 'usage_daily' },
+]
 const features = ref<any[]>([])
 const roles = ref<any[]>([])
 const dealers = ref<any[]>([])
@@ -861,6 +889,8 @@ const loadPlan = async () => {
       description: loadedPlan.description || '',
       is_active: loadedPlan.is_active ?? true,
       trial_days: loadedPlan.trial_days ?? null,
+      billing_model: loadedPlan.billing_model || 'subscription',
+      price_per_listing_per_day: loadedPlan.price_per_listing_per_day ?? null,
     }
   } catch (err) {
     error.value = (err as ApiErrorModel).message || 'Failed to load plan'

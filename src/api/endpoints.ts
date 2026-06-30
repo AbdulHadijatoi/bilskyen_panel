@@ -65,6 +65,7 @@ export const DEALER_VEHICLE_ENDPOINTS = {
   DELETE_IMAGE: (vehicleId: number | string, imageId: number | string) =>
     `/dealer/vehicles/${vehicleId}/images/${imageId}`,
   UPDATE_STATUS: (id: number | string) => `/dealer/vehicles/update-status/${id}`,
+  RENEW_LISTING: (id: number | string) => `/dealer/vehicles/renew-listing/${id}`,
   UPDATE_EQUIPMENT: (id: number | string) => `/dealer/vehicles/update-equipment/${id}`,
   UPDATE_PRICE: (id: number | string) => `/dealer/vehicles/${id}/price`,
   LOOKUP_BY_REGISTRATION: '/dealer/vehicles/lookup-by-registration',
@@ -148,6 +149,7 @@ export const DEALER_SUBSCRIPTION_ENDPOINTS = {
   SHOW: '/dealer/subscription',
   FEATURES: '/dealer/subscription/features',
   HISTORY: '/dealer/subscription/history',
+  USAGE: '/dealer/subscription/usage',
   PLANS: '/dealer/plans',
   CREATE: '/dealer/subscription',
   PENDING_CHANGE_REQUEST: '/dealer/subscription/change-request',
@@ -218,6 +220,11 @@ export const ADMIN_VEHICLE_ENDPOINTS = {
   HISTORY: (id: number | string) => `/admin/vehicles/history/${id}`,
   UPDATE: (id: number | string) => `/admin/vehicles/update/${id}`,
   UPDATE_STATUS: (id: number | string) => `/admin/vehicles/update-status/${id}`,
+  PENDING_REVIEW: '/admin/vehicles/pending-review',
+  APPROVE_PENDING: (id: number | string) => `/admin/vehicles/approve-pending/${id}`,
+  REJECT_PENDING: (id: number | string) => `/admin/vehicles/reject-pending/${id}`,
+  RENEW_LISTING: (id: number | string) => `/admin/vehicles/renew-listing/${id}`,
+  LISTING_LIFECYCLE: (id: number | string) => `/admin/vehicles/listing-lifecycle/${id}`,
   UPDATE_IMAGES: (id: number | string) => `/admin/vehicles/update-images/${id}`,
   DELETE_IMAGE: (id: number | string) => `/admin/vehicles/delete-image/${id}`,
   UPDATE_EQUIPMENT: (id: number | string) => `/admin/vehicles/update-equipment/${id}`,
@@ -261,6 +268,13 @@ export const ADMIN_SUBSCRIPTION_CHANGE_REQUEST_ENDPOINTS = {
   LIST: '/admin/subscription-change-requests',
   APPROVE: (id: number | string) => `/admin/subscription-change-requests/${id}/approve`,
   REJECT: (id: number | string) => `/admin/subscription-change-requests/${id}/reject`,
+} as const
+
+export const ADMIN_INVOICE_ENDPOINTS = {
+  LIST: '/admin/invoices',
+  SHOW: (id: number | string) => `/admin/invoices/${id}`,
+  MARK_SENT: (id: number | string) => `/admin/invoices/${id}/mark-sent`,
+  MARK_PAID: (id: number | string) => `/admin/invoices/${id}/mark-paid`,
 } as const
 
 /**

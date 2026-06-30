@@ -1115,7 +1115,7 @@ export async function getAvailablePlans(): Promise<PlanModel[]> {
  */
 export interface CreateDealerSubscriptionData {
   plan_id: number
-  billing_cycle: 'monthly' | 'yearly'
+  billing_cycle: 'monthly' | 'yearly' | 'usage_daily'
   starts_at?: string
 }
 

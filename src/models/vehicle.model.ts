@@ -73,6 +73,9 @@ export interface VehicleModel {
   vehicleListStatusName?: string
   status?: VehicleStatus
   publishedAt?: string
+  expiresAt?: string
+  listingBillingStartedAt?: string
+  listingBillingPausedAt?: string
   viewsCount?: number
   createdAt?: string
   updatedAt?: string
@@ -277,6 +280,9 @@ export function mapVehicleFromApi(data: any): VehicleModel {
     vehicleListStatusName,
     status: statusResolved as VehicleModel['status'],
     publishedAt: data.published_at,
+    expiresAt: data.expires_at,
+    listingBillingStartedAt: data.listing_billing_started_at,
+    listingBillingPausedAt: data.listing_billing_paused_at,
     viewsCount: data.views_count ?? 0,
     createdAt: data.created_at,
     updatedAt: data.updated_at,

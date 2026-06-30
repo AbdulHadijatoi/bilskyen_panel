@@ -494,13 +494,45 @@
         "filterByStatus": "Filter by Status",
         "dealerNamePlaceholder": "Dealer name...",
         "userNamePlaceholder": "User name...",
-        "deleteVehicle": "Delete Vehicle"
+        "deleteVehicle": "Delete Vehicle",
+        "approveListing": "Approve listing",
+        "pendingReview": "Pending review"
+      },
+      "invoices": {
+        "title": "Dealer invoices",
+        "subtitle": "Review pay-as-you-go usage invoices and mark them sent or paid",
+        "invoice": "Invoice",
+        "dealer": "Dealer",
+        "period": "Period",
+        "total": "Total",
+        "lineDescription": "Description",
+        "lineAmount": "Amount"
       },
       "vehicleDetail": {
         "title": "Vehicle Details",
         "viewSubtitle": "View and manage all vehicle information, images, equipment, and history",
         "editVehicle": "Edit Vehicle",
-        "loadingVehicle": "Loading vehicle information..."
+        "loadingVehicle": "Loading vehicle information...",
+        "listingLifecycle": "Listing lifecycle",
+        "listingStatus": "Listing status",
+        "publishedAt": "Published at",
+        "expiresAt": "Expires at",
+        "noExpiry": "No expiry",
+        "billingStartedAt": "Billing started",
+        "billingPausedAt": "Billing paused",
+        "daysUntilExpiry": "Expires in {days} day(s)",
+        "listingExpired": "This listing has expired",
+        "renewListing": "Renew listing",
+        "renewFailed": "Failed to renew listing",
+        "manageExpiry": "Manage expiry",
+        "recalculateExpiry": "Recalculate from plan",
+        "clearExpiry": "Clear expiry",
+        "updateListingStatus": "Update listing status",
+        "pendingReviewBanner": "This listing is awaiting moderation before it can go live.",
+        "rejectListing": "Reject",
+        "approveFailed": "Failed to approve listing",
+        "rejectFailed": "Failed to reject listing",
+        "lifecycleUpdateFailed": "Failed to update listing lifecycle"
       },
       "plans": {
         "title": "Subscription Plans",
@@ -795,7 +827,14 @@
         "cancelPendingRequest": "Cancel request",
         "cancellingPending": "Cancelling…",
         "pendingCancelled": "Your pending request was cancelled.",
-        "requestSubmitted": "Your subscription change request was sent. You will receive an email when it is approved."
+        "requestSubmitted": "Your subscription change request was sent. You will receive an email when it is approved.",
+        "payAsYouGo": "Pay as you go",
+        "perListingPerDay": "per listing per day",
+        "usageTitle": "Usage this period",
+        "publishedListings": "Published listings",
+        "dailyRate": "Daily rate",
+        "chargedThisMonth": "Charged this month",
+        "estimatedMonthly": "Estimated monthly cost"
       },
       "staff": {
         "title": "Staff Management",
@@ -1158,6 +1197,10 @@
         "deleteVehicleConfirm": "Are you sure you want to delete this vehicle?",
         "deleteVehicleDescription": "This action will soft delete the vehicle. The vehicle will no longer be visible in the system.",
         "viewsCount": "Views Count",
+        "renewListing": "Renew listing",
+        "renewListingFailed": "Failed to renew listing",
+        "listingExpiresIn": "This listing expires in {days} day(s).",
+        "listingExpired": "This listing has expired. Renew it to keep it visible.",
         "priceIncludesDelivery": "Wholesale price includes delivery",
         "vin": "VIN",
         "registration": "Registration",
@@ -1492,6 +1535,11 @@
       "daysFreeTrial": "Days free trial",
       "enjoyCancelAnytime": "Enjoy the added benefit of canceling at any time.",
       "confirmPurchase": "Confirm your purchase at {price}",
+      "requestPlanChange": "Request plan change",
+      "offlinePaymentNote": "Payment is confirmed offline by an administrator after approval.",
+      "payAsYouGo": "Pay as you go",
+      "payAsYouGoDescription": "You are billed per published listing per day. Invoices are generated monthly and paid offline.",
+      "perListingPerDay": "listing per day",
       "paymentSecuredByStripe": "Payment secured by Stripe"
     },
     "themeToggle": {

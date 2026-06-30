@@ -66,11 +66,7 @@
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <v-card
-          variant="flat"
-          class="stat-card"
-          elevation="0"
-        >
+        <v-card variant="flat" class="stat-card" elevation="0">
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between">
               <div>
@@ -78,6 +74,25 @@
                 <div class="stat-value text-info">{{ soldCount }}</div>
               </div>
               <v-icon size="40" color="info" class="stat-icon">mdi-check-all</v-icon>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+      <v-col cols="12" sm="6" md="3">
+        <v-card
+          variant="flat"
+          class="stat-card"
+          elevation="0"
+          @click="filterPendingReview"
+          style="cursor: pointer;"
+        >
+          <v-card-text class="pa-4">
+            <div class="d-flex align-center justify-space-between">
+              <div>
+                <div class="stat-label">{{ t('admin.views.vehicles.pendingReview') }}</div>
+                <div class="stat-value text-orange">{{ pendingReviewCount }}</div>
+              </div>
+              <v-icon size="40" color="orange" class="stat-icon">mdi-shield-check</v-icon>
             </div>
           </v-card-text>
         </v-card>
@@ -248,6 +263,18 @@
           <template #item.actions="{ item }">
             <div class="d-flex align-center justify-center gap-2">
               <v-btn
+                v-if="item.vehicleListStatusId === VEHICLE_LIST_STATUS_ID.PENDING_REVIEW"
+                icon
+                variant="text"
+                size="small"
+                color="success"
+                :loading="approvingId === item.id"
+                :title="t('admin.views.vehicles.approveListing')"
+                @click="approveListing(item.id)"
+              >
+                <v-icon size="20">mdi-check-decagram</v-icon>
+              </v-btn>
+              <v-btn
                 icon
                 variant="text"
                 size="small"
@@ -320,7 +347,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { getVehicles, deleteVehicle as deleteVehicleApi, getConstantsData } from '@/api/admin.api'
+import { getVehicles, deleteVehicle as deleteVehicleApi, getConstantsData, approvePendingVehicle } from '@/api/admin.api'
 import type { PaginationModel } from '@/models/pagination.model'
 import type { VehicleModel } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
@@ -354,6 +381,7 @@ const currentPage = ref(1)
 const showDeleteDialog = ref(false)
 const vehicleToDelete = ref<VehicleModel | null>(null)
 const deleting = ref(false)
+const approvingId = ref<number | null>(null)
 
 const statusFilterOptions = computed(() => {
   const options: Array<{ label: string; value: number | null }> = [{ label: 'All Statuses', value: null }]
@@ -367,6 +395,10 @@ const statusFilterOptions = computed(() => {
   pushIfFound('published', 'Published')
   pushIfFound('sold', 'Sold')
   pushIfFound('archived', 'Archived')
+  pushIfFound('pending_review', 'Pending review')
+  if (!options.some((o) => o.value === VEHICLE_LIST_STATUS_ID.PENDING_REVIEW)) {
+    options.push({ label: 'Pending review', value: VEHICLE_LIST_STATUS_ID.PENDING_REVIEW })
+  }
 
   return options
 })
@@ -391,6 +423,16 @@ const draftCount = computed(() =>
 const soldCount = computed(() =>
   listStatusCountFromPayload(vehicles.value.list_status_counts, VEHICLE_LIST_STATUS_ID.SOLD)
 )
+
+const pendingReviewCount = computed(() =>
+  listStatusCountFromPayload(vehicles.value.list_status_counts, VEHICLE_LIST_STATUS_ID.PENDING_REVIEW)
+)
+
+const filterPendingReview = () => {
+  statusFilter.value = VEHICLE_LIST_STATUS_ID.PENDING_REVIEW
+  currentPage.value = 1
+  loadVehicles()
+}
 
 const loadVehicles = async () => {
   try {
@@ -433,6 +475,18 @@ const handlePageChange = (page: number) => {
 
 const viewVehicle = (id: number) => {
   router.push({ name: 'admin.vehicles.detail', params: { id } })
+}
+
+const approveListing = async (id: number) => {
+  try {
+    approvingId.value = id
+    await approvePendingVehicle(id)
+    await loadVehicles()
+  } catch (err) {
+    error.value = (err as ApiErrorModel).message || 'Failed to approve listing'
+  } finally {
+    approvingId.value = null
+  }
 }
 
 const confirmDelete = (vehicle: VehicleModel) => {

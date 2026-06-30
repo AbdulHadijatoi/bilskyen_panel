@@ -53,6 +53,16 @@
         </p>
 
         <v-alert
+          v-if="usageNotice"
+          type="info"
+          variant="tonal"
+          density="compact"
+          class="mb-4"
+        >
+          {{ usageNotice.message }}
+        </v-alert>
+
+        <v-alert
           v-if="importError"
           type="error"
           variant="tonal"
@@ -222,6 +232,7 @@ import {
   getVehicleImportSample,
   importVehicles,
   type VehicleImportResult,
+  type VehicleImportSample,
 } from '@/api/dealer.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
@@ -251,6 +262,7 @@ const snackbar = ref({
 
 const sampleHeaders = ref<string[]>([])
 const sampleRow = ref<Record<string, string>>({})
+const usageNotice = ref<VehicleImportSample['usage_notice']>(null)
 
 const importFile = computed(() => {
   if (!selectedFiles.value) return null
@@ -265,6 +277,7 @@ async function loadSample() {
     const data = await getVehicleImportSample()
     sampleHeaders.value = data.headers
     sampleRow.value = data.row
+    usageNotice.value = data.usage_notice ?? null
   } catch {
     sampleHeaders.value = [
       'registration',

@@ -167,6 +167,11 @@ export const adminSidebarSections: SidebarSection[] = [
             url: `${ADMIN_ROUTE_BASE}/subscription-change-requests`,
             permission: 'admin.subscription_change_requests.view',
           },
+          {
+            title: 'Invoices',
+            url: `${ADMIN_ROUTE_BASE}/invoices`,
+            permission: 'admin.subscriptions.view',
+          },
         ],
       },
       {

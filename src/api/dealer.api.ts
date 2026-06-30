@@ -454,6 +454,21 @@ export async function updateVehicleStatus(
 }
 
 /**
+ * Renew listing expiry for a published vehicle
+ */
+export async function renewVehicleListing(id: number | string): Promise<VehicleModel> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      DEALER_VEHICLE_ENDPOINTS.RENEW_LISTING(id),
+      {}
+    )
+    return mapVehicleFromApi(handleSuccess<any>(response))
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
  * Update vehicle equipment data
  */
 export interface UpdateVehicleEquipmentData {
@@ -544,6 +559,11 @@ export interface VehicleImportResult {
 export interface VehicleImportSample {
   headers: string[]
   row: Record<string, string>
+  usage_notice?: {
+    billing_model: string
+    price_per_day_cents: number
+    message: string
+  } | null
 }
 
 /**
@@ -1194,6 +1214,20 @@ export async function getSubscription(): Promise<any> {
 }
 
 /**
+ * Get pay-as-you-go usage summary for current billing period
+ */
+export async function getSubscriptionUsage(): Promise<DealerSubscriptionUsageModel> {
+  try {
+    const response = await httpClient.get<{ data: DealerSubscriptionUsageModel }>(
+      DEALER_SUBSCRIPTION_ENDPOINTS.USAGE
+    )
+    return handleSuccess<DealerSubscriptionUsageModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
  * Get available features (returns array of feature objects)
  */
 export async function getFeatures(): Promise<any[]> {
@@ -1252,6 +1286,8 @@ export interface PlanModel {
   description?: string
   is_active: boolean
   trial_days?: number
+  billing_model?: 'subscription' | 'usage_daily'
+  price_per_listing_per_day?: number
   features?: any[]
   price_history?: any[]
   priceHistory?: any[]
@@ -1282,15 +1318,34 @@ export async function getAvailablePlans(): Promise<PlanModel[]> {
  */
 export interface CreateDealerSubscriptionData {
   plan_id: number
-  billing_cycle: 'monthly' | 'yearly'
+  billing_cycle: 'monthly' | 'yearly' | 'usage_daily'
   starts_at?: string
+}
+
+export interface DealerSubscriptionUsageModel {
+  period_start: string
+  period_end: string
+  published_listings: number
+  daily_rate_cents: number
+  estimated_monthly_cents: number
+  total_charged_cents: number
+  pending_cents: number
+  invoiced_cents: number
+  is_usage_plan: boolean
+  billing_periods?: Array<{
+    id: number
+    billing_date: string
+    amount_cents: number
+    status: string
+    vehicle?: { id: number; title?: string; registration?: string }
+  }>
 }
 
 export interface DealerPendingChangeRequestModel {
   id: number
   dealer_id: number
   requested_plan_id: number
-  billing_cycle: 'monthly' | 'yearly'
+  billing_cycle: 'monthly' | 'yearly' | 'usage_daily'
   starts_at?: string | null
   status: string
   requested_plan?: PlanModel

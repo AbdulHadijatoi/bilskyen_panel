@@ -14,6 +14,7 @@ import {
   ADMIN_PLAN_ENDPOINTS,
   ADMIN_SUBSCRIPTION_ENDPOINTS,
   ADMIN_SUBSCRIPTION_CHANGE_REQUEST_ENDPOINTS,
+  ADMIN_INVOICE_ENDPOINTS,
   ADMIN_FEATURE_ENDPOINTS,
   ADMIN_PAGE_ENDPOINTS,
   ADMIN_HOME_PAGE_ENDPOINTS,
@@ -518,6 +519,36 @@ export async function getVehicles(params?: PaginationParams & {
   }
 }
 
+export async function getPendingReviewVehicles(params?: PaginationParams & {
+  search?: string
+  dealer_name?: string
+}): Promise<PaginationModel<VehicleModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<any> }>(
+      ADMIN_VEHICLE_ENDPOINTS.PENDING_REVIEW,
+      { params }
+    )
+    const data = handleSuccess<PaginationModel<any>>(response)
+    return {
+      ...data,
+      docs: data.docs.map(mapVehicleFromApi),
+    }
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function approvePendingVehicle(id: number | string): Promise<VehicleModel> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      ADMIN_VEHICLE_ENDPOINTS.APPROVE_PENDING(id)
+    )
+    return mapVehicleFromApi(handleSuccess<any>(response))
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
 /**
  * Get vehicle by ID (admin)
  */
@@ -576,7 +607,15 @@ export async function updateVehicle(
  * Update vehicle status (admin)
  */
 export interface UpdateVehicleStatusData {
-  status: VehicleStatus
+  status?: VehicleStatus
+  list_status_id?: number
+}
+
+export interface UpdateVehicleListingLifecycleData {
+  expires_at?: string | null
+  published_at?: string | null
+  recalculate_expiry?: boolean
+  clear_expiry?: boolean
 }
 
 /**
@@ -593,6 +632,48 @@ export async function updateVehicleStatus(
     )
     const vehicleData = handleSuccess<any>(response)
     return mapVehicleFromApi(vehicleData)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function rejectPendingVehicle(
+  id: number | string,
+  data?: { list_status_id?: number }
+): Promise<VehicleModel> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      ADMIN_VEHICLE_ENDPOINTS.REJECT_PENDING(id),
+      data ?? {}
+    )
+    return mapVehicleFromApi(handleSuccess<any>(response))
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function renewAdminVehicleListing(id: number | string): Promise<VehicleModel> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      ADMIN_VEHICLE_ENDPOINTS.RENEW_LISTING(id),
+      {}
+    )
+    return mapVehicleFromApi(handleSuccess<any>(response))
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function updateVehicleListingLifecycle(
+  id: number | string,
+  data: UpdateVehicleListingLifecycleData
+): Promise<VehicleModel> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      ADMIN_VEHICLE_ENDPOINTS.LISTING_LIFECYCLE(id),
+      data
+    )
+    return mapVehicleFromApi(handleSuccess<any>(response))
   } catch (error) {
     throw handleError(error)
   }
@@ -761,6 +842,8 @@ export interface PlanModel {
   description?: string
   is_active?: boolean
   trial_days?: number
+  billing_model?: 'subscription' | 'usage_daily'
+  price_per_listing_per_day?: number | null
   price?: number
   interval?: string
   features?: any[]
@@ -893,6 +976,8 @@ export interface UpdatePlanData {
   description?: string
   is_active?: boolean
   trial_days?: number | null
+  billing_model?: 'subscription' | 'usage_daily'
+  price_per_listing_per_day?: number | null
   role_ids?: number[]
   dealer_ids?: number[]
   pricing?: {
@@ -1250,6 +1335,82 @@ export async function getDealerSubscriptions(dealerId: number | string): Promise
       ADMIN_SUBSCRIPTION_ENDPOINTS.DEALER_SUBSCRIPTIONS(dealerId)
     )
     return handleSuccess<SubscriptionModel[]>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export interface DealerInvoiceLineModel {
+  id: number
+  vehicle_id?: number | null
+  description?: string
+  quantity?: number
+  unit_price_cents?: number
+  total_cents?: number
+  vehicle?: { id: number; title?: string; registration?: string }
+}
+
+export interface DealerInvoiceModel {
+  id: number
+  dealer_id: number
+  dealer?: { id: number; name?: string }
+  period_start: string
+  period_end: string
+  total_cents: number
+  currency: string
+  status: 'draft' | 'sent' | 'paid' | 'overdue'
+  notes?: string | null
+  sent_at?: string | null
+  paid_at?: string | null
+  created_at?: string
+  lines?: DealerInvoiceLineModel[]
+}
+
+export async function getDealerInvoices(params?: PaginationParams & {
+  dealer_id?: number
+  status?: string
+}): Promise<PaginationModel<DealerInvoiceModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<DealerInvoiceModel> }>(
+      ADMIN_INVOICE_ENDPOINTS.LIST,
+      { params }
+    )
+    return handleSuccess<PaginationModel<DealerInvoiceModel>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getDealerInvoice(id: number | string): Promise<DealerInvoiceModel> {
+  try {
+    const response = await httpClient.get<{ data: DealerInvoiceModel }>(
+      ADMIN_INVOICE_ENDPOINTS.SHOW(id)
+    )
+    return handleSuccess<DealerInvoiceModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function markDealerInvoiceSent(id: number | string): Promise<DealerInvoiceModel> {
+  try {
+    const response = await httpClient.post<{ data: DealerInvoiceModel }>(
+      ADMIN_INVOICE_ENDPOINTS.MARK_SENT(id),
+      {}
+    )
+    return handleSuccess<DealerInvoiceModel>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function markDealerInvoicePaid(id: number | string): Promise<DealerInvoiceModel> {
+  try {
+    const response = await httpClient.post<{ data: DealerInvoiceModel }>(
+      ADMIN_INVOICE_ENDPOINTS.MARK_PAID(id),
+      {}
+    )
+    return handleSuccess<DealerInvoiceModel>(response)
   } catch (error) {
     throw handleError(error)
   }

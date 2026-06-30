@@ -494,13 +494,45 @@
         "filterByStatus": "Filter efter status",
         "dealerNamePlaceholder": "Forhandlernavn...",
         "userNamePlaceholder": "Brugernavn...",
-        "deleteVehicle": "Slet køretøj"
+        "deleteVehicle": "Slet køretøj",
+        "approveListing": "Godkend annonce",
+        "pendingReview": "Afventer gennemgang"
+      },
+      "invoices": {
+        "title": "Forhandlerfakturaer",
+        "subtitle": "Gennemgå pay-as-you-go forbrugsfakturaer og marker dem som sendt eller betalt",
+        "invoice": "Faktura",
+        "dealer": "Forhandler",
+        "period": "Periode",
+        "total": "Total",
+        "lineDescription": "Beskrivelse",
+        "lineAmount": "Beløb"
       },
       "vehicleDetail": {
         "title": "Køretøjsdetaljer",
         "viewSubtitle": "Se og administrer alle køretøjsoplysninger, billeder, udstyr og historik",
         "editVehicle": "Rediger køretøj",
-        "loadingVehicle": "Indlæser køretøjsoplysninger…"
+        "loadingVehicle": "Indlæser køretøjsoplysninger…",
+        "listingLifecycle": "Annoncecyklus",
+        "listingStatus": "Annonceststatus",
+        "publishedAt": "Publiceret",
+        "expiresAt": "Udløber",
+        "noExpiry": "Ingen udløb",
+        "billingStartedAt": "Fakturering startet",
+        "billingPausedAt": "Fakturering sat på pause",
+        "daysUntilExpiry": "Udløber om {days} dag(e)",
+        "listingExpired": "Denne annonce er udløbet",
+        "renewListing": "Forny annonce",
+        "renewFailed": "Kunne ikke forny annoncen",
+        "manageExpiry": "Administrer udløb",
+        "recalculateExpiry": "Genberegn fra plan",
+        "clearExpiry": "Fjern udløb",
+        "updateListingStatus": "Opdater annonceststatus",
+        "pendingReviewBanner": "Denne annonce afventer godkendelse, før den kan publiceres.",
+        "rejectListing": "Afvis",
+        "approveFailed": "Kunne ikke godkende annoncen",
+        "rejectFailed": "Kunne ikke afvise annoncen",
+        "lifecycleUpdateFailed": "Kunne ikke opdatere annoncecyklus"
       },
       "plans": {
         "title": "Abonnementsplaner",
@@ -796,7 +828,14 @@
         "cancelPendingRequest": "Annuller anmodning",
         "cancellingPending": "Annullerer…",
         "pendingCancelled": "Din afventende anmodning blev annulleret.",
-        "requestSubmitted": "Din anmodning om abonnementsskift er sendt. Du modtager en e-mail, når den er godkendt."
+        "requestSubmitted": "Din anmodning om abonnementsskift er sendt. Du modtager en e-mail, når den er godkendt.",
+        "payAsYouGo": "Betal efter forbrug",
+        "perListingPerDay": "pr. annonce pr. dag",
+        "usageTitle": "Forbrug i denne periode",
+        "publishedListings": "Publicerede annoncer",
+        "dailyRate": "Daglig pris",
+        "chargedThisMonth": "Faktureret denne måned",
+        "estimatedMonthly": "Estimeret månedlig omkostning"
       },
       "staff": {
         "title": "Personaleadministration",
@@ -1159,6 +1198,10 @@
         "deleteVehicleConfirm": "Er du sikker på, at du vil slette dette køretøj?",
         "deleteVehicleDescription": "Handlingen vil soft-slette køretøjet. Køretøjet vil ikke længere være synligt i systemet.",
         "viewsCount": "Antal visninger",
+        "renewListing": "Forny annonce",
+        "renewListingFailed": "Kunne ikke forny annoncen",
+        "listingExpiresIn": "Denne annonce udløber om {days} dag(e).",
+        "listingExpired": "Denne annonce er udløbet. Forny den for at holde den synlig.",
         "priceIncludesDelivery": "Engrospris inkluderer levering",
         "vin": "STEL-nr.",
         "registration": "Registrering",
@@ -1496,6 +1539,12 @@
       "daysFreeTrial": "dages gratis prøveperiode",
       "enjoyCancelAnytime": "Du kan til enhver tid annullere.",
       "confirmPurchase": "Bekræft dit køb til {price}",
+      "confirmPurchase": "Bekræft dit køb til {price}",
+      "requestPlanChange": "Anmod om planændring",
+      "offlinePaymentNote": "Betaling bekræftes offline af en administrator efter godkendelse.",
+      "payAsYouGo": "Betal efter forbrug",
+      "payAsYouGoDescription": "Du faktureres pr. publiceret annonce pr. dag. Fakturaer oprettes månedligt og betales offline.",
+      "perListingPerDay": "annonce pr. dag",
       "paymentSecuredByStripe": "Betaling sikret af Stripe"
     },
     "themeToggle": {
