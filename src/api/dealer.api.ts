@@ -1446,6 +1446,9 @@ export interface LookupConstantsResponse {
   transmissions?: Array<{ id: number; name: string }>
   euronorms?: Array<{ id: number; name: string }>
   vehicle_list_statuses?: Array<{ id: number; name: string }>
+  lead_stages?: Array<{ id: number; name: string }>
+  lead_intents?: Array<{ id: number; name: string }>
+  lead_categories?: Array<{ id: number; name: string }>
 }
 
 /**

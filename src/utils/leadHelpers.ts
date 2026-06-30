@@ -6,6 +6,7 @@
 
 import { LeadIntent, LeadStage } from '@/models/lead.model'
 import i18n from '@/plugins/i18n'
+import { useLeadStagesStore } from '@/stores/leadStages.store'
 
 /**
  * Lead Intent colors (Vuetify color names)
@@ -68,6 +69,9 @@ export function getLeadCategoryName(categoryId?: number | null): string {
  * Get lead stage display name
  */
 export function getLeadStageName(stageId: number): string {
+  const store = useLeadStagesStore()
+  const dbName = store.getStageName(stageId)
+  if (dbName) return dbName
   return translateById('leadStages', stageId)
 }
 
@@ -159,6 +163,10 @@ export function getCategoryOptions() {
  * Get stage options for select
  */
 export function getStageOptions() {
+  const store = useLeadStagesStore()
+  if (store.loaded && store.stageOptions.length > 0) {
+    return store.stageOptions
+  }
   return Object.keys(LEAD_STAGE_COLORS).map((id) => ({
     id: Number(id),
     name: getLeadStageName(Number(id)),

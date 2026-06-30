@@ -410,6 +410,14 @@ export const ADMIN_LOCATIONS_ENDPOINTS = {
 } as const
 
 /**
+ * Lead stages (admin) — fixed IDs, editable Danish names
+ */
+export const ADMIN_LEAD_STAGES_ENDPOINTS = {
+  LIST: '/admin/lead-stages',
+  UPDATE: (id: number | string) => `/admin/lead-stages/update/${id}`,
+} as const
+
+/**
  * Ownership tax rules endpoints (admin)
  */
 export const ADMIN_OWNERSHIP_TAX_ENDPOINTS = {

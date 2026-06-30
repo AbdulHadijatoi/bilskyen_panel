@@ -243,6 +243,12 @@ export const adminSidebarSections: SidebarSection[] = [
         permission: 'admin.constants.view',
       },
       {
+        title: 'Lead Stages',
+        url: `${ADMIN_ROUTE_BASE}/lead-stages`,
+        icon: 'mdi-flag-checkered',
+        permission: 'admin.constants.view',
+      },
+      {
         title: 'Permissions',
         url: `${ADMIN_ROUTE_BASE}/permissions`,
         icon: 'mdi-shield-lock',

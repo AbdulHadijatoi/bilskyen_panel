@@ -506,9 +506,11 @@ import {
 } from '@/utils/leadHelpers'
 import LeadCard from '@/components/dealer/LeadCard.vue'
 import AnalyticsSidebar from '@/components/dealer/AnalyticsSidebar.vue'
+import { useLeadStagesStore } from '@/stores/leadStages.store'
 
 const router = useRouter()
 const { t } = useI18n()
+const leadStagesStore = useLeadStagesStore()
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -537,7 +539,7 @@ const snackbar = ref({
   color: 'success' as 'success' | 'error',
 })
 
-const stages = getStageOptions()
+const stages = computed(() => getStageOptions())
 const intentOptions = getIntentOptions()
 const categoryOptions = getCategoryOptions()
 
@@ -681,8 +683,8 @@ const initializeSortable = async () => {
     if (instance) {
       try {
         instance.destroy()
-      } catch (error) {
-        console.warn('Error destroying Sortable instance:', error)
+      } catch {
+        // Ignore cleanup errors from destroyed instances
       }
     }
   })
@@ -694,7 +696,7 @@ const initializeSortable = async () => {
   // Wait a bit more to ensure all refs are set
   await new Promise(resolve => setTimeout(resolve, 100))
   
-  stages.forEach(stage => {
+  stages.value.forEach(stage => {
     const listEl = stageListRefs.value[stage.id]
     if (listEl && !sortableInstances.value[stage.id]) {
       // Ensure the list element has at least one child for SortableJS to work with
@@ -707,8 +709,6 @@ const initializeSortable = async () => {
         placeholder.setAttribute('aria-hidden', 'true')
         listEl.insertBefore(placeholder, listEl.firstChild)
       }
-      
-      console.log(`Initializing Sortable for stage ${stage.id}`, listEl)
       
       try {
         sortableInstances.value[stage.id] = Sortable.create(listEl, {
@@ -741,41 +741,20 @@ const initializeSortable = async () => {
             }
             // Allow sortable-placeholder as it's needed for empty list reference
             return true // Allow move
-          } catch (error) {
-            console.error('Error in onMove handler:', error)
+          } catch {
             return false // Prevent move on error
           }
         },
-        onStart: (evt: SortableEvent) => {
+        onStart: () => {
           isDragging.value = true // Set flag to prevent re-initialization
-          console.log('Drag started:', {
-            item: evt.item,
-            from: evt.from,
-            itemTag: evt.item.tagName,
-            itemClasses: evt.item.className,
-            itemAttributes: Array.from(evt.item.attributes).map(a => `${a.name}="${a.value}"`)
-          })
         },
         onEnd: async (evt: SortableEvent) => {
-          console.log('Drag ended event:', evt)
           const { from, to, item, oldIndex, newIndex } = evt
           
           // Validate that required elements exist
           if (!from || !to || !item) {
-            console.error('Invalid drag event - missing required elements', { from, to, item })
             return
           }
-          
-          // Debug: Log what we're working with
-          console.log('Drag event details:', {
-            from: from?.getAttribute('data-stage-id'),
-            to: to?.getAttribute('data-stage-id'),
-            item: item,
-            itemTag: item.tagName,
-            itemClasses: item.className,
-            oldIndex,
-            newIndex
-          })
           
           // Get the lead ID - the item should be the .draggable-item div
           let leadId: number = 0
@@ -784,7 +763,6 @@ const initializeSortable = async () => {
           const itemLeadId = item.getAttribute('data-lead-id')
           if (itemLeadId) {
             leadId = parseInt(itemLeadId)
-            console.log('Found lead ID on item:', leadId)
           }
           
           // Method 2: If item is a component, look for the wrapper div inside
@@ -796,7 +774,6 @@ const initializeSortable = async () => {
               const foundId = wrapperDiv.getAttribute('data-lead-id')
               if (foundId) {
                 leadId = parseInt(foundId)
-                console.log('Found lead ID in wrapper:', leadId)
               }
             }
           }
@@ -806,29 +783,16 @@ const initializeSortable = async () => {
             const parentId = item.parentElement.getAttribute('data-lead-id')
             if (parentId) {
               leadId = parseInt(parentId)
-              console.log('Found lead ID in parent:', leadId)
             }
           }
           
           if (!leadId || isNaN(leadId)) {
-            console.error('Could not find lead ID in dragged item', { 
-              item, 
-              itemTag: item.tagName,
-              itemClasses: item.className,
-              itemAttributes: Array.from(item.attributes).map(a => `${a.name}="${a.value}"`),
-              parentElement: item.parentElement,
-              parentAttributes: item.parentElement ? Array.from(item.parentElement.attributes).map(a => `${a.name}="${a.value}"`) : null,
-              itemHTML: item.outerHTML.substring(0, 300)
-            })
             return
           }
-          
-          console.log('Processing drag for lead ID:', leadId)
 
           // Find the lead
           const lead = leads.value.find(l => l.id === leadId)
           if (!lead) {
-            console.error('Lead not found:', leadId)
             return
           }
 
@@ -837,12 +801,6 @@ const initializeSortable = async () => {
           const toStageId = to?.getAttribute('data-stage-id')
           
           if (!fromStageId || !toStageId) {
-            console.error('Invalid stage IDs - missing data-stage-id', { 
-              from: from, 
-              to: to,
-              fromStageId,
-              toStageId
-            })
             return
           }
           
@@ -850,7 +808,6 @@ const initializeSortable = async () => {
           const newStageId = parseInt(toStageId)
           
           if (!oldStageId || !newStageId || isNaN(oldStageId) || isNaN(newStageId)) {
-            console.error('Invalid stage IDs - not numbers', { oldStageId, newStageId })
             return
           }
           
@@ -860,10 +817,7 @@ const initializeSortable = async () => {
           }
 
           // Store old stage name for toast
-          const oldStageName = getStageName(oldStageId)
           const newStageName = getStageName(newStageId)
-
-          console.log(`Moving lead ${leadId} from ${oldStageName} (${oldStageId}) to ${newStageName} (${newStageId})`)
 
           // Optimistically update UI - card is already moved by SortableJS
           // We update stageLeads arrays directly without changing lead.stageId yet
@@ -911,8 +865,6 @@ const initializeSortable = async () => {
             // Don't reinitialize - SortableJS already moved the DOM, and we've updated the data
             // The reactive system will handle the rest since we mutated the object in place
           } catch (err) {
-            console.error('Failed to update lead stage:', err)
-            
             // Revert UI changes - restore to original stage
             const revertIndex = newStageLeads.findIndex(l => l.id === leadId)
             if (revertIndex !== -1) {
@@ -946,8 +898,7 @@ const initializeSortable = async () => {
           }
         },
       })
-      } catch (error) {
-        console.error(`Failed to initialize Sortable for stage ${stage.id}:`, error)
+      } catch {
         // Continue with other stages even if one fails
       }
     } else if (!listEl) {
@@ -964,12 +915,12 @@ const initializeStageLeads = async () => {
   const newStageLeads: Record<number, LeadModel[]> = {}
   
   // Initialize all stages first
-  stages.forEach(stage => {
+  stages.value.forEach(stage => {
     newStageLeads[stage.id] = []
   })
   
   // Then populate with filtered leads - create new array references for reactivity
-  stages.forEach(stage => {
+  stages.value.forEach(stage => {
     const stageLeadsArray = filteredLeads.value.filter(lead => lead.stageId === stage.id)
     newStageLeads[stage.id] = [...stageLeadsArray] // New array reference
   })
@@ -979,16 +930,6 @@ const initializeStageLeads = async () => {
   
   // Initialize Sortable after stage leads are set
   await initializeSortable()
-  
-  // Debug log
-  console.log('Stage leads initialized:', {
-    totalFiltered: filteredLeads.value.length,
-    stages: Object.entries(newStageLeads).map(([id, leads]) => ({
-      stageId: Number(id),
-      count: leads.length,
-      firstLead: leads[0] ? { id: leads[0].id, name: leads[0].name } : null
-    }))
-  })
 }
 
 // Watch filtered leads and update stage leads
@@ -1146,8 +1087,8 @@ const loadStaff = async () => {
       id: s.user_id || s.user?.id,
       name: s.user?.name || t('common.userFallback'),
     }))
-  } catch (err) {
-    console.error('Failed to load staff:', err)
+  } catch {
+    // Staff list is optional for filters
   }
 }
 
@@ -1155,8 +1096,8 @@ const loadVehicles = async () => {
   try {
     const response = await getVehicles({ page: 1, limit: 1000 })
     vehicles.value = response.docs
-  } catch (err) {
-    console.error('Failed to load vehicles:', err)
+  } catch {
+    // Vehicle list is optional for filters
   }
 }
 
@@ -1168,7 +1109,6 @@ window.onerror = function(message, source, lineno, colno, error) {
     message.includes('lastElementChild') || 
     message.includes('Cannot read properties of null')
   ) && source?.includes('sortablejs')) {
-    console.warn('SortableJS drag error suppressed:', message)
     return true // Suppress the error
   }
   // Call original error handler for other errors
@@ -1179,7 +1119,7 @@ window.onerror = function(message, source, lineno, colno, error) {
 }
 
 onMounted(async () => {
-  await Promise.all([loadLeads(), loadStaff(), loadVehicles()])
+  await Promise.all([leadStagesStore.fetchStages(), loadLeads(), loadStaff(), loadVehicles()])
   // Initialize Sortable after everything is loaded
   await nextTick()
   await initializeSortable()
@@ -1196,8 +1136,8 @@ onUnmounted(() => {
     if (instance) {
       try {
         instance.destroy()
-      } catch (error) {
-        console.warn('Error destroying Sortable instance:', error)
+      } catch {
+        // Ignore cleanup errors from destroyed instances
       }
     }
   })

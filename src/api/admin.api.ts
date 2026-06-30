@@ -29,6 +29,7 @@ import {
   ADMIN_DASHBOARD_ENDPOINTS,
   ADMIN_FEATURED_VEHICLE_ENDPOINTS,
   ADMIN_LOCATIONS_ENDPOINTS,
+  ADMIN_LEAD_STAGES_ENDPOINTS,
   ADMIN_OWNERSHIP_TAX_ENDPOINTS,
   ADMIN_VEHICLE_SPEC_DEFINITIONS_ENDPOINTS,
 } from './endpoints'
@@ -4062,6 +4063,50 @@ export async function updateAdminLocation(
 export async function deleteAdminLocation(id: number | string): Promise<void> {
   try {
     await httpClient.post(ADMIN_LOCATIONS_ENDPOINTS.DELETE(id), {})
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// LEAD STAGES (ADMIN)
+// ============================================================================
+
+export interface AdminLeadStageModel {
+  id: number
+  name: string
+}
+
+function mapLeadStageFromApi(row: { id: number; name: string }): AdminLeadStageModel {
+  return {
+    id: Number(row.id),
+    name: String(row.name ?? ''),
+  }
+}
+
+export async function getAdminLeadStages(): Promise<AdminLeadStageModel[]> {
+  try {
+    const response = await httpClient.get<{ data: Array<{ id: number; name: string }> }>(
+      ADMIN_LEAD_STAGES_ENDPOINTS.LIST
+    )
+    const rows = handleSuccess<Array<{ id: number; name: string }>>(response)
+    return rows.map(mapLeadStageFromApi)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function updateAdminLeadStage(
+  id: number | string,
+  data: { name: string }
+): Promise<AdminLeadStageModel> {
+  try {
+    const response = await httpClient.post<{ data: { id: number; name: string } }>(
+      ADMIN_LEAD_STAGES_ENDPOINTS.UPDATE(id),
+      data
+    )
+    const row = handleSuccess<{ id: number; name: string }>(response)
+    return mapLeadStageFromApi(row)
   } catch (error) {
     throw handleError(error)
   }

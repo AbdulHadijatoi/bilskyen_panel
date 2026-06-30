@@ -45,38 +45,15 @@
               <span>{{ t('dealer.views.leadsDetail.customerInformation') }}</span>
               <div class="d-flex gap-2">
                 <v-btn
-                  v-if="lead.phone"
-                  icon
-                  variant="text"
-                  size="small"
-                  color="success"
-                  :href="`tel:${lead.phone}`"
-                  :title="t('dealer.views.leadsDetail.call')"
-                >
-                  <v-icon>mdi-phone</v-icon>
-                </v-btn>
-                <v-btn
                   v-if="lead.email"
                   icon
                   variant="text"
                   size="small"
                   color="primary"
-                  :href="`mailto:${lead.email}`"
+                  :href="emailMailtoHref"
                   :title="t('dealer.views.leadsDetail.emailAction')"
                 >
                   <v-icon>mdi-email</v-icon>
-                </v-btn>
-                <v-btn
-                  v-if="lead.phone"
-                  icon
-                  variant="text"
-                  size="small"
-                  color="success"
-                  :href="`https://wa.me/${lead.phone.replace(/[^0-9]/g, '')}`"
-                  target="_blank"
-                  :title="t('dealer.views.leadsDetail.whatsApp')"
-                >
-                  <v-icon>mdi-whatsapp</v-icon>
                 </v-btn>
               </div>
             </v-card-title>
@@ -249,11 +226,11 @@
             <v-card-title class="d-flex justify-space-between align-center">
               <span>{{ t('dealer.views.leadsDetail.vehicleInformation') }}</span>
               <v-btn
-                v-if="lead.vehicleId"
+                v-if="linkedVehicleId"
                 variant="text"
                 size="small"
                 prepend-icon="mdi-open-in-new"
-                @click="viewVehicle(lead.vehicleId)"
+                :to="{ name: 'dealer.vehicles.detail', params: { id: linkedVehicleId } }"
               >
                 {{ t('dealer.views.leadsDetail.viewVehicle') }}
               </v-btn>
@@ -299,52 +276,23 @@
             <v-card-text>
               <div class="d-flex flex-column gap-2">
                 <v-btn
-                  v-if="lead.phone"
-                  color="success"
-                  variant="flat"
-                  prepend-icon="mdi-phone"
-                  block
-                  :href="`tel:${lead.phone}`"
-                >
-                  Call Customer
-                </v-btn>
-                <v-btn
                   v-if="lead.email"
                   color="primary"
                   variant="flat"
                   prepend-icon="mdi-email"
                   block
-                  :href="`mailto:${lead.email}`"
+                  :href="emailMailtoHref"
                 >
-                  Send Email
+                  {{ t('dealer.views.leadsDetail.sendEmail') }}
                 </v-btn>
                 <v-btn
-                  v-if="lead.phone"
-                  color="success"
-                  variant="flat"
-                  prepend-icon="mdi-whatsapp"
-                  block
-                  :href="`https://wa.me/${lead.phone.replace(/[^0-9]/g, '')}`"
-                  target="_blank"
-                >
-                  WhatsApp
-                </v-btn>
-                <v-btn
-                  v-if="lead.vehicleId"
+                  v-if="linkedVehicleId"
                   variant="outlined"
                   prepend-icon="mdi-car"
                   block
-                  @click="viewVehicle(lead.vehicleId)"
+                  :to="{ name: 'dealer.vehicles.detail', params: { id: linkedVehicleId } }"
                 >
-                  View Vehicle
-                </v-btn>
-                <v-btn
-                  variant="outlined"
-                  prepend-icon="mdi-account-plus"
-                  block
-                  @click="assignLead"
-                >
-                  Assign to Staff
+                  {{ t('dealer.views.leadsDetail.viewVehicle') }}
                 </v-btn>
               </div>
             </v-card-text>
@@ -378,8 +326,8 @@
       </v-row>
     </div>
 
-    <!-- Assign Lead Dialog -->
-    <v-dialog v-model="assignDialog" max-width="500">
+    <!-- Assign Lead Dialog (hidden until staff module is ready) -->
+    <v-dialog v-if="false" v-model="assignDialog" max-width="500">
       <v-card>
         <v-card-title>{{ t('dealer.views.leadsDetail.assignLead') }}</v-card-title>
         <v-card-text>
@@ -403,14 +351,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { getLead, updateLeadStage, updateLeadIntent, updateLeadCategory, assignLead as assignLeadApi, getStaff } from '@/api/dealer.api'
 import type { LeadModel } from '@/models/lead.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import {
-  getStageName,
   getStageColor,
   getIntentName,
   getIntentColor,
@@ -421,10 +368,12 @@ import {
   getCategoryOptions,
 } from '@/utils/leadHelpers'
 import { formatCurrency } from '@/utils/formatCurrency'
+import { useLeadStagesStore } from '@/stores/leadStages.store'
 
 const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
+const leadStagesStore = useLeadStagesStore()
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -438,9 +387,20 @@ const selectedStage = ref<number | null>(null)
 const selectedIntent = ref<number | null>(null)
 const selectedCategory = ref<number | null>(null)
 
-const stageOptions = getStageOptions()
+const stageOptions = computed(() => getStageOptions())
 const intentOptions = getIntentOptions()
 const categoryOptions = getCategoryOptions()
+
+const linkedVehicleId = computed(() => lead.value?.vehicleId ?? lead.value?.vehicle?.id ?? null)
+
+const emailMailtoHref = computed(() => {
+  if (!lead.value?.email) return ''
+  const subject = lead.value.enquiry?.subject
+  if (subject) {
+    return `mailto:${lead.value.email}?subject=${encodeURIComponent(`Re: ${subject}`)}`
+  }
+  return `mailto:${lead.value.email}`
+})
 
 // Watch lead changes and update selected values
 watch(lead, (newLead) => {
@@ -513,10 +473,6 @@ const handleAssignLead = async () => {
   }
 }
 
-const viewVehicle = (vehicleId: number) => {
-  router.push({ name: 'dealer.vehicles.detail', params: { id: vehicleId } })
-}
-
 const loadLead = async () => {
   const leadId = route.params.id as string
   if (!leadId) return
@@ -547,7 +503,7 @@ const loadStaff = async () => {
 
 
 onMounted(async () => {
-  await Promise.all([loadLead(), loadStaff()])
+  await Promise.all([leadStagesStore.fetchStages(), loadLead(), loadStaff()])
 })
 
 // Watch route params to reload data when navigating to a different lead

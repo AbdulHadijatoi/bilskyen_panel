@@ -223,11 +223,15 @@ export interface MarketingAnalytics {
 
 export interface SubscriptionUsage {
   plan_name: string
+  plan_slug?: string | null
   status: string
+  status_id?: number | null
   renewal_date: string | null
   features: Array<{
     feature_key: string
     feature_name: string
+    label_en?: string | null
+    label_da?: string | null
     limit: number
     used: number
     usage_percentage: number

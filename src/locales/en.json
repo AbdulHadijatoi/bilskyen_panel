@@ -8,6 +8,7 @@
     "enquiries": "Enquiries",
     "staff": "Staff",
     "subscription": "Subscription",
+    "analytics": "Analytics",
     "auditLogs": "Audit Logs",
     "viewProfile": "View Profile",
     "changePassword": "Change Password",
@@ -115,7 +116,30 @@
     "leadSources": {
       "Website": "Website",
       "Mobile App": "Mobile App",
+      "Phone": "Phone",
+      "Email": "Email",
+      "Referral": "Referral",
+      "Social Media": "Social Media",
+      "Walk-in": "Walk-in",
       "Unknown": "Unknown"
+    },
+    "plans": {
+      "basic": "Basic Plan",
+      "professional": "Professional Plan",
+      "enterprise": "Enterprise",
+      "trial": "Trial Plan"
+    },
+    "featureKeys": {
+      "max_listings": "Max Listings",
+      "enquiry_management": "Enquiry Management",
+      "lead_management": "Lead Management",
+      "staff_management": "Staff Management",
+      "max_feature_listings": "Max Featured Listings",
+      "priority_support": "Priority Support",
+      "analytics": "Analytics",
+      "max_vehicle_images": "Max Vehicle Images",
+      "max_equipment_per_vehicle": "Max Equipment Per Vehicle",
+      "upload_3d_view": "Upload 3D View"
     }
   },
   "calendar": {
@@ -965,7 +989,27 @@
         "nonFeatured": "Non-Featured",
         "featureUsage": "Feature Usage",
         "failedLoadOverview": "Failed to load overview analytics",
-        "partialLoadWarning": "Some sections could not be loaded"
+        "partialLoadWarning": "Some sections could not be loaded",
+        "featuredVehiclesCount": "Featured Vehicles:",
+        "featuredViewsCount": "Featured Views:",
+        "featuredLeadsCount": "Featured Leads:",
+        "nonFeaturedVehiclesCount": "Non-Featured Vehicles:",
+        "nonFeaturedViewsCount": "Non-Featured Views:",
+        "nonFeaturedLeadsCount": "Non-Featured Leads:",
+        "subscriptionLimits": "Subscription & Limits",
+        "planName": "Plan Name:",
+        "status": "Status:",
+        "renewalDate": "Renewal Date:",
+        "noPlan": "No Plan",
+        "statusNone": "None",
+        "dateRange": {
+          "label": "Date Range",
+          "last7Days": "Last 7 days",
+          "last30Days": "Last 30 days",
+          "last3Months": "Last 3 months",
+          "lastYear": "Last year",
+          "allTime": "All time"
+        }
       },
       "auditLogs": {
         "title": "Audit Logs",

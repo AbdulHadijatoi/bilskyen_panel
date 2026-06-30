@@ -289,6 +289,11 @@ const router = createRouter({
           component: () => import('@/views/admin/locations/LocationsManagement.vue'),
         },
         {
+          path: 'lead-stages',
+          name: 'admin.lead-stages',
+          component: () => import('@/views/admin/lead-stages/LeadStagesManagement.vue'),
+        },
+        {
           path: 'permissions',
           name: 'admin.permissions',
           component: () => import('@/views/admin/permissions/PermissionsManagement.vue'),
