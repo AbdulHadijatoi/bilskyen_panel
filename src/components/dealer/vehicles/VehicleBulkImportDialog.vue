@@ -63,6 +63,26 @@
         </v-alert>
 
         <v-alert
+          v-if="queuedMessage"
+          type="info"
+          variant="tonal"
+          class="mb-4"
+        >
+          {{ queuedMessage }}
+        </v-alert>
+
+        <v-alert
+          v-if="polling"
+          type="info"
+          variant="tonal"
+          density="compact"
+          class="mb-4"
+        >
+          <v-progress-linear indeterminate class="mb-2" />
+          {{ t('dealer.views.vehicles.import.processing') }}
+        </v-alert>
+
+        <v-alert
           v-if="importError"
           type="error"
           variant="tonal"
@@ -93,6 +113,7 @@
           density="comfortable"
           show-size
           clearable
+          :disabled="polling"
         />
 
         <template v-if="result">
@@ -192,7 +213,7 @@
         <v-btn
           variant="outlined"
           :loading="importing && dryRunLast"
-          :disabled="!importFile || importing"
+          :disabled="!importFile || importing || polling"
           @click="runImport(true)"
         >
           {{ t('dealer.views.vehicles.import.validateOnly') }}
@@ -200,7 +221,7 @@
         <v-btn
           color="primary"
           :loading="importing && !dryRunLast"
-          :disabled="!importFile || importing"
+          :disabled="!importFile || importing || polling"
           @click="runImport(false)"
         >
           {{ t('dealer.views.vehicles.import.import') }}
@@ -225,12 +246,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
   downloadVehicleImportTemplate,
+  getVehicleImportBatch,
   getVehicleImportSample,
   importVehicles,
+  type VehicleImportQueuedResult,
   type VehicleImportResult,
   type VehicleImportSample,
 } from '@/api/dealer.api'
@@ -250,9 +273,12 @@ const { t } = useI18n()
 const selectedFiles = ref<File[] | File | null>(null)
 const downloadingTemplate = ref(false)
 const importing = ref(false)
+const polling = ref(false)
 const importError = ref<string | null>(null)
+const queuedMessage = ref<string | null>(null)
 const result = ref<VehicleImportResult | null>(null)
 const dryRunLast = ref(false)
+let pollTimer: ReturnType<typeof setInterval> | null = null
 
 const snackbar = ref({
   show: false,
@@ -272,6 +298,50 @@ const importFile = computed(() => {
   return selectedFiles.value
 })
 
+function isQueuedResult(data: unknown): data is VehicleImportQueuedResult {
+  return typeof data === 'object' && data !== null && 'batch_id' in data
+}
+
+function stopPolling() {
+  if (pollTimer !== null) {
+    clearInterval(pollTimer)
+    pollTimer = null
+  }
+  polling.value = false
+}
+
+async function pollBatch(batchId: number) {
+  stopPolling()
+  polling.value = true
+
+  const fetchBatch = async () => {
+    try {
+      const batch = await getVehicleImportBatch(batchId)
+      if (batch.status === 'pending' || batch.status === 'processing') {
+        return
+      }
+
+      stopPolling()
+
+      if (batch.status === 'completed' && batch.summary && batch.rows) {
+        result.value = { summary: batch.summary, rows: batch.rows }
+        showImportCompleteSnackbar(result.value, false)
+        if ((batch.summary.created ?? 0) > 0) {
+          emit('imported')
+        }
+      } else if (batch.status === 'failed') {
+        importError.value = batch.error_message || t('dealer.views.vehicles.import.importFailed')
+      }
+    } catch {
+      stopPolling()
+      importError.value = t('dealer.views.vehicles.import.importFailed')
+    }
+  }
+
+  await fetchBatch()
+  pollTimer = setInterval(fetchBatch, 3000)
+}
+
 async function loadSample() {
   try {
     const data = await getVehicleImportSample()
@@ -280,24 +350,26 @@ async function loadSample() {
     usageNotice.value = data.usage_notice ?? null
   } catch {
     sampleHeaders.value = [
-      'registration',
-      'brand',
-      'model',
-      'fuel_type',
-      'sales_type',
-      'price',
-      'km_driven',
-      'gear_type',
+      'Registrering',
+      'Mærke',
+      'Model',
+      'Brændstof',
+      'Salgstype',
+      'Pris',
+      'Kilometer',
+      'Geartype',
+      'Billeder',
     ]
     sampleRow.value = {
-      registration: 'AB12345',
-      brand: 'Volvo',
-      model: 'XC60',
-      fuel_type: 'Benzin',
-      sales_type: 'Køb',
-      price: '249900',
-      km_driven: '85000',
-      gear_type: 'Automatisk',
+      Registrering: 'AB12345',
+      Mærke: 'Volvo',
+      Model: 'XC60',
+      Brændstof: 'Benzin',
+      Salgstype: 'Køb',
+      Pris: '249900',
+      Kilometer: '85000',
+      Geartype: 'Automatisk',
+      Billeder: 'https://example.com/billede1.jpg',
     }
   }
 }
@@ -309,10 +381,16 @@ watch(
       loadSample()
       result.value = null
       importError.value = null
+      queuedMessage.value = null
       selectedFiles.value = null
+      stopPolling()
+    } else {
+      stopPolling()
     }
   }
 )
+
+onBeforeUnmount(stopPolling)
 
 function close() {
   emit('update:modelValue', false)
@@ -375,7 +453,19 @@ async function runImport(dryRun: boolean) {
     importing.value = true
     dryRunLast.value = dryRun
     importError.value = null
-    result.value = await importVehicles(file, { dryRun })
+    queuedMessage.value = null
+    result.value = null
+
+    const data = await importVehicles(file, { dryRun })
+
+    if (!dryRun && isQueuedResult(data)) {
+      queuedMessage.value = data.message || t('dealer.views.vehicles.import.queued')
+      showSnackbar(queuedMessage.value, 'info')
+      await pollBatch(data.batch_id)
+      return
+    }
+
+    result.value = data as VehicleImportResult
     showImportCompleteSnackbar(result.value, dryRun)
     if (!dryRun && (result.value.summary.created ?? 0) > 0) {
       emit('imported')

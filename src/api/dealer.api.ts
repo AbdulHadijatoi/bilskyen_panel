@@ -596,6 +596,27 @@ export interface VehicleImportResult {
   rows: VehicleImportRowResult[]
 }
 
+export interface VehicleImportQueuedResult {
+  batch_id: number
+  status: string
+  message: string
+}
+
+export interface VehicleImportBatchSummary {
+  id: number
+  original_filename: string
+  status: 'pending' | 'processing' | 'completed' | 'failed'
+  summary?: VehicleImportResult['summary'] | null
+  error_message?: string | null
+  created_at?: string
+  started_at?: string | null
+  completed_at?: string | null
+}
+
+export interface VehicleImportBatchDetail extends VehicleImportBatchSummary {
+  rows?: VehicleImportRowResult[] | null
+}
+
 export interface VehicleImportSample {
   headers: string[]
   row: Record<string, string>
@@ -637,21 +658,28 @@ export async function getVehicleImportSample(): Promise<VehicleImportSample> {
 }
 
 /**
- * Bulk import vehicles from Excel/CSV.
+ * Bulk import vehicles from Excel/CSV (validate sync; import queues background job).
  */
 export async function importVehicles(
   file: File,
   options?: { dryRun?: boolean }
-): Promise<VehicleImportResult> {
+): Promise<VehicleImportResult | VehicleImportQueuedResult> {
   const formData = new FormData()
   formData.append('file', file)
 
-  const response = await httpClient.post<{ data: VehicleImportResult }>(
+  const response = await httpClient.post<{ data: VehicleImportResult | VehicleImportQueuedResult }>(
     DEALER_VEHICLE_ENDPOINTS.IMPORT,
     formData,
     { params: options?.dryRun ? { dry_run: 1 } : undefined }
   )
-  return handleSuccess<VehicleImportResult>(response)
+  return handleSuccess(response)
+}
+
+export async function getVehicleImportBatch(id: number): Promise<VehicleImportBatchDetail> {
+  const response = await httpClient.get<{ data: VehicleImportBatchDetail }>(
+    DEALER_VEHICLE_ENDPOINTS.IMPORT_BATCH(id)
+  )
+  return handleSuccess<VehicleImportBatchDetail>(response)
 }
 
 export async function lookupDealerVehicleByIdentity(
