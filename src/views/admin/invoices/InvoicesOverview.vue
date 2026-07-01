@@ -38,7 +38,7 @@
         @update:page="handlePageChange"
       >
         <template #item.dealer="{ item }">
-          {{ item.dealer?.name || `#${item.dealer_id}` }}
+          {{ item.dealer?.owner?.name || item.dealer?.cvr || item.dealer?.slug || `#${item.dealer_id}` }}
         </template>
         <template #item.period="{ item }">
           {{ formatDate(item.period_start) }} – {{ formatDate(item.period_end) }}
@@ -86,7 +86,7 @@
         <v-card-text class="pa-4">
           <div class="mb-2">
             <strong>{{ t('admin.views.invoices.dealer') }}:</strong>
-            {{ selectedInvoice.dealer?.name || `#${selectedInvoice.dealer_id}` }}
+            {{ selectedInvoice.dealer?.owner?.name || selectedInvoice.dealer?.cvr || selectedInvoice.dealer?.slug || `#${selectedInvoice.dealer_id}` }}
           </div>
           <div class="mb-2">
             <strong>{{ t('admin.views.invoices.period') }}:</strong>
