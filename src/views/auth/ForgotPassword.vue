@@ -108,6 +108,8 @@ import { ref } from 'vue'
 import { forgotPassword, type ApiError } from '@/services/auth'
 import AuthLayout from '@/components/auth/AuthLayout.vue'
 
+const { t } = useI18n()
+
 const email = ref('')
 const loading = ref(false)
 const error = ref<string | null>(null)

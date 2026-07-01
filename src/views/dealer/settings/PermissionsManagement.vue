@@ -365,7 +365,6 @@ const assignPermission = async (action: PermissionAction) => {
   } catch (error: any) {
     console.error('Failed to assign permission:', error)
     const message = error.response?.data?.message || t('dealer.views.permissions.assignFailed')
-    const message = error.response?.data?.message || t('dealer.views.permissions.assignFailed')
     showSnackbar(message, 'error')
   } finally {
     processingItems.value = processingItems.value.filter(id => id !== action.id)

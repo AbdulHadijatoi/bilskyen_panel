@@ -141,6 +141,8 @@ interface SalesOverview {
   topSellingMonth: string
 }
 
+const { t } = useI18n()
+
 const salesOverview = ref<SalesOverview | null>(null)
 
 const formatCurrency = (value: number) => {

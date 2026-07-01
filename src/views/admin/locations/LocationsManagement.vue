@@ -316,6 +316,8 @@ import {
 } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
+const { t } = useI18n()
+
 const loading = ref(false)
 const saving = ref(false)
 const listError = ref<string | null>(null)

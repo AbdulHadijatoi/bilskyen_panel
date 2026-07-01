@@ -84,13 +84,13 @@ const auditing = ref(false)
 async function load() {
   robots.value = await getSeoRobotsSettings()
   cookie.value = await getCookieConsentSettings()
-  presets.value = await getSchemaPresets()
+  presets.value = (await getSchemaPresets()) as any[]
 }
 
 async function saveRobots() {
   savingRobots.value = true
   try {
-    const res = await updateSeoRobotsSettings({ mode: robots.value.mode, custom_body: robots.value.custom_body })
+    const res = await updateSeoRobotsSettings({ mode: robots.value.mode, custom_body: robots.value.custom_body }) as { preview?: string }
     robots.value.preview = res.preview
   } finally {
     savingRobots.value = false

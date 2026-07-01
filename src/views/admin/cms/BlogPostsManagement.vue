@@ -76,7 +76,7 @@ const headers = [
 async function load() {
   loading.value = true
   try {
-    posts.value = await getCmsPosts()
+    posts.value = (await getCmsPosts()) as any[]
   } finally {
     loading.value = false
   }

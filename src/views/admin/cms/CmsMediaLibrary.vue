@@ -27,7 +27,7 @@ const uploadFiles = ref<File[]>([])
 
 async function load() {
   const res = await getCmsMedia()
-  media.value = Array.isArray(res) ? res : (res?.data ?? [])
+  media.value = Array.isArray(res) ? res : ((res as { data?: any[] }).data ?? [])
 }
 
 async function onUpload(files: File | File[] | null) {

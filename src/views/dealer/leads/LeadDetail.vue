@@ -406,7 +406,7 @@ const leadAiContext = computed(() => {
     name: lead.value.name,
     email: lead.value.email,
     phone: lead.value.phone,
-    stage: lead.value.stage?.name ?? lead.value.stageId,
+    stage: lead.value.stage != null ? String(lead.value.stage) : lead.value.stageId,
     intent: lead.value.intent,
     category: lead.value.category,
     source: lead.value.source,

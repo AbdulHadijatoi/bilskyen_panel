@@ -232,6 +232,8 @@ import EditStaffDialog from '@/components/staff/staff/EditStaffDialog.vue'
 import DeleteStaffDialog from '@/components/staff/staff/DeleteStaffDialog.vue'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
+const { t } = useI18n()
+
 const loading = ref(false)
 const error = ref<string | null>(null)
 const search = ref('')

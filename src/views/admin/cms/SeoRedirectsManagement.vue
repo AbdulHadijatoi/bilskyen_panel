@@ -56,7 +56,7 @@ const headers = [
 
 async function load() {
   loading.value = true
-  redirects.value = await getSeoRedirects()
+  redirects.value = (await getSeoRedirects()) as any[]
   loading.value = false
 }
 

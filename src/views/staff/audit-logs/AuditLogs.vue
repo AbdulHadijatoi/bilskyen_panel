@@ -261,6 +261,8 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { getAuditLogs, type DealerAuditLogModel } from '@/api/staff.api'
 import type { PaginationModel } from '@/models/pagination.model'
 
+const { t } = useI18n()
+
 // State
 const snackbar = ref({
   show: false,

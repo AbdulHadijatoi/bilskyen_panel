@@ -405,14 +405,14 @@ const stripeWebhookUrl = computed(() => {
 
 async function load() {
   const data = await getIntegrations()
-  crmSettings.value = { ...crmSettings.value, ...normalizeBools(data.crm) }
-  paymentSettings.value = { ...paymentSettings.value, ...normalizePaymentBools(data.payment) }
-  aiSettings.value = { ...aiSettings.value, ...normalizeAiBools(data.ai) }
-  mediaSettings.value = { ...mediaSettings.value, ...normalizeGenericBools(data.media, ['watermark_enabled']) }
-  financeSettings.value = { ...financeSettings.value, ...normalizeGenericBools(data.finance, ['calculator_enabled']) }
-  marketingSettings.value = { ...marketingSettings.value, ...normalizeGenericBools(data.marketing, ['enquiry_sequence_enabled', 'abandoned_enquiry_enabled', 'whatsapp_auto_task']) }
-  complianceSettings.value = { ...complianceSettings.value, ...normalizeGenericBools(data.compliance, ['gdpr_export_enabled']) }
-  reputationSettings.value = { ...reputationSettings.value, ...data.reputation }
+  crmSettings.value = { ...crmSettings.value, ...normalizeBools(data.crm ?? {}) }
+  paymentSettings.value = { ...paymentSettings.value, ...normalizePaymentBools(data.payment ?? {}) }
+  aiSettings.value = { ...aiSettings.value, ...normalizeAiBools(data.ai ?? {}) }
+  mediaSettings.value = { ...mediaSettings.value, ...normalizeGenericBools(data.media ?? {}, ['watermark_enabled']) }
+  financeSettings.value = { ...financeSettings.value, ...normalizeGenericBools(data.finance ?? {}, ['calculator_enabled']) }
+  marketingSettings.value = { ...marketingSettings.value, ...normalizeGenericBools(data.marketing ?? {}, ['enquiry_sequence_enabled', 'abandoned_enquiry_enabled', 'whatsapp_auto_task']) }
+  complianceSettings.value = { ...complianceSettings.value, ...normalizeGenericBools(data.compliance ?? {}, ['gdpr_export_enabled']) }
+  reputationSettings.value = { ...reputationSettings.value, ...(data.reputation ?? {}) }
 }
 
 function normalizeBools(obj: Record<string, any>) {

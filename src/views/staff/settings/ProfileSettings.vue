@@ -301,6 +301,8 @@ import { getCurrentUser } from '@/api/auth.api'
 import { useAuthStore } from '@/stores/auth.store'
 import type { DealerModel } from '@/models/dealer.model'
 
+const { t } = useI18n()
+
 const authStore = useAuthStore()
 
 // Form state

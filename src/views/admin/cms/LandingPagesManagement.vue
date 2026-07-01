@@ -108,7 +108,7 @@ function addBlock(type: string) {
 async function load() {
   loading.value = true
   try {
-    pages.value = await getLandingPages()
+    pages.value = (await getLandingPages()) as any[]
   } finally {
     loading.value = false
   }

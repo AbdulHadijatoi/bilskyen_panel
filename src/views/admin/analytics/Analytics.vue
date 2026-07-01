@@ -720,7 +720,7 @@ const loadActivity = async () => {
 
 const loadFunnel = async () => {
   try {
-    funnel.value = await getAnalyticsFunnel(dateRange.value, comparePeriod.value)
+    funnel.value = (await getAnalyticsFunnel(dateRange.value, comparePeriod.value)) as FunnelAnalytics
   } catch (err) {
     recordSectionError(t('admin.views.analytics.funnelTitle'), err)
   }
@@ -728,7 +728,7 @@ const loadFunnel = async () => {
 
 const loadCohort = async () => {
   try {
-    cohort.value = await getAnalyticsCohort()
+    cohort.value = (await getAnalyticsCohort()) as CohortAnalytics
   } catch (err) {
     recordSectionError(t('admin.views.analytics.cohortTitle'), err)
   }
@@ -736,7 +736,7 @@ const loadCohort = async () => {
 
 const loadIntegrations = async () => {
   try {
-    integrations.value = await getAnalyticsIntegrations(dateRange.value)
+    integrations.value = (await getAnalyticsIntegrations(dateRange.value)) as IntegrationsAnalytics
   } catch (err) {
     recordSectionError(t('admin.views.analytics.integrationsTitle'), err)
   }
@@ -744,7 +744,7 @@ const loadIntegrations = async () => {
 
 const loadTrends = async () => {
   try {
-    trends.value = await getAnalyticsTrends(dateRange.value)
+    trends.value = (await getAnalyticsTrends(dateRange.value)) as TrendAnalytics
   } catch (err) {
     recordSectionError(t('admin.views.analytics.trendsTitle'), err)
   }
