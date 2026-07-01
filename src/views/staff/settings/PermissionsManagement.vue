@@ -1,9 +1,9 @@
 <template>
   <div class="flex w-full flex-col gap-4">
     <div>
-      <h2 class="text-xl font-bold">Permissions Management</h2>
+      <h2 class="text-xl font-bold">{{ t('staff.views.permissions.title') }}</h2>
       <p class="text-muted-foreground max-w-2xl">
-        Manage permissions for users and roles. Select a user or role to view and modify their permissions.
+        {{ t('staff.views.permissions.subtitle') }}
       </p>
     </div>
 
@@ -16,13 +16,13 @@
 
     <!-- Model Selection Section -->
     <v-card>
-      <v-card-title>Select User or Role</v-card-title>
+      <v-card-title>{{ t('staff.views.permissions.selectUserOrRole') }}</v-card-title>
       <v-card-text>
         <div class="flex flex-col gap-4">
           <!-- Model Type Selection -->
           <v-radio-group v-model="modelType" inline>
-            <v-radio label="User" value="user" />
-            <v-radio label="Role" value="role" />
+            <v-radio :label="t('staff.views.permissions.user')" value="user" />
+            <v-radio :label="t('staff.views.permissions.role')" value="role" />
           </v-radio-group>
 
           <!-- Model Search/Autocomplete -->
@@ -37,8 +37,8 @@
               @keydown.enter.prevent="handleModelSearch"
               item-title="name"
               item-value="id"
-              label="Search and select a user or role"
-              placeholder="Type to search and press Enter..."
+              :label="t('staff.views.permissions.searchPlaceholder')"
+              :placeholder="t('staff.views.permissions.typeToSearch')"
               clearable
               return-object
               :no-filter="true"
@@ -56,9 +56,9 @@
             </v-autocomplete>
             <div class="text-caption text-medium-emphasis mt-1 d-flex align-center">
               <v-icon size="small" class="mr-1">mdi-information-outline</v-icon>
-              <span>Type your search query and press</span>
+              <span>{{ t('staff.views.permissions.typeSearchQuery') }}</span>
               <kbd class="mx-1 px-2 py-0.5 bg-grey-lighten-4 rounded text-caption font-weight-medium">Enter</kbd>
-              <span>to search</span>
+              <span>{{ t('staff.views.permissions.toSearch') }}</span>
             </div>
           </div>
 
@@ -78,12 +78,12 @@
 
     <!-- Filter Section -->
     <v-card v-if="isFilterApplied">
-      <v-card-title>Filter Permissions</v-card-title>
+      <v-card-title>{{ t('staff.views.permissions.filterPermissions') }}</v-card-title>
       <v-card-text>
         <v-btn-toggle v-model="filterType" mandatory divided variant="outlined" color="primary">
-          <v-btn value="all">All</v-btn>
-          <v-btn value="assigned">Assigned</v-btn>
-          <v-btn value="unassigned">Unassigned</v-btn>
+          <v-btn value="all">{{ t('staff.views.permissions.all') }}</v-btn>
+          <v-btn value="assigned">{{ t('staff.views.permissions.assigned') }}</v-btn>
+          <v-btn value="unassigned">{{ t('staff.views.permissions.unassigned') }}</v-btn>
         </v-btn-toggle>
       </v-card-text>
     </v-card>
@@ -91,14 +91,14 @@
     <!-- Permissions List -->
     <v-card v-if="isFilterApplied">
       <v-card-title class="d-flex justify-space-between align-center">
-        <span>Permissions</span>
+        <span>{{ t('staff.views.permissions.permissions') }}</span>
         <v-chip color="primary" variant="tonal">
           {{ filteredItems.length }} permission{{ filteredItems.length !== 1 ? 's' : '' }}
         </v-chip>
       </v-card-title>
       <v-card-text>
         <div v-if="filteredItems.length === 0" class="text-center py-8 text-muted-foreground">
-          No permissions found matching the selected filter.
+          {{ t('staff.views.permissions.noPermissionsMatchingFilter') }}
         </div>
         <v-expansion-panels v-else v-model="expandedPanels" multiple>
           <v-expansion-panel
@@ -146,7 +146,7 @@
                       color="success"
                       variant="tonal"
                     >
-                      Assigned
+                      {{ t('staff.views.permissions.assignedLabel') }}
                     </v-chip>
                   </template>
                 </v-list-item>
@@ -162,9 +162,9 @@
       <v-card-text>
         <div class="text-center py-12">
           <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-shield-lock-outline</v-icon>
-          <p class="text-h6 mb-2">Select a User or Role</p>
+          <p class="text-h6 mb-2">{{ t('staff.views.permissions.selectUserOrRoleHint') }}</p>
           <p class="text-muted-foreground">
-            Choose a user or role from above to view and manage their permissions.
+            {{ t('staff.views.permissions.selectHintDescription') }}
           </p>
         </div>
       </v-card-text>
@@ -179,7 +179,7 @@
     >
       {{ snackbar.message }}
       <template v-slot:actions>
-        <v-btn variant="text" @click="snackbar.show = false">Close</v-btn>
+        <v-btn variant="text" @click="snackbar.show = false">{{ t('common.close') }}</v-btn>
       </template>
     </v-snackbar>
   </div>
@@ -187,7 +187,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import apiClient from '@/utils/axios'
+
+const { t } = useI18n()
 
 const modelSearchRef = ref()
 
@@ -258,7 +261,7 @@ const getAllItems = async () => {
     allItems.value = response.data.items
   } catch (error: any) {
     console.error('Failed to load permissions:', error)
-    showSnackbar('Failed to load permissions', 'error')
+    showSnackbar(t('staff.views.permissions.loadFailed'), 'error')
   } finally {
     loading.value = false
   }
@@ -292,7 +295,7 @@ const handleModelSearch = async () => {
     modelOptions.value = response.data.models
   } catch (error: any) {
     console.error('Failed to search models:', error)
-    showSnackbar('Failed to search users/roles', 'error')
+    showSnackbar(t('staff.views.permissions.searchFailed'), 'error')
   } finally {
     searchingModels.value = false
   }
@@ -324,7 +327,7 @@ const getModelItems = async () => {
     assignedPermissionIds.value = response.data.permission_ids
   } catch (error: any) {
     console.error('Failed to load model items:', error)
-    showSnackbar('Failed to load assigned permissions', 'error')
+    showSnackbar(t('staff.views.permissions.loadAssignedFailed'), 'error')
   } finally {
     loading.value = false
   }
@@ -359,10 +362,10 @@ const assignPermission = async (action: PermissionAction) => {
     })
 
     assignedPermissionIds.value.push(action.id)
-    showSnackbar('Permission assigned successfully', 'success')
+    showSnackbar(t('staff.views.permissions.assignSuccess'), 'success')
   } catch (error: any) {
     console.error('Failed to assign permission:', error)
-    const message = error.response?.data?.message || 'Failed to assign permission'
+    const message = error.response?.data?.message || t('staff.views.permissions.assignFailed')
     showSnackbar(message, 'error')
   } finally {
     processingItems.value = processingItems.value.filter(id => id !== action.id)
@@ -382,10 +385,10 @@ const revokePermission = async (action: PermissionAction) => {
     })
 
     assignedPermissionIds.value = assignedPermissionIds.value.filter(id => id !== action.id)
-    showSnackbar('Permission revoked successfully', 'success')
+    showSnackbar(t('staff.views.permissions.revokeSuccess'), 'success')
   } catch (error: any) {
     console.error('Failed to revoke permission:', error)
-    showSnackbar('Failed to revoke permission', 'error')
+    showSnackbar(error.response?.data?.message || t('staff.views.permissions.revokeFailed'), 'error')
   } finally {
     processingItems.value = processingItems.value.filter(id => id !== action.id)
   }

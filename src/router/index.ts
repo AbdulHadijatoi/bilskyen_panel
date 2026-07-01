@@ -3,9 +3,10 @@ import { useAuthStore } from '@/stores/auth.store'
 import { useLoadingStore } from '@/stores/loading'
 import { checkAuth } from '@/api/auth.api'
 import { encryptUrlParam } from '@/utils/urlEncryption'
-import { isAdmin, isDealer, hasPermission } from '@/utils/permissions'
+import { isAdmin, isDealer, isStaff, hasPermission } from '@/utils/permissions'
 import { hasFeature, getSubscriptionFeatures } from '@/utils/subscriptionFeatures'
 import { loadSubscriptionFeatures } from '@/api/subscription-features.api'
+import { staffRoutes } from './staffRoutes'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -119,6 +120,12 @@ const router = createRouter({
           meta: { requiresAuth: true, permission: 'dealer.subscription.manage' },
         },
         {
+          path: 'billing',
+          name: 'dealer.billing',
+          component: () => import('@/views/dealer/billing/Billing.vue'),
+          meta: { requiresAuth: true, permission: 'dealer.subscription.manage' },
+        },
+        {
           path: 'audit-logs',
           name: 'dealer.audit-logs',
           component: () => import('@/views/dealer/audit-logs/AuditLogs.vue'),
@@ -131,12 +138,31 @@ const router = createRouter({
           meta: { requiresAuth: true, permission: 'dealer.analytics.view', feature: 'analytics' },
         },
         {
+          path: 'feeds-syndication',
+          name: 'dealer.feeds-syndication',
+          component: () => import('@/views/dealer/syndication/FeedsSyndication.vue'),
+          meta: { requiresAuth: true, permission: 'dealer.syndication.manage' },
+        },
+        {
+          path: 'trade-in',
+          name: 'dealer.trade-in',
+          component: () => import('@/views/dealer/trade-in/TradeInOverview.vue'),
+          meta: { requiresAuth: true, permission: 'dealer.trade_in.manage' },
+        },
+        {
+          path: 'branding',
+          name: 'dealer.branding',
+          component: () => import('@/views/dealer/branding/BrandingDms.vue'),
+          meta: { requiresAuth: true, permission: 'dealer.branding.manage' },
+        },
+        {
           path: 'profile',
           name: 'dealer.profile',
           component: () => import('@/views/dealer/settings/ProfileSettings.vue'),
         },
       ],
     },
+    staffRoutes,
         {
       path: '/admin',
       component: () => import('@/components/admin/AdminLayout.vue'),
@@ -156,6 +182,26 @@ const router = createRouter({
           path: 'users/:id',
           name: 'admin.users.detail',
           component: () => import('@/views/admin/users/UserDetail.vue'),
+        },
+        {
+          path: 'dealers',
+          name: 'admin.dealers',
+          component: () => import('@/views/admin/dealers/DealersOverview.vue'),
+        },
+        {
+          path: 'dealers/:id',
+          name: 'admin.dealers.detail',
+          component: () => import('@/views/admin/dealers/DealerDetail.vue'),
+        },
+        {
+          path: 'integrations',
+          name: 'admin.integrations',
+          component: () => import('@/views/admin/integrations/IntegrationsOverview.vue'),
+        },
+        {
+          path: 'ai/prompts',
+          name: 'admin.ai.prompts',
+          component: () => import('@/views/admin/ai/AiPromptTemplates.vue'),
         },
         {
           path: 'vehicles',
@@ -263,6 +309,31 @@ const router = createRouter({
           component: () => import('@/views/admin/seo-content/SeoContentManagement.vue'),
         },
         {
+          path: 'cms/blog',
+          name: 'admin.cms.blog',
+          component: () => import('@/views/admin/cms/BlogPostsManagement.vue'),
+        },
+        {
+          path: 'cms/landing-pages',
+          name: 'admin.cms.landing-pages',
+          component: () => import('@/views/admin/cms/LandingPagesManagement.vue'),
+        },
+        {
+          path: 'cms/media',
+          name: 'admin.cms.media',
+          component: () => import('@/views/admin/cms/CmsMediaLibrary.vue'),
+        },
+        {
+          path: 'cms/redirects',
+          name: 'admin.cms.redirects',
+          component: () => import('@/views/admin/cms/SeoRedirectsManagement.vue'),
+        },
+        {
+          path: 'cms/seo-tools',
+          name: 'admin.cms.seo-tools',
+          component: () => import('@/views/admin/cms/SeoToolsManagement.vue'),
+        },
+        {
           path: 'featured-vehicles',
           name: 'admin.featured-vehicles',
           component: () => import('@/views/admin/featured-vehicles/FeaturedVehicles.vue'),
@@ -364,7 +435,21 @@ router.beforeEach(async (to, from, next) => {
         } else {
           // Check if route requires admin role
           if (to.meta.requiresAdmin && !isAdmin()) {
-            // Non-admin trying to access admin route - redirect to dealer dashboard
+            loadingStore.stopLoading()
+            isNavigating = false
+            next(isStaff() ? '/staff' : '/')
+            return
+          } else if (to.meta.requiresStaff && !isStaff()) {
+            loadingStore.stopLoading()
+            isNavigating = false
+            next(isAdmin() ? '/admin' : '/')
+            return
+          } else if (isStaff() && !to.path.startsWith('/staff') && !to.path.startsWith('/auth') && !to.meta.requiresAdmin && to.matched.some((r) => r.path === '/')) {
+            loadingStore.stopLoading()
+            isNavigating = false
+            next('/staff')
+            return
+          } else if (isDealer() && to.path.startsWith('/staff')) {
             loadingStore.stopLoading()
             isNavigating = false
             next('/')
@@ -416,6 +501,7 @@ router.beforeEach(async (to, from, next) => {
     } else if (
       to.path === '/auth/login' ||
       to.path === '/login' ||
+      to.path === '/auth/staff-login' ||
       to.path === '/auth/register' ||
       to.path === '/auth/forgot-password' ||
       to.path === '/auth/reset-password'
@@ -430,6 +516,8 @@ router.beforeEach(async (to, from, next) => {
         isNavigating = false
         if (isAdmin()) {
           next('/admin')
+        } else if (isStaff()) {
+          next('/staff')
         } else {
           next('/')
         }

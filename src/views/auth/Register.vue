@@ -231,11 +231,13 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { register, type ApiError } from '@/services/auth'
 import AuthLayout from '@/components/auth/AuthLayout.vue'
 
+const { t } = useI18n()
 const router = useRouter()
 
 const name = ref('')
@@ -295,9 +297,9 @@ const handleSubmit = async () => {
     if (apiError.errors) {
       // Handle validation errors
       const errorMessages = Object.values(apiError.errors).flat()
-      error.value = errorMessages.join(', ') || apiError.message || 'Failed to register.'
+      error.value = errorMessages.join(', ') || apiError.message || t('auth.register.failed')
     } else {
-      error.value = apiError.message || 'Failed to register.'
+      error.value = apiError.message || t('auth.register.failed')
     }
   } finally {
     loading.value = false

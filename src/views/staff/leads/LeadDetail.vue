@@ -85,7 +85,7 @@
                 <v-col cols="12" md="6">
                   <div class="mb-3">
                     <div class="text-caption text-medium-emphasis mb-1">Name</div>
-                    <div class="font-weight-medium text-h6">{{ lead.name || 'N/A' }}</div>
+                    <div class="font-weight-medium text-h6">{{ lead.name || t('common.na') }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" md="6">
@@ -113,7 +113,7 @@
                 <v-col cols="12" md="6">
                   <div class="mb-3">
                     <div class="text-caption text-medium-emphasis mb-1">Source</div>
-                    <div class="font-weight-medium">{{ lead.source || 'N/A' }}</div>
+                    <div class="font-weight-medium">{{ lead.source || t('common.na') }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" v-if="lead.message">
@@ -245,13 +245,13 @@
                 <v-col cols="12" md="6">
                   <div class="mb-2">
                     <div class="text-caption text-medium-emphasis">Title</div>
-                    <div class="font-weight-medium">{{ lead.vehicle.title || 'N/A' }}</div>
+                    <div class="font-weight-medium">{{ lead.vehicle.title || t('common.na') }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" md="6">
                   <div class="mb-2">
                     <div class="text-caption text-medium-emphasis">Registration</div>
-                    <div class="font-weight-medium">{{ lead.vehicle.registration || 'N/A' }}</div>
+                    <div class="font-weight-medium">{{ lead.vehicle.registration || t('common.na') }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" md="6" v-if="lead.vehicle.price">
@@ -293,7 +293,7 @@
                     <div class="d-flex justify-space-between align-start mb-2">
                       <div>
                         <div class="font-weight-medium">
-                          {{ message.user?.name || 'Unknown' }}
+                          {{ message.user?.name || t('common.unknown') }}
                         </div>
                         <div class="text-caption text-medium-emphasis">
                           {{ formatLeadDateFull(message.createdAt) }}
@@ -412,7 +412,7 @@
                   <span class="text-white">{{ lead.assignedTo.name?.charAt(0) || 'U' }}</span>
                 </v-avatar>
                 <div>
-                  <div class="font-weight-medium">{{ lead.assignedTo.name || 'Unknown' }}</div>
+                  <div class="font-weight-medium">{{ lead.assignedTo.name || t('common.unknown') }}</div>
                   <div class="text-caption text-medium-emphasis">{{ lead.assignedTo.email || '' }}</div>
                 </div>
               </div>
@@ -447,6 +447,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getLead, updateLeadStage, updateLeadIntent, updateLeadCategory, getLeadMessages, sendLeadMessage, assignLead as assignLeadApi, getStaff } from '@/api/staff.api'
@@ -465,6 +466,7 @@ import {
 } from '@/utils/leadHelpers'
 import { formatCurrency } from '@/utils/formatCurrency'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 
@@ -504,7 +506,7 @@ const updateStage = async () => {
     await updateLeadStage(lead.value.id, { stage_id: selectedStage.value })
     await loadLead()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update stage'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.leads.failedUpdateStage')
   } finally {
     updating.value = false
   }
@@ -518,7 +520,7 @@ const updateIntent = async () => {
     await updateLeadIntent(lead.value.id, { intent_id: selectedIntent.value })
     await loadLead()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update intent'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.leads.failedUpdateIntent')
   } finally {
     updating.value = false
   }
@@ -532,7 +534,7 @@ const updateCategory = async () => {
     await updateLeadCategory(lead.value.id, { category_id: selectedCategory.value })
     await loadLead()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update category'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.leads.failedUpdateCategory')
   } finally {
     updating.value = false
   }
@@ -547,7 +549,7 @@ const sendMessage = async () => {
     newMessage.value = ''
     await loadMessages()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to send message'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.leads.failedSendMessage')
   } finally {
     sending.value = false
   }
@@ -567,7 +569,7 @@ const handleAssignLead = async () => {
     assignDialog.value = false
     selectedStaffId.value = null
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to assign lead'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.leads.failedAssignLead')
   } finally {
     updating.value = false
   }
@@ -587,7 +589,7 @@ const loadLead = async () => {
     const loadedLead = await getLead(leadId)
     lead.value = loadedLead
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load lead'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.leads.failedLoadLead')
   } finally {
     loading.value = false
   }
@@ -642,7 +644,7 @@ const loadStaff = async () => {
     const staff = await getStaff()
     staffMembers.value = staff.map((s: any) => ({
       id: s.user_id || s.user?.id,
-      name: s.user?.name || 'Unknown',
+      name: s.user?.name || t('common.unknown'),
     }))
   } catch (err) {
     console.error('Failed to load staff:', err)

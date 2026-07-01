@@ -135,10 +135,20 @@
                   color="primary"
                   variant="outlined"
                   prepend-icon="mdi-email-outline"
-                  :href="`mailto:${enquiry.user.email}?subject=Re: ${enquiry.subject}`"
+                  :href="`mailto:${enquiry.user.email}?subject=Re: ${enquiry.subject}${suggestedReply ? '&body=' + encodeURIComponent(suggestedReply) : ''}`"
                 >
                   {{ t('dealer.views.enquiries.replyViaEmail') }}
                 </v-btn>
+                <AiGenerateButton
+                  v-if="enquiry"
+                  class="ml-2"
+                  task="enquiry_reply"
+                  :context="enquiryAiContext"
+                  context-type="enquiry"
+                  :context-id="enquiry.id"
+                  :label="t('dealer.views.ai.suggestReply')"
+                  @accept="suggestedReply = $event"
+                />
                 <v-btn
                   v-if="enquiry.user?.phone"
                   color="primary"
@@ -388,13 +398,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { getEnquiry, updateEnquiryStatus, updateEnquiryType } from '@/api/dealer.api'
 import type { EnquiryModel } from '@/models/enquiry.model'
 import { EnquiryStatus, EnquiryType } from '@/models/enquiry.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import AiGenerateButton from '@/components/ai/AiGenerateButton.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -404,6 +415,20 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 const enquiry = ref<EnquiryModel | null>(null)
 const updating = ref(false)
+const suggestedReply = ref('')
+
+const enquiryAiContext = computed(() => {
+  if (!enquiry.value) return {}
+  return {
+    subject: enquiry.value.subject,
+    message: enquiry.value.message,
+    type: enquiry.value.type,
+    status: enquiry.value.status,
+    customer_name: enquiry.value.user?.name,
+    customer_email: enquiry.value.user?.email,
+    vehicle: enquiry.value.vehicle?.title,
+  }
+})
 
 const selectedStatus = ref<string>('')
 const selectedType = ref<string>('')

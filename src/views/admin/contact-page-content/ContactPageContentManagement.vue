@@ -2,9 +2,9 @@
   <div class="contact-page-content-container">
     <div class="page-header">
       <div class="header-content">
-        <h2 class="page-title">Contact Page Content Management</h2>
+        <h2 class="page-title">{{ t('admin.views.contactPageContent.title') }}</h2>
         <p class="page-description">
-          Manage all text content and images on the contact page. Changes are saved to the database and cache is automatically cleared.
+          {{ t('admin.views.contactPageContent.description') }}
         </p>
       </div>
       <div class="header-actions">
@@ -16,7 +16,7 @@
           class="collapse-button bg-success"
           :disabled="expandedPanels.length === 0"
         >
-          Collapse All
+          {{ t('admin.views.pageContentCommon.collapseAll') }}
         </v-btn>
         <v-btn
           color="primary"
@@ -27,7 +27,7 @@
           @click="saveAllSections"
           class="save-button"
         >
-          Save All Changes
+          {{ t('admin.views.pageContentCommon.saveAllChanges') }}
         </v-btn>
       </div>
     </div>
@@ -35,7 +35,7 @@
     <!-- Loading State -->
     <div v-if="loading && !sections.length" class="text-center py-8">
       <v-progress-circular indeterminate color="primary" />
-      <p class="text-body-2 text-medium-emphasis mt-4">Loading contact page content...</p>
+      <p class="text-body-2 text-medium-emphasis mt-4">{{ t('admin.views.contactPageContent.loading') }}</p>
     </div>
 
     <!-- Error State -->
@@ -46,7 +46,7 @@
       prominent
       class="mb-4"
     >
-      <v-alert-title>Error Loading Content</v-alert-title>
+      <v-alert-title>{{ t('admin.views.pageContentCommon.errorLoading') }}</v-alert-title>
       {{ error }}
     </v-alert>
 
@@ -57,13 +57,13 @@
         <v-expansion-panel>
           <v-expansion-panel-title>
             <div class="d-flex align-center">
-              <span class="panel-title-text">Header Section</span>
+              <span class="panel-title-text">{{ t('admin.views.pageContentCommon.sections.header') }}</span>
             </div>
           </v-expansion-panel-title>
           <v-expansion-panel-text>
             <div class="editable-content-group two-column">
               <div class="editable-field">
-                <div class="field-label">Title</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.title') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -75,7 +75,7 @@
                 ></div>
               </div>
               <div class="editable-field">
-                <div class="field-label">Description</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.description') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -94,13 +94,13 @@
         <v-expansion-panel>
           <v-expansion-panel-title>
             <div class="d-flex align-center">
-              <span class="panel-title-text">Contact Form Section</span>
+              <span class="panel-title-text">{{ t('admin.views.contactPageContent.sections.contactForm') }}</span>
             </div>
           </v-expansion-panel-title>
           <v-expansion-panel-text>
             <div class="editable-content-group two-column">
               <div class="editable-field">
-                <div class="field-label">Form Title</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.formTitle') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -112,7 +112,7 @@
                 ></div>
               </div>
               <div class="editable-field">
-                <div class="field-label">Form Description</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.formDescription') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -131,13 +131,13 @@
         <v-expansion-panel>
           <v-expansion-panel-title>
             <div class="d-flex align-center">
-              <span class="panel-title-text">Contact Information Section</span>
+              <span class="panel-title-text">{{ t('admin.views.contactPageContent.sections.contactInfo') }}</span>
             </div>
           </v-expansion-panel-title>
           <v-expansion-panel-text>
             <div class="editable-content-group two-column">
               <div class="editable-field">
-                <div class="field-label">Section Title</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.sectionTitle') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -149,7 +149,7 @@
                 ></div>
               </div>
               <div class="editable-field">
-                <div class="field-label">Section Description</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.sectionDescription') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -161,7 +161,7 @@
                 ></div>
               </div>
               <div class="editable-field">
-                <div class="field-label">Address</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.address') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -173,7 +173,7 @@
                 ></div>
               </div>
               <div class="editable-field">
-                <div class="field-label">Phone</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.phone') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -185,7 +185,7 @@
                 ></div>
               </div>
               <div class="editable-field">
-                <div class="field-label">Email</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.email') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -197,7 +197,7 @@
                 ></div>
               </div>
               <div class="editable-field">
-                <div class="field-label">Business Hours (Weekdays)</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.businessHoursWeekdays') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -209,7 +209,7 @@
                 ></div>
               </div>
               <div class="editable-field">
-                <div class="field-label">Business Hours (Weekend)</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.businessHoursWeekend') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -228,13 +228,13 @@
         <v-expansion-panel>
           <v-expansion-panel-title>
             <div class="d-flex align-center">
-              <span class="panel-title-text">Map Section</span>
+              <span class="panel-title-text">{{ t('admin.views.contactPageContent.sections.map') }}</span>
             </div>
           </v-expansion-panel-title>
           <v-expansion-panel-text>
             <div class="editable-content-group">
               <div class="editable-field">
-                <div class="field-label">Map Title</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.mapTitle') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -246,7 +246,7 @@
                 ></div>
               </div>
               <div class="editable-field">
-                <div class="field-label">Map Address</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.mapAddress') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -258,7 +258,7 @@
                 ></div>
               </div>
               <div class="editable-field">
-                <div class="field-label">Map Image</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.mapImage') }}</div>
                 <div class="image-upload-section">
                   <div v-if="getImageForSection('contact_map_image')" class="image-preview-container">
                     <img 
@@ -304,7 +304,7 @@
           :disabled="saving"
           @click="saveAllSections"
         >
-          Save All Changes
+          {{ t('admin.views.pageContentCommon.saveAllChanges') }}
         </v-btn>
       </div>
     </div>
@@ -316,9 +316,9 @@
       timeout="3000"
       location="top"
     >
-      Contact page content updated successfully!
+      {{ t('admin.views.contactPageContent.successMessage') }}
       <template #actions>
-        <v-btn variant="text" @click="showSuccess = false">Close</v-btn>
+        <v-btn variant="text" @click="showSuccess = false">{{ t('common.close') }}</v-btn>
       </template>
     </v-snackbar>
 
@@ -331,7 +331,7 @@
     >
       {{ errorMessage }}
       <template #actions>
-        <v-btn variant="text" @click="showError = false">Close</v-btn>
+        <v-btn variant="text" @click="showError = false">{{ t('common.close') }}</v-btn>
       </template>
     </v-snackbar>
 
@@ -366,6 +366,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, reactive, nextTick, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import {
   getContactPageContent,
   bulkUpdateContactPageContent,
@@ -374,21 +375,23 @@ import {
 } from '@/api/admin.api'
 import type { ContactPageContentMap, PageImageModel, PageImagesMap, HomePageSectionModel } from '@/models/home-page-content.model'
 
+const { t } = useI18n()
+
 // Section definitions for placeholder lookup
-const sectionDefinitions: Record<string, { placeholder: string }> = {
-  contact_header_title: { placeholder: 'Get in Touch' },
-  contact_header_description: { placeholder: "We're here to help with your questions about vehicles, financing, and our services. Reach out to us anytime." },
-  contact_form_title: { placeholder: 'Send Us a Message' },
-  contact_form_description: { placeholder: "Fill out the form below, and we'll get back to you as soon as possible." },
-  contact_info_title: { placeholder: 'Contact Information' },
-  contact_info_description: { placeholder: 'Find us at our dealership or reach out via phone or email.' },
-  contact_address: { placeholder: '123 Dealership Lane, Copenhagen, Denmark' },
-  contact_phone: { placeholder: '+45 12 34 56 78' },
-  contact_email: { placeholder: 'info@bilskyen.dk' },
-  contact_hours_weekdays: { placeholder: 'Monday - Saturday: 9:00 AM - 7:00 PM' },
-  contact_hours_weekend: { placeholder: 'Sunday: 10:00 AM - 5:00 PM' },
-  contact_map_title: { placeholder: 'Visit Our Showroom' },
-  contact_map_address: { placeholder: '123 Dealership Lane, Copenhagen, Denmark' },
+const sectionDefinitions: Record<string, Record<string, never>> = {
+  contact_header_title: {},
+  contact_header_description: {},
+  contact_form_title: {},
+  contact_form_description: {},
+  contact_info_title: {},
+  contact_info_description: {},
+  contact_address: {},
+  contact_phone: {},
+  contact_email: {},
+  contact_hours_weekdays: {},
+  contact_hours_weekend: {},
+  contact_map_title: {},
+  contact_map_address: {},
 }
 
 const loading = ref(false)
@@ -417,7 +420,7 @@ Object.keys(sectionDefinitions).forEach((key) => {
  * Get placeholder text for a section key
  */
 function getPlaceholder(key: string): string {
-  return sectionDefinitions[key]?.placeholder || ''
+  return t(`admin.views.contactPageContent.placeholders.${key}`)
 }
 
 /**
@@ -491,7 +494,7 @@ async function deleteImage() {
     imageToDelete.value = null
     showSuccess.value = true
   } catch (err: any) {
-    errorMessage.value = err.message || 'Failed to delete image'
+    errorMessage.value = err.message || t('common.errors.failedDeleteImage')
     showError.value = true
     console.error('Error deleting image:', err)
   } finally {
@@ -675,7 +678,7 @@ async function loadContent() {
       updateContenteditableElements()
     }, 100)
   } catch (err: any) {
-    error.value = err.message || 'Failed to load contact page content'
+    error.value = err.message || t('common.errors.failedLoadContactPageContent')
     console.error('Error loading contact page content:', err)
   } finally {
     loading.value = false
@@ -719,7 +722,7 @@ async function saveAllSections() {
     
     showSuccess.value = true
   } catch (err: any) {
-    errorMessage.value = err.message || 'Failed to save contact page content'
+    errorMessage.value = err.message || t('common.errors.failedSaveContactPageContent')
     showError.value = true
     console.error('Error saving contact page content:', err)
   } finally {

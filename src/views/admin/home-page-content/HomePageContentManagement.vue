@@ -2,9 +2,9 @@
   <div class="home-page-content-container">
     <div class="page-header">
       <div class="header-content">
-        <h2 class="page-title">Home Page Content Management</h2>
+        <h2 class="page-title">{{ t('admin.views.homePageContent.title') }}</h2>
         <p class="page-description">
-          Manage all text content on the home page. Changes are saved to the database and cache is automatically cleared.
+          {{ t('admin.views.homePageContent.description') }}
         </p>
       </div>
       <div class="header-actions">
@@ -17,7 +17,7 @@
           class="collapse-button bg-success"
           :disabled="expandedPanels.length === 0"
         >
-          Collapse All
+          {{ t('admin.views.pageContentCommon.collapseAll') }}
         </v-btn>
         <v-btn
           color="primary"
@@ -28,7 +28,7 @@
           @click="saveAllSections"
           class="save-button"
         >
-          Save All Changes
+          {{ t('admin.views.pageContentCommon.saveAllChanges') }}
         </v-btn>
       </div>
     </div>
@@ -36,7 +36,7 @@
     <!-- Loading State -->
     <div v-if="loading && !sections.length" class="text-center py-8">
       <v-progress-circular indeterminate color="primary" />
-      <p class="text-body-2 text-medium-emphasis mt-4">Loading home page content...</p>
+      <p class="text-body-2 text-medium-emphasis mt-4">{{ t('admin.views.homePageContent.loading') }}</p>
     </div>
 
     <!-- Error State -->
@@ -47,7 +47,7 @@
       prominent
       class="mb-4"
     >
-      <v-alert-title>Error Loading Content</v-alert-title>
+      <v-alert-title>{{ t('admin.views.pageContentCommon.errorLoading') }}</v-alert-title>
       {{ error }}
     </v-alert>
 
@@ -58,13 +58,13 @@
         <v-expansion-panel>
           <v-expansion-panel-title>
             <div class="d-flex align-center">
-              <span class="panel-title-text">Search Section</span>
+              <span class="panel-title-text">{{ t('admin.views.homePageContent.sections.search') }}</span>
             </div>
           </v-expansion-panel-title>
           <v-expansion-panel-text>
             <div class="editable-content-group two-column">
               <div class="editable-field">
-                <div class="field-label">Title</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.title') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -76,7 +76,7 @@
                 ></div>
               </div>
               <div class="editable-field">
-                <div class="field-label">Description</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.description') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -95,13 +95,13 @@
         <v-expansion-panel>
           <v-expansion-panel-title>
             <div class="d-flex align-center">
-              <span class="panel-title-text">Hero Section</span>
+              <span class="panel-title-text">{{ t('admin.views.homePageContent.sections.hero') }}</span>
             </div>
           </v-expansion-panel-title>
           <v-expansion-panel-text>
             <div class="editable-content-group">
               <div class="editable-field">
-                <div class="field-label">Description</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.description') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -120,13 +120,13 @@
         <v-expansion-panel>
           <v-expansion-panel-title>
             <div class="d-flex align-center">
-              <span class="panel-title-text">Featured Vehicles Section</span>
+              <span class="panel-title-text">{{ t('admin.views.homePageContent.sections.featuredVehicles') }}</span>
             </div>
           </v-expansion-panel-title>
           <v-expansion-panel-text>
             <div class="editable-content-group two-column">
               <div class="editable-field">
-                <div class="field-label">Title</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.title') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -139,7 +139,7 @@
                 ></div>
               </div>
               <div class="editable-field">
-                <div class="field-label">Description</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.description') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -159,13 +159,13 @@
         <v-expansion-panel>
           <v-expansion-panel-title>
             <div class="d-flex align-center">
-              <span class="panel-title-text">Stats Section</span>
+              <span class="panel-title-text">{{ t('admin.views.homePageContent.sections.stats') }}</span>
             </div>
           </v-expansion-panel-title>
           <v-expansion-panel-text>
             <div class="editable-content-group two-column">
               <div class="editable-field">
-                <div class="field-label">Section Title</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.sectionTitle') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -178,7 +178,7 @@
                 ></div>
               </div>
               <div class="editable-field">
-                <div class="field-label">Section Description</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.sectionDescription') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -193,10 +193,10 @@
               
               <!-- Stat 1 -->
               <div class="sub-section">
-                <div class="sub-section-title">Stat 1</div>
+                <div class="sub-section-title">{{ t('admin.views.homePageContent.subsections.stat1') }}</div>
                 <div class="editable-content-group">
                   <div class="editable-field">
-                    <div class="field-label">Value</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.value') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -209,7 +209,7 @@
                     ></div>
                   </div>
                   <div class="editable-field">
-                    <div class="field-label">Title</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.title') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -222,7 +222,7 @@
                     ></div>
                   </div>
                   <div class="editable-field full-width">
-                    <div class="field-label">Description</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.description') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -239,10 +239,10 @@
 
               <!-- Stat 2 -->
               <div class="sub-section">
-                <div class="sub-section-title">Stat 2</div>
+                <div class="sub-section-title">{{ t('admin.views.homePageContent.subsections.stat2') }}</div>
                 <div class="editable-content-group">
                   <div class="editable-field">
-                    <div class="field-label">Value</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.value') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -255,7 +255,7 @@
                     ></div>
                   </div>
                   <div class="editable-field">
-                    <div class="field-label">Title</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.title') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -268,7 +268,7 @@
                     ></div>
                   </div>
                   <div class="editable-field full-width">
-                    <div class="field-label">Description</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.description') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -285,10 +285,10 @@
 
               <!-- Stat 3 -->
               <div class="sub-section">
-                <div class="sub-section-title">Stat 3</div>
+                <div class="sub-section-title">{{ t('admin.views.homePageContent.subsections.stat3') }}</div>
                 <div class="editable-content-group">
                   <div class="editable-field">
-                    <div class="field-label">Value</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.value') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -301,7 +301,7 @@
                     ></div>
                   </div>
                   <div class="editable-field">
-                    <div class="field-label">Title</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.title') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -314,7 +314,7 @@
                     ></div>
                   </div>
                   <div class="editable-field full-width">
-                    <div class="field-label">Description</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.description') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -331,10 +331,10 @@
 
               <!-- Stat 4 -->
               <div class="sub-section">
-                <div class="sub-section-title">Stat 4</div>
+                <div class="sub-section-title">{{ t('admin.views.homePageContent.subsections.stat4') }}</div>
                 <div class="editable-content-group">
                   <div class="editable-field">
-                    <div class="field-label">Value</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.value') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -347,7 +347,7 @@
                     ></div>
                   </div>
                   <div class="editable-field">
-                    <div class="field-label">Title</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.title') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -360,7 +360,7 @@
                     ></div>
                   </div>
                   <div class="editable-field full-width">
-                    <div class="field-label">Description</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.description') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -382,13 +382,13 @@
         <v-expansion-panel>
           <v-expansion-panel-title>
             <div class="d-flex align-center">
-              <span class="panel-title-text">Features Section</span>
+              <span class="panel-title-text">{{ t('admin.views.homePageContent.sections.features') }}</span>
             </div>
           </v-expansion-panel-title>
           <v-expansion-panel-text>
             <div class="editable-content-group two-column">
               <div class="editable-field">
-                <div class="field-label">Section Title</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.sectionTitle') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -401,7 +401,7 @@
                 ></div>
               </div>
               <div class="editable-field">
-                <div class="field-label">Section Description</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.sectionDescription') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -416,10 +416,10 @@
               
               <!-- Feature 1 -->
               <div class="sub-section">
-                <div class="sub-section-title">Feature 1</div>
+                <div class="sub-section-title">{{ t('admin.views.homePageContent.subsections.feature1') }}</div>
                 <div class="editable-content-group">
                   <div class="editable-field">
-                    <div class="field-label">Title</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.title') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -432,7 +432,7 @@
                     ></div>
                   </div>
                   <div class="editable-field">
-                    <div class="field-label">Description</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.description') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -449,10 +449,10 @@
 
               <!-- Feature 2 -->
               <div class="sub-section">
-                <div class="sub-section-title">Feature 2</div>
+                <div class="sub-section-title">{{ t('admin.views.homePageContent.subsections.feature2') }}</div>
                 <div class="editable-content-group">
                   <div class="editable-field">
-                    <div class="field-label">Title</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.title') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -465,7 +465,7 @@
                     ></div>
                   </div>
                   <div class="editable-field">
-                    <div class="field-label">Description</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.description') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -482,10 +482,10 @@
 
               <!-- Feature 3 -->
               <div class="sub-section">
-                <div class="sub-section-title">Feature 3</div>
+                <div class="sub-section-title">{{ t('admin.views.homePageContent.subsections.feature3') }}</div>
                 <div class="editable-content-group">
                   <div class="editable-field">
-                    <div class="field-label">Title</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.title') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -498,7 +498,7 @@
                     ></div>
                   </div>
                   <div class="editable-field">
-                    <div class="field-label">Description</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.description') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -520,13 +520,13 @@
         <v-expansion-panel>
           <v-expansion-panel-title>
             <div class="d-flex align-center">
-              <span class="panel-title-text">Testimonials Section</span>
+              <span class="panel-title-text">{{ t('admin.views.homePageContent.sections.testimonials') }}</span>
             </div>
           </v-expansion-panel-title>
           <v-expansion-panel-text>
             <div class="editable-content-group two-column">
               <div class="editable-field">
-                <div class="field-label">Section Title</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.sectionTitle') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -539,7 +539,7 @@
                 ></div>
               </div>
               <div class="editable-field">
-                <div class="field-label">Section Description</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.sectionDescription') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -554,10 +554,10 @@
               
               <!-- Testimonial 1 -->
               <div class="sub-section">
-                <div class="sub-section-title">Testimonial 1</div>
+                <div class="sub-section-title">{{ t('admin.views.homePageContent.subsections.testimonial1') }}</div>
                 <div class="testimonial-fields">
                   <div class="editable-field">
-                    <div class="field-label">Name</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.name') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -570,7 +570,7 @@
                     ></div>
                   </div>
                   <div class="editable-field">
-                    <div class="field-label">Location</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.location') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -583,7 +583,7 @@
                     ></div>
                   </div>
                   <div class="editable-field rating-field">
-                    <div class="field-label">Rating</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.rating') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -596,7 +596,7 @@
                     ></div>
                   </div>
                   <div class="editable-field full-width">
-                    <div class="field-label">Quote</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.quote') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -613,10 +613,10 @@
 
               <!-- Testimonial 2 -->
               <div class="sub-section">
-                <div class="sub-section-title">Testimonial 2</div>
+                <div class="sub-section-title">{{ t('admin.views.homePageContent.subsections.testimonial2') }}</div>
                 <div class="testimonial-fields">
                   <div class="editable-field">
-                    <div class="field-label">Name</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.name') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -629,7 +629,7 @@
                     ></div>
                   </div>
                   <div class="editable-field">
-                    <div class="field-label">Location</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.location') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -642,7 +642,7 @@
                     ></div>
                   </div>
                   <div class="editable-field rating-field">
-                    <div class="field-label">Rating</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.rating') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -655,7 +655,7 @@
                     ></div>
                   </div>
                   <div class="editable-field full-width">
-                    <div class="field-label">Quote</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.quote') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -672,10 +672,10 @@
 
               <!-- Testimonial 3 -->
               <div class="sub-section">
-                <div class="sub-section-title">Testimonial 3</div>
+                <div class="sub-section-title">{{ t('admin.views.homePageContent.subsections.testimonial3') }}</div>
                 <div class="testimonial-fields">
                   <div class="editable-field">
-                    <div class="field-label">Name</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.name') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -688,7 +688,7 @@
                     ></div>
                   </div>
                   <div class="editable-field">
-                    <div class="field-label">Location</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.location') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -701,7 +701,7 @@
                     ></div>
                   </div>
                   <div class="editable-field rating-field">
-                    <div class="field-label">Rating</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.rating') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -714,7 +714,7 @@
                     ></div>
                   </div>
                   <div class="editable-field full-width">
-                    <div class="field-label">Quote</div>
+                    <div class="field-label">{{ t('admin.views.pageContentCommon.fields.quote') }}</div>
                     <div
                       contenteditable
                       class="editable-text"
@@ -736,13 +736,13 @@
         <v-expansion-panel>
           <v-expansion-panel-title>
             <div class="d-flex align-center">
-              <span class="panel-title-text">Footer Section</span>
+              <span class="panel-title-text">{{ t('admin.views.homePageContent.sections.footer') }}</span>
             </div>
           </v-expansion-panel-title>
           <v-expansion-panel-text>
             <div class="editable-content-group two-column">
               <div class="editable-field">
-                <div class="field-label">CTA Title</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.ctaTitle') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -755,7 +755,7 @@
                 ></div>
               </div>
               <div class="editable-field">
-                <div class="field-label">CTA Description</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.ctaDescription') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -768,7 +768,7 @@
                 ></div>
               </div>
               <div class="editable-field full-width">
-                <div class="field-label">About Description</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.aboutDescription') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -781,7 +781,7 @@
                 ></div>
               </div>
               <div class="editable-field">
-                <div class="field-label">Contact email</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.contactEmail') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -793,7 +793,7 @@
                 ></div>
               </div>
               <div class="editable-field">
-                <div class="field-label">Contact phone</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.contactPhone') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -805,7 +805,7 @@
                 ></div>
               </div>
               <div class="editable-field full-width">
-                <div class="field-label">Address (footer)</div>
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.addressFooter') }}</div>
                 <div
                   contenteditable
                   class="editable-text"
@@ -831,7 +831,7 @@
           :disabled="saving"
           @click="saveAllSections"
         >
-          Save All Changes
+          {{ t('admin.views.pageContentCommon.saveAllChanges') }}
         </v-btn>
       </div>
     </div>
@@ -843,9 +843,9 @@
       timeout="3000"
       location="top"
     >
-      Home page content updated successfully!
+      {{ t('admin.views.homePageContent.successMessage') }}
       <template #actions>
-        <v-btn variant="text" @click="showSuccess = false">Close</v-btn>
+        <v-btn variant="text" @click="showSuccess = false">{{ t('common.close') }}</v-btn>
       </template>
     </v-snackbar>
 
@@ -858,7 +858,7 @@
     >
       {{ errorMessage }}
       <template #actions>
-        <v-btn variant="text" @click="showError = false">Close</v-btn>
+        <v-btn variant="text" @click="showError = false">{{ t('common.close') }}</v-btn>
       </template>
     </v-snackbar>
   </div>
@@ -866,61 +866,64 @@
 
 <script setup lang="ts">
 import { ref, onMounted, reactive, nextTick, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import {
   getHomePageContent,
   bulkUpdateHomePageContent,
 } from '@/api/admin.api'
 import type { HomePageContentMap, HomePageSectionModel } from '@/models/home-page-content.model'
 
+const { t } = useI18n()
+
 // Section definitions for placeholder lookup
-const sectionDefinitions: Record<string, { placeholder: string }> = {
-  search_title: { placeholder: 'Find Your Perfect Vehicle at Bilskyen' },
-  search_description: { placeholder: 'Search our inventory to find the perfect match for your needs.' },
-  hero_description: { placeholder: 'Revolutionizing the car buying experience with transparent pricing, quality vehicles, and exceptional customer service.' },
-  featured_vehicles_title: { placeholder: 'Featured Vehicles' },
-  featured_vehicles_description: { placeholder: 'Explore our selection of quality vehicles ready for you to drive home today.' },
-  stats_title: { placeholder: 'Why Choose Bilskyen' },
-  stats_description: { placeholder: "We're committed to providing exceptional service and quality vehicles to our customers." },
-  features_title: { placeholder: 'Our Services' },
-  features_description: { placeholder: 'We provide comprehensive services to make your vehicle purchase smooth and enjoyable.' },
-  testimonials_title: { placeholder: 'Customer Testimonials' },
-  testimonials_description: { placeholder: 'Hear what our customers have to say about their experience with us.' },
-  footer_cta_title: { placeholder: 'Ready to Find Your Next Vehicle?' },
-  footer_cta_description: { placeholder: 'Visit our showroom or browse our inventory online. Our team is ready to help you find the perfect vehicle that fits your needs and budget.' },
-  footer_about_description: { placeholder: 'Bilskyen - Driving trust and value with quality pre-owned vehicles for every journey.' },
-  footer_contact_email: { placeholder: 'info@bilskyen.dk' },
-  footer_contact_phone: { placeholder: '+45 12 34 56 78' },
-  footer_about_address: { placeholder: '123 Dealership Lane, Copenhagen, Denmark' },
-  stat_1_value: { placeholder: '100+' },
-  stat_1_title: { placeholder: 'Quality Vehicles' },
-  stat_1_description: { placeholder: 'Thoroughly inspected vehicles in our inventory' },
-  stat_2_value: { placeholder: '500+' },
-  stat_2_title: { placeholder: 'Happy Customers' },
-  stat_2_description: { placeholder: 'Satisfied customers who found their perfect vehicle' },
-  stat_3_value: { placeholder: '15+' },
-  stat_3_title: { placeholder: 'Years of Experience' },
-  stat_3_description: { placeholder: 'Years serving our community with integrity' },
-  stat_4_value: { placeholder: '98%' },
-  stat_4_title: { placeholder: 'Satisfaction Rate' },
-  stat_4_description: { placeholder: 'Customer satisfaction based on reviews' },
-  feature_1_title: { placeholder: 'Financing Options' },
-  feature_1_description: { placeholder: 'We work with multiple lenders to find the best financing solutions for your budget.' },
-  feature_2_title: { placeholder: 'Vehicle Warranty' },
-  feature_2_description: { placeholder: 'Extended warranty options to protect your investment and give you peace of mind.' },
-  feature_3_title: { placeholder: 'Service Department' },
-  feature_3_description: { placeholder: 'Professional maintenance and repair services to keep your vehicle in top condition.' },
-  testimonial_1_name: { placeholder: 'John Davis' },
-  testimonial_1_location: { placeholder: 'Copenhagen, Denmark' },
-  testimonial_1_quote: { placeholder: 'The team at Bilskyen made buying a car so easy. They were transparent about pricing and helped me find the perfect vehicle for my family.' },
-  testimonial_1_rating: { placeholder: '5' },
-  testimonial_2_name: { placeholder: 'Priya Sharma' },
-  testimonial_2_location: { placeholder: 'Aarhus, Denmark' },
-  testimonial_2_quote: { placeholder: 'I was impressed with their knowledge and no-pressure approach. I got a great deal on my new car and would definitely recommend them.' },
-  testimonial_2_rating: { placeholder: '5' },
-  testimonial_3_name: { placeholder: 'Ahmed Khan' },
-  testimonial_3_location: { placeholder: 'Odense, Denmark' },
-  testimonial_3_quote: { placeholder: 'The financing options they provided were better than I expected. The entire process was smooth and I drove away very happy.' },
-  testimonial_3_rating: { placeholder: '4' },
+const sectionDefinitions: Record<string, Record<string, never>> = {
+  search_title: {},
+  search_description: {},
+  hero_description: {},
+  featured_vehicles_title: {},
+  featured_vehicles_description: {},
+  stats_title: {},
+  stats_description: {},
+  features_title: {},
+  features_description: {},
+  testimonials_title: {},
+  testimonials_description: {},
+  footer_cta_title: {},
+  footer_cta_description: {},
+  footer_about_description: {},
+  footer_contact_email: {},
+  footer_contact_phone: {},
+  footer_about_address: {},
+  stat_1_value: {},
+  stat_1_title: {},
+  stat_1_description: {},
+  stat_2_value: {},
+  stat_2_title: {},
+  stat_2_description: {},
+  stat_3_value: {},
+  stat_3_title: {},
+  stat_3_description: {},
+  stat_4_value: {},
+  stat_4_title: {},
+  stat_4_description: {},
+  feature_1_title: {},
+  feature_1_description: {},
+  feature_2_title: {},
+  feature_2_description: {},
+  feature_3_title: {},
+  feature_3_description: {},
+  testimonial_1_name: {},
+  testimonial_1_location: {},
+  testimonial_1_quote: {},
+  testimonial_1_rating: {},
+  testimonial_2_name: {},
+  testimonial_2_location: {},
+  testimonial_2_quote: {},
+  testimonial_2_rating: {},
+  testimonial_3_name: {},
+  testimonial_3_location: {},
+  testimonial_3_quote: {},
+  testimonial_3_rating: {},
 }
 
 const loading = ref(false)
@@ -944,7 +947,7 @@ Object.keys(sectionDefinitions).forEach((key) => {
  * Get placeholder text for a section key
  */
 function getPlaceholder(key: string): string {
-  return sectionDefinitions[key]?.placeholder || ''
+  return t(`admin.views.homePageContent.placeholders.${key}`)
 }
 
 /**
@@ -1130,7 +1133,7 @@ async function loadContent() {
       updateContenteditableElements()
     }, 100)
   } catch (err: any) {
-    error.value = err.message || 'Failed to load home page content'
+    error.value = err.message || t('common.errors.failedLoadHomePageContent')
     console.error('Error loading home page content:', err)
   } finally {
     loading.value = false
@@ -1174,7 +1177,7 @@ async function saveAllSections() {
     
     showSuccess.value = true
   } catch (err: any) {
-    errorMessage.value = err.message || 'Failed to save home page content'
+    errorMessage.value = err.message || t('common.errors.failedSaveHomePageContent')
     showError.value = true
     console.error('Error saving home page content:', err)
   } finally {

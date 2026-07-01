@@ -112,7 +112,7 @@
                 density="compact"
                 :style="{ border: '1px solid #f5f5f5' }"
               >
-                <v-btn value="all" size="small">All</v-btn>
+                <v-btn value="all" size="small">{{ t('admin.views.permissions.all') }}</v-btn>
                 <v-btn value="assigned" size="small">{{ t('admin.views.permissions.assigned') }}</v-btn>
                 <v-btn value="unassigned" size="small">{{ t('admin.views.permissions.unassigned') }}</v-btn>
               </v-btn-toggle>
@@ -133,9 +133,9 @@
 
             <div v-else-if="filteredItems.length === 0" class="text-center py-12">
               <v-icon size="48" color="grey-lighten-1" class="mb-3">mdi-shield-lock-outline</v-icon>
-              <p class="text-body-1 text-medium-emphasis mb-1">No permissions found</p>
+              <p class="text-body-1 text-medium-emphasis mb-1">{{ t('admin.views.permissions.noPermissionsFound') }}</p>
               <p class="text-caption text-medium-emphasis">
-                {{ filterType === 'assigned' ? 'No assigned permissions' : filterType === 'unassigned' ? 'All permissions are assigned' : 'No permissions available' }}
+                {{ filterType === 'assigned' ? t('admin.views.permissions.noAssignedPermissions') : filterType === 'unassigned' ? t('admin.views.permissions.allPermissionsAssigned') : t('admin.views.permissions.noPermissionsAvailable') }}
               </p>
             </div>
 
@@ -201,7 +201,7 @@
               <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-shield-lock-outline</v-icon>
               <p class="text-h6 mb-2">{{ t('admin.views.permissions.selectRole') }}</p>
               <p class="text-body-2 text-medium-emphasis">
-                Choose a role from the left sidebar to view and manage their permissions.
+                {{ t('admin.views.permissions.selectRoleHint') }}
               </p>
             </div>
           </v-card-text>
@@ -300,7 +300,7 @@ const getAllItems = async () => {
     allItems.value = response.data.items
   } catch (error: any) {
     console.error('Failed to load permissions:', error)
-    showSnackbar('Failed to load permissions', 'error')
+    showSnackbar(t('admin.views.permissions.loadFailed'), 'error')
   } finally {
     loading.value = false
   }
@@ -332,7 +332,7 @@ const handleModelSearch = async () => {
     modelOptions.value = response.data.models
   } catch (error: any) {
     console.error('Failed to search models:', error)
-    showSnackbar('Failed to search users/roles', 'error')
+    showSnackbar(t('admin.views.permissions.searchFailed'), 'error')
   } finally {
     searchingModels.value = false
   }
@@ -366,7 +366,7 @@ const getModelItems = async () => {
     assignedPermissionIds.value = response.data.permission_ids
   } catch (error: any) {
     console.error('Failed to load model items:', error)
-    showSnackbar('Failed to load assigned permissions', 'error')
+    showSnackbar(t('admin.views.permissions.loadAssignedFailed'), 'error')
   } finally {
     loading.value = false
   }
@@ -401,10 +401,10 @@ const assignPermission = async (action: PermissionAction) => {
     })
 
     assignedPermissionIds.value.push(action.id)
-    showSnackbar('Permission assigned successfully', 'success')
+    showSnackbar(t('admin.views.permissions.assignSuccess'), 'success')
   } catch (error: any) {
     console.error('Failed to assign permission:', error)
-    const message = error.response?.data?.message || 'Failed to assign permission'
+    const message = error.response?.data?.message || t('admin.views.permissions.assignFailed')
     showSnackbar(message, 'error')
   } finally {
     processingItems.value = processingItems.value.filter(id => id !== action.id)
@@ -424,10 +424,10 @@ const revokePermission = async (action: PermissionAction) => {
     })
 
     assignedPermissionIds.value = assignedPermissionIds.value.filter(id => id !== action.id)
-    showSnackbar('Permission revoked successfully', 'success')
+    showSnackbar(t('admin.views.permissions.revokeSuccess'), 'success')
   } catch (error: any) {
     console.error('Failed to revoke permission:', error)
-    const message = error.response?.data?.message || 'Failed to revoke permission'
+    const message = error.response?.data?.message || t('admin.views.permissions.revokeFailed')
     showSnackbar(message, 'error')
   } finally {
     processingItems.value = processingItems.value.filter(id => id !== action.id)
@@ -478,7 +478,7 @@ const handleClearCache = async () => {
   try {
     clearingCache.value = true
     await apiClient.post('/admin/permissions/clear-cache')
-    showSnackbar('Cache cleared successfully', 'success')
+    showSnackbar(t('admin.views.permissions.cacheCleared'), 'success')
     // Reload permissions after cache clear
     await getAllItems()
     // Reload model items if a model is selected
@@ -487,7 +487,7 @@ const handleClearCache = async () => {
     }
   } catch (error: any) {
     console.error('Failed to clear cache:', error)
-    const message = error.response?.data?.message || 'Failed to clear cache'
+    const message = error.response?.data?.message || t('admin.views.permissions.cacheClearFailed')
     showSnackbar(message, 'error')
   } finally {
     clearingCache.value = false

@@ -96,7 +96,7 @@
                   </div>
                 </div>
                 <p class="text-body-2 text-medium-emphasis mb-3">
-                  {{ feature.description || 'No description provided' }}
+                  {{ feature.description || t('common.noDescription') }}
                 </p>
                 <div class="d-flex justify-space-between align-center">
                   <span class="text-caption text-medium-emphasis">
@@ -156,7 +156,7 @@
             label="Value Type *"
             variant="outlined"
             density="comfortable"
-            :rules="[v => !!v || 'Required']"
+            :rules="[v => !!v || t('common.required')]"
             class="mb-2"
           />
           <v-textarea
@@ -165,7 +165,7 @@
             variant="outlined"
             density="comfortable"
             rows="3"
-            :rules="[v => !!v?.trim() || 'Required']"
+            :rules="[v => !!v?.trim() || t('common.required')]"
           />
         </v-card-text>
         <v-divider />
@@ -227,7 +227,7 @@ const valueTypeOptions = [
 
 const keyRegex = /^[a-z0-9_-]+$/
 const keyRules = [
-  (v: string) => !!v?.trim() || 'Required',
+  (v: string) => !!v?.trim() || t('common.required'),
   (v: string) => keyRegex.test(v?.trim() || '') || 'Use lowercase letters, numbers, underscore, or hyphen',
   (v: string) => isKeyUnique(v) || 'Feature key already exists',
 ]
@@ -275,7 +275,7 @@ const createFeatureRecord = async () => {
     closeCreateDialog()
     await loadFeatures()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to create feature'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedCreateFeature')
   } finally {
     creating.value = false
   }
@@ -306,7 +306,7 @@ const getValueTypeName = (typeId: number) => {
     2: 'Number',
     3: 'Text',
   }
-  return types[typeId] || 'Unknown'
+  return types[typeId] || t('common.unknown')
 }
 
 const loadFeatures = async () => {
@@ -319,7 +319,7 @@ const loadFeatures = async () => {
       ? featuresList.filter(f => f != null && f.id != null)
       : []
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load features'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedLoadFeatures')
     features.value = []
   } finally {
     loading.value = false
@@ -337,7 +337,7 @@ const deleteFeature = async (id: number | string) => {
     await deleteFeatureApi(id)
     await loadFeatures()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to delete feature'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedDeleteFeature')
   }
 }
 

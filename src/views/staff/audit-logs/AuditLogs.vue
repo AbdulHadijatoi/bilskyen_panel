@@ -256,6 +256,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, computed, onMounted, watch } from 'vue'
 import { getAuditLogs, type DealerAuditLogModel } from '@/api/staff.api'
 import type { PaginationModel } from '@/models/pagination.model'
@@ -405,7 +406,7 @@ const loadAuditLogs = async () => {
     auditLogs.value = response
   } catch (err: any) {
     console.error('Failed to load audit logs:', err)
-    error.value = err.message || 'Failed to load audit logs'
+    error.value = err.message || t('dealer.views.auditLogs.failedLoadLogs')
     showSnackbar('Failed to load audit logs', 'error')
   } finally {
     loading.value = false

@@ -22,6 +22,15 @@
     </v-alert>
 
     <v-alert
+      v-if="route.query.payment === 'success'"
+      type="success"
+      variant="tonal"
+      class="mb-4"
+    >
+      {{ t('dealer.views.subscription.paymentSuccess') }}
+    </v-alert>
+
+    <v-alert
       v-if="pendingChangeRequest"
       type="info"
       variant="tonal"
@@ -277,6 +286,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import {
   getSubscription,
@@ -285,10 +295,13 @@ import {
   getPendingSubscriptionChangeRequest,
   cancelPendingSubscriptionChangeRequest,
   getSubscriptionUsage,
+  getBillingConfig,
+  checkoutSubscription,
   type PlanModel,
   type CreateDealerSubscriptionData,
   type DealerPendingChangeRequestModel,
   type DealerSubscriptionUsageModel,
+  type DealerBillingConfig,
 } from '@/api/dealer.api'
 import PlanSubscriptionDialog from '@/components/dealer/PlanSubscriptionDialog.vue'
 import type { ApiErrorModel } from '@/models/api-error.model'
@@ -296,6 +309,7 @@ import { featureDisplayName } from '@/utils/featureDisplay'
 import { getSubscriptionStatusLabel } from '@/utils/analyticsDisplay'
 
 const { t, locale } = useI18n()
+const route = useRoute()
 
 const loadingPlans = ref(false)
 const error = ref<string | null>(null)
@@ -306,6 +320,7 @@ const selectedPlan = ref<PlanModel | null>(null)
 const creatingSubscription = ref(false)
 const pendingChangeRequest = ref<DealerPendingChangeRequestModel | null>(null)
 const usageSummary = ref<DealerSubscriptionUsageModel | null>(null)
+const billingConfig = ref<DealerBillingConfig | null>(null)
 const successMessage = ref<string | null>(null)
 const cancellingPending = ref(false)
 
@@ -468,6 +483,23 @@ const handleSubscriptionConfirm = async (billingCycle: 'monthly' | 'yearly' | 'u
 
   try {
     creatingSubscription.value = true
+
+    const useStripeCheckout =
+      billingCycle !== 'usage_daily' &&
+      billingConfig.value?.stripe_enabled &&
+      billingConfig.value?.instant_subscription_checkout &&
+      selectedPlan.value.billing_model !== 'usage_daily'
+
+    if (useStripeCheckout) {
+      const result = await checkoutSubscription({
+        plan_id: selectedPlan.value.id,
+        billing_cycle: billingCycle as 'monthly' | 'yearly',
+      })
+      closeSubscriptionDialog()
+      window.location.href = result.checkout_url
+      return
+    }
+
     const data: CreateDealerSubscriptionData = {
       plan_id: selectedPlan.value.id,
       billing_cycle: billingCycle
@@ -483,8 +515,22 @@ const handleSubscriptionConfirm = async (billingCycle: 'monthly' | 'yearly' | 'u
   }
 }
 
+async function loadBillingConfig() {
+  try {
+    billingConfig.value = await getBillingConfig()
+  } catch {
+    billingConfig.value = null
+  }
+}
+
 onMounted(async () => {
-  await Promise.all([loadPlans(), loadCurrentSubscription(), loadPendingChangeRequest(), loadUsageSummary()])
+  await Promise.all([
+    loadPlans(),
+    loadCurrentSubscription(),
+    loadPendingChangeRequest(),
+    loadUsageSummary(),
+    loadBillingConfig(),
+  ])
 })
 </script>
 

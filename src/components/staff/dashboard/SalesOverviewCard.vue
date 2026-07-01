@@ -114,7 +114,7 @@
             </div>
             <div class="flex-1">
               <p class="text-sm font-medium mb-0" style="color: var(--muted-foreground);">Top Month</p>
-              <p class="text-lg font-semibold mb-0">{{ salesOverview?.topSellingMonth || 'N/A' }}</p>
+              <p class="text-lg font-semibold mb-0">{{ salesOverview?.topSellingMonth || t('common.na') }}</p>
             </div>
           </div>
         </div>
@@ -124,6 +124,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { API_DEALER_BASE } from '@/constants/app'

@@ -443,7 +443,7 @@
                     </v-avatar>
                   </template>
                   <v-list-item-title class="text-body-2">
-                    {{ user.name || 'Unknown' }}
+                    {{ user.name || t('common.unknown') }}
                   </v-list-item-title>
                   <v-list-item-subtitle class="text-caption">
                     {{ user.email }} • {{ user.role }}
@@ -547,7 +547,7 @@ const loadDashboard = async () => {
     error.value = null
     stats.value = await getDashboardStats()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load dashboard data'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.dashboard.failedLoadData')
   } finally {
     loading.value = false
   }
@@ -584,7 +584,7 @@ const getVehicleStatusName = (statusId?: number) => {
     3: 'Sold',
     4: 'Archived',
   }
-  return names[statusId || 0] || 'Unknown'
+  return names[statusId || 0] || t('common.unknown')
 }
 
 onMounted(() => {

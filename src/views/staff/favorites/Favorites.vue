@@ -100,6 +100,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getFavorites, removeFavorite as removeFavoriteApi } from '@/api/staff.api'
@@ -107,6 +108,7 @@ import type { PaginationModel } from '@/models/pagination.model'
 import type { VehicleModel } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
+const { t } = useI18n()
 const router = useRouter()
 
 const loading = ref(false)
@@ -129,7 +131,7 @@ const loadFavorites = async () => {
     const response = await getFavorites({ page: currentPage.value, limit: 15 })
     favorites.value = response
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load favorites'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.favorites.failedLoadFavorites')
   } finally {
     loading.value = false
   }
@@ -140,7 +142,7 @@ const removeFavorite = async (vehicleId: number) => {
     await removeFavoriteApi(vehicleId)
     await loadFavorites()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to remove favorite'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.favorites.failedRemoveFavorite')
   }
 }
 

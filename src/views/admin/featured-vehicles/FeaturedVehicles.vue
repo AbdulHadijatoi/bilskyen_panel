@@ -91,7 +91,7 @@
                 {{ item.vehicle?.title || `Vehicle #${item.vehicle_id}` }}
               </div>
               <div class="text-caption text-medium-emphasis">
-                {{ item.vehicle?.registration || 'No registration' }}
+                {{ item.vehicle?.registration || t('common.noRegistration') }}
                 <span v-if="item.vehicle?.vin"> • {{ item.vehicle.vin }}</span>
               </div>
             </div>
@@ -112,7 +112,7 @@
           </template>
 
           <template v-slot:item.dealer="{ item }">
-            <span class="text-body-2">{{ item.vehicle?.dealer?.cvr || 'N/A' }}</span>
+            <span class="text-body-2">{{ item.vehicle?.dealer?.cvr || t('common.na') }}</span>
           </template>
 
           <template v-slot:item.sort_order="{ item }">
@@ -228,7 +228,7 @@
                 {{ vehicle.title || `Vehicle #${vehicle.id}` }}
               </v-list-item-title>
               <v-list-item-subtitle>
-                {{ vehicle.registration || 'No registration' }} • {{ formatPrice(vehicle.price) }}
+                {{ vehicle.registration || t('common.noRegistration') }} • {{ formatPrice(vehicle.price) }}
               </v-list-item-subtitle>
               <template v-slot:append>
                 <v-chip
@@ -282,6 +282,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { hasPermission } from '@/utils/permissions'
@@ -298,6 +299,7 @@ import type { VehicleModel } from '@/models/vehicle.model'
 import type { PaginationModel, PaginationParams } from '@/models/pagination.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
+const { t } = useI18n()
 const router = useRouter()
 
 const loading = ref(false)
@@ -355,7 +357,7 @@ const loadFeaturedVehicles = async () => {
     })
     featuredVehicles.value = response
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load featured vehicles'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedLoadFeaturedVehicles')
   } finally {
     loading.value = false
   }
@@ -399,7 +401,7 @@ const selectVehicle = async (vehicle: VehicleModel) => {
     vehicleSearchPage.value = 1
     await loadFeaturedVehicles()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to add featured vehicle'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedAddFeaturedVehicle')
   } finally {
     loading.value = false
   }
@@ -455,7 +457,7 @@ const removeVehicle = async () => {
     vehicleToRemove.value = null
     await loadFeaturedVehicles()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to remove featured vehicle'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedRemoveFeaturedVehicle')
   } finally {
     removing.value = false
   }
@@ -487,7 +489,7 @@ const getStatusName = (statusId?: number) => {
     3: 'Sold',
     4: 'Archived',
   }
-  return names[statusId || 0] || 'Unknown'
+  return names[statusId || 0] || t('common.unknown')
 }
 
 const formatPrice = (price?: number) => {

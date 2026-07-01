@@ -244,7 +244,7 @@
                 </v-avatar>
                 <div>
                   <div class="font-weight-medium text-body-2">{{ item.user.name }}</div>
-                  <div class="text-caption text-medium-emphasis">{{ item.user.email || 'N/A' }}</div>
+                  <div class="text-caption text-medium-emphasis">{{ item.user.email || t('common.na') }}</div>
                   <div v-if="item.user.phone" class="text-caption text-medium-emphasis">
                     <v-icon size="12">mdi-phone</v-icon>
                     {{ item.user.phone }}
@@ -438,6 +438,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import {
@@ -450,6 +451,7 @@ import { EnquiryStatus, EnquiryType } from '@/models/enquiry.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import type { PaginationModel, PaginationParams } from '@/models/pagination.model'
 
+const { t } = useI18n()
 const router = useRouter()
 
 const loading = ref(false)
@@ -632,7 +634,7 @@ const handleUpdateStatus = async () => {
     statusDialog.value = false
     selectedEnquiry.value = null
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update status'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.enquiries.failedUpdateStatus')
   } finally {
     updating.value = false
   }
@@ -648,7 +650,7 @@ const handleUpdateType = async () => {
     typeDialog.value = false
     selectedEnquiry.value = null
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update type'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.enquiries.failedUpdateType')
   } finally {
     updating.value = false
   }
@@ -719,7 +721,7 @@ const loadEnquiries = async () => {
     pagination.value.total = response.totalDocs || 0
   } catch (err) {
     const apiError = err as ApiErrorModel
-    error.value = apiError?.message || 'Failed to load enquiries'
+    error.value = apiError?.message || t('dealer.views.enquiries.failedLoadEnquiries')
   } finally {
     loading.value = false
   }

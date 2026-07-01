@@ -304,6 +304,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { onMounted, ref, watch } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
 import {
@@ -505,7 +506,7 @@ async function save() {
     await loadLocations()
     closeDialog()
   } catch (e) {
-    dialogError.value = (e as ApiErrorModel).message || 'Failed to save location'
+    dialogError.value = (e as ApiErrorModel).message || t('common.errors.failedSaveLocation')
   } finally {
     saving.value = false
   }
@@ -519,7 +520,7 @@ async function confirmDelete(row: AdminLocationModel) {
     await deleteAdminLocation(row.id)
     await loadLocations()
   } catch (e) {
-    listError.value = (e as ApiErrorModel).message || 'Failed to delete location'
+    listError.value = (e as ApiErrorModel).message || t('common.errors.failedDeleteLocation')
   }
 }
 

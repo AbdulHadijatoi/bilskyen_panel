@@ -109,7 +109,7 @@
               <div class="d-flex align-center justify-space-between">
                 <div>
                   <div class="text-caption text-medium-emphasis mb-1">Billing Cycle</div>
-                  <div class="text-h6 font-weight-bold">{{ (subscription as any).billing_cycle || 'N/A' }}</div>
+                  <div class="text-h6 font-weight-bold">{{ (subscription as any).billing_cycle || t('common.na') }}</div>
                 </div>
                 <v-avatar color="info" size="40">
                   <v-icon color="white">mdi-repeat</v-icon>
@@ -225,8 +225,8 @@
                       <v-icon color="white">mdi-store</v-icon>
                     </v-avatar>
                     <div class="flex-grow-1">
-                      <div class="text-subtitle-2 font-weight-bold">{{ subscription.dealer.cvr || 'N/A' }}</div>
-                      <div class="text-caption text-medium-emphasis">{{ subscription.dealer.city || 'N/A' }}</div>
+                      <div class="text-subtitle-2 font-weight-bold">{{ subscription.dealer.cvr || t('common.na') }}</div>
+                      <div class="text-caption text-medium-emphasis">{{ subscription.dealer.city || t('common.na') }}</div>
                     </div>
                   </div>
                   <v-btn
@@ -254,7 +254,7 @@
                   <div v-if="subscription.plan" class="mb-3">
                     <div class="text-subtitle-2 font-weight-bold mb-1">{{ subscription.plan.name }}</div>
                     <div class="text-caption text-medium-emphasis mb-2">{{ subscription.plan.slug }}</div>
-                    <div class="text-body-2">{{ subscription.plan.description || 'No description' }}</div>
+                    <div class="text-body-2">{{ subscription.plan.description || t('common.noDescription') }}</div>
                   </div>
                   <v-btn
                     v-if="subscription.plan"
@@ -296,7 +296,7 @@
                         <div class="text-body-2 font-weight-medium">{{ subscriptionFeatureLabel(feature) }}</div>
                       </div>
                       <div class="text-caption text-medium-emphasis">
-                        Value: <strong>{{ feature.pivot?.value || 'N/A' }}</strong>
+                        Value: <strong>{{ feature.pivot?.value || t('common.na') }}</strong>
                       </div>
                     </v-card-text>
                   </v-card>
@@ -487,7 +487,7 @@ const getStatusColor = (statusId: number) => {
 
 const getStatusLabel = (statusId: number) => {
   const option = statusOptions.find(s => s.value === statusId)
-  return option?.label || 'Unknown'
+  return option?.label || t('common.unknown')
 }
 
 const getStatusIcon = (statusId: number) => {
@@ -592,7 +592,7 @@ const loadSubscription = async () => {
       auto_renew: loadedSubscription.auto_renew,
     }
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load subscription'
+    error.value = (err as ApiErrorModel).message || t('admin.views.subscriptions.failedLoadSubscriptions')
   } finally {
     loading.value = false
   }
@@ -608,7 +608,7 @@ const updateSubscriptionAction = async () => {
     editMode.value = false
     error.value = null
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update subscription'
+    error.value = (err as ApiErrorModel).message || t('admin.views.subscriptions.failedUpdateSubscription')
   } finally {
     updating.value = false
   }
@@ -624,7 +624,7 @@ const cancelSubscriptionAction = async () => {
     subscription.value = updatedSubscription
     error.value = null
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to cancel subscription'
+    error.value = (err as ApiErrorModel).message || t('admin.views.subscriptions.failedCancelSubscription')
   } finally {
     canceling.value = false
   }

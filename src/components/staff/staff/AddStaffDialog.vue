@@ -136,9 +136,11 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, reactive, watch } from 'vue'
 import { addStaff, type AddStaffData } from '@/api/staff.api'
 
+const { t } = useI18n()
 const props = defineProps<{
   modelValue: boolean
 }>()
@@ -291,7 +293,7 @@ const handleSubmit = async () => {
     if (err?.errors && typeof err.errors === 'object') {
       validationErrors.value = err.errors
     } else {
-      error.value = err?.message || 'Failed to create staff member. Please try again.'
+      error.value = err?.message || t('dealerComponents.staff.failedCreateStaff')
     }
   } finally {
     submitting.value = false

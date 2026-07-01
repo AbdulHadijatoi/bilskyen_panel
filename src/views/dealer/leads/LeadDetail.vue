@@ -316,7 +316,7 @@
                   <span class="text-white">{{ lead.assignedTo.name?.charAt(0) || 'U' }}</span>
                 </v-avatar>
                 <div>
-                  <div class="font-weight-medium">{{ lead.assignedTo.name || 'Unknown' }}</div>
+                  <div class="font-weight-medium">{{ lead.assignedTo.name || t('common.unknown') }}</div>
                   <div class="text-caption text-medium-emphasis">{{ lead.assignedTo.email || '' }}</div>
                 </div>
               </div>
@@ -324,6 +324,12 @@
           </v-card>
         </v-col>
       </v-row>
+
+      <LeadCrmPanel
+        v-if="lead.id"
+        :lead-id="lead.id"
+        :lead-context="leadAiContext"
+      />
     </div>
 
     <!-- Assign Lead Dialog (hidden until staff module is ready) -->
@@ -357,6 +363,7 @@ import { useI18n } from 'vue-i18n'
 import { getLead, updateLeadStage, updateLeadIntent, updateLeadCategory, assignLead as assignLeadApi, getStaff } from '@/api/dealer.api'
 import type { LeadModel } from '@/models/lead.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import LeadCrmPanel from '@/components/crm/LeadCrmPanel.vue'
 import {
   getStageColor,
   getIntentName,
@@ -392,6 +399,21 @@ const intentOptions = getIntentOptions()
 const categoryOptions = getCategoryOptions()
 
 const linkedVehicleId = computed(() => lead.value?.vehicleId ?? lead.value?.vehicle?.id ?? null)
+
+const leadAiContext = computed(() => {
+  if (!lead.value) return undefined
+  return {
+    name: lead.value.name,
+    email: lead.value.email,
+    phone: lead.value.phone,
+    stage: lead.value.stage?.name ?? lead.value.stageId,
+    intent: lead.value.intent,
+    category: lead.value.category,
+    source: lead.value.source,
+    vehicle: lead.value.vehicle?.title,
+    message: lead.value.message,
+  }
+})
 
 const emailMailtoHref = computed(() => {
   if (!lead.value?.email) return ''
@@ -494,7 +516,7 @@ const loadStaff = async () => {
     const staff = await getStaff()
     staffMembers.value = staff.map((s: any) => ({
       id: s.user_id || s.user?.id,
-      name: s.user?.name || 'Unknown',
+      name: s.user?.name || t('common.unknown'),
     }))
   } catch (err) {
     console.error('Failed to load staff:', err)

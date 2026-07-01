@@ -12,9 +12,9 @@
         >
           <v-icon>mdi-arrow-left</v-icon>
         </v-btn>
-        <h1 class="text-h5 font-weight-medium mb-1">{{ plan?.name || 'Plan Details' }}</h1>
+        <h1 class="text-h5 font-weight-medium mb-1">{{ plan?.name || t('admin.views.plans.planDetails') }}</h1>
         <p class="text-body-2 text-medium-emphasis">
-          {{ plan?.slug || 'View and manage plan information' }}
+          {{ plan?.slug || t('admin.views.plans.planDetailsSubtitle') }}
         </p>
       </div>
       <v-btn
@@ -251,7 +251,7 @@
                   <v-autocomplete
                     v-model="selectedDealerIds"
                     :items="dealers"
-                    :item-title="(item) => `${item.cvr || 'N/A'} - ${item.city || 'N/A'}`"
+                    :item-title="(item) => `${item.cvr || t('common.na')} - ${item.city || t('common.na')}`"
                     item-value="id"
                     label="Dealers"
                     variant="outlined"
@@ -335,7 +335,7 @@
                       <div class="text-body-2 font-weight-medium">{{ featureDisplayName(feature) }}</div>
                       <div class="text-caption text-medium-emphasis font-mono">{{ feature.key }}</div>
                       <div class="text-caption text-medium-emphasis">
-                        Value: <span class="font-weight-medium">{{ feature.pivot?.value || feature.value || 'Not set' }}</span>
+                        Value: <span class="font-weight-medium">{{ feature.pivot?.value || feature.value || t('common.notSet') }}</span>
                       </div>
                     </div>
                   </div>
@@ -405,13 +405,13 @@
                 variant="outlined"
                 density="compact"
                 :loading="loadingAllFeatures"
-                :rules="[v => !!v || 'Required']"
+                :rules="[v => !!v || t('common.required')]"
                 class="mb-3"
               >
                 <template #item="{ props, item }">
                   <v-list-item v-bind="props" density="compact">
                     <v-list-item-title>{{ item.raw.key }}</v-list-item-title>
-                    <v-list-item-subtitle>{{ item.raw.description || 'No description' }}</v-list-item-subtitle>
+                    <v-list-item-subtitle>{{ item.raw.description || t('common.noDescription') }}</v-list-item-subtitle>
                   </v-list-item>
                 </template>
               </v-autocomplete>
@@ -435,7 +435,7 @@
                 label="Feature type *"
                 variant="outlined"
                 density="compact"
-                :rules="[v => !!v || 'Required']"
+                :rules="[v => !!v || t('common.required')]"
                 class="mb-2"
               />
               <v-text-field
@@ -443,7 +443,7 @@
                 label="Description *"
                 variant="outlined"
                 density="compact"
-                :rules="[v => !!v?.trim() || 'Required']"
+                :rules="[v => !!v?.trim() || t('common.required')]"
                 class="mb-3"
               />
             </template>
@@ -457,7 +457,7 @@
               label="Value *"
               variant="outlined"
               density="compact"
-              :rules="[v => v !== null && v !== undefined && v !== '' || 'Required']"
+              :rules="[v => v !== null && v !== undefined && v !== '' || t('common.required')]"
             />
             <!-- Number Feature: Number Input -->
             <v-text-field
@@ -468,7 +468,7 @@
               variant="outlined"
               density="compact"
               :placeholder="getFeatureValuePlaceholder(addFeatureMode === 'existing' ? selectedFeatureId : null, newFeatureTypeId)"
-              :rules="[v => v !== null && v !== undefined && v !== '' || 'Required']"
+              :rules="[v => v !== null && v !== undefined && v !== '' || t('common.required')]"
             />
             <!-- Text Feature: Text Input -->
             <v-text-field
@@ -478,7 +478,7 @@
               variant="outlined"
               density="compact"
               :placeholder="getFeatureValuePlaceholder(addFeatureMode === 'existing' ? selectedFeatureId : null, newFeatureTypeId)"
-              :rules="[v => !!v || 'Required']"
+              :rules="[v => !!v || t('common.required')]"
             />
             <!-- Default: Text Input (fallback) -->
             <v-text-field
@@ -488,7 +488,7 @@
               variant="outlined"
               density="compact"
               :placeholder="getFeatureValuePlaceholder(addFeatureMode === 'existing' ? selectedFeatureId : null, newFeatureTypeId)"
-              :rules="[v => !!v || 'Required']"
+              :rules="[v => !!v || t('common.required')]"
             />
             <v-alert v-if="addFeatureMode === 'existing' && selectedFeatureId" type="info" variant="tonal" density="compact" class="mt-3 compact-alert">
               <div class="text-caption">
@@ -499,7 +499,7 @@
             <v-alert v-else-if="addFeatureMode === 'create' && newFeatureTypeId" type="info" variant="tonal" density="compact" class="mt-3 compact-alert">
               <div class="text-caption">
                 <strong>Type:</strong> {{ getFeatureValueTypeNameFromTypeId(newFeatureTypeId) }}<br>
-                <strong>Description:</strong> {{ (newFeatureDescription || 'No description').trim() || 'No description' }}
+                <strong>Description:</strong> {{ (newFeatureDescription || t('common.noDescription')).trim() || t('common.noDescription') }}
               </div>
             </v-alert>
           </v-card-text>
@@ -531,7 +531,7 @@
           <v-card-text class="pa-3 section-content">
             <div v-if="editingFeature">
               <div class="text-body-2 font-weight-medium mb-1">{{ editingFeature.key }}</div>
-              <div class="text-caption text-medium-emphasis mb-3">{{ editingFeature.description || 'No description' }}</div>
+              <div class="text-caption text-medium-emphasis mb-3">{{ editingFeature.description || t('common.noDescription') }}</div>
               <!-- Boolean Feature: Dropdown -->
               <v-select
                 v-if="editingFeature?.feature_value_type_id === 1"
@@ -542,7 +542,7 @@
                 :label="`Value for ${editingFeature.key}`"
                 variant="outlined"
                 density="compact"
-                :rules="[v => v !== null && v !== undefined && v !== '' || 'Required']"
+                :rules="[v => v !== null && v !== undefined && v !== '' || t('common.required')]"
               />
               <!-- Number Feature: Number Input -->
               <v-text-field
@@ -554,7 +554,7 @@
                 density="compact"
                 :hint="getFeatureValueHint(editingFeature)"
                 persistent-hint
-                :rules="[v => v !== null && v !== undefined && v !== '' || 'Required']"
+                :rules="[v => v !== null && v !== undefined && v !== '' || t('common.required')]"
               />
               <!-- Text Feature: Text Input -->
               <v-text-field
@@ -565,7 +565,7 @@
                 density="compact"
                 :hint="getFeatureValueHint(editingFeature)"
                 persistent-hint
-                :rules="[v => !!v || 'Required']"
+                :rules="[v => !!v || t('common.required')]"
               />
               <!-- Default: Text Input (fallback) -->
               <v-text-field
@@ -576,7 +576,7 @@
                 density="compact"
                 :hint="getFeatureValueHint(editingFeature)"
                 persistent-hint
-                :rules="[v => !!v || 'Required']"
+                :rules="[v => !!v || t('common.required')]"
               />
             </div>
           </v-card-text>
@@ -689,6 +689,7 @@ import {
 import type { ApiErrorModel } from '@/models/api-error.model'
 import { featureDisplayName as featureDisplayNameUtil } from '@/utils/featureDisplay'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const { locale } = useI18n()
@@ -782,7 +783,7 @@ const activeStatus = computed({
 })
 
 const newFeatureKeyRules = [
-  (v: string) => !!v?.trim() || 'Required',
+  (v: string) => !!v?.trim() || t('common.required'),
   (v: string) => featureKeyRegex.test(v?.trim() || '') || 'Use only lowercase letters, numbers, underscore, or hyphen',
   (v: string) => isNewFeatureKeyUnique(v) || 'Feature key already exists',
 ]
@@ -1223,13 +1224,13 @@ const getFeatureValueTypeName = (featureId: number | null) => {
     2: 'Number',
     3: 'Text',
   }
-  return types[typeId] || 'Unknown'
+  return types[typeId] || t('common.unknown')
 }
 
 const getSelectedFeatureDescription = (featureId: number | null) => {
   if (!featureId) return 'No description'
   const feature = allFeatures.value.find(f => f.id === featureId)
-  return feature?.description || 'No description'
+  return feature?.description || t('common.noDescription')
 }
 
 const getFeatureValueTypeId = (featureId: number | null) => {
@@ -1244,7 +1245,7 @@ const getFeatureValueTypeNameFromTypeId = (typeId: number | null) => {
     2: 'Number',
     3: 'Text',
   }
-  return typeId ? (types[typeId] || 'Unknown') : 'Unknown'
+  return typeId ? (types[typeId] || t('common.unknown')) : 'Unknown'
 }
 
 const getFeatureValuePlaceholder = (featureId: number | null, explicitTypeId: number | null = null) => {

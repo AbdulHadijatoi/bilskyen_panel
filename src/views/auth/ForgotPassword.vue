@@ -103,6 +103,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref } from 'vue'
 import { forgotPassword, type ApiError } from '@/services/auth'
 import AuthLayout from '@/components/auth/AuthLayout.vue'
@@ -136,9 +137,9 @@ const handleSubmit = async () => {
     if (apiError.errors) {
       // Handle validation errors
       const errorMessages = Object.values(apiError.errors).flat()
-      error.value = errorMessages.join(', ') || apiError.message || 'Failed to send reset email.'
+      error.value = errorMessages.join(', ') || apiError.message || t('auth.forgotPassword.failedSend')
     } else {
-      error.value = apiError.message || 'Failed to send reset email.'
+      error.value = apiError.message || t('auth.forgotPassword.failedSend')
     }
   } finally {
     loading.value = false

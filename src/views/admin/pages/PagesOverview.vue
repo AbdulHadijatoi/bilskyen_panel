@@ -108,7 +108,7 @@
             variant="flat"
             style="font-size: 0.6875rem;"
           >
-            {{ item.status || 'N/A' }}
+            {{ item.status || t('common.na') }}
           </v-chip>
         </template>
         <template #item.actions="{ item }">
@@ -194,6 +194,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { hasPermission } from '@/utils/permissions'
@@ -201,6 +202,7 @@ import { getPages, createPage as createPageApi, deletePage as deletePageApi, typ
 import type { PaginationModel } from '@/models/pagination.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
+const { t } = useI18n()
 const router = useRouter()
 
 const loading = ref(false)
@@ -239,7 +241,7 @@ const loadPages = async () => {
     const response = await getPages({ page: currentPage.value, limit: 15 })
     pages.value = response
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load pages'
+    error.value = (err as ApiErrorModel).message || t('admin.views.seo.failedLoadPages')
   } finally {
     loading.value = false
   }
@@ -270,7 +272,7 @@ const deletePage = async (id: number | string) => {
     await deletePageApi(id)
     await loadPages()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to delete page'
+    error.value = (err as ApiErrorModel).message || t('admin.views.seo.failedDelete')
   }
 }
 

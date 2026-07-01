@@ -101,7 +101,7 @@
             <div class="d-flex align-center gap-2 flex-grow-1 min-width-0">
               <v-icon size="16" class="text-medium-emphasis">mdi-car-outline</v-icon>
               <span class="metric-name text-truncate">
-                {{ item.vehicle?.title || item.vehicle?.registration || 'N/A' }}
+                {{ item.vehicle?.title || item.vehicle?.registration || t('common.na') }}
               </span>
             </div>
             <div class="metric-count">{{ item.count }}</div>
@@ -117,6 +117,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import type { LeadModel } from '@/models/lead.model'
 import {
@@ -126,6 +127,7 @@ import {
   getIntentColor,
 } from '@/utils/leadHelpers'
 
+const { t } = useI18n()
 const props = defineProps<{
   leads: LeadModel[]
   loading?: boolean

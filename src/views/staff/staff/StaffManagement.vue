@@ -133,7 +133,7 @@
               </v-avatar>
               <div>
                 <div class="text-body-2 font-weight-medium">{{ item.name }}</div>
-                <div class="text-caption text-medium-emphasis">{{ item.email || 'No email' }}</div>
+                <div class="text-caption text-medium-emphasis">{{ item.email || t('common.noEmail') }}</div>
               </div>
             </div>
           </template>
@@ -223,6 +223,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, computed, onMounted } from 'vue'
 import { getStaff, type StaffMember } from '@/api/staff.api'
 import { hasPermission } from '@/utils/permissions'
@@ -315,7 +316,7 @@ const loadStaff = async () => {
     const staffList = await getStaff()
     staff.value = staffList
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load staff members'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.staff.failedLoadStaff')
   } finally {
     loading.value = false
   }

@@ -63,7 +63,7 @@
           <v-col cols="12" md="6">
             <div class="mb-2">
               <div class="text-caption text-medium-emphasis">Plan</div>
-              <div class="font-weight-medium">{{ currentSubscription.plan?.name || 'N/A' }}</div>
+              <div class="font-weight-medium">{{ currentSubscription.plan?.name || t('common.na') }}</div>
             </div>
           </v-col>
           <v-col cols="12" md="6">
@@ -204,7 +204,7 @@
 
             <!-- Description -->
             <p class="text-body-2 text-medium-emphasis mb-4" style="min-height: 2.5em;">
-              {{ plan.description || 'No description provided' }}
+              {{ plan.description || t('common.noDescription') }}
             </p>
 
             <!-- Features List -->
@@ -314,7 +314,7 @@ const loadPlans = async () => {
     const plans = await getAvailablePlans()
     availablePlans.value = plans
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load plans'
+    error.value = (err as ApiErrorModel).message || t('admin.views.plans.failedLoadPlans')
     availablePlans.value = []
   } finally {
     loadingPlans.value = false
@@ -355,7 +355,7 @@ const handleCancelPending = async () => {
     successMessage.value = t('dealer.views.subscription.pendingCancelled')
     await loadPendingChangeRequest()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to cancel request'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedCancelRequest')
   } finally {
     cancellingPending.value = false
   }
@@ -475,7 +475,7 @@ const handleSubscriptionConfirm = async (billingCycle: 'monthly' | 'yearly' | 'u
     successMessage.value = result.message || t('dealer.views.subscription.requestSubmitted')
     await Promise.all([loadPlans(), loadCurrentSubscription(), loadPendingChangeRequest()])
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to create subscription'
+    error.value = (err as ApiErrorModel).message || t('admin.views.plans.failedCreateSubscription')
   } finally {
     creatingSubscription.value = false
   }

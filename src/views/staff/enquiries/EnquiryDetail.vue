@@ -218,7 +218,7 @@
                 </v-avatar>
                 <div class="flex-grow-1">
                   <div class="text-h6 font-weight-bold">{{ enquiry.user.name }}</div>
-                  <div class="text-caption text-medium-emphasis">{{ enquiry.user.email || 'N/A' }}</div>
+                  <div class="text-caption text-medium-emphasis">{{ enquiry.user.email || t('common.na') }}</div>
                 </div>
               </div>
               <v-divider class="my-3" />
@@ -295,7 +295,7 @@
                 <v-divider />
                 <div>
                   <div class="text-caption text-medium-emphasis mb-1">Source</div>
-                  <div class="text-body-2 font-weight-medium">{{ enquiry.source || 'N/A' }}</div>
+                  <div class="text-body-2 font-weight-medium">{{ enquiry.source || t('common.na') }}</div>
                 </div>
                 <v-divider />
                 <div>
@@ -388,6 +388,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { getEnquiry, updateEnquiryStatus, updateEnquiryType } from '@/api/staff.api'
@@ -395,6 +396,7 @@ import type { EnquiryModel } from '@/models/enquiry.model'
 import { EnquiryStatus, EnquiryType } from '@/models/enquiry.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
+const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 
@@ -510,7 +512,7 @@ const handleUpdateStatus = async () => {
     await loadEnquiry()
     showStatusDialog.value = false
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update status'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.enquiries.failedUpdateStatus')
   } finally {
     updating.value = false
   }
@@ -525,7 +527,7 @@ const handleUpdateType = async () => {
     await loadEnquiry()
     showTypeDialog.value = false
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update type'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.enquiries.failedUpdateType')
   } finally {
     updating.value = false
   }
@@ -543,7 +545,7 @@ const loadEnquiry = async () => {
     selectedStatus.value = loadedEnquiry.status
     selectedType.value = loadedEnquiry.type
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load enquiry'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.enquiries.failedLoadEnquiry')
   } finally {
     loading.value = false
   }

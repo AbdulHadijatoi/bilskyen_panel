@@ -1,8 +1,4 @@
-/**
- * Lead Model
- * 
- * Maps backend lead response to TypeScript interface
- */
+import i18n from '@/plugins/i18n'
 
 /**
  * Lead stage (matches backend LeadStage constants)
@@ -110,7 +106,7 @@ export function mapLeadFromApi(data: any): LeadModel {
     vehicleId: data.vehicle_id,
     userId: data.buyer_user_id || data.user_id,
     assignedToId: data.assigned_user_id || data.assigned_to_id,
-    name: data.buyer_user?.name || data.user?.name || data.name || 'Unknown',
+    name: data.buyer_user?.name || data.user?.name || data.name || i18n.global.t('common.unknown'),
     email: data.buyer_user?.email || data.user?.email || data.email,
     phone: data.buyer_user?.phone || data.user?.phone || data.phone,
     message: data.enquiry?.message || data.message || '',

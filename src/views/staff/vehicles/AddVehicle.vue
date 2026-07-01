@@ -1637,7 +1637,7 @@ const loadLookupData = async () => {
 
 // Validation rules
 const rules = {
-  required: (v: any) => !!v || 'This field is required',
+  required: (v: any) => !!v || t('common.required'),
   vin: (v: string) => {
     if (!v) return 'This field is required'
     if (v.length !== 17) return 'VIN must be exactly 17 characters'

@@ -85,16 +85,10 @@ export const staffSidebarSections: SidebarSection[] = [
     title: 'Management',
     items: [
       {
-        title: 'Staff',
-        url: `${STAFF_ROUTE_BASE}/staff`,
-        icon: 'mdi-account-multiple',
-        permission: 'staff.staff.manage',
-      },
-      {
         title: 'Subscription',
         url: `${STAFF_ROUTE_BASE}/subscription`,
         icon: 'mdi-crown',
-        permission: 'staff.subscription.manage',
+        permission: 'staff.subscription.view',
       },
       {
         title: 'Audit Logs',

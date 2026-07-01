@@ -126,11 +126,13 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, reactive, watch, computed } from 'vue'
 import { changePassword, type ChangePasswordData } from '@/api/auth.api'
 import { changeOwnPassword, type ChangeOwnPasswordData } from '@/api/admin.api'
 import { useAuthStore } from '@/stores/auth.store'
 
+const { t } = useI18n()
 const props = defineProps<{
   modelValue: boolean
 }>()
@@ -176,7 +178,7 @@ watch(dialog, (newVal) => {
 
 // Validation rules
 const rules = {
-  required: (value: string) => !!value || 'This field is required',
+  required: (value: string) => !!value || t('common.required'),
   password: (value: string) => {
     if (!value) return true
     if (value.length < 8) return 'Password must be at least 8 characters'
@@ -242,7 +244,7 @@ const handleSubmit = async () => {
     if (err?.errors && typeof err.errors === 'object') {
       validationErrors.value = err.errors
     } else {
-      error.value = err?.message || 'Failed to change password. Please try again.'
+      error.value = err?.message || t('dealerComponents.changePasswordDialog.failedChangePassword')
     }
   } finally {
     submitting.value = false

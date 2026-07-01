@@ -10,17 +10,26 @@ import { handleSuccess, handleError } from './response'
 import {
   DEALER_VEHICLE_ENDPOINTS,
   DEALER_LEAD_ENDPOINTS,
+  DEALER_LEAD_CRM_ENDPOINTS,
   DEALER_ENQUIRY_ENDPOINTS,
   DEALER_FAVORITE_ENDPOINTS,
   DEALER_SAVED_SEARCH_ENDPOINTS,
   DEALER_PROFILE_ENDPOINTS,
   DEALER_STAFF_ENDPOINTS,
   DEALER_SUBSCRIPTION_ENDPOINTS,
+  DEALER_BILLING_ENDPOINTS,
+  DEALER_AI_ENDPOINTS,
   DEALER_LOOKUP_ENDPOINTS,
   DEALER_DASHBOARD_ENDPOINTS,
   DEALER_AUDIT_ENDPOINTS,
   DEALER_ANALYTICS_ENDPOINTS,
   DEALER_NOTIFICATION_ENDPOINTS,
+  DEALER_FEED_ENDPOINTS,
+  DEALER_SYNDICATION_ENDPOINTS,
+  DEALER_TRADE_IN_ENDPOINTS,
+  DEALER_BRANDING_ENDPOINTS,
+  DEALER_DMS_ENDPOINTS,
+  DEALER_COMPLIANCE_ENDPOINTS,
 } from './endpoints'
 import type { VehicleModel } from '@/models/vehicle.model'
 import { mapVehicleFromApi } from '@/models/vehicle.model'
@@ -700,6 +709,41 @@ export async function getLead(id: number | string): Promise<LeadModel> {
   } catch (error) {
     throw handleError(error)
   }
+}
+
+export async function getLeadActivities(leadId: number | string): Promise<any> {
+  const response = await httpClient.get(DEALER_LEAD_CRM_ENDPOINTS.ACTIVITIES(leadId))
+  return handleSuccess<any>(response)
+}
+
+export async function getLeadNotes(leadId: number | string): Promise<any[]> {
+  const response = await httpClient.get(DEALER_LEAD_CRM_ENDPOINTS.NOTES(leadId))
+  return handleSuccess<any[]>(response)
+}
+
+export async function createLeadNote(leadId: number | string, data: { body: string; is_pinned?: boolean }) {
+  const response = await httpClient.post(DEALER_LEAD_CRM_ENDPOINTS.NOTES(leadId), data)
+  return handleSuccess<any>(response)
+}
+
+export async function getLeadTasks(leadId: number | string): Promise<any[]> {
+  const response = await httpClient.get(DEALER_LEAD_CRM_ENDPOINTS.TASKS(leadId))
+  return handleSuccess<any[]>(response)
+}
+
+export async function createLeadTask(leadId: number | string, data: { title: string; due_at?: string; assigned_user_id?: number }) {
+  const response = await httpClient.post(DEALER_LEAD_CRM_ENDPOINTS.TASKS(leadId), data)
+  return handleSuccess<any>(response)
+}
+
+export async function updateLeadTask(leadId: number | string, taskId: number | string, data: Record<string, unknown>) {
+  const response = await httpClient.put(DEALER_LEAD_CRM_ENDPOINTS.TASK(leadId, taskId), data)
+  return handleSuccess<any>(response)
+}
+
+export async function getLeadLostReasons(): Promise<any[]> {
+  const response = await httpClient.get(DEALER_LEAD_CRM_ENDPOINTS.LOST_REASONS)
+  return handleSuccess<any[]>(response)
 }
 
 /**
@@ -1438,6 +1482,158 @@ export async function createSubscription(
 }
 
 // ============================================================================
+// BILLING & PAYMENTS
+// ============================================================================
+
+export interface DealerBillingConfig {
+  stripe_enabled: boolean
+  publishable_key: string | null
+  instant_subscription_checkout: boolean
+}
+
+export interface DealerInvoiceModel {
+  id: number
+  dealer_id: number
+  status: string
+  total_cents: number
+  currency?: string
+  period_start?: string | null
+  period_end?: string | null
+  due_at?: string | null
+  paid_at?: string | null
+  created_at?: string
+  lines?: Array<{
+    id: number
+    description: string
+    quantity: number
+    unit_price_cents: number
+    total_cents: number
+  }>
+}
+
+export interface DealerPaymentModel {
+  id: number
+  dealer_id: number
+  purpose: string
+  status: string
+  amount_cents: number
+  currency: string
+  stripe_checkout_session_id?: string | null
+  created_at?: string
+}
+
+export interface CheckoutResult {
+  checkout_url: string
+  payment_id: number
+}
+
+export async function getBillingConfig(): Promise<DealerBillingConfig> {
+  try {
+    const response = await httpClient.get<{ data: DealerBillingConfig }>(
+      DEALER_BILLING_ENDPOINTS.CONFIG
+    )
+    return handleSuccess<DealerBillingConfig>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getBillingInvoices(params?: { page?: number; limit?: number }): Promise<PaginationModel<DealerInvoiceModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<DealerInvoiceModel> }>(
+      DEALER_BILLING_ENDPOINTS.INVOICES,
+      { params }
+    )
+    return handleSuccess<PaginationModel<DealerInvoiceModel>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function checkoutInvoice(invoiceId: number): Promise<CheckoutResult> {
+  try {
+    const response = await httpClient.post<{ data: CheckoutResult }>(
+      DEALER_BILLING_ENDPOINTS.CHECKOUT_INVOICE(invoiceId),
+      {}
+    )
+    return handleSuccess<CheckoutResult>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function checkoutSubscription(data: {
+  plan_id: number
+  billing_cycle: 'monthly' | 'yearly'
+}): Promise<CheckoutResult> {
+  try {
+    const response = await httpClient.post<{ data: CheckoutResult }>(
+      DEALER_BILLING_ENDPOINTS.SUBSCRIPTION_CHECKOUT,
+      data
+    )
+    return handleSuccess<CheckoutResult>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getPaymentHistory(params?: { page?: number; limit?: number }): Promise<PaginationModel<DealerPaymentModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<DealerPaymentModel> }>(
+      DEALER_BILLING_ENDPOINTS.PAYMENTS,
+      { params }
+    )
+    return handleSuccess<PaginationModel<DealerPaymentModel>>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// AI ASSISTANT
+// ============================================================================
+
+export interface DealerAiConfig {
+  enabled: boolean
+  providers: string[]
+  tasks: string[]
+  remaining_requests: number | null
+  monthly_request_limit: number | null
+}
+
+export interface AiGenerateResult {
+  text: string
+  provider: string
+  model: string
+  task: string
+  tokens: number
+}
+
+export async function getAiConfig(): Promise<DealerAiConfig> {
+  try {
+    const response = await httpClient.get<{ data: DealerAiConfig }>(DEALER_AI_ENDPOINTS.CONFIG)
+    return handleSuccess<DealerAiConfig>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function generateAiContent(data: {
+  task: string
+  context: Record<string, unknown>
+  locale?: string
+  context_type?: string
+  context_id?: number
+}): Promise<AiGenerateResult> {
+  try {
+    const response = await httpClient.post<{ data: AiGenerateResult }>(DEALER_AI_ENDPOINTS.GENERATE, data)
+    return handleSuccess<AiGenerateResult>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
 // DASHBOARD
 // ============================================================================
 
@@ -1638,7 +1834,7 @@ export async function getAnalyticsOverview(dateRange?: string): Promise<import('
       DEALER_ANALYTICS_ENDPOINTS.OVERVIEW,
       { params: { date_range: dateRange } }
     )
-    return handleSuccess(response)
+    return handleSuccess<any>(response)
   } catch (error) {
     throw handleError(error)
   }
@@ -1653,7 +1849,7 @@ export async function getAnalyticsLeads(dateRange?: string): Promise<import('@/m
       DEALER_ANALYTICS_ENDPOINTS.LEADS,
       { params: { date_range: dateRange } }
     )
-    return handleSuccess(response)
+    return handleSuccess<any>(response)
   } catch (error) {
     throw handleError(error)
   }
@@ -1668,7 +1864,7 @@ export async function getAnalyticsVehicles(dateRange?: string): Promise<import('
       DEALER_ANALYTICS_ENDPOINTS.VEHICLES,
       { params: { date_range: dateRange } }
     )
-    return handleSuccess(response)
+    return handleSuccess<any>(response)
   } catch (error) {
     throw handleError(error)
   }
@@ -1683,7 +1879,7 @@ export async function getAnalyticsMarketing(dateRange?: string): Promise<import(
       DEALER_ANALYTICS_ENDPOINTS.MARKETING,
       { params: { date_range: dateRange } }
     )
-    return handleSuccess(response)
+    return handleSuccess<any>(response)
   } catch (error) {
     throw handleError(error)
   }
@@ -1697,10 +1893,50 @@ export async function getAnalyticsSubscription(): Promise<import('@/models/analy
     const response = await httpClient.get<{ data: import('@/models/analytics.model').SubscriptionUsage }>(
       DEALER_ANALYTICS_ENDPOINTS.SUBSCRIPTION
     )
-    return handleSuccess(response)
+    return handleSuccess<any>(response)
   } catch (error) {
     throw handleError(error)
   }
+}
+
+export async function getAnalyticsFunnel(dateRange?: string, compare = false): Promise<import('@/models/analytics.model').FunnelAnalytics> {
+  const response = await httpClient.get(DEALER_ANALYTICS_ENDPOINTS.FUNNEL, {
+    params: { date_range: dateRange, compare: compare ? '1' : '0' },
+  })
+  return handleSuccess<any>(response)
+}
+
+export async function getAnalyticsStock(dateRange?: string): Promise<import('@/models/analytics.model').StockAnalytics> {
+  const response = await httpClient.get(DEALER_ANALYTICS_ENDPOINTS.STOCK, { params: { date_range: dateRange } })
+  return handleSuccess<any>(response)
+}
+
+export async function getAnalyticsAssignees(dateRange?: string): Promise<import('@/models/analytics.model').AssigneeAnalytics> {
+  const response = await httpClient.get(DEALER_ANALYTICS_ENDPOINTS.ASSIGNEES, { params: { date_range: dateRange } })
+  return handleSuccess<any>(response)
+}
+
+export async function getAnalyticsChannels(dateRange?: string): Promise<import('@/models/analytics.model').ChannelAnalytics> {
+  const response = await httpClient.get(DEALER_ANALYTICS_ENDPOINTS.CHANNELS, { params: { date_range: dateRange } })
+  return handleSuccess<any>(response)
+}
+
+export async function getAnalyticsTrends(dateRange?: string): Promise<import('@/models/analytics.model').TrendAnalytics> {
+  const response = await httpClient.get(DEALER_ANALYTICS_ENDPOINTS.TRENDS, { params: { date_range: dateRange } })
+  return handleSuccess<any>(response)
+}
+
+export async function downloadDealerAnalyticsExport(report: string, dateRange?: string): Promise<void> {
+  const response = await httpClient.get(DEALER_ANALYTICS_ENDPOINTS.EXPORT, {
+    params: { report, date_range: dateRange },
+    responseType: 'blob',
+  })
+  const url = window.URL.createObjectURL(response.data)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `dealer-analytics-${report}.csv`
+  link.click()
+  window.URL.revokeObjectURL(url)
 }
 
 // ============================================================================
@@ -1763,4 +1999,197 @@ export async function markNotificationsRead(ids: number[]): Promise<void> {
   } catch (error) {
     throw handleError(error)
   }
+}
+
+export async function exportVehicleStock(params?: {
+  format?: 'csv' | 'xlsx'
+  list_status_id?: number
+}): Promise<void> {
+  const format = params?.format ?? 'csv'
+  const response = await httpClient.get(DEALER_VEHICLE_ENDPOINTS.EXPORT, {
+    params: {
+      format,
+      list_status_id: params?.list_status_id,
+    },
+    responseType: 'blob',
+  })
+  const mime =
+    format === 'xlsx'
+      ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      : 'text/csv'
+  const blob = new Blob([response.data], { type: mime })
+  const url = window.URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `vehicle-stock.${format}`
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  window.URL.revokeObjectURL(url)
+}
+
+export async function reorderVehicleImages(
+  vehicleId: number | string,
+  imageIds: number[]
+): Promise<VehicleModel> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      DEALER_VEHICLE_ENDPOINTS.REORDER_IMAGES(vehicleId),
+      { image_ids: imageIds }
+    )
+    return mapVehicleFromApi(handleSuccess<any>(response))
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function updateVehicleVideo(
+  vehicleId: number | string,
+  videoUrl: string | null
+): Promise<VehicleModel> {
+  try {
+    const response = await httpClient.put<{ data: any }>(
+      DEALER_VEHICLE_ENDPOINTS.UPDATE_VIDEO(vehicleId),
+      { video_url: videoUrl }
+    )
+    return mapVehicleFromApi(handleSuccess<any>(response))
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export interface DealerFeedTokenModel {
+  id: number
+  dealer_id: number
+  name: string
+  token: string
+  created_at?: string
+}
+
+export interface DealerFeedUrlsModel {
+  name: string
+  json: string
+  xml: string
+}
+
+export interface DealerSyndicationProviderModel {
+  key: string
+  name: string
+  description?: string
+  enabled: boolean
+  last_sync_at?: string | null
+}
+
+export interface SyndicationLogModel {
+  id: number
+  dealer_id: number
+  vehicle_id?: number | null
+  provider_key: string
+  action: string
+  status: string
+  message?: string | null
+  created_at?: string
+}
+
+export async function getDealerFeeds(): Promise<{
+  tokens: DealerFeedTokenModel[]
+  feed_urls: DealerFeedUrlsModel[]
+}> {
+  const response = await httpClient.get<{ data: { tokens: DealerFeedTokenModel[]; feed_urls: DealerFeedUrlsModel[] } }>(
+    DEALER_FEED_ENDPOINTS.TOKENS
+  )
+  return handleSuccess<any>(response)
+}
+
+export async function createDealerFeedToken(name?: string): Promise<DealerFeedTokenModel> {
+  const response = await httpClient.post<{ data: DealerFeedTokenModel }>(
+    DEALER_FEED_ENDPOINTS.TOKENS,
+    { name }
+  )
+  return handleSuccess<any>(response)
+}
+
+export async function deleteDealerFeedToken(id: number): Promise<void> {
+  await httpClient.delete(DEALER_FEED_ENDPOINTS.TOKEN(id))
+}
+
+export async function getDealerSyndication(): Promise<{
+  providers: DealerSyndicationProviderModel[]
+  logs: SyndicationLogModel[]
+}> {
+  const response = await httpClient.get<{
+    data: { providers: DealerSyndicationProviderModel[]; logs: SyndicationLogModel[] }
+  }>(DEALER_SYNDICATION_ENDPOINTS.INDEX)
+  return handleSuccess<any>(response)
+}
+
+export async function updateDealerSyndication(
+  providers: { provider_key: string; enabled: boolean }[]
+): Promise<void> {
+  await httpClient.put(DEALER_SYNDICATION_ENDPOINTS.INDEX, { providers })
+}
+
+export async function syncDealerSyndicationNow(): Promise<{ synced: number }> {
+  const response = await httpClient.post<{ data: { synced: number } }>(
+    DEALER_SYNDICATION_ENDPOINTS.SYNC
+  )
+  return handleSuccess<any>(response)
+}
+
+export async function getTradeInRequests(page = 1): Promise<any> {
+  const response = await httpClient.get(DEALER_TRADE_IN_ENDPOINTS.LIST, { params: { page } })
+  return handleSuccess<any>(response)
+}
+
+export async function updateTradeInRequest(id: number, data: Record<string, unknown>): Promise<any> {
+  const response = await httpClient.put(DEALER_TRADE_IN_ENDPOINTS.UPDATE(id), data)
+  return handleSuccess<any>(response)
+}
+
+export async function getDealerBranding(): Promise<any> {
+  const response = await httpClient.get(DEALER_BRANDING_ENDPOINTS.SHOW)
+  return handleSuccess<any>(response)
+}
+
+export async function updateDealerBranding(data: Record<string, unknown>): Promise<any> {
+  const response = await httpClient.put(DEALER_BRANDING_ENDPOINTS.UPDATE, data)
+  return handleSuccess<any>(response)
+}
+
+export async function addDealerDomain(domain: string, isPrimary = false): Promise<any> {
+  const response = await httpClient.post(DEALER_BRANDING_ENDPOINTS.DOMAINS, { domain, is_primary: isPrimary })
+  return handleSuccess<any>(response)
+}
+
+export async function verifyDealerDomain(id: number): Promise<any> {
+  const response = await httpClient.post(DEALER_BRANDING_ENDPOINTS.VERIFY_DOMAIN(id))
+  return handleSuccess<any>(response)
+}
+
+export async function getDealerDms(): Promise<any> {
+  const response = await httpClient.get(DEALER_DMS_ENDPOINTS.INDEX)
+  return handleSuccess<any>(response)
+}
+
+export async function createDealerApiKey(name: string): Promise<any> {
+  const response = await httpClient.post(DEALER_DMS_ENDPOINTS.API_KEYS, { name })
+  return handleSuccess<any>(response)
+}
+
+export async function createDealerWebhook(url: string, events: string[]): Promise<any> {
+  const response = await httpClient.post(DEALER_DMS_ENDPOINTS.WEBHOOKS, { url, events })
+  return handleSuccess<any>(response)
+}
+
+export async function exportLeadPiiAudit(): Promise<void> {
+  const response = await httpClient.get(DEALER_COMPLIANCE_ENDPOINTS.LEAD_PII_EXPORT, { responseType: 'blob' })
+  const blob = new Blob([response.data], { type: 'text/csv' })
+  const url = window.URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = 'lead-pii-audit.csv'
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  window.URL.revokeObjectURL(url)
 }

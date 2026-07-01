@@ -48,6 +48,12 @@ export const adminSidebarSections: SidebarSection[] = [
           },
         ],
       },
+      {
+        title: 'Dealers',
+        url: `${ADMIN_ROUTE_BASE}/dealers`,
+        icon: 'mdi-store',
+        permission: 'admin.dealers.view',
+      },
     ],
   },
   {
@@ -117,6 +123,31 @@ export const adminSidebarSections: SidebarSection[] = [
             title: 'SEO Content',
             url: `${ADMIN_ROUTE_BASE}/pages/seo-content`,
             permission: 'admin.pages.update',
+          },
+          {
+            title: 'Blog Posts',
+            url: `${ADMIN_ROUTE_BASE}/cms/blog`,
+            permission: 'admin.cms.posts.view',
+          },
+          {
+            title: 'Landing Pages',
+            url: `${ADMIN_ROUTE_BASE}/cms/landing-pages`,
+            permission: 'admin.cms.landing.view',
+          },
+          {
+            title: 'Media Library',
+            url: `${ADMIN_ROUTE_BASE}/cms/media`,
+            permission: 'admin.cms.media.view',
+          },
+          {
+            title: 'SEO Redirects',
+            url: `${ADMIN_ROUTE_BASE}/cms/redirects`,
+            permission: 'admin.seo.redirects.view',
+          },
+          {
+            title: 'SEO Tools',
+            url: `${ADMIN_ROUTE_BASE}/cms/seo-tools`,
+            permission: 'admin.seo.tools.view',
           },
         ],
       },
@@ -258,6 +289,12 @@ export const adminSidebarSections: SidebarSection[] = [
         url: `${ADMIN_ROUTE_BASE}/permissions`,
         icon: 'mdi-shield-lock',
         permission: 'admin.permissions.view',
+      },
+      {
+        title: 'Integrations',
+        url: `${ADMIN_ROUTE_BASE}/integrations`,
+        icon: 'mdi-connection',
+        permission: 'admin.integrations.view',
       },
     ],
   },

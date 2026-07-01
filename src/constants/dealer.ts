@@ -100,6 +100,12 @@ export const dealerSidebarSections: SidebarSection[] = [
         permission: 'dealer.subscription.manage',
       },
       {
+        title: 'Billing',
+        url: `${DEALER_ROUTE_BASE}billing`,
+        icon: 'mdi-credit-card-outline',
+        permission: 'dealer.subscription.manage',
+      },
+      {
         title: 'Audit Logs',
         url: `${DEALER_ROUTE_BASE}audit-logs`,
         icon: 'mdi-file-document-outline',
@@ -110,6 +116,12 @@ export const dealerSidebarSections: SidebarSection[] = [
         url: `${DEALER_ROUTE_BASE}analytics`,
         icon: 'mdi-chart-line',
         permission: 'dealer.analytics.view',
+      },
+      {
+        title: 'Trade-In',
+        url: `${DEALER_ROUTE_BASE}trade-in`,
+        icon: 'mdi-car-arrow-right',
+        permission: 'dealer.trade_in.manage',
       },
     ],
   },

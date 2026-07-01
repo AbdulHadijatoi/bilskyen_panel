@@ -197,8 +197,7 @@ const handleSubmit = async () => {
         redirectPath = decrypted
       }
     } else {
-      // Redirect to dealer dashboard
-      redirectPath = '/'
+      redirectPath = '/staff'
     }
     
     router.push(redirectPath)

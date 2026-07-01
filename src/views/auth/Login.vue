@@ -169,7 +169,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { login, type ApiError } from '@/services/auth'
 import { decryptUrlParam } from '@/utils/urlEncryption'
-import { isAdmin } from '@/utils/permissions'
+import { isAdmin, isStaff } from '@/utils/permissions'
 import AuthLayout from '@/components/auth/AuthLayout.vue'
 
 const router = useRouter()
@@ -221,6 +221,8 @@ const handleSubmit = async () => {
       // Redirect to appropriate dashboard based on user role
       if (isAdmin()) {
         redirectPath = '/admin'
+      } else if (isStaff()) {
+        redirectPath = '/staff'
       } else {
         redirectPath = '/'
       }

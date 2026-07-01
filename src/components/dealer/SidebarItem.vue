@@ -214,8 +214,12 @@ const NAV_TITLE_KEYS: Record<string, string> = {
   Enquiries: 'nav.enquiries',
   Staff: 'nav.staff',
   Subscription: 'nav.subscription',
+  Billing: 'nav.billing',
   Analytics: 'nav.analytics',
   'Audit Logs': 'nav.auditLogs',
+  'Feeds & Syndication': 'nav.feedsSyndication',
+  'Trade-In': 'nav.tradeIn',
+  'Branding & DMS': 'nav.brandingDms',
 }
 
 interface Props {

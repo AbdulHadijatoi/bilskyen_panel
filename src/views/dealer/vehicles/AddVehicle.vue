@@ -908,10 +908,18 @@
 
                 <v-divider class="my-6" />
                 <div class="mb-4">
-                  <h4 class="text-subtitle-1 font-weight-semibold mb-4">
-                    <v-icon size="20" class="mr-2">mdi-text</v-icon>
-                    {{ t('dealer.views.addVehicle.vehicleDescription') }}
-                  </h4>
+                  <div class="d-flex align-center justify-space-between mb-2">
+                    <h4 class="text-subtitle-1 font-weight-semibold mb-0">
+                      <v-icon size="20" class="mr-2">mdi-text</v-icon>
+                      {{ t('dealer.views.addVehicle.vehicleDescription') }}
+                    </h4>
+                    <AiGenerateButton
+                        task="vehicle_description"
+                        :context="vehicleAiContext"
+                        :label="t('dealer.views.ai.generateDescription')"
+                        @accept="onAiDescriptionAccept"
+                      />
+                  </div>
                 <v-textarea
                   v-model="form.description"
                   :label="t('dealer.views.addVehicle.vehicleDescription')"
@@ -1102,9 +1110,10 @@ import MonthYearPicker from '@/components/ui/MonthYearPicker.vue'
 import { useErrorMessage } from '@/composables/useErrorMessage'
 import { getFeatureLimit, getSubscriptionFeatures, FeatureKey } from '@/utils/subscriptionFeatures'
 import { SALES_TYPE_LEASING_DETAILS } from '@/constants/salesTypes'
+import AiGenerateButton from '@/components/ai/AiGenerateButton.vue'
 
 const router = useRouter()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { getDisplayMessage } = useErrorMessage()
 
 /** Year dropdowns: align with dealer policy (no model_years from lookup-constants). */
@@ -1317,6 +1326,26 @@ const upsertLookupOption = <T extends LookupOption>(
 
 // Track if description was manually edited by user
 const isDescriptionManuallyEdited = ref(false)
+
+const vehicleAiContext = computed(() => ({
+  make: form.value.make,
+  model: form.value.model,
+  variant: form.value.variant,
+  fuel_type: form.value.fuelType,
+  registration_number: form.value.registrationNumber,
+  odometer_km: form.value.odometer,
+  first_registration: form.value.firstRegistrationDate,
+  price: form.value.price,
+  equipment: form.value.equipment,
+  condition: form.value.conditionId,
+  transmission: form.value.transmissionType,
+  power_kw: form.value.powerKw,
+}))
+
+function onAiDescriptionAccept(text: string) {
+  form.value.description = text
+  isDescriptionManuallyEdited.value = true
+}
 
 /** DMR registration lookup: persist CSV + specs on create (same as sell-your-car). */
 function appendLookupEquipmentAndSpecifications(

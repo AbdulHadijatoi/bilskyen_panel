@@ -218,20 +218,20 @@
           >
             <v-card-title class="card-title">
               <v-icon size="18" class="mr-2">mdi-information</v-icon>
-              <span class="text-subtitle-1">Basic Information</span>
+              <span class="text-subtitle-1">{{ t('dealer.views.vehicleDetail.basicInformation') }}</span>
             </v-card-title>
             <v-card-text class="pa-3">
               <v-row dense>
                 
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Title</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.titleLabel') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.title) }}</div>
                   </div>
                   <v-text-field
                     v-else
                     v-model="vehicleData.title"
-                    label="Title"
+                    :label="t('dealer.views.vehicleDetail.titleLabel')"
                     variant="outlined"
                     density="compact"
                     hide-details="auto"
@@ -239,13 +239,13 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Registration</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.registration') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.registration) }}</div>
                   </div>
                   <v-text-field
                     v-else
                     v-model="vehicleData.registration"
-                    label="Registration"
+                    :label="t('dealer.views.vehicleDetail.registration')"
                     variant="outlined"
                     density="compact"
                     hide-details="auto"
@@ -253,13 +253,13 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">VIN</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.vin') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.vin) }}</div>
                   </div>
                   <v-text-field
                     v-else
                     v-model="vehicleData.vin"
-                    label="VIN"
+                    :label="t('dealer.views.vehicleDetail.vin')"
                     variant="outlined"
                     density="compact"
                     hide-details="auto"
@@ -279,13 +279,13 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Price</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.price') }}</div>
                     <div class="field-value font-weight-medium">{{ vehicle.price ? formatPrice(vehicle.price) : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
                     v-model.number="vehicleData.price"
-                    label="Price"
+                    :label="t('dealer.views.vehicleDetail.price')"
                     type="number"
                     variant="outlined"
                     density="compact"
@@ -300,13 +300,13 @@
                 </v-col>
                 <v-col v-if="!editMode" cols="12" sm="6" md="4">
                   <div class="info-field">
-                    <div class="field-label">Published At</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.publishedAt') }}</div>
                     <div class="field-value">{{ vehicle.publishedAt ? formatDate(vehicle.publishedAt) : '-' }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Brand</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.brand') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.brandName) }}</div>
                   </div>
                   <v-select
@@ -315,7 +315,7 @@
                     :items="brands"
                     item-title="name"
                     item-value="id"
-                    label="Brand"
+                    :label="t('dealer.views.vehicleDetail.brand')"
                     variant="outlined"
                     density="compact"
                     hide-details="auto"
@@ -324,7 +324,7 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Model</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.model') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.modelName) }}</div>
                   </div>
                   <v-select
@@ -333,7 +333,7 @@
                     :items="filteredModels"
                     item-title="name"
                     item-value="id"
-                    label="Model"
+                    :label="t('dealer.views.vehicleDetail.model')"
                     variant="outlined"
                     density="compact"
                     hide-details="auto"
@@ -343,7 +343,7 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Variant</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.variant') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.details?.variant_name) }}</div>
                   </div>
                   <v-select
@@ -352,7 +352,7 @@
                     :items="filteredVariants"
                     item-title="name"
                     item-value="id"
-                    label="Variant"
+                    :label="t('dealer.views.vehicleDetail.variant')"
                     variant="outlined"
                     density="compact"
                     hide-details="auto"
@@ -361,7 +361,7 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Model Year</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.modelYear') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.modelYearName) }}</div>
                   </div>
                   <v-select
@@ -370,7 +370,7 @@
                     :items="modelYears"
                     item-title="name"
                     item-value="id"
-                    label="Model Year"
+                    :label="t('dealer.views.vehicleDetail.modelYear')"
                     variant="outlined"
                     density="compact"
                     hide-details="auto"
@@ -378,13 +378,13 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">KM Driven</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.kmDriven') }}</div>
                     <div class="field-value">{{ vehicle.kmDriven ? formatNumber(vehicle.kmDriven) + ' km' : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
                     v-model.number="vehicleData.km_driven"
-                    label="KM Driven"
+                    :label="t('dealer.views.vehicleDetail.kmDriven')"
                     type="number"
                     variant="outlined"
                     density="compact"
@@ -393,7 +393,7 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Fuel Type</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.fuelType') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.fuelTypeName) }}</div>
                   </div>
                   <v-select
@@ -402,7 +402,7 @@
                     :items="fuelTypes"
                     item-title="name"
                     item-value="id"
-                    label="Fuel Type"
+                    :label="t('dealer.views.vehicleDetail.fuelType')"
                     variant="outlined"
                     density="compact"
                     hide-details="auto"
@@ -410,7 +410,7 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Transmission</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.transmission') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.gearTypeName || (vehicle.details as any)?.transmission_name) }}</div>
                   </div>
                   <v-select
@@ -419,7 +419,7 @@
                     :items="gearTypes"
                     item-title="name"
                     item-value="id"
-                    label="Transmission"
+                    :label="t('dealer.views.vehicleDetail.transmission')"
                     variant="outlined"
                     density="compact"
                     hide-details="auto"
@@ -427,7 +427,7 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Listing Type</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.salesType') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.listingTypeName) }}</div>
                   </div>
                   <v-select
@@ -436,7 +436,7 @@
                     :items="listingTypes"
                     item-title="name"
                     item-value="id"
-                    label="Listing Type"
+                    :label="t('dealer.views.vehicleDetail.salesType')"
                     variant="outlined"
                     density="compact"
                     hide-details="auto"
@@ -444,7 +444,7 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Status</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.status') }}</div>
                     <v-chip
                       v-if="vehicle.status || vehicle.vehicleListStatusName"
                       :color="getStatusColor(vehicle.status || vehicle.vehicleListStatusName)"
@@ -462,7 +462,7 @@
                     :items="vehicleListStatuses"
                     item-title="name"
                     item-value="id"
-                    label="Status"
+                    :label="t('dealer.views.vehicleDetail.status')"
                     variant="outlined"
                     density="compact"
                     hide-details="auto"
@@ -480,13 +480,13 @@
           >
             <v-card-title class="card-title">
               <v-icon size="18" class="mr-2">mdi-cog</v-icon>
-              <span class="text-subtitle-1">Specifications</span>
+              <span class="text-subtitle-1">{{ t('dealer.views.vehicleDetail.specifications') }}</span>
             </v-card-title>
             <v-card-text class="pa-3">
               <v-row dense>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Engine Power</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.enginePower') }}</div>
                     <div class="field-value">{{
                       vehicle.enginePowerHp != null
                         ? vehicle.enginePowerHp + ' HP'
@@ -500,7 +500,7 @@
                   <v-text-field
                     v-else
                     v-model.number="vehicleData.engine_power_kw"
-                    label="Engine Power (kW)"
+                    :label="t('dealer.views.vehicleDetail.enginePowerHp')"
                     type="number"
                     variant="outlined"
                     density="compact"
@@ -509,13 +509,13 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Engine Type</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.engineType') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.details?.engine_type) }}</div>
                   </div>
                   <v-text-field
                     v-else
                     v-model="vehicleData.engine_type"
-                    label="Engine Type"
+                    :label="t('dealer.views.vehicleDetail.engineType')"
                     variant="outlined"
                     density="compact"
                     hide-details="auto"
@@ -523,13 +523,13 @@
                 </v-col>
                 <v-col v-if="!editMode" cols="12" sm="6" md="4">
                   <div class="info-field">
-                    <div class="field-label">Drivetrain</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.drivetrain') }}</div>
                     <div class="field-value">{{ vehicle.details?.drive_axles === 1 ? 'FWD' : (vehicle.details?.drive_axles === 2 ? 'AWD' : '-') }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Euro Emission Class</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.euroEmissionClass') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.details?.euronom_name) }}</div>
                   </div>
                   <v-select
@@ -538,7 +538,7 @@
                     :items="euronorms"
                     item-title="name"
                     item-value="id"
-                    label="Euro Emission Class"
+                    :label="t('dealer.views.vehicleDetail.euroEmissionClass')"
                     variant="outlined"
                     density="compact"
                     hide-details="auto"
@@ -546,7 +546,7 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Previous Usage</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.previousUsage') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.details?.use_name) }}</div>
                   </div>
                   <v-select
@@ -555,7 +555,7 @@
                     :items="vehicleUses"
                     item-title="name"
                     item-value="id"
-                    label="Previous Usage"
+                    :label="t('dealer.views.vehicleDetail.previousUsage')"
                     variant="outlined"
                     density="compact"
                     hide-details="auto"
@@ -563,13 +563,13 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Towing Weight</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.towingWeight') }}</div>
                     <div class="field-value">{{ vehicle.towingWeight ? formatNumber(vehicle.towingWeight) + ' kg' : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
                     v-model.number="vehicleData.towing_weight"
-                    label="Towing Weight (kg)"
+                    :label="t('dealer.views.vehicleDetail.towingWeightKg')"
                     type="number"
                     variant="outlined"
                     density="compact"
@@ -578,13 +578,13 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Battery Capacity</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.batteryCapacity') }}</div>
                     <div class="field-value">{{ vehicle.batteryCapacity ? vehicle.batteryCapacity + ' kWh' : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
                     v-model.number="vehicleData.battery_capacity"
-                    label="Battery Capacity (kWh)"
+                    :label="t('dealer.views.vehicleDetail.batteryCapacityKwh')"
                     type="number"
                     variant="outlined"
                     density="compact"
@@ -593,13 +593,13 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Range (km)</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.rangeKm') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.rangeKm) }}</div>
                   </div>
                   <v-text-field
                     v-else
                     v-model.number="vehicleData.range_km"
-                    label="Range (km)"
+                    :label="t('dealer.views.vehicleDetail.rangeKm')"
                     type="number"
                     variant="outlined"
                     density="compact"
@@ -608,13 +608,13 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Charging Type</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.chargingType') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.chargingType) }}</div>
                   </div>
                   <v-text-field
                     v-else
                     v-model="vehicleData.charging_type"
-                    label="Charging Type"
+                    :label="t('dealer.views.vehicleDetail.chargingType')"
                     variant="outlined"
                     density="compact"
                     hide-details="auto"
@@ -622,7 +622,7 @@
                 </v-col>
                 <v-col v-if="!editMode" cols="12" sm="6" md="4">
                   <div class="info-field">
-                    <div class="field-label">Ownership Tax</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.ownershipTax') }}</div>
                     <div class="field-value">{{
                       vehicle.calculatedOwnershipTax != null
                         ? formatPrice(vehicle.calculatedOwnershipTax)
@@ -640,13 +640,13 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">First Registration</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.firstRegistrationDate') }}</div>
                     <div class="field-value">{{ vehicle.firstRegistrationDate ? formatDate(vehicle.firstRegistrationDate) : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
                     v-model="vehicleData.first_registration_date"
-                    label="First Registration Date"
+                    :label="t('dealer.views.vehicleDetail.firstRegistrationDate')"
                     type="date"
                     variant="outlined"
                     density="compact"
@@ -655,13 +655,13 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Fuel Efficiency</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.fuelEfficiency') }}</div>
                     <div class="field-value">{{ vehicle.fuelEfficiency ? vehicle.fuelEfficiency + ' L/100km' : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
                     v-model.number="vehicleData.km_per_liter"
-                    label="Fuel Efficiency (L/100km)"
+                    :label="t('dealer.views.vehicleDetail.fuelEfficiency')"
                     type="number"
                     step="0.01"
                     variant="outlined"
@@ -681,19 +681,19 @@
           >
             <v-card-title class="card-title">
               <v-icon size="18" class="mr-2">mdi-cash</v-icon>
-              <span class="text-subtitle-1">Pricing Information</span>
+              <span class="text-subtitle-1">{{ t('dealer.views.vehicleDetail.pricingInformation') }}</span>
             </v-card-title>
             <v-card-text class="pa-3">
               <v-row dense>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Internal Cost Price</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.internalCostPrice') }}</div>
                     <div class="field-value">{{ (vehicle.details as any)?.internal_cost_price ? formatPrice((vehicle.details as any).internal_cost_price) : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
                     v-model.number="vehicleData.internal_cost_price"
-                    label="Internal Cost Price"
+                    :label="t('dealer.views.vehicleDetail.internalCostPrice')"
                     type="number"
                     variant="outlined"
                     density="compact"
@@ -831,20 +831,20 @@
           >
             <v-card-title class="card-title">
               <v-icon size="18" class="mr-2">mdi-file-document-edit</v-icon>
-              <span class="text-subtitle-1">Vehicle Details</span>
+              <span class="text-subtitle-1">{{ t('dealer.views.vehicleDetail.detailsSection') }}</span>
             </v-card-title>
             <v-card-text class="pa-3">
               <v-row dense>
                 <!-- Basic Details -->
                 <v-col cols="12">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Description</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.description') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.details?.description) }}</div>
                   </div>
                   <v-textarea
                     v-else
                     v-model="vehicleData.description"
-                    label="Description"
+                    :label="t('dealer.views.vehicleDetail.description')"
                     variant="outlined"
                     density="compact"
                     rows="3"
@@ -959,13 +959,13 @@
                 <!-- Inspection Details -->
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Last Inspection Date</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.lastInspectionDate') }}</div>
                     <div class="field-value">{{ vehicle.details?.last_inspection_date ? formatDate(vehicle.details.last_inspection_date) : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
                     v-model="vehicleData.last_inspection_date"
-                    label="Last Inspection Date"
+                    :label="t('dealer.views.vehicleDetail.lastInspectionDate')"
                     type="date"
                     variant="outlined"
                     density="compact"
@@ -975,13 +975,13 @@
                 <template v-if="!editMode">
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
-                    <div class="field-label">Last Inspection Result</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.lastInspectionResult') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.details?.last_inspection_result) }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div class="info-field">
-                    <div class="field-label">Last Inspection Odometer</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.lastInspectionOdometer') }}</div>
                     <div class="field-value">{{ vehicle.details?.last_inspection_odometer ? formatNumber(vehicle.details.last_inspection_odometer) + ' km' : '-' }}</div>
                   </div>
                 </v-col>
@@ -1058,7 +1058,7 @@
                   <v-text-field
                     v-else
                     v-model.number="vehicleData.fuel_consumption_wltp"
-                    label="Fuel Consumption WLTP (L/100km)"
+                    :label="t('dealer.views.vehicleDetail.fuelConsumptionWltp')"
                     type="number"
                     step="0.01"
                     variant="outlined"
@@ -1074,7 +1074,7 @@
                   <v-text-field
                     v-else
                     v-model.number="vehicleData.fuel_consumption_nedc"
-                    label="Fuel Consumption NEDC (L/100km)"
+                    :label="t('dealer.views.vehicleDetail.fuelConsumptionNedc')"
                     type="number"
                     step="0.01"
                     variant="outlined"
@@ -1090,7 +1090,7 @@
                   <v-text-field
                     v-else
                     v-model.number="vehicleData.co2_emission"
-                    label="CO2 Emissions (g/km)"
+                    :label="t('dealer.views.vehicleDetail.co2Emissions')"
                     type="number"
                     variant="outlined"
                     density="compact"
@@ -1129,7 +1129,7 @@
                 <!-- Vehicle Attributes -->
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Color</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.color') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.details?.color_name) }}</div>
                   </div>
                   <v-select
@@ -1138,7 +1138,7 @@
                     :items="colors"
                     item-title="name"
                     item-value="id"
-                    label="Color"
+                    :label="t('dealer.views.vehicleDetail.color')"
                     variant="outlined"
                     density="compact"
                     hide-details="auto"
@@ -1146,7 +1146,7 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Body Type</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.bodyType') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.details?.body_type_name) }}</div>
                   </div>
                   <v-select
@@ -1155,7 +1155,7 @@
                     :items="bodyTypes"
                     item-title="name"
                     item-value="id"
-                    label="Body Type"
+                    :label="t('dealer.views.vehicleDetail.bodyType')"
                     variant="outlined"
                     density="compact"
                     hide-details="auto"
@@ -1163,7 +1163,7 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Price Type</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.priceType') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.details?.price_type_name) }}</div>
                   </div>
                   <v-select
@@ -1172,7 +1172,7 @@
                     :items="priceTypes"
                     item-title="name"
                     item-value="id"
-                    label="Price Type"
+                    :label="t('dealer.views.vehicleDetail.priceType')"
                     variant="outlined"
                     density="compact"
                     hide-details="auto"
@@ -1180,7 +1180,7 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Condition</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.condition') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.details?.condition_name) }}</div>
                   </div>
                   <v-select
@@ -1189,7 +1189,7 @@
                     :items="conditions"
                     item-title="name"
                     item-value="id"
-                    label="Condition"
+                    :label="t('dealer.views.vehicleDetail.condition')"
                     variant="outlined"
                     density="compact"
                     hide-details="auto"
@@ -1197,7 +1197,7 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Sales Type</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.salesType') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.details?.sales_type_name) }}</div>
                   </div>
                   <v-select
@@ -1206,7 +1206,7 @@
                     :items="salesTypes"
                     item-title="name"
                     item-value="id"
-                    label="Sales Type"
+                    :label="t('dealer.views.vehicleDetail.salesType')"
                     variant="outlined"
                     density="compact"
                     hide-details="auto"
@@ -1216,39 +1216,39 @@
                 <!-- Flags & Status -->
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Is Import</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.isImport') }}</div>
                     <div class="field-value">{{ vehicle.details?.is_import ? t('common.yes') : (vehicle.details?.is_import === false ? t('common.no') : '-') }}</div>
                   </div>
                   <v-checkbox
                     v-else
                     v-model="vehicleData.is_import"
-                    label="Is Import"
+                    :label="t('dealer.views.vehicleDetail.isImport')"
                     density="compact"
                     hide-details
                   />
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Is Factory New</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.isFactoryNew') }}</div>
                     <div class="field-value">{{ vehicle.details?.is_factory_new ? t('common.yes') : (vehicle.details?.is_factory_new === false ? t('common.no') : '-') }}</div>
                   </div>
                   <v-checkbox
                     v-else
                     v-model="vehicleData.is_factory_new"
-                    label="Is Factory New"
+                    :label="t('dealer.views.vehicleDetail.isFactoryNew')"
                     density="compact"
                     hide-details
                   />
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Servicebog</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.servicebog') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.details?.servicebog) }}</div>
                   </div>
                   <v-text-field
                     v-else
                     v-model="vehicleData.servicebog"
-                    label="Servicebog"
+                    :label="t('dealer.views.vehicleDetail.servicebog')"
                     variant="outlined"
                     density="compact"
                     hide-details="auto"
@@ -1315,13 +1315,13 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
-                    <div class="field-label">Annual Tax</div>
+                    <div class="field-label">{{ t('dealer.views.vehicleDetail.annualTax') }}</div>
                     <div class="field-value">{{ vehicle.details?.annual_tax ? formatPrice(vehicle.details.annual_tax) : '-' }}</div>
                   </div>
                   <v-text-field
                     v-else
                     v-model.number="vehicleData.annual_tax"
-                    label="Annual Tax"
+                    :label="t('dealer.views.vehicleDetail.annualTax')"
                     type="number"
                     variant="outlined"
                     density="compact"
@@ -1379,7 +1379,7 @@
           >
             <v-card-title class="card-title">
               <v-icon size="18" class="mr-2">mdi-image-multiple</v-icon>
-              <span class="text-subtitle-1">Vehicle Images</span>
+              <span class="text-subtitle-1">{{ t('dealer.views.vehicleDetail.vehicleImages') }}</span>
               <v-spacer />
               <v-btn
                 color="primary"
@@ -1435,7 +1435,7 @@
           >
             <v-card-title class="card-title">
               <v-icon size="18" class="mr-2">mdi-cog</v-icon>
-              <span class="text-subtitle-1">Equipment</span>
+              <span class="text-subtitle-1">{{ t('dealer.views.vehicleDetail.equipment') }}</span>
               <v-spacer />
               <v-btn
                 color="primary"
@@ -1572,7 +1572,7 @@
           >
             <v-card-title class="card-title">
               <v-icon size="18" class="mr-2">mdi-information-outline</v-icon>
-              <span class="text-subtitle-1">Information</span>
+              <span class="text-subtitle-1">{{ t('dealer.views.vehicleDetail.information') }}</span>
             </v-card-title>
             <v-card-text class="pa-3">
               <div class="info-list">
@@ -2202,7 +2202,7 @@ const loadVehicle = async () => {
 
     await Promise.all([loadImages(), loadHistory()])
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load vehicle'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.vehicleDetail.failedLoadVehicle')
   } finally {
     loading.value = false
   }
@@ -2335,7 +2335,7 @@ const saveVehicle = async () => {
     editMode.value = false
     await loadVehicle()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update vehicle'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.vehicleDetail.failedUpdateVehicle')
   } finally {
     updating.value = false
   }
@@ -2363,7 +2363,7 @@ const uploadImages = async () => {
     imageFiles.value = []
     await loadImages()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to upload images'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedUploadImages')
   } finally {
     uploadingImages.value = false
   }
@@ -2390,7 +2390,7 @@ const deleteImage = async () => {
     imageToDelete.value = null
     await loadImages()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to delete image'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedDeleteImage')
   } finally {
     deletingImage.value = false
   }
@@ -2406,7 +2406,7 @@ const saveEquipment = async () => {
     showEquipmentDialog.value = false
     await loadVehicle()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update equipment'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedUpdateEquipment')
   } finally {
     savingEquipment.value = false
   }
@@ -2441,7 +2441,7 @@ const updateStatus = async () => {
 
     await loadVehicle()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update vehicle status'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedUpdateVehicleStatus')
   } finally {
     updatingStatus.value = false
   }
@@ -2537,7 +2537,7 @@ const markAsSold = async () => {
     // Reload vehicle to get updated status
     await loadVehicle()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to mark vehicle as sold'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedMarkVehicleSold')
   } finally {
     markingAsSold.value = false
   }
@@ -2556,7 +2556,7 @@ const deleteVehicle = async () => {
     await deleteVehicleApi(vehicle.value.id)
     router.push({ name: 'admin.vehicles' })
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to delete vehicle'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.vehicles.failedDeleteVehicle')
   } finally {
     deleting.value = false
   }

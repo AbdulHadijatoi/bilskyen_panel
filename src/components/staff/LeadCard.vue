@@ -11,9 +11,9 @@
     <v-card-text class="pa-3">
       <div class="d-flex justify-space-between align-start mb-2">
         <div class="flex-grow-1">
-          <div class="font-weight-bold mb-1">{{ lead.name || 'Unknown' }}</div>
+          <div class="font-weight-bold mb-1">{{ lead.name || t('common.unknown') }}</div>
           <div class="text-caption text-medium-emphasis mb-2">
-            {{ lead.email || lead.phone || 'No contact' }}
+            {{ lead.email || lead.phone || t('common.noContact') }}
           </div>
         </div>
         <v-menu location="bottom end" @click.stop>
@@ -47,7 +47,7 @@
       
       <div v-if="lead.vehicle" class="text-caption text-medium-emphasis mb-2">
         <v-icon size="small" class="mr-1">mdi-car</v-icon>
-        {{ lead.vehicle.title || lead.vehicle.registration || 'N/A' }}
+        {{ lead.vehicle.title || lead.vehicle.registration || t('common.na') }}
       </div>
       
       <div class="d-flex gap-1 flex-wrap mb-2">
@@ -76,6 +76,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import type { LeadModel } from '@/models/lead.model'
 import {
   getIntentName,
@@ -84,6 +85,7 @@ import {
   formatLeadDate,
 } from '@/utils/leadHelpers'
 
+const { t } = useI18n()
 const props = defineProps<{
   lead: LeadModel
 }>()

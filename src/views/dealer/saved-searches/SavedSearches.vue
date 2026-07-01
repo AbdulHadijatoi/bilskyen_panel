@@ -151,7 +151,7 @@ const loadSearches = async () => {
     const searches = await getSavedSearches()
     savedSearches.value = searches
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load saved searches'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedLoadSavedSearches')
   } finally {
     loading.value = false
   }

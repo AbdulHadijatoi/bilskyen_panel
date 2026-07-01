@@ -226,7 +226,7 @@
                 />
               </div>
               <div>
-                <div class="font-weight-medium">{{ item.title || 'N/A' }}</div>
+                <div class="font-weight-medium">{{ item.title || t('common.na') }}</div>
                 <div class="text-caption text-medium-emphasis">
                   {{ item.registration || t('common.noRegistration') }}
                 </div>
@@ -236,7 +236,7 @@
 
           <template #item.dealer="{ item }">
             <div v-if="item.dealer">
-              <div class="font-weight-medium">{{ item.dealer.cvr || 'N/A' }}</div>
+              <div class="font-weight-medium">{{ item.dealer.cvr || t('common.na') }}</div>
               <div class="text-caption text-medium-emphasis">
                 {{ item.dealer.city || '' }}
               </div>
@@ -457,7 +457,7 @@ const loadVehicles = async () => {
     const response = await getVehicles(params)
     vehicles.value = response
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load vehicles'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.vehicles.failedLoadVehicles')
   } finally {
     loading.value = false
   }
@@ -483,7 +483,7 @@ const approveListing = async (id: number) => {
     await approvePendingVehicle(id)
     await loadVehicles()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to approve listing'
+    error.value = (err as ApiErrorModel).message || t('admin.views.vehicles.approveListing')
   } finally {
     approvingId.value = null
   }
@@ -505,7 +505,7 @@ const deleteVehicle = async () => {
     vehicleToDelete.value = null
     await loadVehicles()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to delete vehicle'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.vehicles.failedDeleteVehicle')
   } finally {
     deleting.value = false
   }

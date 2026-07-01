@@ -261,7 +261,7 @@ const editForm = ref({
 })
 
 const rules = {
-  required: (v: any) => !!v || 'This field is required',
+  required: (v: any) => !!v || t('common.required'),
 }
 
 const editingTranslationComputed = computed(() => {

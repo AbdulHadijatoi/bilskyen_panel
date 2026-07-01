@@ -18,7 +18,7 @@
           <div class="mb-4">
             <div class="text-caption text-medium-emphasis mb-1">Username</div>
             <div class="d-flex align-center">
-              <div class="text-body-2 font-weight-medium mr-2">{{ staffMember?.username || 'N/A' }}</div>
+              <div class="text-body-2 font-weight-medium mr-2">{{ staffMember?.username || t('common.na') }}</div>
               <v-btn
                 icon
                 size="small"
@@ -37,7 +37,7 @@
           <!-- Email (Read-only) -->
           <div class="mb-4">
             <div class="text-caption text-medium-emphasis mb-1">Email</div>
-            <div class="text-body-2 font-weight-medium">{{ staffMember?.email || 'N/A' }}</div>
+            <div class="text-body-2 font-weight-medium">{{ staffMember?.email || t('common.na') }}</div>
           </div>
 
           <v-divider class="my-4" />
@@ -149,6 +149,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, reactive, watch } from 'vue'
 import { updateStaff, type UpdateStaffData } from '@/api/staff.api'
 
@@ -160,6 +161,7 @@ export interface StaffMember {
   phone?: string
 }
 
+const { t } = useI18n()
 const props = defineProps<{
   modelValue: boolean
   staffMember: StaffMember | null
@@ -340,7 +342,7 @@ const handleSubmit = async () => {
     if (err?.errors && typeof err.errors === 'object') {
       validationErrors.value = err.errors
     } else {
-      error.value = err?.message || 'Failed to update staff member. Please try again.'
+      error.value = err?.message || t('dealerComponents.staff.failedUpdateStaff')
     }
   } finally {
     submitting.value = false

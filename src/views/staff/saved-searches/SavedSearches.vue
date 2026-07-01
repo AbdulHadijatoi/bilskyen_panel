@@ -121,6 +121,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import {
@@ -132,6 +133,7 @@ import {
 } from '@/api/staff.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
+const { t } = useI18n()
 const router = useRouter()
 
 const loading = ref(false)
@@ -149,7 +151,7 @@ const loadSearches = async () => {
     const searches = await getSavedSearches()
     savedSearches.value = searches
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load saved searches'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedLoadSavedSearches')
   } finally {
     loading.value = false
   }

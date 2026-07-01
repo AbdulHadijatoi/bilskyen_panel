@@ -1,5 +1,6 @@
 import apiClient from '@/utils/axios'
 import axios from 'axios'
+import i18n from '@/plugins/i18n'
 import { useAuthStore } from '@/stores/auth.store'
 import type { UserModel as User } from '@/models/user.model'
 import router from '@/router'
@@ -158,7 +159,7 @@ export async function getCurrentUser(): Promise<User> {
     }
     throw {
       status: 'error',
-      message: error.message || 'Failed to get user information',
+      message: error.message || i18n.global.t('common.errors.failedGetUser'),
     } as ApiError
   }
 }

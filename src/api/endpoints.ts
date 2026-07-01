@@ -73,6 +73,44 @@ export const DEALER_VEHICLE_ENDPOINTS = {
   IMPORT_TEMPLATE: '/dealer/vehicles/import/template',
   IMPORT_SAMPLE: '/dealer/vehicles/import/sample',
   IMPORT: '/dealer/vehicles/import',
+  EXPORT: '/dealer/vehicles/export',
+  REORDER_IMAGES: (id: number | string) => `/dealer/vehicles/${id}/images/reorder`,
+  UPDATE_VIDEO: (id: number | string) => `/dealer/vehicles/${id}/video`,
+} as const
+
+export const DEALER_FEED_ENDPOINTS = {
+  TOKENS: '/dealer/feeds/tokens',
+  TOKEN: (id: number | string) => `/dealer/feeds/tokens/${id}`,
+} as const
+
+export const DEALER_SYNDICATION_ENDPOINTS = {
+  INDEX: '/dealer/syndication',
+  SYNC: '/dealer/syndication/sync',
+} as const
+
+export const DEALER_TRADE_IN_ENDPOINTS = {
+  LIST: '/dealer/trade-in',
+  UPDATE: (id: number | string) => `/dealer/trade-in/${id}`,
+} as const
+
+export const DEALER_BRANDING_ENDPOINTS = {
+  SHOW: '/dealer/branding',
+  UPDATE: '/dealer/branding',
+  DOMAINS: '/dealer/branding/domains',
+  VERIFY_DOMAIN: (id: number | string) => `/dealer/branding/domains/${id}/verify`,
+  DELETE_DOMAIN: (id: number | string) => `/dealer/branding/domains/${id}`,
+} as const
+
+export const DEALER_DMS_ENDPOINTS = {
+  INDEX: '/dealer/dms',
+  API_KEYS: '/dealer/dms/api-keys',
+  API_KEY: (id: number | string) => `/dealer/dms/api-keys/${id}`,
+  WEBHOOKS: '/dealer/dms/webhooks',
+  WEBHOOK: (id: number | string) => `/dealer/dms/webhooks/${id}`,
+} as const
+
+export const DEALER_COMPLIANCE_ENDPOINTS = {
+  LEAD_PII_EXPORT: '/dealer/compliance/lead-pii-export',
 } as const
 
 /**
@@ -95,6 +133,39 @@ export const DEALER_LEAD_ENDPOINTS = {
   UPDATE_CATEGORY: (id: number | string) => `/dealer/leads/category/${id}`,
   GET_MESSAGES: (id: number | string) => `/dealer/leads/messages/${id}`,
   SEND_MESSAGE: (id: number | string) => `/dealer/leads/messages/${id}`,
+} as const
+
+export const DEALER_LEAD_CRM_ENDPOINTS = {
+  LOST_REASONS: '/dealer/leads/crm/lost-reasons',
+  ACTIVITIES: (leadId: number | string) => `/dealer/leads/crm/${leadId}/activities`,
+  NOTES: (leadId: number | string) => `/dealer/leads/crm/${leadId}/notes`,
+  TASKS: (leadId: number | string) => `/dealer/leads/crm/${leadId}/tasks`,
+  TASK: (leadId: number | string, taskId: number | string) => `/dealer/leads/crm/${leadId}/tasks/${taskId}`,
+  REMINDERS: (leadId: number | string) => `/dealer/leads/crm/${leadId}/reminders`,
+  ONBOARDING_STATUS: '/dealer/onboarding',
+  ONBOARDING_ADVANCE: '/dealer/onboarding/advance',
+} as const
+
+export const ADMIN_INTEGRATION_ENDPOINTS = {
+  LIST: '/admin/integrations',
+  UPDATE: '/admin/integrations',
+  LOGS: '/admin/integrations/logs',
+  TEST: '/admin/integrations/test',
+} as const
+
+export const ADMIN_SYNDICATION_ENDPOINTS = {
+  PROVIDERS: '/admin/syndication/providers',
+  LOGS: '/admin/syndication/logs',
+  SYNC_DEALER: (dealerId: number | string) => `/admin/syndication/dealers/${dealerId}/sync`,
+  SFTP_TEST: '/admin/syndication/sftp/test',
+  SFTP_UPLOAD: '/admin/syndication/sftp/upload',
+} as const
+
+export const ADMIN_AI_ENDPOINTS = {
+  USAGE: '/admin/ai/usage',
+  PROMPT_TEMPLATES: '/admin/ai/prompt-templates',
+  UPDATE_PROMPT_TEMPLATE: (id: number | string) => `/admin/ai/prompt-templates/${id}`,
+  TEST: '/admin/ai/test',
 } as const
 
 /**
@@ -158,6 +229,26 @@ export const DEALER_SUBSCRIPTION_ENDPOINTS = {
 } as const
 
 /**
+ * Dealer billing & payments endpoints
+ */
+export const DEALER_BILLING_ENDPOINTS = {
+  CONFIG: '/dealer/billing/config',
+  INVOICES: '/dealer/billing/invoices',
+  INVOICE: (id: number | string) => `/dealer/billing/invoices/${id}`,
+  CHECKOUT_INVOICE: (id: number | string) => `/dealer/billing/invoices/${id}/checkout`,
+  SUBSCRIPTION_CHECKOUT: '/dealer/billing/subscription-checkout',
+  PAYMENTS: '/dealer/billing/payments',
+} as const
+
+/**
+ * Dealer AI assistant endpoints
+ */
+export const DEALER_AI_ENDPOINTS = {
+  CONFIG: '/dealer/ai/config',
+  GENERATE: '/dealer/ai/generate',
+} as const
+
+/**
  * Dealer dashboard endpoints
  */
 export const DEALER_DASHBOARD_ENDPOINTS = {
@@ -197,6 +288,12 @@ export const DEALER_ANALYTICS_ENDPOINTS = {
   VEHICLES: '/dealer/analytics/vehicles',
   MARKETING: '/dealer/analytics/marketing',
   SUBSCRIPTION: '/dealer/analytics/subscription',
+  FUNNEL: '/dealer/analytics/funnel',
+  STOCK: '/dealer/analytics/stock',
+  ASSIGNEES: '/dealer/analytics/assignees',
+  TRENDS: '/dealer/analytics/trends',
+  CHANNELS: '/dealer/analytics/channels',
+  EXPORT: '/dealer/analytics/export',
 } as const
 
 /**
@@ -388,6 +485,47 @@ export const ADMIN_SEO_PAGE_ENDPOINTS = {
   DELETE: (id: number | string) => `/admin/seo-pages/${id}`,
 } as const
 
+export const ADMIN_CMS_POST_ENDPOINTS = {
+  LIST: '/admin/cms/posts',
+  SHOW: (id: number | string) => `/admin/cms/posts/${id}`,
+  CREATE: '/admin/cms/posts',
+  UPDATE: (id: number | string) => `/admin/cms/posts/${id}`,
+  DELETE: (id: number | string) => `/admin/cms/posts/${id}`,
+  CATEGORIES: '/admin/cms/posts/categories',
+  RESTORE_VERSION: (id: number | string, versionId: number | string) => `/admin/cms/posts/${id}/versions/${versionId}/restore`,
+} as const
+
+export const ADMIN_LANDING_PAGE_ENDPOINTS = {
+  LIST: '/admin/cms/landing-pages',
+  SHOW: (id: number | string) => `/admin/cms/landing-pages/${id}`,
+  CREATE: '/admin/cms/landing-pages',
+  UPDATE: (id: number | string) => `/admin/cms/landing-pages/${id}`,
+  DELETE: (id: number | string) => `/admin/cms/landing-pages/${id}`,
+  RESTORE_VERSION: (id: number | string, versionId: number | string) => `/admin/cms/landing-pages/${id}/versions/${versionId}/restore`,
+} as const
+
+export const ADMIN_CMS_MEDIA_ENDPOINTS = {
+  LIST: '/admin/cms/media',
+  CREATE: '/admin/cms/media',
+  UPDATE: (id: number | string) => `/admin/cms/media/${id}`,
+  DELETE: (id: number | string) => `/admin/cms/media/${id}`,
+} as const
+
+export const ADMIN_SEO_REDIRECT_ENDPOINTS = {
+  LIST: '/admin/seo/redirects',
+  CREATE: '/admin/seo/redirects',
+  UPDATE: (id: number | string) => `/admin/seo/redirects/${id}`,
+  DELETE: (id: number | string) => `/admin/seo/redirects/${id}`,
+} as const
+
+export const ADMIN_SEO_TOOLS_ENDPOINTS = {
+  ROBOTS: '/admin/seo/tools/robots',
+  COOKIE_CONSENT: '/admin/seo/tools/cookie-consent',
+  AUDIT: '/admin/seo/tools/audit',
+  SCHEMA_PRESETS: '/admin/seo/tools/schema/presets',
+  SCHEMA_BUILD: '/admin/seo/tools/schema/build',
+} as const
+
 /**
  * Public home page content endpoints
  */
@@ -405,6 +543,11 @@ export const ADMIN_ANALYTICS_ENDPOINTS = {
   VEHICLES: '/admin/analytics/vehicles',
   LEADS: '/admin/analytics/leads',
   ACTIVITY: '/admin/analytics/activity',
+  FUNNEL: '/admin/analytics/funnel',
+  COHORT: '/admin/analytics/cohort',
+  INTEGRATIONS: '/admin/analytics/integrations',
+  TRENDS: '/admin/analytics/trends',
+  EXPORT: '/admin/analytics/export',
 } as const
 
 /**

@@ -79,11 +79,13 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getPage, updatePage as updatePageApi, publishPage as publishPageApi, type UpdatePageData, type PageModel } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 
@@ -113,7 +115,7 @@ const loadPage = async () => {
       content: loadedPage.content || '',
     }
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load page'
+    error.value = (err as ApiErrorModel).message || t('admin.views.seo.failedLoadPage')
   } finally {
     loading.value = false
   }

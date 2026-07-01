@@ -187,7 +187,7 @@ async function loadInvoices() {
     invoices.value = response.docs
     totalDocs.value = response.totalDocs ?? 0
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load invoices'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedLoadInvoices')
   } finally {
     loading.value = false
   }
@@ -208,7 +208,7 @@ async function openDetail(invoice: DealerInvoiceModel) {
     selectedInvoice.value = await getDealerInvoice(invoice.id)
     showDetail.value = true
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load invoice'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedLoadInvoices')
   }
 }
 

@@ -290,7 +290,7 @@
               </v-avatar>
               <div>
                 <div class="text-body-2 font-weight-medium">{{ item.dealer?.owner?.name || item.dealer?.cvr || `Dealer #${item.dealer_id}` }}</div>
-                <div class="text-caption text-medium-emphasis">{{ item.dealer?.owner?.email || item.dealer?.city || 'N/A' }}</div>
+                <div class="text-caption text-medium-emphasis">{{ item.dealer?.owner?.email || item.dealer?.city || t('common.na') }}</div>
               </div>
             </div>
           </template>
@@ -415,7 +415,7 @@
               item-value="id"
               :label="t('admin.views.subscriptions.dealer')"
               variant="outlined"
-              :rules="[v => !!v || 'Required']"
+              :rules="[v => !!v || t('common.required')]"
               class="mb-4"
               :loading="loadingDealersForCreate"
               density="compact"
@@ -441,7 +441,7 @@
               item-value="id"
               :label="t('admin.views.subscriptions.plan')"
               variant="outlined"
-              :rules="[v => !!v || 'Required']"
+              :rules="[v => !!v || t('common.required')]"
               class="mb-4"
               :loading="loadingPlans"
               density="compact"
@@ -453,7 +453,7 @@
               item-value="value"
               :label="t('admin.views.subscriptions.status')"
             variant="outlined"
-              :rules="[v => !!v || 'Required']"
+              :rules="[v => !!v || t('common.required')]"
               class="mb-4"
               density="compact"
           />
@@ -464,7 +464,7 @@
                   :label="t('admin.views.subscriptions.startDate') + ' *'"
                   type="datetime-local"
             variant="outlined"
-                  :rules="[v => !!v || 'Required']"
+                  :rules="[v => !!v || t('common.required')]"
                   class="mb-4"
                   density="compact"
                 />
@@ -550,7 +550,7 @@
             item-value="value"
               :label="t('admin.views.subscriptions.status')"
               variant="outlined"
-              :rules="[v => !!v || 'Required']"
+              :rules="[v => !!v || t('common.required')]"
               class="mb-4"
               density="compact"
             />
@@ -561,7 +561,7 @@
                   :label="t('admin.views.subscriptions.startDate') + ' *'"
                   type="datetime-local"
                   variant="outlined"
-                  :rules="[v => !!v || 'Required']"
+                  :rules="[v => !!v || t('common.required')]"
                   class="mb-4"
                   density="compact"
                 />
@@ -742,7 +742,7 @@ const getStatusColor = (statusId: number) => {
 
 const getStatusLabel = (statusId: number) => {
   const option = statusOptions.find(s => s.value === statusId)
-  return option?.label || 'Unknown'
+  return option?.label || t('common.unknown')
 }
 
 const getStatusIcon = (statusId: number) => {

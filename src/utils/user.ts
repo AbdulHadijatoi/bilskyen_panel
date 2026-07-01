@@ -53,6 +53,14 @@ export function isAdmin(): boolean {
 }
 
 /**
+ * Check if current user is staff (dealer employee)
+ */
+export function isStaff(): boolean {
+  const role = getUserRole()
+  return role === UserRole.STAFF || role === 'staff'
+}
+
+/**
  * Check if current user is dealer
  */
 export function isDealer(): boolean {

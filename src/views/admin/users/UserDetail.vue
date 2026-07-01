@@ -458,12 +458,14 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getUser, updateUser as updateUserApi, banUser as banUserApi, unbanUser as unbanUserApi, changeUserPassword, getRoles, type UpdateUserData, type RoleModel } from '@/api/admin.api'
 import type { UserModel } from '@/models/user.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 
@@ -574,7 +576,7 @@ const updateUser = async () => {
     user.value = updatedUser
     editMode.value = false
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update user'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedUpdateUser')
   } finally {
     updating.value = false
   }
@@ -598,7 +600,7 @@ const banUser = async () => {
     user.value = bannedUser
     showBanDialog.value = false
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to ban user'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedBanUser')
   } finally {
     banning.value = false
   }
@@ -614,7 +616,7 @@ const unbanUser = async () => {
     user.value = unbannedUser
     showBanDialog.value = false
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to unban user'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedUnbanUser')
   } finally {
     unbanning.value = false
   }
@@ -631,7 +633,7 @@ const getStatusColor = (status?: string) => {
 
 const getStatusLabel = (statusId?: number) => {
   const status = statusOptions.find(s => s.value === statusId)
-  return status?.label || 'Unknown'
+  return status?.label || t('common.unknown')
 }
 
 const getUserInitials = (name: string): string => {
@@ -701,7 +703,7 @@ const changePassword = async () => {
     // Reload user to update updatedAt timestamp
     await loadUser()
   } catch (err) {
-    passwordError.value = (err as ApiErrorModel).message || 'Failed to change password'
+    passwordError.value = (err as ApiErrorModel).message || t('dealerComponents.changePasswordDialog.failedChangePassword')
   } finally {
     changingPassword.value = false
   }

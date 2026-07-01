@@ -294,6 +294,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, reactive, onMounted } from 'vue'
 import { getProfile, updateProfile, type UpdateProfileData } from '@/api/staff.api'
 import { getCurrentUser } from '@/api/auth.api'
@@ -386,7 +387,7 @@ const loadProfile = async () => {
     form.country_code = data.countryCode || ''
   } catch (error: any) {
     console.error('Failed to load profile:', error)
-    loadError.value = error?.message || 'Failed to load profile information. Please try again.'
+    loadError.value = error?.message || t('dealer.views.profile.failedLoadProfile')
   } finally {
     loading.value = false
   }
@@ -473,7 +474,7 @@ const handleSubmit = async () => {
     if (error?.errors && typeof error.errors === 'object') {
       validationErrors.value = error.errors
     } else {
-      submitError.value = error?.message || 'Failed to update profile. Please try again.'
+      submitError.value = error?.message || t('dealer.views.profile.failedUpdateProfile')
     }
   } finally {
     submitting.value = false

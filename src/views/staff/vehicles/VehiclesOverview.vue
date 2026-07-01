@@ -4,9 +4,9 @@
     <div class="header-section mb-6">
       <div class="d-flex justify-space-between align-center">
   <div>
-          <h1 class="text-h4 font-weight-bold mb-1">Vehicle Management</h1>
+          <h1 class="text-h4 font-weight-bold mb-1">{{ t('staff.views.vehicles.title') }}</h1>
           <p class="text-body-2 text-medium-emphasis mb-0">
-          View and manage your vehicle inventory
+          {{ t('dealer.views.vehicles.subtitle') }}
         </p>
       </div>
       <div class="d-flex gap-2 flex-wrap">
@@ -26,7 +26,7 @@
           size="default"
           :to="{ name: 'staff.vehicles.add' }"
         >
-          Add Vehicle
+          {{ t('staff.views.vehicles.addVehicle') }}
         </v-btn>
       </div>
     </div>
@@ -43,7 +43,7 @@
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between">
               <div>
-                <div class="stat-label">Total Vehicles</div>
+                <div class="stat-label">{{ t('staff.views.vehicles.totalVehicles') }}</div>
                 <div class="stat-value">{{ vehicles.totalDocs || 0 }}</div>
               </div>
               <v-icon size="40" color="primary" class="stat-icon">mdi-car-multiple</v-icon>
@@ -60,7 +60,7 @@
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between">
               <div>
-                <div class="stat-label">Published</div>
+                <div class="stat-label">{{ t('staff.views.vehicles.published') }}</div>
                 <div class="stat-value text-success">{{ publishedCount }}</div>
               </div>
               <v-icon size="40" color="success" class="stat-icon">mdi-check-circle</v-icon>
@@ -77,7 +77,7 @@
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between">
               <div>
-                <div class="stat-label">Draft</div>
+                <div class="stat-label">{{ t('staff.views.vehicles.draft') }}</div>
                 <div class="stat-value text-warning">{{ draftCount }}</div>
               </div>
               <v-icon size="40" color="warning" class="stat-icon">mdi-file-document-edit</v-icon>
@@ -94,7 +94,7 @@
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between">
               <div>
-                <div class="stat-label">Sold</div>
+                <div class="stat-label">{{ t('staff.views.vehicles.sold') }}</div>
                 <div class="stat-value text-info">{{ soldCount }}</div>
               </div>
               <v-icon size="40" color="info" class="stat-icon">mdi-check-all</v-icon>
@@ -114,7 +114,7 @@
         <div class="d-flex align-center gap-4 flex-wrap">
           <v-text-field
             v-model="search"
-            placeholder="Search by title, registration, VIN..."
+            :placeholder="t('staff.views.vehicles.searchPlaceholder')"
             density="comfortable"
             variant="outlined"
             prepend-inner-icon="mdi-magnify"
@@ -129,7 +129,7 @@
             :items="statusFilterOptions"
             item-title="label"
             item-value="value"
-            label="Filter by Status"
+            :label="t('staff.views.vehicles.filterByStatus')"
               variant="outlined" 
             density="comfortable"
             prepend-inner-icon="mdi-filter"
@@ -170,12 +170,12 @@
       <v-card-text class="pa-0">
         <div v-if="loading" class="loading-container">
           <v-progress-circular indeterminate color="primary" size="48" />
-          <p class="text-body-2 text-medium-emphasis mt-4">Loading vehicles...</p>
+          <p class="text-body-2 text-medium-emphasis mt-4">{{ t('staff.views.vehicles.loadingVehicles') }}</p>
         </div>
 
         <div v-else-if="error" class="error-container pa-6">
           <v-alert type="error" variant="tonal" prominent>
-            <v-alert-title>Error</v-alert-title>
+            <v-alert-title>{{ t('common.error') }}</v-alert-title>
             {{ error }}
           </v-alert>
         </div>
@@ -209,9 +209,9 @@
                 />
               </div>
               <div>
-                <div class="font-weight-medium">{{ item.title || 'N/A' }}</div>
+                <div class="font-weight-medium">{{ item.title || t('common.na') }}</div>
                 <div class="text-caption text-medium-emphasis">
-                  {{ item.registration || 'No registration' }}
+                  {{ item.registration || t('common.noRegistration') }}
                 </div>
               </div>
             </div>
@@ -229,7 +229,7 @@
               size="small"
               variant="flat"
             >
-              {{ item.status || item.vehicleListStatusName || 'N/A' }}
+              {{ item.status || item.vehicleListStatusName || t('common.na') }}
             </v-chip>
           </template>
           
@@ -241,7 +241,7 @@
                 size="small"
                 color="primary"
                 @click="viewVehicle(item.id)"
-                title="View"
+                :title="t('common.view')"
               >
                 <v-icon size="20">mdi-eye</v-icon>
                 </v-btn>
@@ -251,7 +251,7 @@
                 size="small"
                 color="error"
                 @click="confirmDelete(item)"
-                  title="Delete"
+                  :title="t('common.delete')"
               >
                 <v-icon size="20">mdi-delete</v-icon>
               </v-btn>
@@ -344,21 +344,21 @@ const showImportDialog = ref(false)
 const vehicleToDelete = ref<VehicleModel | null>(null)
 const deleting = ref(false)
 
-const statusFilterOptions = [
-  { label: 'All Statuses', value: null },
-  { label: 'Draft', value: 'draft' as VehicleStatus },
-  { label: 'Published', value: 'published' as VehicleStatus },
-  { label: 'Sold', value: 'sold' as VehicleStatus },
-  { label: 'Archived', value: 'archived' as VehicleStatus },
-]
+const statusFilterOptions = computed(() => [
+  { label: t('dealer.views.vehicles.allStatuses'), value: null },
+  { label: t('staff.views.vehicles.draft'), value: 'draft' as VehicleStatus },
+  { label: t('staff.views.vehicles.published'), value: 'published' as VehicleStatus },
+  { label: t('staff.views.vehicles.sold'), value: 'sold' as VehicleStatus },
+  { label: t('dealer.views.vehicles.archived'), value: 'archived' as VehicleStatus },
+])
 
-const headers = [
-  { title: 'ID', key: 'id', width: '100px', sortable: false },
-  { title: 'Vehicle', key: 'title', sortable: false },
-  { title: 'Price', key: 'price', width: '120px', sortable: false },
-  { title: 'Status', key: 'status', width: '120px', sortable: false },
-  { title: 'Actions', key: 'actions', sortable: false, width: '120px', align: 'center' as const },
-]
+const headers = computed(() => [
+  { title: t('common.id'), key: 'id', width: '100px', sortable: false },
+  { title: t('dealer.views.vehicles.vehicle'), key: 'title', sortable: false },
+  { title: t('dealer.views.vehicles.price'), key: 'price', width: '120px', sortable: false },
+  { title: t('common.status'), key: 'status', width: '120px', sortable: false },
+  { title: t('common.actions'), key: 'actions', sortable: false, width: '120px', align: 'center' as const },
+])
 
 // Status counts - fetch all vehicles for accurate counts
 const statusCounts = ref({
@@ -419,7 +419,7 @@ const loadVehicles = async () => {
     const response = await getVehicles(params)
     vehicles.value = response
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load vehicles'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.vehicles.failedLoadVehicles')
   } finally {
     loading.value = false
   }
@@ -459,7 +459,7 @@ const deleteVehicle = async () => {
     vehicleToDelete.value = null
     await Promise.all([loadVehicles(), loadStatusCounts()])
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to delete vehicle'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.vehicles.failedDeleteVehicle')
   } finally {
     deleting.value = false
   }

@@ -120,7 +120,7 @@ export function can(resource: PermissionResource, action: PermissionAction): boo
  * Check if current user is admin
  * Re-exported from user.ts for convenience
  */
-export { isAdmin } from './user'
+export { isAdmin, isStaff } from './user'
 
 /**
  * Check if current user is dealer

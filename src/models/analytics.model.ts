@@ -236,4 +236,81 @@ export interface SubscriptionUsage {
     used: number
     usage_percentage: number
   }>
+  payg?: {
+    pending_usage_cents: number
+    invoiced_cents: number
+    paid_cents: number
+  }
+}
+
+export interface FunnelAnalytics {
+  current: { views: number; enquiries: number; leads: number; won: number }
+  rates: {
+    view_to_enquiry: number
+    enquiry_to_lead: number
+    lead_to_won: number
+    view_to_won: number
+  }
+  previous?: { views: number; enquiries: number; leads: number; won: number }
+  previous_rates?: FunnelAnalytics['rates']
+}
+
+export interface StockAnalytics {
+  published_inventory: number
+  sold_in_period: number
+  new_listings_in_period: number
+  sold_rate_percent: number
+  inventory_aging: Array<{ bucket: string; count: number }>
+  price_drops_in_period: number
+  average_days_on_market: number
+}
+
+export interface AssigneeAnalytics {
+  assignees: Array<{
+    user_id: number | null
+    name: string
+    total_leads: number
+    won_leads: number
+    contacted_leads: number
+    win_rate: number
+    avg_time_to_contact_hours: number | null
+  }>
+}
+
+export interface ChannelAnalytics {
+  by_channel: Array<{ channel: string; count: number }>
+}
+
+export interface TrendAnalytics {
+  series: Array<{
+    date: string
+    views: number
+    enquiries: number
+    leads: number
+    won: number
+  }>
+}
+
+export interface CohortAnalytics {
+  cohorts: Array<{
+    cohort_month: string
+    signups: number
+    still_active: number
+    retention_rate: number
+  }>
+}
+
+export interface IntegrationsAnalytics {
+  payments: {
+    succeeded: number
+    failed: number
+    success_rate: number
+    volume_cents: number
+  }
+  ai: {
+    requests_succeeded: number
+    requests_failed: number
+    tokens_used: number
+    by_provider: Array<{ provider: string; count: number }>
+  }
 }

@@ -212,15 +212,15 @@
             >
               <template #item.name="{ item }">
                         <div>
-                  <div class="font-weight-medium">{{ item.name || 'Unknown' }}</div>
+                  <div class="font-weight-medium">{{ item.name || t('common.unknown') }}</div>
                   <div class="text-caption text-medium-emphasis">
-                    {{ item.email || item.phone || 'No contact' }}
+                    {{ item.email || item.phone || t('common.noContact') }}
                   </div>
                 </div>
               </template>
               <template #item.vehicle="{ item }">
                 <div v-if="item.vehicle" class="text-caption">
-                  {{ item.vehicle.title || item.vehicle.registration || 'N/A' }}
+                  {{ item.vehicle.title || item.vehicle.registration || t('common.na') }}
                         </div>
                 <div v-else class="text-medium-emphasis">No vehicle</div>
               </template>
@@ -476,6 +476,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, onMounted, computed, watch, nextTick, onUnmounted } from 'vue'
 // All reactive variables are defined below and automatically available in template
 import { useRouter } from 'vue-router'
@@ -500,6 +501,7 @@ import {
 import LeadCard from '@/components/staff/LeadCard.vue'
 import AnalyticsSidebar from '@/components/staff/AnalyticsSidebar.vue'
 
+const { t } = useI18n()
 const router = useRouter()
 
 const loading = ref(false)
@@ -1064,7 +1066,7 @@ const handleAssignLead = async () => {
     selectedLead.value = null
     selectedStaffId.value = null
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to assign lead'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.leads.failedAssignLead')
   } finally {
     loading.value = false
   }
@@ -1081,7 +1083,7 @@ const handleChangeIntent = async () => {
     selectedLead.value = null
     selectedIntentId.value = null
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update intent'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.leads.failedUpdateIntent')
   } finally {
     loading.value = false
   }
@@ -1098,7 +1100,7 @@ const handleChangeCategory = async () => {
     selectedLead.value = null
     selectedCategoryId.value = null
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update category'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.leads.failedUpdateCategory')
   } finally {
     loading.value = false
   }
@@ -1135,7 +1137,7 @@ const loadStaff = async () => {
     const staff = await getStaff()
     staffMembers.value = staff.map((s: any) => ({
       id: s.user_id || s.user?.id,
-      name: s.user?.name || 'Unknown',
+      name: s.user?.name || t('common.unknown'),
     }))
   } catch (err) {
     console.error('Failed to load staff:', err)

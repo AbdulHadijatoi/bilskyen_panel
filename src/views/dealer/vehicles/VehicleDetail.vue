@@ -977,9 +977,20 @@
               </div>
               <div v-else class="images-grid">
                 <div
-                  v-for="image in sortedVehicleImages"
+                  v-for="(image, imgIndex) in sortedVehicleImages"
                   :key="image.id"
-                  class="image-item"
+                  class="image-item image-drag-item"
+                  :class="{
+                    dragging: draggedImageIndex === imgIndex,
+                    'drag-over': dragOverIndex === imgIndex,
+                  }"
+                  draggable="true"
+                  @dragstart="handleImageDragStart(imgIndex, $event)"
+                  @dragover.prevent="handleImageDragOver"
+                  @dragenter.prevent="handleImageDragEnter(imgIndex)"
+                  @dragleave="handleImageDragLeave"
+                  @drop.prevent="handleImageDrop(imgIndex)"
+                  @dragend="handleImageDragEnd"
                 >
                   <v-img
                     :src="image.url || image.thumbnailUrl"
@@ -1001,6 +1012,37 @@
                   </v-btn>
                 </div>
               </div>
+            </v-card-text>
+          </v-card>
+
+          <!-- Video URL Card -->
+          <v-card variant="flat" class="info-card mb-3" elevation="0">
+            <v-card-title class="card-title">
+              <v-icon size="18" class="mr-2">mdi-video</v-icon>
+              <span class="text-subtitle-1">{{ t('dealer.views.vehicleDetail.videoTitle') }}</span>
+              <v-spacer />
+              <v-btn
+                color="primary"
+                variant="outlined"
+                size="x-small"
+                :loading="savingVideo"
+                @click="saveVideoUrl"
+              >
+                {{ t('common.save') }}
+              </v-btn>
+            </v-card-title>
+            <v-card-text class="pa-3">
+              <v-text-field
+                v-model="videoUrlInput"
+                :label="t('dealer.views.vehicleDetail.videoUrlLabel')"
+                placeholder="https://www.youtube.com/watch?v=..."
+                variant="outlined"
+                density="compact"
+                hide-details
+              />
+              <p v-if="vehicle?.videoProvider" class="text-caption text-medium-emphasis mt-2 mb-0">
+                {{ t('dealer.views.vehicleDetail.videoProvider') }}: {{ vehicle.videoProvider }}
+              </p>
             </v-card-text>
           </v-card>
 
@@ -1072,7 +1114,7 @@
                 </div>
               </div>
               <div v-else class="text-medium-emphasis text-caption">
-                No equipment assigned
+                {{ t('dealer.views.vehicleDetail.noEquipment') }}
               </div>
             </v-card-text>
           </v-card>
@@ -1389,6 +1431,8 @@ import {
   deleteVehicle as deleteVehicleApi,
   uploadVehicleImages,
   deleteVehicleImage,
+  reorderVehicleImages,
+  updateVehicleVideo,
   getLookupConstants,
   type UpdateVehicleData,
   type UpdateVehicleStatusData,
@@ -1474,6 +1518,11 @@ const show3dUploadDialog = ref(false)
 const view3dUrlInput = ref('')
 const view3dFile = ref<File[] | null>(null)
 const uploading3dView = ref(false)
+const videoUrlInput = ref('')
+const savingVideo = ref(false)
+const draggedImageIndex = ref<number | null>(null)
+const dragOverIndex = ref<number | null>(null)
+const reorderingImages = ref(false)
 
 const canUpload3dView = computed(() => hasFeature(FeatureKey.UPLOAD_3D_VIEW))
 
@@ -1562,6 +1611,7 @@ const loadVehicle = async () => {
     error.value = null
     const loadedVehicle = await getVehicle(vehicleId)
     vehicle.value = loadedVehicle
+    videoUrlInput.value = loadedVehicle.videoUrl || ''
     
     // Initialize vehicle images from vehicle object
     if (loadedVehicle.images && Array.isArray(loadedVehicle.images)) {
@@ -1752,7 +1802,7 @@ const uploadImages = async () => {
     showImageUploadDialog.value = false
     imageFiles.value = []
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to upload images'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedUploadImages')
   } finally {
     uploadingImages.value = false
   }
@@ -1761,6 +1811,88 @@ const uploadImages = async () => {
 const cancelImageUpload = () => {
   showImageUploadDialog.value = false
   imageFiles.value = []
+}
+
+async function saveVideoUrl() {
+  if (!vehicle.value) return
+  try {
+    savingVideo.value = true
+    error.value = null
+    const updated = await updateVehicleVideo(vehicle.value.id, videoUrlInput.value.trim() || null)
+    vehicle.value = updated
+    videoUrlInput.value = updated.videoUrl || ''
+  } catch (err) {
+    error.value = (err as ApiErrorModel).message || t('dealer.views.vehicleDetail.videoSaveFailed')
+  } finally {
+    savingVideo.value = false
+  }
+}
+
+const handleImageDragStart = (index: number, event: DragEvent) => {
+  draggedImageIndex.value = index
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move'
+  }
+}
+
+const handleImageDragOver = (event: DragEvent) => {
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'move'
+  }
+}
+
+const handleImageDragEnter = (index: number) => {
+  if (draggedImageIndex.value !== null && draggedImageIndex.value !== index) {
+    dragOverIndex.value = index
+  }
+}
+
+const handleImageDragLeave = (event: DragEvent) => {
+  const target = event.currentTarget as HTMLElement
+  const relatedTarget = event.relatedTarget as HTMLElement
+  if (!target.contains(relatedTarget)) {
+    dragOverIndex.value = null
+  }
+}
+
+const persistImageOrder = async (orderedImages: VehicleImageModel[]) => {
+  if (!vehicle.value) return
+  try {
+    reorderingImages.value = true
+    const updated = await reorderVehicleImages(
+      vehicle.value.id,
+      orderedImages.map((img) => img.id)
+    )
+    vehicle.value = updated
+    if (updated.images?.length) {
+      vehicleImages.value = updated.images
+    }
+  } catch (err) {
+    error.value = (err as ApiErrorModel).message || t('dealer.views.vehicleDetail.reorderImagesFailed')
+    await loadVehicle()
+  } finally {
+    reorderingImages.value = false
+  }
+}
+
+const handleImageDrop = async (dropIndex: number) => {
+  dragOverIndex.value = null
+  if (draggedImageIndex.value === null || draggedImageIndex.value === dropIndex) {
+    return
+  }
+
+  const images = [...sortedVehicleImages.value]
+  const [moved] = images.splice(draggedImageIndex.value, 1)
+  if (!moved) return
+  images.splice(dropIndex, 0, moved)
+  vehicleImages.value = images
+  draggedImageIndex.value = null
+  await persistImageOrder(images)
+}
+
+const handleImageDragEnd = () => {
+  draggedImageIndex.value = null
+  dragOverIndex.value = null
 }
 
 const confirmDeleteImage = (image: VehicleImageModel) => {
@@ -1781,7 +1913,7 @@ const deleteImage = async () => {
     // Reload vehicle to get updated images
     await loadVehicle()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to delete image'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedDeleteImage')
   } finally {
     deletingImage.value = false
   }
@@ -1809,7 +1941,7 @@ const saveEquipment = async () => {
     showEquipmentDialog.value = false
     await loadVehicle()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update equipment'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedUpdateEquipment')
   } finally {
     savingEquipment.value = false
   }
@@ -1833,7 +1965,7 @@ const deleteVehicle = async () => {
     await deleteVehicleApi(vehicle.value.id)
     router.push({ name: 'dealer.vehicles.overview' })
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to delete vehicle'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.vehicles.failedDeleteVehicle')
   } finally {
     deleting.value = false
   }
@@ -1872,7 +2004,7 @@ const updateStatus = async () => {
     // Reload vehicle to get updated status
     await loadVehicle()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update vehicle status'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedUpdateVehicleStatus')
   } finally {
     updatingStatus.value = false
   }
@@ -1897,7 +2029,7 @@ const markAsSold = async () => {
     // Reload vehicle to get updated status
     await loadVehicle()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to mark vehicle as sold'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedMarkVehicleSold')
   } finally {
     markingAsSold.value = false
   }
@@ -2094,6 +2226,19 @@ onMounted(async () => {
 
 .image-item {
   position: relative;
+}
+
+.image-drag-item {
+  cursor: grab;
+}
+
+.image-drag-item.dragging {
+  opacity: 0.5;
+}
+
+.image-drag-item.drag-over {
+  outline: 2px dashed rgb(var(--v-theme-primary));
+  outline-offset: 2px;
 }
 
 .delete-image-btn {

@@ -10,6 +10,9 @@ import { handleSuccess, handleError } from './response'
 import {
   ADMIN_USER_ENDPOINTS,
   ADMIN_DEALER_ENDPOINTS,
+  ADMIN_INTEGRATION_ENDPOINTS,
+  ADMIN_SYNDICATION_ENDPOINTS,
+  ADMIN_AI_ENDPOINTS,
   ADMIN_VEHICLE_ENDPOINTS,
   ADMIN_PLAN_ENDPOINTS,
   ADMIN_SUBSCRIPTION_ENDPOINTS,
@@ -24,6 +27,11 @@ import {
   ADMIN_TERMS_PAGE_ENDPOINTS,
   ADMIN_LOGIN_PAGE_ENDPOINTS,
   ADMIN_SEO_PAGE_ENDPOINTS,
+  ADMIN_CMS_POST_ENDPOINTS,
+  ADMIN_LANDING_PAGE_ENDPOINTS,
+  ADMIN_CMS_MEDIA_ENDPOINTS,
+  ADMIN_SEO_REDIRECT_ENDPOINTS,
+  ADMIN_SEO_TOOLS_ENDPOINTS,
   ADMIN_ANALYTICS_ENDPOINTS,
   ADMIN_AUDIT_ENDPOINTS,
   ADMIN_CONSTANTS_ENDPOINTS,
@@ -402,6 +410,84 @@ export async function getDealer(id: number | string): Promise<DealerModel> {
   } catch (error) {
     throw handleError(error)
   }
+}
+
+export async function getDealerDetailRaw(id: number | string): Promise<any> {
+  const response = await httpClient.get<{ data: any }>(ADMIN_DEALER_ENDPOINTS.SHOW(id))
+  return handleSuccess<any>(response)
+}
+
+export async function getIntegrations(): Promise<Record<string, Record<string, unknown>>> {
+  const response = await httpClient.get<{ data: any }>(ADMIN_INTEGRATION_ENDPOINTS.LIST)
+  return handleSuccess<Record<string, Record<string, unknown>>>(response)
+}
+
+export async function updateIntegrations(group: string, settings: Record<string, unknown>) {
+  const response = await httpClient.put<{ data: any }>(ADMIN_INTEGRATION_ENDPOINTS.UPDATE, { group, settings })
+  return handleSuccess<any>(response)
+}
+
+export async function testIntegration(provider: string) {
+  const response = await httpClient.post<{ data: any }>(ADMIN_INTEGRATION_ENDPOINTS.TEST, { provider })
+  return handleSuccess<any>(response)
+}
+
+export async function getSyndicationLogs(params?: {
+  dealer_id?: number
+  limit?: number
+}): Promise<import('@/api/dealer.api').SyndicationLogModel[]> {
+  const response = await httpClient.get<{ data: import('@/api/dealer.api').SyndicationLogModel[] }>(
+    ADMIN_SYNDICATION_ENDPOINTS.LOGS,
+    { params }
+  )
+  return handleSuccess<any>(response)
+}
+
+export async function syncAdminDealerSyndication(dealerId: number): Promise<{ synced: number }> {
+  const response = await httpClient.post<{ data: { synced: number } }>(
+    ADMIN_SYNDICATION_ENDPOINTS.SYNC_DEALER(dealerId)
+  )
+  return handleSuccess<any>(response)
+}
+
+export async function testSyndicationSftp(): Promise<{ success: boolean; message: string }> {
+  const response = await httpClient.post<{ data: { success: boolean; message: string } }>(
+    ADMIN_SYNDICATION_ENDPOINTS.SFTP_TEST
+  )
+  return handleSuccess<any>(response)
+}
+
+export async function uploadSyndicationSftp(): Promise<{ success: boolean; message: string }> {
+  const response = await httpClient.post<{ data: { success: boolean; message: string } }>(
+    ADMIN_SYNDICATION_ENDPOINTS.SFTP_UPLOAD
+  )
+  return handleSuccess<any>(response)
+}
+
+export interface AiPromptTemplateModel {
+  id: number
+  key: string
+  name: string
+  description?: string | null
+  system_prompt: string
+  user_prompt_template: string
+  is_active: boolean
+  sort_order: number
+}
+
+export async function getAiPromptTemplates(): Promise<AiPromptTemplateModel[]> {
+  const response = await httpClient.get<{ data: AiPromptTemplateModel[] }>(ADMIN_AI_ENDPOINTS.PROMPT_TEMPLATES)
+  return handleSuccess<AiPromptTemplateModel[]>(response)
+}
+
+export async function updateAiPromptTemplate(id: number, data: Partial<AiPromptTemplateModel>): Promise<AiPromptTemplateModel> {
+  const response = await httpClient.put<{ data: AiPromptTemplateModel }>(ADMIN_AI_ENDPOINTS.UPDATE_PROMPT_TEMPLATE(id), data)
+  return handleSuccess<AiPromptTemplateModel>(response)
+}
+
+export async function testAiProvider(provider: 'openai' | 'anthropic' | 'gemini') {
+  const response = await httpClient.post<{ data: { success: boolean; message: string } }>(ADMIN_AI_ENDPOINTS.TEST, { provider })
+  return handleSuccess<{ success: boolean; message: string }>(response)
 }
 
 /**
@@ -2476,6 +2562,141 @@ export async function deleteSeoPage(id: number | string): Promise<void> {
 }
 
 // ============================================================================
+// CMS & SEO (R5)
+// ============================================================================
+
+export async function getCmsPosts(params?: { status?: string }) {
+  const response = await httpClient.get(ADMIN_CMS_POST_ENDPOINTS.LIST, { params })
+  return handleSuccess(response)
+}
+
+export async function getCmsPost(id: number | string) {
+  const response = await httpClient.get(ADMIN_CMS_POST_ENDPOINTS.SHOW(id))
+  return handleSuccess(response)
+}
+
+export async function createCmsPost(data: Record<string, unknown>) {
+  const response = await httpClient.post(ADMIN_CMS_POST_ENDPOINTS.CREATE, data)
+  return handleSuccess(response)
+}
+
+export async function updateCmsPost(id: number | string, data: Record<string, unknown>) {
+  const response = await httpClient.put(ADMIN_CMS_POST_ENDPOINTS.UPDATE(id), data)
+  return handleSuccess(response)
+}
+
+export async function deleteCmsPost(id: number | string) {
+  await httpClient.delete(ADMIN_CMS_POST_ENDPOINTS.DELETE(id))
+}
+
+export async function getCmsPostCategories() {
+  const response = await httpClient.get(ADMIN_CMS_POST_ENDPOINTS.CATEGORIES)
+  return handleSuccess(response)
+}
+
+export async function getLandingPages() {
+  const response = await httpClient.get(ADMIN_LANDING_PAGE_ENDPOINTS.LIST)
+  return handleSuccess(response)
+}
+
+export async function getLandingPage(id: number | string) {
+  const response = await httpClient.get(ADMIN_LANDING_PAGE_ENDPOINTS.SHOW(id))
+  return handleSuccess(response)
+}
+
+export async function createLandingPage(data: Record<string, unknown>) {
+  const response = await httpClient.post(ADMIN_LANDING_PAGE_ENDPOINTS.CREATE, data)
+  return handleSuccess(response)
+}
+
+export async function updateLandingPage(id: number | string, data: Record<string, unknown>) {
+  const response = await httpClient.put(ADMIN_LANDING_PAGE_ENDPOINTS.UPDATE(id), data)
+  return handleSuccess(response)
+}
+
+export async function deleteLandingPage(id: number | string) {
+  await httpClient.delete(ADMIN_LANDING_PAGE_ENDPOINTS.DELETE(id))
+}
+
+export async function getCmsMedia(params?: { search?: string; page?: number }) {
+  const response = await httpClient.get(ADMIN_CMS_MEDIA_ENDPOINTS.LIST, { params })
+  return handleSuccess(response)
+}
+
+export async function uploadCmsMedia(file: File, altText?: string) {
+  const form = new FormData()
+  form.append('file', file)
+  if (altText) form.append('alt_text', altText)
+  const response = await httpClient.post(ADMIN_CMS_MEDIA_ENDPOINTS.CREATE, form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+  return handleSuccess(response)
+}
+
+export async function updateCmsMedia(id: number | string, altText: string) {
+  const response = await httpClient.put(ADMIN_CMS_MEDIA_ENDPOINTS.UPDATE(id), { alt_text: altText })
+  return handleSuccess(response)
+}
+
+export async function deleteCmsMedia(id: number | string) {
+  await httpClient.delete(ADMIN_CMS_MEDIA_ENDPOINTS.DELETE(id))
+}
+
+export async function getSeoRedirects() {
+  const response = await httpClient.get(ADMIN_SEO_REDIRECT_ENDPOINTS.LIST)
+  return handleSuccess(response)
+}
+
+export async function createSeoRedirect(data: Record<string, unknown>) {
+  const response = await httpClient.post(ADMIN_SEO_REDIRECT_ENDPOINTS.CREATE, data)
+  return handleSuccess(response)
+}
+
+export async function updateSeoRedirect(id: number | string, data: Record<string, unknown>) {
+  const response = await httpClient.put(ADMIN_SEO_REDIRECT_ENDPOINTS.UPDATE(id), data)
+  return handleSuccess(response)
+}
+
+export async function deleteSeoRedirect(id: number | string) {
+  await httpClient.delete(ADMIN_SEO_REDIRECT_ENDPOINTS.DELETE(id))
+}
+
+export async function getSeoRobotsSettings() {
+  const response = await httpClient.get(ADMIN_SEO_TOOLS_ENDPOINTS.ROBOTS)
+  return handleSuccess(response)
+}
+
+export async function updateSeoRobotsSettings(data: Record<string, unknown>) {
+  const response = await httpClient.put(ADMIN_SEO_TOOLS_ENDPOINTS.ROBOTS, data)
+  return handleSuccess(response)
+}
+
+export async function getCookieConsentSettings() {
+  const response = await httpClient.get(ADMIN_SEO_TOOLS_ENDPOINTS.COOKIE_CONSENT)
+  return handleSuccess(response)
+}
+
+export async function updateCookieConsentSettings(data: Record<string, unknown>) {
+  const response = await httpClient.put(ADMIN_SEO_TOOLS_ENDPOINTS.COOKIE_CONSENT, data)
+  return handleSuccess(response)
+}
+
+export async function runSeoAudit() {
+  const response = await httpClient.get(ADMIN_SEO_TOOLS_ENDPOINTS.AUDIT)
+  return handleSuccess(response)
+}
+
+export async function getSchemaPresets() {
+  const response = await httpClient.get(ADMIN_SEO_TOOLS_ENDPOINTS.SCHEMA_PRESETS)
+  return handleSuccess(response)
+}
+
+export async function buildSchemaJson(type: string, fields: Record<string, unknown>) {
+  const response = await httpClient.post(ADMIN_SEO_TOOLS_ENDPOINTS.SCHEMA_BUILD, { type, fields })
+  return handleSuccess(response)
+}
+
+// ============================================================================
 // ANALYTICS
 // ============================================================================
 
@@ -2567,6 +2788,45 @@ export async function getAnalyticsActivity(dateRange?: string): Promise<import('
   } catch (error) {
     throw handleError(error)
   }
+}
+
+export async function getAnalyticsFunnel(dateRange?: string, compare = false) {
+  const response = await httpClient.get(ADMIN_ANALYTICS_ENDPOINTS.FUNNEL, {
+    params: { date_range: dateRange, compare: compare ? '1' : '0' },
+  })
+  return handleSuccess(response)
+}
+
+export async function getAnalyticsCohort() {
+  const response = await httpClient.get(ADMIN_ANALYTICS_ENDPOINTS.COHORT)
+  return handleSuccess(response)
+}
+
+export async function getAnalyticsIntegrations(dateRange?: string) {
+  const response = await httpClient.get(ADMIN_ANALYTICS_ENDPOINTS.INTEGRATIONS, {
+    params: { date_range: dateRange },
+  })
+  return handleSuccess(response)
+}
+
+export async function getAnalyticsTrends(dateRange?: string) {
+  const response = await httpClient.get(ADMIN_ANALYTICS_ENDPOINTS.TRENDS, {
+    params: { date_range: dateRange },
+  })
+  return handleSuccess(response)
+}
+
+export async function downloadAdminAnalyticsExport(report: string, dateRange?: string): Promise<void> {
+  const response = await httpClient.get(ADMIN_ANALYTICS_ENDPOINTS.EXPORT, {
+    params: { report, date_range: dateRange },
+    responseType: 'blob',
+  })
+  const url = window.URL.createObjectURL(response.data)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `platform-analytics-${report}.csv`
+  link.click()
+  window.URL.revokeObjectURL(url)
 }
 
 // ============================================================================

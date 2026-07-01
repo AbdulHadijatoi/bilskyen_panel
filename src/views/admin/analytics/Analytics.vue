@@ -9,6 +9,27 @@
         </p>
       </div>
       <DateRangeFilter v-model="dateRange" @update:model-value="loadAllAnalytics" />
+      <div class="d-flex align-center gap-2 flex-wrap">
+        <v-switch
+          v-model="comparePeriod"
+          :label="t('admin.views.analytics.comparePeriod')"
+          hide-details
+          density="compact"
+          color="primary"
+          @update:model-value="loadFunnel"
+        />
+        <v-menu>
+          <template #activator="{ props: menuProps }">
+            <v-btn v-bind="menuProps" variant="outlined" prepend-icon="mdi-download" size="small">
+              {{ t('admin.views.analytics.export') }}
+            </v-btn>
+          </template>
+          <v-list density="compact">
+            <v-list-item :title="t('admin.views.analytics.funnelTitle')" @click="exportReport('funnel')" />
+            <v-list-item :title="t('admin.views.analytics.cohortTitle')" @click="exportReport('cohort')" />
+          </v-list>
+        </v-menu>
+      </div>
     </div>
 
     <v-alert
@@ -87,6 +108,48 @@
           />
         </v-col>
       </v-row>
+
+      <!-- Platform funnel -->
+      <v-card variant="outlined" class="mb-6">
+        <v-card-title>{{ t('admin.views.analytics.funnelTitle') }}</v-card-title>
+        <v-card-text>
+          <v-row v-if="funnel">
+            <v-col cols="6" md="3">
+              <MetricCard :title="t('admin.views.analytics.views')" :value="funnel.current.views" icon="mdi-eye" />
+            </v-col>
+            <v-col cols="6" md="3">
+              <MetricCard :title="t('admin.views.analytics.enquiries')" :value="funnel.current.enquiries" icon="mdi-email" />
+            </v-col>
+            <v-col cols="6" md="3">
+              <MetricCard :title="t('admin.views.analytics.leads')" :value="funnel.current.leads" icon="mdi-phone" />
+            </v-col>
+            <v-col cols="6" md="3">
+              <MetricCard :title="t('admin.views.analytics.funnelWon')" :value="funnel.current.won" icon="mdi-trophy" icon-color="success" />
+            </v-col>
+          </v-row>
+          <p v-if="funnel" class="text-body-2 text-medium-emphasis mt-2">
+            {{ t('admin.views.analytics.conversionRateLabel') }} {{ funnel.rates.view_to_won }}%
+          </p>
+        </v-card-text>
+      </v-card>
+
+      <!-- Trends -->
+      <v-card variant="outlined" class="mb-6">
+        <v-card-title>{{ t('admin.views.analytics.trendsTitle') }}</v-card-title>
+        <v-card-text>
+          <LineChart
+            v-if="trends?.series?.length"
+            :data="{
+              labels: trends.series.map((p) => p.date),
+              datasets: [
+                { label: t('admin.views.analytics.views'), data: trends.series.map((p) => p.views), borderColor: 'rgba(54, 162, 235, 1)', tension: 0.3 },
+                { label: t('admin.views.analytics.leads'), data: trends.series.map((p) => p.leads), borderColor: 'rgba(255, 99, 132, 1)', tension: 0.3 },
+              ],
+            }"
+          />
+          <div v-else class="text-medium-emphasis">{{ t('common.noData') }}</div>
+        </v-card-text>
+      </v-card>
 
       <!-- Revenue Analytics -->
       <v-card variant="outlined" class="mb-6" style="border-color: rgba(0, 0, 0, 0.12);">
@@ -454,6 +517,49 @@
             </div>
           </v-card-text>
         </v-card>
+
+      <!-- Cohort & integrations -->
+      <v-row class="mb-6">
+        <v-col cols="12" md="6">
+          <v-card variant="outlined" class="h-100">
+            <v-card-title>{{ t('admin.views.analytics.cohortTitle') }}</v-card-title>
+            <v-card-text>
+              <v-table v-if="cohort?.cohorts?.length" density="compact">
+                <thead>
+                  <tr>
+                    <th>{{ t('admin.views.analytics.cohortMonth') }}</th>
+                    <th>{{ t('admin.views.analytics.signups') }}</th>
+                    <th>{{ t('admin.views.analytics.stillActive') }}</th>
+                    <th>{{ t('admin.views.analytics.retentionRate') }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="row in cohort.cohorts" :key="row.cohort_month">
+                    <td>{{ row.cohort_month }}</td>
+                    <td>{{ row.signups }}</td>
+                    <td>{{ row.still_active }}</td>
+                    <td>{{ row.retention_rate }}%</td>
+                  </tr>
+                </tbody>
+              </v-table>
+              <div v-else class="text-medium-emphasis">{{ t('common.noData') }}</div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col cols="12" md="6">
+          <v-card variant="outlined" class="h-100">
+            <v-card-title>{{ t('admin.views.analytics.integrationsTitle') }}</v-card-title>
+            <v-card-text v-if="integrations">
+              <h4 class="text-subtitle-2 mb-2">{{ t('admin.views.analytics.paymentsSection') }}</h4>
+              <div class="mb-2">{{ t('admin.views.analytics.paymentSuccessRate') }}: {{ integrations.payments.success_rate }}%</div>
+              <div class="mb-4">{{ t('admin.views.analytics.paymentVolume') }}: {{ formatPrice(integrations.payments.volume_cents / 100) }}</div>
+              <h4 class="text-subtitle-2 mb-2">{{ t('admin.views.analytics.aiSection') }}</h4>
+              <div class="mb-2">{{ t('admin.views.analytics.aiRequests') }}: {{ integrations.ai.requests_succeeded + integrations.ai.requests_failed }}</div>
+              <div>{{ t('admin.views.analytics.aiTokens') }}: {{ integrations.ai.tokens_used.toLocaleString() }}</div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
     </div>
   </div>
 </template>
@@ -468,6 +574,11 @@ import {
   getAnalyticsVehicles,
   getAnalyticsLeads,
   getAnalyticsActivity,
+  getAnalyticsFunnel,
+  getAnalyticsCohort,
+  getAnalyticsIntegrations,
+  getAnalyticsTrends,
+  downloadAdminAnalyticsExport,
 } from '@/api/admin.api'
 import type {
   AnalyticsOverview,
@@ -476,6 +587,10 @@ import type {
   VehicleAnalytics,
   LeadAnalytics,
   UserActivityAnalytics,
+  FunnelAnalytics,
+  CohortAnalytics,
+  IntegrationsAnalytics,
+  TrendAnalytics,
 } from '@/models/analytics.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import DateRangeFilter, { type DateRange } from '@/components/analytics/DateRangeFilter.vue'
@@ -487,6 +602,7 @@ import { getLeadSourceName } from '@/utils/leadHelpers'
 
 const { t } = useI18n()
 const dateRange = ref<DateRange>('30d')
+const comparePeriod = ref(false)
 const loading = ref(false)
 const error = ref<string | null>(null)
 const sectionErrors = ref<string[]>([])
@@ -497,6 +613,10 @@ const dealers = ref<DealerPerformance | null>(null)
 const vehicles = ref<VehicleAnalytics | null>(null)
 const leads = ref<LeadAnalytics | null>(null)
 const activity = ref<UserActivityAnalytics | null>(null)
+const funnel = ref<FunnelAnalytics | null>(null)
+const cohort = ref<CohortAnalytics | null>(null)
+const integrations = ref<IntegrationsAnalytics | null>(null)
+const trends = ref<TrendAnalytics | null>(null)
 
 const loadingRevenue = ref(false)
 const loadingDealers = ref(false)
@@ -598,11 +718,51 @@ const loadActivity = async () => {
   }
 }
 
+const loadFunnel = async () => {
+  try {
+    funnel.value = await getAnalyticsFunnel(dateRange.value, comparePeriod.value)
+  } catch (err) {
+    recordSectionError(t('admin.views.analytics.funnelTitle'), err)
+  }
+}
+
+const loadCohort = async () => {
+  try {
+    cohort.value = await getAnalyticsCohort()
+  } catch (err) {
+    recordSectionError(t('admin.views.analytics.cohortTitle'), err)
+  }
+}
+
+const loadIntegrations = async () => {
+  try {
+    integrations.value = await getAnalyticsIntegrations(dateRange.value)
+  } catch (err) {
+    recordSectionError(t('admin.views.analytics.integrationsTitle'), err)
+  }
+}
+
+const loadTrends = async () => {
+  try {
+    trends.value = await getAnalyticsTrends(dateRange.value)
+  } catch (err) {
+    recordSectionError(t('admin.views.analytics.trendsTitle'), err)
+  }
+}
+
+async function exportReport(report: string) {
+  await downloadAdminAnalyticsExport(report, dateRange.value)
+}
+
 const loadAllAnalytics = async () => {
   sectionErrors.value = []
   loading.value = true
   await Promise.all([
     loadOverview(),
+    loadFunnel(),
+    loadCohort(),
+    loadIntegrations(),
+    loadTrends(),
     loadRevenue(),
     loadDealers(),
     loadVehicles(),

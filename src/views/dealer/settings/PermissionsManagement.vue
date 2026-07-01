@@ -98,7 +98,7 @@
       </v-card-title>
       <v-card-text>
         <div v-if="filteredItems.length === 0" class="text-center py-8 text-muted-foreground">
-          No permissions found matching the selected filter.
+          {{ t('dealer.views.permissions.noPermissionsMatchingFilter') }}
         </div>
         <v-expansion-panels v-else v-model="expandedPanels" multiple>
           <v-expansion-panel
@@ -146,7 +146,7 @@
                       color="success"
                       variant="tonal"
                     >
-                      Assigned
+                      {{ t('dealer.views.permissions.assignedLabel') }}
                     </v-chip>
                   </template>
                 </v-list-item>
@@ -164,7 +164,7 @@
           <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-shield-lock-outline</v-icon>
           <p class="text-h6 mb-2">{{ t('dealer.views.permissions.selectUserOrRoleHint') }}</p>
           <p class="text-muted-foreground">
-            Choose a user or role from above to view and manage their permissions.
+            {{ t('dealer.views.permissions.selectHintDescription') }}
           </p>
         </div>
       </v-card-text>
@@ -260,7 +260,7 @@ const getAllItems = async () => {
     allItems.value = response.data.items
   } catch (error: any) {
     console.error('Failed to load permissions:', error)
-    showSnackbar('Failed to load permissions', 'error')
+    showSnackbar(t('dealer.views.permissions.loadFailed'), 'error')
   } finally {
     loading.value = false
   }
@@ -294,7 +294,7 @@ const handleModelSearch = async () => {
     modelOptions.value = response.data.models
   } catch (error: any) {
     console.error('Failed to search models:', error)
-    showSnackbar('Failed to search users/roles', 'error')
+    showSnackbar(t('dealer.views.permissions.searchFailed'), 'error')
   } finally {
     searchingModels.value = false
   }
@@ -326,7 +326,7 @@ const getModelItems = async () => {
     assignedPermissionIds.value = response.data.permission_ids
   } catch (error: any) {
     console.error('Failed to load model items:', error)
-    showSnackbar('Failed to load assigned permissions', 'error')
+    showSnackbar(t('dealer.views.permissions.loadAssignedFailed'), 'error')
   } finally {
     loading.value = false
   }
@@ -361,10 +361,11 @@ const assignPermission = async (action: PermissionAction) => {
     })
 
     assignedPermissionIds.value.push(action.id)
-    showSnackbar('Permission assigned successfully', 'success')
+    showSnackbar(t('dealer.views.permissions.assignSuccess'), 'success')
   } catch (error: any) {
     console.error('Failed to assign permission:', error)
-    const message = error.response?.data?.message || 'Failed to assign permission'
+    const message = error.response?.data?.message || t('dealer.views.permissions.assignFailed')
+    const message = error.response?.data?.message || t('dealer.views.permissions.assignFailed')
     showSnackbar(message, 'error')
   } finally {
     processingItems.value = processingItems.value.filter(id => id !== action.id)
@@ -384,10 +385,10 @@ const revokePermission = async (action: PermissionAction) => {
     })
 
     assignedPermissionIds.value = assignedPermissionIds.value.filter(id => id !== action.id)
-    showSnackbar('Permission revoked successfully', 'success')
+    showSnackbar(t('dealer.views.permissions.revokeSuccess'), 'success')
   } catch (error: any) {
     console.error('Failed to revoke permission:', error)
-    showSnackbar('Failed to revoke permission', 'error')
+    showSnackbar(error.response?.data?.message || t('dealer.views.permissions.revokeFailed'), 'error')
   } finally {
     processingItems.value = processingItems.value.filter(id => id !== action.id)
   }

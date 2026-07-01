@@ -230,6 +230,21 @@ const ADMIN_NAV_TITLE_KEYS: Record<string, string> = {
   Translations: 'admin.nav.translations',
   'Manage Translations': 'admin.nav.manageTranslations',
   'Import Translations': 'admin.nav.importTranslations',
+  Integrations: 'admin.nav.integrations',
+  Dealers: 'admin.nav.dealers',
+  'Vehicle spec definitions': 'admin.nav.vehicleSpecDefinitions',
+  'SEO Content': 'admin.nav.seoContent',
+  'Blog Posts': 'admin.nav.blogPosts',
+  'Landing Pages': 'admin.nav.landingPages',
+  'Media Library': 'admin.nav.mediaLibrary',
+  'SEO Redirects': 'admin.nav.seoRedirects',
+  'SEO Tools': 'admin.nav.seoTools',
+  Invoices: 'admin.nav.invoices',
+  Features: 'admin.nav.features',
+  'Ownership Tax Rules': 'admin.nav.ownershipTaxRules',
+  'Manage Rules': 'admin.nav.manageRules',
+  Locations: 'admin.nav.locations',
+  'Lead Stages': 'admin.nav.leadStages',
 }
 
 interface Props {

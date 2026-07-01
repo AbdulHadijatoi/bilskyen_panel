@@ -625,7 +625,7 @@ const loadAuditLogs = async () => {
     auditLogs.value = response
   } catch (err: any) {
     console.error('Failed to load audit logs:', err)
-    error.value = err.message || 'Failed to load audit logs'
+    error.value = err.message || t('dealer.views.auditLogs.failedLoadLogs')
     showSnackbar('Failed to load audit logs', 'error')
   } finally {
     loading.value = false
@@ -801,7 +801,7 @@ const openDetailDialog = async (id: number) => {
     detailDialog.value.log = log
   } catch (err: any) {
     console.error('Failed to load audit log details:', err)
-    detailDialog.value.error = err.message || 'Failed to load audit log details'
+    detailDialog.value.error = err.message || t('dealer.views.auditLogs.failedLoadDetails')
     showSnackbar('Failed to load audit log details', 'error')
   } finally {
     detailDialog.value.loading = false

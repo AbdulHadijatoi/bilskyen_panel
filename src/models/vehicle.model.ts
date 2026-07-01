@@ -75,6 +75,8 @@ export interface VehicleModel {
   publishedAt?: string
   expiresAt?: string
   view3dUrl?: string
+  videoUrl?: string
+  videoProvider?: string
   listingBillingStartedAt?: string
   listingBillingPausedAt?: string
   viewsCount?: number
@@ -283,6 +285,8 @@ export function mapVehicleFromApi(data: any): VehicleModel {
     publishedAt: data.published_at,
     expiresAt: data.expires_at,
     view3dUrl: data.view_3d_url,
+    videoUrl: data.video_url,
+    videoProvider: data.video_provider,
     listingBillingStartedAt: data.listing_billing_started_at,
     listingBillingPausedAt: data.listing_billing_paused_at,
     viewsCount: data.views_count ?? 0,

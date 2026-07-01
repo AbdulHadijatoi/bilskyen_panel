@@ -288,7 +288,7 @@
                     {{ vehicle.title || `Vehicle #${vehicle.id}` }}
                   </v-list-item-title>
                   <v-list-item-subtitle class="text-caption">
-                    {{ vehicle.registration || 'No registration' }} • {{ formatPrice(vehicle.price) }}
+                    {{ vehicle.registration || t('common.noRegistration') }} • {{ formatPrice(vehicle.price) }}
                   </v-list-item-subtitle>
                   <template v-slot:append>
                     <v-chip
@@ -354,12 +354,14 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getDashboardStats, type DashboardStats } from '@/api/staff.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import FinancialOverviewChart from '@/components/staff/dashboard/FinancialOverviewChart.vue'
 
+const { t } = useI18n()
 const router = useRouter()
 
 const loading = ref(false)
@@ -372,7 +374,7 @@ const loadDashboard = async () => {
     error.value = null
     stats.value = await getDashboardStats()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load dashboard data'
+    error.value = (err as ApiErrorModel).message || t('dealer.views.dashboard.failedLoadData')
   } finally {
     loading.value = false
   }
@@ -422,7 +424,7 @@ const getVehicleStatusName = (statusId?: number) => {
     3: 'Sold',
     4: 'Archived',
   }
-  return names[statusId || 0] || 'Unknown'
+  return names[statusId || 0] || t('common.unknown')
 }
 
 onMounted(() => {

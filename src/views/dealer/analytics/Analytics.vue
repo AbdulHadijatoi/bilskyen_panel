@@ -9,6 +9,28 @@
         </p>
       </div>
       <DateRangeFilter v-model="dateRange" @update:model-value="loadAllAnalytics" />
+      <div class="d-flex align-center gap-2 flex-wrap">
+        <v-switch
+          v-model="comparePeriod"
+          :label="t('dealer.views.analytics.comparePeriod')"
+          hide-details
+          density="compact"
+          color="primary"
+          @update:model-value="loadFunnel"
+        />
+        <v-menu>
+          <template #activator="{ props: menuProps }">
+            <v-btn v-bind="menuProps" variant="outlined" prepend-icon="mdi-download" size="small">
+              {{ t('dealer.views.analytics.export') }}
+            </v-btn>
+          </template>
+          <v-list density="compact">
+            <v-list-item title="Funnel" @click="exportReport('funnel')" />
+            <v-list-item title="Assignees" @click="exportReport('assignees')" />
+            <v-list-item title="Stock" @click="exportReport('stock')" />
+          </v-list>
+        </v-menu>
+      </div>
     </div>
 
     <v-alert
@@ -87,6 +109,89 @@
             :badge="overview.vehicles.featured_count >= overview.vehicles.featured_limit ? t('dealer.views.analytics.limitReached') : undefined"
             badge-color="warning"
           />
+        </v-col>
+      </v-row>
+
+      <!-- Conversion Funnel -->
+      <v-card variant="outlined" class="mb-6">
+        <v-card-title>{{ t('dealer.views.analytics.funnelTitle') }}</v-card-title>
+        <v-card-text>
+          <v-row v-if="funnel">
+            <v-col cols="6" md="3">
+              <MetricCard :title="t('dealer.views.analytics.funnelViews')" :value="funnel.current.views" icon="mdi-eye" />
+            </v-col>
+            <v-col cols="6" md="3">
+              <MetricCard :title="t('dealer.views.analytics.funnelEnquiries')" :value="funnel.current.enquiries" icon="mdi-email" />
+            </v-col>
+            <v-col cols="6" md="3">
+              <MetricCard :title="t('dealer.views.analytics.funnelLeads')" :value="funnel.current.leads" icon="mdi-phone" />
+            </v-col>
+            <v-col cols="6" md="3">
+              <MetricCard :title="t('dealer.views.analytics.funnelWon')" :value="funnel.current.won" icon="mdi-trophy" icon-color="success" />
+            </v-col>
+          </v-row>
+          <p v-if="funnel" class="text-body-2 text-medium-emphasis mt-2">
+            {{ t('dealer.views.analytics.conversionRate') }}: {{ funnel.rates.view_to_won }}% (views → won)
+          </p>
+          <v-row v-if="funnel?.previous" class="mt-2">
+            <v-col cols="12">
+              <p class="text-caption text-medium-emphasis mb-2">{{ t('dealer.views.analytics.previousPeriod') }}</p>
+            </v-col>
+            <v-col cols="6" md="3">
+              <div class="text-body-2">{{ t('dealer.views.analytics.funnelViews') }}: {{ funnel.previous.views }}</div>
+            </v-col>
+            <v-col cols="6" md="3">
+              <div class="text-body-2">{{ t('dealer.views.analytics.funnelEnquiries') }}: {{ funnel.previous.enquiries }}</div>
+            </v-col>
+            <v-col cols="6" md="3">
+              <div class="text-body-2">{{ t('dealer.views.analytics.funnelLeads') }}: {{ funnel.previous.leads }}</div>
+            </v-col>
+            <v-col cols="6" md="3">
+              <div class="text-body-2">{{ t('dealer.views.analytics.funnelWon') }}: {{ funnel.previous.won }}</div>
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
+
+      <!-- Trends & channels -->
+      <v-row class="mb-6">
+        <v-col cols="12" md="8">
+          <v-card variant="outlined" class="h-100">
+            <v-card-title>{{ t('dealer.views.analytics.trendsTitle') }}</v-card-title>
+            <v-card-text>
+              <LineChart
+                v-if="trends?.series?.length"
+                :data="{
+                  labels: trends.series.map((p) => p.date),
+                  datasets: [
+                    { label: t('dealer.views.analytics.funnelViews'), data: trends.series.map((p) => p.views), borderColor: 'rgba(54, 162, 235, 1)', tension: 0.3 },
+                    { label: t('dealer.views.analytics.funnelLeads'), data: trends.series.map((p) => p.leads), borderColor: 'rgba(255, 99, 132, 1)', tension: 0.3 },
+                    { label: t('dealer.views.analytics.funnelWon'), data: trends.series.map((p) => p.won), borderColor: 'rgba(75, 192, 192, 1)', tension: 0.3 },
+                  ],
+                }"
+              />
+              <div v-else class="text-medium-emphasis">{{ t('common.noData') }}</div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col cols="12" md="4">
+          <v-card variant="outlined" class="h-100">
+            <v-card-title>{{ t('dealer.views.analytics.channelsTitle') }}</v-card-title>
+            <v-card-text>
+              <PieChart
+                v-if="channels?.by_channel?.length"
+                :data="{
+                  labels: channels.by_channel.map((c) => c.channel),
+                  datasets: [{
+                    label: t('dealer.views.analytics.leads'),
+                    data: channels.by_channel.map((c) => c.count),
+                    backgroundColor: ['rgba(54, 162, 235, 0.8)', 'rgba(255, 99, 132, 0.8)', 'rgba(255, 206, 86, 0.8)', 'rgba(75, 192, 192, 0.8)'],
+                  }],
+                }"
+              />
+              <div v-else class="text-medium-emphasis">{{ t('common.noData') }}</div>
+            </v-card-text>
+          </v-card>
         </v-col>
       </v-row>
 
@@ -331,6 +436,54 @@
         </v-card-text>
       </v-card>
 
+      <!-- Stock & assignees -->
+      <v-row class="mb-6">
+        <v-col cols="12" md="6">
+          <v-card variant="outlined" class="h-100">
+            <v-card-title>{{ t('dealer.views.analytics.stockTitle') }}</v-card-title>
+            <v-card-text v-if="stock">
+              <div class="mb-2"><strong>{{ t('dealer.views.analytics.soldRate') }}:</strong> {{ stock.sold_rate_percent }}%</div>
+              <div class="mb-2"><strong>{{ t('dealer.views.analytics.averageDaysOnMarket') }}</strong> {{ stock.average_days_on_market }} {{ t('dealer.views.analytics.days') }}</div>
+              <div class="mb-4"><strong>{{ t('dealer.views.analytics.priceDrops') }}:</strong> {{ stock.price_drops_in_period }}</div>
+              <h4 class="text-subtitle-2 mb-2">{{ t('dealer.views.analytics.inventoryAging') }}</h4>
+              <BarChart
+                v-if="stock.inventory_aging.length"
+                :data="{
+                  labels: stock.inventory_aging.map((b) => b.bucket),
+                  datasets: [{ label: t('dealer.views.analytics.vehicles'), data: stock.inventory_aging.map((b) => b.count), backgroundColor: 'rgba(75, 192, 192, 0.7)' }],
+                }"
+              />
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col cols="12" md="6">
+          <v-card variant="outlined" class="h-100">
+            <v-card-title>{{ t('dealer.views.analytics.assigneeTitle') }}</v-card-title>
+            <v-card-text>
+              <v-table v-if="assignees?.assignees?.length" density="compact">
+                <thead>
+                  <tr>
+                    <th>{{ t('dealer.views.analytics.assigneeName') }}</th>
+                    <th>{{ t('dealer.views.analytics.leads') }}</th>
+                    <th>{{ t('dealer.views.analytics.winRate') }}</th>
+                    <th>{{ t('dealer.views.analytics.timeToContact') }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="row in assignees.assignees" :key="row.user_id ?? 'unassigned'">
+                    <td>{{ row.name }}</td>
+                    <td>{{ row.total_leads }}</td>
+                    <td>{{ row.win_rate }}%</td>
+                    <td>{{ row.avg_time_to_contact_hours ?? '—' }} {{ row.avg_time_to_contact_hours != null ? t('dealer.views.analytics.hours') : '' }}</td>
+                  </tr>
+                </tbody>
+              </v-table>
+              <div v-else class="text-medium-emphasis">{{ t('common.noData') }}</div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
       <!-- Subscription Usage -->
       <v-card variant="outlined" class="mb-6" style="border-color: rgba(0, 0, 0, 0.12);">
         <v-card-title class="d-flex align-center">
@@ -368,6 +521,18 @@
                     rounded
                   />
                 </div>
+                <div v-if="subscription.payg" class="mt-4">
+                  <h3 class="text-h6 mb-3">{{ t('dealer.views.analytics.paygBurn') }}</h3>
+                  <div class="mb-2">
+                    <strong>{{ t('dealer.views.analytics.pendingUsage') }}:</strong> {{ formatPrice(subscription.payg.pending_usage_cents / 100) }}
+                  </div>
+                  <div class="mb-2">
+                    <strong>{{ t('dealer.views.analytics.invoiced') }}:</strong> {{ formatPrice(subscription.payg.invoiced_cents / 100) }}
+                  </div>
+                  <div>
+                    <strong>{{ t('dealer.views.analytics.paid') }}:</strong> {{ formatPrice(subscription.payg.paid_cents / 100) }}
+                  </div>
+                </div>
               </v-col>
             </v-row>
           </div>
@@ -386,6 +551,12 @@ import {
   getAnalyticsVehicles,
   getAnalyticsMarketing,
   getAnalyticsSubscription,
+  getAnalyticsFunnel,
+  getAnalyticsStock,
+  getAnalyticsAssignees,
+  getAnalyticsChannels,
+  getAnalyticsTrends,
+  downloadDealerAnalyticsExport,
 } from '@/api/dealer.api'
 import type {
   DealerAnalyticsOverview,
@@ -393,6 +564,11 @@ import type {
   DealerVehicleAnalytics,
   MarketingAnalytics,
   SubscriptionUsage,
+  FunnelAnalytics,
+  StockAnalytics,
+  AssigneeAnalytics,
+  ChannelAnalytics,
+  TrendAnalytics,
 } from '@/models/analytics.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import DateRangeFilter, { type DateRange } from '@/components/analytics/DateRangeFilter.vue'
@@ -410,6 +586,7 @@ import {
 
 const { t } = useI18n()
 const dateRange = ref<DateRange>('30d')
+const comparePeriod = ref(false)
 const loading = ref(false)
 const error = ref<string | null>(null)
 
@@ -418,6 +595,11 @@ const leadAnalytics = ref<DealerLeadAnalytics | null>(null)
 const vehicleAnalytics = ref<DealerVehicleAnalytics | null>(null)
 const marketing = ref<MarketingAnalytics | null>(null)
 const subscription = ref<SubscriptionUsage | null>(null)
+const funnel = ref<FunnelAnalytics | null>(null)
+const stock = ref<StockAnalytics | null>(null)
+const assignees = ref<AssigneeAnalytics | null>(null)
+const channels = ref<ChannelAnalytics | null>(null)
+const trends = ref<TrendAnalytics | null>(null)
 
 const loadingLeads = ref(false)
 const loadingVehicles = ref(false)
@@ -498,6 +680,50 @@ const loadMarketing = async () => {
   }
 }
 
+const loadFunnel = async () => {
+  try {
+    funnel.value = await getAnalyticsFunnel(dateRange.value, comparePeriod.value)
+  } catch (err) {
+    recordSectionError(t('dealer.views.analytics.funnelTitle'), err)
+  }
+}
+
+const loadStock = async () => {
+  try {
+    stock.value = await getAnalyticsStock(dateRange.value)
+  } catch (err) {
+    recordSectionError(t('dealer.views.analytics.stockTitle'), err)
+  }
+}
+
+const loadAssignees = async () => {
+  try {
+    assignees.value = await getAnalyticsAssignees(dateRange.value)
+  } catch (err) {
+    recordSectionError(t('dealer.views.analytics.assigneeTitle'), err)
+  }
+}
+
+const loadChannels = async () => {
+  try {
+    channels.value = await getAnalyticsChannels(dateRange.value)
+  } catch (err) {
+    recordSectionError(t('dealer.views.analytics.channelsTitle'), err)
+  }
+}
+
+const loadTrends = async () => {
+  try {
+    trends.value = await getAnalyticsTrends(dateRange.value)
+  } catch (err) {
+    recordSectionError(t('dealer.views.analytics.trendsTitle'), err)
+  }
+}
+
+async function exportReport(report: string) {
+  await downloadDealerAnalyticsExport(report, dateRange.value)
+}
+
 const loadSubscription = async () => {
   try {
     loadingSubscription.value = true
@@ -514,6 +740,11 @@ const loadAllAnalytics = async () => {
   loading.value = true
   await Promise.all([
     loadOverview(),
+    loadFunnel(),
+    loadStock(),
+    loadAssignees(),
+    loadChannels(),
+    loadTrends(),
     loadLeads(),
     loadVehicles(),
     loadMarketing(),

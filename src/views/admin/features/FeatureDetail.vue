@@ -31,13 +31,13 @@
           <v-form ref="editFormRef" v-model="editFormValid">
             <v-row>
               <v-col cols="12" md="6">
-                <v-text-field v-model="featureData.key" label="Feature Key *" variant="outlined" :readonly="true" :rules="[v => !!v || 'Required', v => !v || /^[a-z0-9_-]+$/.test(v) || 'Invalid format']" prepend-inner-icon="mdi-key" class="mb-4" />
+                <v-text-field v-model="featureData.key" label="Feature Key *" variant="outlined" :readonly="true" :rules="[v => !!v || t('common.required'), v => !v || /^[a-z0-9_-]+$/.test(v) || 'Invalid format']" prepend-inner-icon="mdi-key" class="mb-4" />
               </v-col>
               <v-col cols="12" md="6">
-                <v-select v-model="featureData.feature_value_type_id" :items="valueTypeOptions" item-title="label" item-value="value" label="Value Type *" variant="outlined" :readonly="!editMode" :rules="[v => !!v || 'Required']" prepend-inner-icon="mdi-format-list-bulleted-type" class="mb-4" />
+                <v-select v-model="featureData.feature_value_type_id" :items="valueTypeOptions" item-title="label" item-value="value" label="Value Type *" variant="outlined" :readonly="!editMode" :rules="[v => !!v || t('common.required')]" prepend-inner-icon="mdi-format-list-bulleted-type" class="mb-4" />
               </v-col>
               <v-col cols="12">
-                <v-textarea v-model="featureData.description" label="Description *" variant="outlined" :readonly="!editMode" :rules="[v => !!v || 'Required']" rows="4" prepend-inner-icon="mdi-text" class="mb-4" />
+                <v-textarea v-model="featureData.description" label="Description *" variant="outlined" :readonly="!editMode" :rules="[v => !!v || t('common.required')]" rows="4" prepend-inner-icon="mdi-text" class="mb-4" />
               </v-col>
             </v-row>
             <v-row v-if="!editMode">
@@ -74,7 +74,7 @@
                   <div>
                     <div class="font-weight-medium">{{ plan.name }}</div>
                     <div class="text-caption text-medium-emphasis">{{ plan.slug }}</div>
-                    <div class="text-caption mt-1">Value: <strong>{{ plan.pivot?.value || 'N/A' }}</strong></div>
+                    <div class="text-caption mt-1">Value: <strong>{{ plan.pivot?.value || t('common.na') }}</strong></div>
                   </div>
                   <v-icon>mdi-chevron-right</v-icon>
                 </div>
@@ -88,11 +88,13 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getFeature, updateFeature as updateFeatureApi, getPlans, type UpdateFeatureData, type FeatureModel } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const loading = ref(false)
@@ -165,7 +167,7 @@ const updateFeature = async () => {
     editMode.value = false
     error.value = null
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to update feature'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedUpdateFeature')
   } finally {
     updating.value = false
   }

@@ -116,7 +116,7 @@
 
             <!-- Description -->
             <p class="text-body-2 text-medium-emphasis mb-4" style="min-height: 2.5em;">
-              {{ plan.description || 'No description provided' }}
+              {{ plan.description || t('common.noDescription') }}
             </p>
 
             <!-- Features List -->
@@ -222,7 +222,7 @@
             <v-autocomplete
               v-model="newPlan.dealer_ids"
               :items="dealersList"
-              :item-title="(item) => `${item.cvr || 'N/A'} - ${item.city || 'N/A'}`"
+              :item-title="(item) => `${item.cvr || t('common.na')} - ${item.city || t('common.na')}`"
               item-value="id"
               :label="t('admin.views.plans.specificDealers')"
               variant="outlined"
@@ -386,7 +386,7 @@ const loadPlans = async () => {
       })),
     }))
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to load plans'
+    error.value = (err as ApiErrorModel).message || t('admin.views.plans.failedLoadPlans')
     plans.value = []
   } finally {
     loading.value = false
@@ -451,7 +451,7 @@ const createPlan = async () => {
     showCreateDialog.value = false
     await loadPlans()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to create plan'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedCreatePlan')
   } finally {
     creating.value = false
   }
@@ -468,7 +468,7 @@ const deletePlan = async (id: number | string) => {
     await deletePlanApi(id)
     await loadPlans()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to delete plan'
+    error.value = (err as ApiErrorModel).message || t('common.errors.failedDeletePlan')
   }
 }
 

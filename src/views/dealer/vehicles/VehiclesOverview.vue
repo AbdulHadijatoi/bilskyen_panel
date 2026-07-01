@@ -10,6 +10,23 @@
         </p>
       </div>
       <div class="d-flex gap-2 flex-wrap">
+        <v-menu v-if="hasPermission('dealer.feeds.export')">
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              variant="outlined"
+              prepend-icon="mdi-download"
+              size="default"
+              :loading="exporting"
+            >
+              {{ t('dealer.views.vehicles.exportStock') }}
+            </v-btn>
+          </template>
+          <v-list density="compact">
+            <v-list-item @click="exportStock('csv')">{{ t('dealer.views.vehicles.exportCsv') }}</v-list-item>
+            <v-list-item @click="exportStock('xlsx')">{{ t('dealer.views.vehicles.exportExcel') }}</v-list-item>
+          </v-list>
+        </v-menu>
         <v-btn
           v-if="hasPermission('dealer.vehicles.create')"
           variant="outlined"
@@ -313,7 +330,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { getVehicles, deleteVehicle as deleteVehicleApi } from '@/api/dealer.api'
+import { getVehicles, deleteVehicle as deleteVehicleApi, exportVehicleStock } from '@/api/dealer.api'
 import VehicleBulkImportDialog from '@/components/dealer/vehicles/VehicleBulkImportDialog.vue'
 import { hasPermission } from '@/utils/permissions'
 import type { PaginationModel } from '@/models/pagination.model'
@@ -348,6 +365,7 @@ const showImportDialog = ref(false)
 const showDeleteDialog = ref(false)
 const vehicleToDelete = ref<VehicleModel | null>(null)
 const deleting = ref(false)
+const exporting = ref(false)
 
 const statusFilterOptions = computed(() => [
   { label: t('dealer.views.vehicles.allStatuses'), value: null },
@@ -448,6 +466,20 @@ const formatPrice = (price?: number) => {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(price)
+}
+
+const exportStock = async (format: 'csv' | 'xlsx') => {
+  try {
+    exporting.value = true
+    await exportVehicleStock({
+      format,
+      list_status_id: statusFilter.value ?? undefined,
+    })
+  } catch (err) {
+    error.value = (err as ApiErrorModel).message || t('dealer.views.vehicles.exportFailed')
+  } finally {
+    exporting.value = false
+  }
 }
 
 onMounted(() => {

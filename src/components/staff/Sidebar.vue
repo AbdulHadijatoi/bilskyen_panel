@@ -78,7 +78,7 @@
               letterSpacing: '0.05em',
             }"
           >
-            {{ section.title }}
+            {{ getSectionTitle(section.title) }}
           </div>
 
           <div class="sidebar-menu" style="display: flex; flex-direction: column; gap: 0.125rem;">
@@ -121,7 +121,7 @@
                   class="flex min-w-0 grow flex-col items-start gap-0.5"
                   style="min-width: 0;"
                 >
-                  <div class="truncate text-xs font-medium" style="width: 100%;">{{ authStore.user?.name || 'User' }}</div>
+                  <div class="truncate text-xs font-medium" style="width: 100%;">{{ authStore.user?.name || t('common.userFallback') }}</div>
                   <div class="truncate text-xs" style="opacity: 0.7; width: 100%; font-size: 0.6875rem;">{{ authStore.user?.email || '' }}</div>
                 </div>
               </div>
@@ -129,15 +129,15 @@
           </template>
           <v-list>
             <v-list-item :to="{ name: 'staff.profile' }" prepend-icon="mdi-account">
-              <v-list-item-title>View Profile</v-list-item-title>
+              <v-list-item-title>{{ t('nav.viewProfile') }}</v-list-item-title>
             </v-list-item>
             <v-divider />
             <v-list-item prepend-icon="mdi-lock-reset" @click="showChangePasswordDialog = true">
-              <v-list-item-title>Change Password</v-list-item-title>
+              <v-list-item-title>{{ t('nav.changePassword') }}</v-list-item-title>
             </v-list-item>
             <v-divider />
             <v-list-item prepend-icon="mdi-logout" @click="handleLogout">
-              <v-list-item-title>Logout</v-list-item-title>
+              <v-list-item-title>{{ t('nav.logout') }}</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
@@ -150,6 +150,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSidebarStore } from '@/stores/sidebar'
@@ -160,13 +161,25 @@ import { hasPermission } from '@/utils/permissions'
 import SidebarItem from './SidebarItem.vue'
 import ChangePasswordDialog from './ChangePasswordDialog.vue'
 
+const { t } = useI18n()
 const sidebarStore = useSidebarStore()
 const authStore = useAuthStore()
 const router = useRouter()
 const showChangePasswordDialog = ref(false)
 
+const SECTION_TITLE_KEYS: Record<string, string> = {
+  'Core Operations': 'staff.navSection.coreOperations',
+  Management: 'staff.navSection.management',
+}
+
+function getSectionTitle(title: string | undefined): string {
+  if (!title) return ''
+  const key = SECTION_TITLE_KEYS[title]
+  return key ? t(key) : title
+}
+
 const userInitials = computed(() => {
-  const name = authStore.user?.name || 'User'
+  const name = authStore.user?.name || t('common.userFallback')
   const names = name.split(' ')
   if (names.length >= 2) {
     const firstName = names[0]

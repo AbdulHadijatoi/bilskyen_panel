@@ -125,7 +125,7 @@ const getRoleName = (roleId?: number): string => {
     2: 'Manager',
     3: 'Staff',
   }
-  return roleMap[roleId] || 'Unknown'
+  return roleMap[roleId] || t('common.unknown')
 }
 
 // Watch for prop changes
@@ -169,7 +169,7 @@ const handleDelete = async () => {
     close()
   } catch (err: any) {
     console.error('Failed to remove staff:', err)
-    error.value = err?.message || 'Failed to remove staff member. Please try again.'
+    error.value = err?.message || t('dealerComponents.staff.failedRemoveStaff')
   } finally {
     deleting.value = false
   }

@@ -13,7 +13,7 @@
           minWidth: '28px',
           minHeight: '28px',
         }"
-        aria-label="Toggle theme"
+        :aria-label="t('dealerComponents.themeToggle.toggleTheme')"
       >
         <v-icon
           v-if="!themeStore.isDark"
@@ -37,7 +37,7 @@
         >
           mdi-weather-night
         </v-icon>
-        <span class="sr-only">Toggle theme</span>
+        <span class="sr-only">{{ t('dealerComponents.themeToggle.toggleTheme') }}</span>
       </v-btn>
     </template>
     <v-list
@@ -58,7 +58,7 @@
         <template #prepend>
           <v-icon size="16">mdi-weather-sunny</v-icon>
         </template>
-        <v-list-item-title>Light</v-list-item-title>
+        <v-list-item-title>{{ t('dealerComponents.themeToggle.light') }}</v-list-item-title>
       </v-list-item>
       <v-list-item
         :active="themeStore.currentTheme === 'dark'"
@@ -71,7 +71,7 @@
         <template #prepend>
           <v-icon size="16">mdi-weather-night</v-icon>
         </template>
-        <v-list-item-title>Dark</v-list-item-title>
+        <v-list-item-title>{{ t('dealerComponents.themeToggle.dark') }}</v-list-item-title>
       </v-list-item>
       <v-list-item
         :active="themeStore.currentTheme === 'system'"
@@ -84,15 +84,17 @@
         <template #prepend>
           <v-icon size="16">mdi-monitor</v-icon>
         </template>
-        <v-list-item-title>System</v-list-item-title>
+        <v-list-item-title>{{ t('dealerComponents.themeToggle.system') }}</v-list-item-title>
       </v-list-item>
     </v-list>
   </v-menu>
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { useThemeStore } from '@/stores/theme'
 
+const { t } = useI18n()
 const themeStore = useThemeStore()
 </script>
 
@@ -117,4 +119,3 @@ const themeStore = useThemeStore()
   border-width: 0;
 }
 </style>
-
