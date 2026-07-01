@@ -1,21 +1,20 @@
 <template>
-  <div class="features-overview">
+  <div class="panel-page features-overview">
     <!-- Header -->
-    <div class="d-flex justify-space-between align-center mb-6">
-      <div>
-        <h2 class="text-h5 font-weight-bold mb-1">Manage Features</h2>
-        <p class="text-body-2 text-medium-emphasis">
-          View and manage subscription plan features with different value types.
-        </p>
-      </div>
-      <v-btn
-        color="primary"
-        prepend-icon="mdi-plus"
-        @click="openCreateDialog"
-      >
-        Create Feature
-      </v-btn>
-    </div>
+    <PageHeader
+      title="Manage Features"
+      subtitle="View and manage subscription plan features with different value types."
+    >
+      <template #actions>
+        <v-btn
+          color="primary"
+          prepend-icon="mdi-plus"
+          @click="openCreateDialog"
+        >
+          Create Feature
+        </v-btn>
+      </template>
+    </PageHeader>
 
     <!-- Features Grid -->
     <v-card variant="elevated" elevation="1" class="features-section-card">
@@ -199,6 +198,7 @@ import {
   type CreateFeatureData,
 } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const router = useRouter()
 const { t } = useI18n()

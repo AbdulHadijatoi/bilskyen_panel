@@ -1,51 +1,64 @@
 @import './base.css';
+@import './panel.css';
+@import './auth.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --radius: 0.5rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: #004aad;
-  --primary-foreground: oklch(0.985 0 0);
-  --primary-hover: #003a8d;
-  --primary-light: #e6f0ff;
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.145 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: #e6f0ff;
-  --accent-foreground: #004aad;
-  --accent-hover: #cce0ff;
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
+  --radius: 0.625rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --background: #f4f5f7;
+  --foreground: #1a1d21;
+  --card: #ffffff;
+  --card-foreground: #1a1d21;
+  --popover: #ffffff;
+  --popover-foreground: #1a1d21;
+  --primary: #03418b;
+  --primary-foreground: #ffffff;
+  --primary-hover: #022a5c;
+  --primary-light: #e6eef7;
+  --secondary: #f0f1f4;
+  --secondary-foreground: #1a1d21;
+  --muted: #f0f1f4;
+  --muted-foreground: #6b7280;
+  --accent: #e6eef7;
+  --accent-foreground: #03418b;
+  --accent-hover: #d4e3f2;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
   --success: #10b981;
-  --success-foreground: oklch(0.985 0 0);
+  --success-foreground: #ffffff;
   --success-light: #d1fae5;
-  --info: #3b82f6;
-  --info-foreground: oklch(0.985 0 0);
-  --info-light: #dbeafe;
+  --info: #03418b;
+  --info-foreground: #ffffff;
+  --info-light: #e6eef7;
   --warning: #f59e0b;
-  --warning-foreground: oklch(0.145 0 0);
+  --warning-foreground: #1a1d21;
   --warning-light: #fef3c7;
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: #004aad;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: #004aad;
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: #e6f0ff;
-  --sidebar-accent-foreground: #004aad;
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: #004aad;
-  --sidebar-width: 16rem;
-  --sidebar-width-icon: 3rem;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: #03418b;
+  --sidebar: #eeeff2;
+  --sidebar-foreground: #374151;
+  --sidebar-primary: #03418b;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e8eaed;
+  --sidebar-accent-foreground: #1a1d21;
+  --sidebar-active-bg: #ffffff;
+  --sidebar-border: #e0e2e6;
+  --sidebar-ring: #03418b;
+  --sidebar-width: 16.5rem;
+  --sidebar-width-icon: 3.5rem;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-sidebar-active: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --chart-1: #03418b;
+  --chart-2: #10b981;
+  --chart-3: #8b5cf6;
+  --chart-4: #f59e0b;
 }
 
 @layer base {
@@ -183,12 +196,10 @@
     color: var(--card-foreground) !important;
   }
   
-  /* Make table body slightly darker than header */
-  /* Header: --muted (oklch(0.97)) is lighter, body should be darker */
   .v-data-table__tbody,
   .v-data-table__tbody tr,
   .v-data-table__tbody td {
-    background-color: oklch(0.96 0 0) !important;
+    background-color: var(--card) !important;
   }
   
   .v-data-table-footer {
@@ -263,13 +274,13 @@
 
   /* Card hover effects */
   .v-card:hover {
-    box-shadow: 0 4px 6px -1px rgba(0, 74, 173, 0.1), 0 2px 4px -1px rgba(0, 74, 173, 0.06) !important;
+    box-shadow: var(--shadow-card-hover) !important;
     transition: box-shadow 0.2s;
   }
 
-  /* Table row hover with accent */
+  /* Table row hover */
   .v-data-table__tbody tr:hover {
-    background-color: var(--accent) !important;
+    background-color: color-mix(in oklch, var(--primary) 4%, var(--card)) !important;
   }
 
   /* Selection states */
@@ -408,4 +419,13 @@
   .text-warning {
     color: var(--warning) !important;
   }
+}
+
+/* Auth buttons — white label text (Tailwind preflight sets button color: inherit) */
+.auth-submit {
+  color: #ffffff !important;
+}
+
+.auth-submit:hover:not(:disabled) {
+  color: #ffffff !important;
 }

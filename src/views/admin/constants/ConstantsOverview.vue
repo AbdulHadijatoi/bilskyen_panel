@@ -1,5 +1,5 @@
 <template>
-  <div class="constants-container">
+  <div class="panel-page constants-container">
     <!-- Header -->
     <div class="constants-header">
       <div class="header-content">

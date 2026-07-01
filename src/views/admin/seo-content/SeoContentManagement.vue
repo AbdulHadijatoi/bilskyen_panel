@@ -1,5 +1,5 @@
 <template>
-  <div class="seo-content-container">
+  <div class="panel-page seo-content-container">
     <div class="page-header">
       <div class="header-content">
         <h2 class="page-title">{{ $t('admin.seoContent.title') }}</h2>

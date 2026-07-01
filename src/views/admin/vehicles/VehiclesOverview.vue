@@ -1,111 +1,31 @@
 <template>
-  <div class="vehicles-overview-container">
-    <!-- Header Section -->
-    <div class="header-section mb-6">
-      <div class="d-flex justify-space-between align-center">
-        <div>
-          <h1 class="text-h4 font-weight-bold mb-1">{{ t('admin.views.vehicles.title') }}</h1>
-          <p class="text-body-2 text-medium-emphasis mb-0">
-            {{ t('admin.views.vehicles.subtitle') }}
-          </p>
-        </div>
-      </div>
-    </div>
+  <div class="panel-page overview-page vehicles-overview-container">
+    <PageHeader
+      :title="t('admin.views.vehicles.title')"
+      :subtitle="t('admin.views.vehicles.subtitle')"
+    />
 
-    <!-- Stats Cards -->
-    <v-row class="mb-6">
+    <v-row class="mb-5">
       <v-col cols="12" sm="6" md="3">
-        <v-card
-          variant="flat"
-          class="stat-card"
-          elevation="0"
-        >
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="stat-label">{{ t('admin.views.vehicles.totalVehicles') }}</div>
-                <div class="stat-value">{{ vehicles.totalDocs || 0 }}</div>
-              </div>
-              <v-icon size="40" color="primary" class="stat-icon">mdi-car-multiple</v-icon>
-            </div>
-          </v-card-text>
-        </v-card>
+        <OverviewStatCard :label="t('admin.views.vehicles.totalVehicles')" :value="vehicles.totalDocs || 0" icon="mdi-car-multiple" color="primary" />
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <v-card
-          variant="flat"
-          class="stat-card"
-          elevation="0"
-        >
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="stat-label">{{ t('admin.views.vehicles.published') }}</div>
-                <div class="stat-value text-success">{{ publishedCount }}</div>
-              </div>
-              <v-icon size="40" color="success" class="stat-icon">mdi-check-circle</v-icon>
-            </div>
-          </v-card-text>
-        </v-card>
+        <OverviewStatCard :label="t('admin.views.vehicles.published')" :value="publishedCount" icon="mdi-check-circle" color="success" value-tone="success" />
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <v-card
-          variant="flat"
-          class="stat-card"
-          elevation="0"
-        >
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="stat-label">{{ t('admin.views.vehicles.draft') }}</div>
-                <div class="stat-value text-warning">{{ draftCount }}</div>
-              </div>
-              <v-icon size="40" color="warning" class="stat-icon">mdi-file-document-edit</v-icon>
-            </div>
-          </v-card-text>
-        </v-card>
+        <OverviewStatCard :label="t('admin.views.vehicles.draft')" :value="draftCount" icon="mdi-file-document-edit" color="warning" value-tone="warning" />
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <v-card variant="flat" class="stat-card" elevation="0">
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="stat-label">{{ t('admin.views.vehicles.sold') }}</div>
-                <div class="stat-value text-info">{{ soldCount }}</div>
-              </div>
-              <v-icon size="40" color="info" class="stat-icon">mdi-check-all</v-icon>
-            </div>
-          </v-card-text>
-        </v-card>
+        <OverviewStatCard :label="t('admin.views.vehicles.sold')" :value="soldCount" icon="mdi-check-all" color="info" value-tone="info" />
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <v-card
-          variant="flat"
-          class="stat-card"
-          elevation="0"
-          @click="filterPendingReview"
-          style="cursor: pointer;"
-        >
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="stat-label">{{ t('admin.views.vehicles.pendingReview') }}</div>
-                <div class="stat-value text-orange">{{ pendingReviewCount }}</div>
-              </div>
-              <v-icon size="40" color="orange" class="stat-icon">mdi-shield-check</v-icon>
-            </div>
-          </v-card-text>
-        </v-card>
+        <div style="cursor: pointer" @click="filterPendingReview">
+          <OverviewStatCard :label="t('admin.views.vehicles.pendingReview')" :value="pendingReviewCount" icon="mdi-shield-check" color="warning" value-tone="warning" />
+        </div>
       </v-col>
     </v-row>
 
-    <!-- Filters and Search Card -->
-    <v-card
-      variant="flat"
-      class="filters-card mb-4"
-      elevation="0"
-    >
-      <v-card-text class="pa-4">
+    <div class="panel-filters-card mb-4">
         <div class="d-flex align-center gap-4 flex-wrap">
           <v-text-field
             v-model="search"
@@ -166,25 +86,18 @@
             Refresh
           </v-btn>
         </div>
-      </v-card-text>
-    </v-card>
+    </div>
 
-    <!-- Vehicles Table Card -->
-    <v-card
-      variant="flat"
-      class="table-card"
-      elevation="0"
-    >
-      <v-card-title class="card-title">
-        <v-icon class="mr-2">mdi-table</v-icon>
+    <div class="panel-table-card">
+      <div class="panel-table-card__title">
+        <v-icon size="18">mdi-table</v-icon>
         Vehicles List
         <v-spacer />
         <span class="text-caption text-medium-emphasis">
           Showing {{ vehicles.docs.length }} of {{ vehicles.totalDocs || 0 }} vehicles
         </span>
-      </v-card-title>
-
-      <v-card-text class="pa-0">
+      </div>
+      <div>
         <div v-if="loading" class="loading-container">
           <v-progress-circular indeterminate color="primary" size="48" />
           <p class="text-body-2 text-medium-emphasis mt-4">{{ t('admin.views.vehicles.loadingVehicles') }}</p>
@@ -306,8 +219,8 @@
             @update:model-value="handlePageChange"
           />
         </div>
-      </v-card-text>
-    </v-card>
+      </div>
+    </div>
 
     <!-- Delete Confirmation Dialog -->
     <v-dialog
@@ -351,6 +264,8 @@ import { getVehicles, deleteVehicle as deleteVehicleApi, getConstantsData, appro
 import type { PaginationModel } from '@/models/pagination.model'
 import type { VehicleModel } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
+import OverviewStatCard from '@/components/panel/OverviewStatCard.vue'
 import {
   VEHICLE_LIST_STATUS_ID,
   formatListStatusLabel,

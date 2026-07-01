@@ -1,13 +1,10 @@
 <template>
-  <div class="locations-admin-container">
-    <div class="header-section mb-6">
-      <div class="d-flex justify-space-between align-center flex-wrap gap-4">
-        <div>
-          <h1 class="text-h4 font-weight-bold mb-1">Locations</h1>
-          <p class="text-body-2 text-medium-emphasis mb-0">
-            Manage city, postcode, region, and coordinates used in sell-your-car and vehicle forms.
-          </p>
-        </div>
+  <div class="panel-page locations-admin-container">
+    <PageHeader
+      title="Locations"
+      subtitle="Manage city, postcode, region, and coordinates used in sell-your-car and vehicle forms."
+    >
+      <template #actions>
         <v-btn
           color="primary"
           prepend-icon="mdi-plus"
@@ -16,8 +13,8 @@
         >
           Add location
         </v-btn>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
     <v-row class="mb-4">
       <v-col cols="12" sm="6" md="4">
@@ -315,6 +312,7 @@ import {
   type AdminLocationModel,
 } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 

@@ -135,7 +135,9 @@
       "failedRemoveFeaturedVehicle": "Failed to remove featured vehicle",
       "failedUpdateUser": "Failed to update user",
       "failedBanUser": "Failed to ban user",
-      "failedUnbanUser": "Failed to unban user"
+      "failedUnbanUser": "Failed to unban user",
+      "failedSaveLocation": "Failed to save location",
+      "failedDeleteLocation": "Failed to delete location"
     },
     "toggleSidebar": "Toggle Sidebar",
     "justNow": "Just now",
@@ -204,7 +206,8 @@
       "max_vehicle_images": "Max Vehicle Images",
       "max_equipment_per_vehicle": "Max Equipment Per Vehicle",
       "upload_3d_view": "Upload 3D View"
-    }
+    },
+    "system": "System"
   },
   "calendar": {
     "month": "Month",
@@ -514,7 +517,8 @@
         "noRecentLeads": "No recent leads",
         "subscriptionStatus": "Subscription Status",
         "vehicleCreationTrend": "Vehicle Creation Trend (30 Days)",
-        "userCreationTrend": "User Creation Trend (30 Days)"
+        "userCreationTrend": "User Creation Trend (30 Days)",
+        "thirtyDaysAgo": "30 days ago"
       },
       "users": {
         "title": "User Management",
@@ -785,7 +789,11 @@
         "monthly": "Monthly",
         "yearly": "Yearly",
         "currency": "Currency",
-        "pricingOptional": "Pricing (Optional - in cents)"
+        "pricingOptional": "Pricing (Optional - in cents)",
+        "failedLoadPlans": "Failed to load plans",
+        "planDetails": "Plan Details",
+        "planDetailsSubtitle": "View and manage plan information",
+        "failedCreateSubscription": "Failed to create subscription"
       },
       "subscriptions": {
         "title": "Subscriptions",
@@ -1190,6 +1198,11 @@
           "contact_header_description": "We're here to help with your questions about vehicles, financing, and our services. Reach out to us anytime.",
           "contact_form_description": "Fill out the form below, and we'll get back to you as soon as possible."
         }
+      },
+      "seo": {
+        "failedLoadPages": "Failed to load pages",
+        "failedLoadPage": "Failed to load page",
+        "failedDelete": "Failed to delete page"
       }
     }
   },
@@ -1256,7 +1269,12 @@
         "noData": "No data",
         "byIntent": "By Intent",
         "topVehicles": "Top Vehicles",
-        "noVehicleData": "No vehicle data"
+        "noVehicleData": "No vehicle data",
+        "failedAssignLead": "Failed to assign lead",
+        "failedLoadLead": "Failed to load lead",
+        "failedSendMessage": "Failed to send message",
+        "failedUpdateCategory": "Failed to update category",
+        "failedUpdateIntent": "Failed to update intent"
       },
       "subscription": {
         "currentSubscription": "Current Subscription",
@@ -1301,7 +1319,9 @@
         "chargedThisMonth": "Charged this month",
         "estimatedMonthly": "Estimated monthly cost",
         "paymentSuccess": "Payment received. Your subscription will activate shortly.",
-        "redirectingToStripe": "Redirecting to secure checkout…"
+        "redirectingToStripe": "Redirecting to secure checkout…",
+        "title": "Subscription",
+        "subtitle": "View and manage your subscription plan"
       },
       "billing": {
         "title": "Billing",
@@ -1770,7 +1790,8 @@
         "closed": "Closed",
         "cancelled": "Cancelled",
         "updatingStatusFor": "Updating status for:",
-        "updatingTypeFor": "Updating type for:"
+        "updatingTypeFor": "Updating type for:",
+        "callCustomer": "Call Customer"
       },
       "vehicleDetail": {
         "title": "Vehicle Details",
@@ -1897,7 +1918,9 @@
         "batteryCapacityKwh": "Battery Capacity (kWh)",
         "moreImagesSlotHint": "You can add up to {count} more image(s).",
         "planMaxImagesError": "Your plan allows up to {max} images per vehicle. Remove some existing images or add fewer new ones.",
-        "planMaxEquipmentError": "Your plan allows up to {max} equipment items per vehicle. Please deselect some."
+        "planMaxEquipmentError": "Your plan allows up to {max} equipment items per vehicle. Please deselect some.",
+        "fuelType": "Fuel Type",
+        "failedUpdateVehicle": "Failed to update vehicle"
       },
       "addVehicle": {
         "title": "Add Vehicle",

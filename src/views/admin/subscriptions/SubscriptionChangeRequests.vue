@@ -1,22 +1,23 @@
 <template>
-  <div class="subscription-change-requests">
-    <div class="d-flex justify-space-between align-center mb-6 flex-wrap gap-4">
-      <div>
-        <h1 class="text-h5 font-weight-medium mb-1">{{ t('admin.views.subscriptionChangeRequests.title') }}</h1>
-        <p class="text-body-2 text-medium-emphasis">{{ t('admin.views.subscriptionChangeRequests.subtitle') }}</p>
-      </div>
-      <v-select
-        v-model="statusFilter"
-        :items="statusItems"
-        item-title="label"
-        item-value="value"
-        density="compact"
-        variant="outlined"
-        hide-details
-        style="min-width: 200px"
-        @update:model-value="onStatusChange"
-      />
-    </div>
+  <div class="panel-page subscription-change-requests">
+    <PageHeader
+      :title="t('admin.views.subscriptionChangeRequests.title')"
+      :subtitle="t('admin.views.subscriptionChangeRequests.subtitle')"
+    >
+      <template #actions>
+        <v-select
+          v-model="statusFilter"
+          :items="statusItems"
+          item-title="label"
+          item-value="value"
+          density="compact"
+          variant="outlined"
+          hide-details
+          style="min-width: 200px"
+          @update:model-value="onStatusChange"
+        />
+      </template>
+    </PageHeader>
 
     <v-alert v-if="pageError" type="error" variant="tonal" class="mb-4" closable @click:close="pageError = null">
       {{ pageError }}
@@ -130,6 +131,7 @@ import {
 import type { PaginationModel } from '@/models/pagination.model'
 import { hasPermission } from '@/utils/permissions'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 

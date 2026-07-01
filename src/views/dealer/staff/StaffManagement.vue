@@ -1,14 +1,11 @@
 <template>
-  <div class="staff-management">
+  <div class="panel-page staff-management">
     <!-- Header -->
-    <div class="header-section mb-6">
-      <div class="d-flex justify-space-between align-center">
-        <div>
-          <h1 class="text-h4 font-weight-bold mb-1">{{ t('dealer.views.staff.title') }}</h1>
-          <p class="text-body-2 text-medium-emphasis mb-0">
-            {{ t('dealer.views.staff.subtitle') }}
-          </p>
-        </div>
+    <PageHeader
+      :title="t('dealer.views.staff.title')"
+      :subtitle="t('dealer.views.staff.subtitle')"
+    >
+      <template #actions>
         <v-btn
           v-if="hasPermission('dealer.staff.manage')"
           color="primary"
@@ -19,8 +16,8 @@
         >
           {{ t('dealer.views.staff.addStaff') }}
         </v-btn>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
     <!-- Stats Cards -->
     <v-row class="mb-6">
@@ -231,6 +228,7 @@ import AddStaffDialog from '@/components/dealer/staff/AddStaffDialog.vue'
 import EditStaffDialog from '@/components/dealer/staff/EditStaffDialog.vue'
 import DeleteStaffDialog from '@/components/dealer/staff/DeleteStaffDialog.vue'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 

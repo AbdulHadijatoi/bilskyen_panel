@@ -1,11 +1,9 @@
 <template>
-  <div>
-    <div class="d-flex justify-space-between align-center mb-6">
-      <div>
-        <h1 class="text-h5 font-weight-medium mb-1">{{ t('dealer.views.billing.title') }}</h1>
-        <p class="text-body-2 text-medium-emphasis">{{ t('dealer.views.billing.subtitle') }}</p>
-      </div>
-    </div>
+  <div class="panel-page">
+    <PageHeader
+      :title="t('dealer.views.billing.title')"
+      :subtitle="t('dealer.views.billing.subtitle')"
+    />
 
     <v-alert
       v-if="route.query.payment === 'success'"
@@ -140,6 +138,7 @@ import {
   type DealerPaymentModel,
 } from '@/api/dealer.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t, locale } = useI18n()
 const route = useRoute()

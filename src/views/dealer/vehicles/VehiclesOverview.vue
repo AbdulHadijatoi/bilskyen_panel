@@ -1,133 +1,60 @@
 <template>
-  <div class="vehicles-overview-container">
-    <!-- Header Section -->
-    <div class="header-section mb-6">
-      <div class="d-flex justify-space-between align-center">
-  <div>
-          <h1 class="text-h4 font-weight-bold mb-1">{{ t('dealer.views.vehicles.title') }}</h1>
-          <p class="text-body-2 text-medium-emphasis mb-0">
-          {{ t('dealer.views.vehicles.subtitle') }}
-        </p>
-      </div>
-      <div class="d-flex gap-2 flex-wrap">
-        <v-menu v-if="hasPermission('dealer.feeds.export')">
-          <template #activator="{ props }">
-            <v-btn
-              v-bind="props"
-              variant="outlined"
-              prepend-icon="mdi-download"
-              size="default"
-              :loading="exporting"
-            >
-              {{ t('dealer.views.vehicles.exportStock') }}
-            </v-btn>
-          </template>
-          <v-list density="compact">
-            <v-list-item @click="exportStock('csv')">{{ t('dealer.views.vehicles.exportCsv') }}</v-list-item>
-            <v-list-item @click="exportStock('xlsx')">{{ t('dealer.views.vehicles.exportExcel') }}</v-list-item>
-          </v-list>
-        </v-menu>
-        <v-btn
-          v-if="hasPermission('dealer.vehicles.create')"
-          variant="outlined"
-          prepend-icon="mdi-upload"
-          size="default"
-          @click="showImportDialog = true"
-        >
-          {{ t('dealer.views.vehicles.import.bulkImport') }}
-        </v-btn>
-        <v-btn
-          v-if="hasPermission('dealer.vehicles.create')"
-          color="primary"
-          prepend-icon="mdi-plus"
-          size="default"
-          :to="{ name: 'dealer.vehicles.add' }"
-        >
-          {{ t('dealer.views.vehicles.addVehicle') }}
-        </v-btn>
-      </div>
-    </div>
-    </div>
+  <div class="panel-page overview-page vehicles-overview-container">
+    <PageHeader
+      :title="t('dealer.views.vehicles.title')"
+      :subtitle="t('dealer.views.vehicles.subtitle')"
+    >
+      <template #actions>
+        <div class="d-flex gap-2 flex-wrap">
+          <v-menu v-if="hasPermission('dealer.feeds.export')">
+            <template #activator="{ props }">
+              <button v-bind="props" type="button" class="panel-btn panel-btn--outline" :disabled="exporting">
+                <v-icon size="16">mdi-download</v-icon>
+                {{ t('dealer.views.vehicles.exportStock') }}
+              </button>
+            </template>
+            <v-list density="compact">
+              <v-list-item @click="exportStock('csv')">{{ t('dealer.views.vehicles.exportCsv') }}</v-list-item>
+              <v-list-item @click="exportStock('xlsx')">{{ t('dealer.views.vehicles.exportExcel') }}</v-list-item>
+            </v-list>
+          </v-menu>
+          <button
+            v-if="hasPermission('dealer.vehicles.create')"
+            type="button"
+            class="panel-btn panel-btn--outline"
+            @click="showImportDialog = true"
+          >
+            <v-icon size="16">mdi-upload</v-icon>
+            {{ t('dealer.views.vehicles.import.bulkImport') }}
+          </button>
+          <router-link
+            v-if="hasPermission('dealer.vehicles.create')"
+            :to="{ name: 'dealer.vehicles.add' }"
+            class="panel-btn panel-btn--primary"
+          >
+            <v-icon size="16">mdi-plus</v-icon>
+            {{ t('dealer.views.vehicles.addVehicle') }}
+          </router-link>
+        </div>
+      </template>
+    </PageHeader>
 
-    <!-- Stats Cards -->
-    <v-row class="mb-6">
+    <v-row class="mb-5">
       <v-col cols="12" sm="6" md="3">
-        <v-card
-          variant="flat"
-          class="stat-card"
-          elevation="0"
-        >
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="stat-label">{{ t('dealer.views.vehicles.totalVehicles') }}</div>
-                <div class="stat-value">{{ vehicles.totalDocs || 0 }}</div>
-              </div>
-              <v-icon size="40" color="primary" class="stat-icon">mdi-car-multiple</v-icon>
-            </div>
-          </v-card-text>
-        </v-card>
+        <OverviewStatCard :label="t('dealer.views.vehicles.totalVehicles')" :value="vehicles.totalDocs || 0" icon="mdi-car-multiple" color="primary" />
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <v-card
-          variant="flat"
-          class="stat-card"
-          elevation="0"
-        >
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="stat-label">{{ t('dealer.views.vehicles.published') }}</div>
-                <div class="stat-value text-success">{{ publishedCount }}</div>
-              </div>
-              <v-icon size="40" color="success" class="stat-icon">mdi-check-circle</v-icon>
-            </div>
-          </v-card-text>
-        </v-card>
+        <OverviewStatCard :label="t('dealer.views.vehicles.published')" :value="publishedCount" icon="mdi-check-circle" color="success" value-tone="success" />
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <v-card
-          variant="flat"
-          class="stat-card"
-          elevation="0"
-        >
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="stat-label">{{ t('dealer.views.vehicles.draft') }}</div>
-                <div class="stat-value text-warning">{{ draftCount }}</div>
-              </div>
-              <v-icon size="40" color="warning" class="stat-icon">mdi-file-document-edit</v-icon>
-            </div>
-          </v-card-text>
-        </v-card>
+        <OverviewStatCard :label="t('dealer.views.vehicles.draft')" :value="draftCount" icon="mdi-file-document-edit" color="warning" value-tone="warning" />
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <v-card
-          variant="flat"
-          class="stat-card"
-          elevation="0"
-        >
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="stat-label">{{ t('dealer.views.vehicles.sold') }}</div>
-                <div class="stat-value text-info">{{ soldCount }}</div>
-              </div>
-              <v-icon size="40" color="info" class="stat-icon">mdi-check-all</v-icon>
-            </div>
-          </v-card-text>
-        </v-card>
+        <OverviewStatCard :label="t('dealer.views.vehicles.sold')" :value="soldCount" icon="mdi-check-all" color="info" value-tone="info" />
       </v-col>
     </v-row>
 
-    <!-- Filters and Search Card -->
-    <v-card
-      variant="flat"
-      class="filters-card mb-4"
-      elevation="0"
-    >
-      <v-card-text class="pa-4">
+    <div class="panel-filters-card mb-4">
         <div class="d-flex align-center gap-4 flex-wrap">
           <v-text-field
             v-model="search"
@@ -166,25 +93,18 @@
             {{ t('common.refresh') }}
             </v-btn>
         </div>
-      </v-card-text>
-    </v-card>
+    </div>
 
-    <!-- Vehicles Table Card -->
-    <v-card
-      variant="flat"
-      class="table-card"
-      elevation="0"
-    >
-      <v-card-title class="card-title">
-        <v-icon class="mr-2">mdi-table</v-icon>
+    <div class="panel-table-card">
+      <div class="panel-table-card__title">
+        <v-icon size="18">mdi-table</v-icon>
         {{ t('dealer.views.vehicles.vehiclesList') }}
         <v-spacer />
         <span class="text-caption text-medium-emphasis">
           {{ t('dealer.views.vehicles.showingXOfY', { count: vehicles.docs.length, total: vehicles.totalDocs || 0 }) }}
         </span>
-      </v-card-title>
-
-      <v-card-text class="pa-0">
+      </div>
+      <div>
         <div v-if="loading" class="loading-container">
           <v-progress-circular indeterminate color="primary" size="48" />
           <p class="text-body-2 text-medium-emphasis mt-4">{{ t('dealer.views.vehicles.loadingVehicles') }}</p>
@@ -284,8 +204,8 @@
             @update:model-value="handlePageChange"
           />
         </div>
-      </v-card-text>
-    </v-card>
+      </div>
+    </div>
 
     <!-- Delete Confirmation Dialog -->
     <v-dialog
@@ -336,6 +256,8 @@ import { hasPermission } from '@/utils/permissions'
 import type { PaginationModel } from '@/models/pagination.model'
 import type { VehicleModel } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
+import OverviewStatCard from '@/components/panel/OverviewStatCard.vue'
 import {
   VEHICLE_LIST_STATUS_ID,
   formatListStatusLabel,

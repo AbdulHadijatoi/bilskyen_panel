@@ -1,14 +1,12 @@
 <template>
-  <div>
+  <div class="panel-page">
     <!-- Header -->
-    <div class="d-flex flex-column flex-md-row justify-space-between align-start align-md-center mb-4 gap-3">
-      <div class="flex-grow-1">
-        <h2 class="text-h5 font-weight-bold mb-1">Manage Leads</h2>
-        <p class="text-body-2 text-medium-emphasis">
-          Track and manage customer leads. Follow up on inquiries and convert them into sales.
-        </p>
-      </div>
-      <div class="d-flex gap-2 align-center w-100 w-md-auto">
+    <PageHeader
+      title="Manage Leads"
+      subtitle="Track and manage customer leads. Follow up on inquiries and convert them into sales."
+    >
+      <template #actions>
+        <div class="d-flex gap-2 align-center w-100 w-md-auto">
         <v-btn-toggle
           v-model="viewMode"
           mandatory
@@ -31,8 +29,9 @@
         >
           <v-icon>mdi-chart-box</v-icon>
         </v-btn>
-      </div>
-    </div>
+        </div>
+      </template>
+    </PageHeader>
 
     <!-- Filters and Search -->
     <div class="filters-container mb-4">
@@ -500,6 +499,7 @@ import {
 } from '@/utils/leadHelpers'
 import LeadCard from '@/components/staff/LeadCard.vue'
 import AnalyticsSidebar from '@/components/staff/AnalyticsSidebar.vue'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 const router = useRouter()

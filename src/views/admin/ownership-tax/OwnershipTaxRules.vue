@@ -1,14 +1,11 @@
 <template>
-  <div class="ownership-tax-overview-container">
+  <div class="panel-page ownership-tax-overview-container">
     <!-- Header Section -->
-    <div class="header-section mb-6">
-      <div class="d-flex justify-space-between align-center">
-        <div>
-          <h1 class="text-h4 font-weight-bold mb-1">Ownership Tax Rules</h1>
-          <p class="text-body-2 text-medium-emphasis mb-0">
-            Define tax amounts by registration year range, km/l range, and DMR fuel type.
-          </p>
-        </div>
+    <PageHeader
+      title="Ownership Tax Rules"
+      subtitle="Define tax amounts by registration year range, km/l range, and DMR fuel type."
+    >
+      <template #actions>
         <v-btn
           color="primary"
           prepend-icon="mdi-plus"
@@ -18,8 +15,8 @@
         >
           Add Rule
         </v-btn>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
     <!-- Stats Cards -->
     <v-row class="mb-6">
@@ -428,6 +425,7 @@ import {
   type OwnershipTaxRuleModel,
 } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const loading = ref(false)
 const saving = ref(false)

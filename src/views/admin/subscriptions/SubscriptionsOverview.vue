@@ -1,24 +1,23 @@
 <template>
-  <div class="subscriptions-overview">
+  <div class="panel-page subscriptions-overview">
     <!-- Header -->
-    <div class="d-flex justify-space-between align-center mb-6">
-      <div>
-        <h1 class="text-h5 font-weight-medium mb-1">
-          {{ totalSubscriptionsCount }} Subscriptions
-        </h1>
-        <p class="text-body-2 text-medium-emphasis">{{ t('admin.views.subscriptions.subtitle') }}</p>
-      </div>
-      <v-btn
-        v-if="hasPermission('admin.subscriptions.create')"
-        color="primary"
-        variant="flat"
-        prepend-icon="mdi-plus"
-        @click="openCreateDialog"
-        size="default"
-      >
-        {{ t('admin.views.subscriptions.addSubscription') }}
-      </v-btn>
-    </div>
+    <PageHeader
+      :title="`${totalSubscriptionsCount} Subscriptions`"
+      :subtitle="t('admin.views.subscriptions.subtitle')"
+    >
+      <template #actions>
+        <v-btn
+          v-if="hasPermission('admin.subscriptions.create')"
+          color="primary"
+          variant="flat"
+          prepend-icon="mdi-plus"
+          @click="openCreateDialog"
+          size="default"
+        >
+          {{ t('admin.views.subscriptions.addSubscription') }}
+        </v-btn>
+      </template>
+    </PageHeader>
 
     <!-- Summary Cards -->
     <v-row dense class="mb-4">
@@ -625,6 +624,7 @@ import {
 } from '@/api/admin.api'
 import type { PaginationModel } from '@/models/pagination.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const router = useRouter()
 const { t } = useI18n()

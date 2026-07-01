@@ -1,14 +1,11 @@
 <template>
   <v-container class="pa-4" max-width="1400">
     <!-- Header with Actions -->
-    <div class="d-flex justify-space-between align-center flex-wrap mb-4">
-      <div>
-        <h2 class="text-h5 font-weight-bold mb-1">Add Vehicle</h2>
-        <p class="text-body-2 text-medium-emphasis mb-0">
-          Complete all tabs to add a new vehicle to your inventory
-        </p>
-      </div>
-      <div class="d-flex align-center gap-2">
+    <PageHeader
+      title="Add Vehicle"
+      subtitle="Complete all tabs to add a new vehicle to your inventory"
+    >
+      <template #actions>
         <v-chip
           v-if="draftSaved"
           size="small"
@@ -18,8 +15,8 @@
         >
           Draft saved
         </v-chip>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
     <!-- License Plate Lookup Section (Outside Tabs) -->
     <v-card variant="flat" elevation="1" class="mb-4">
@@ -1143,6 +1140,7 @@ import MonthYearPicker from '@/components/ui/MonthYearPicker.vue'
 import { useI18n } from 'vue-i18n'
 import { useErrorMessage } from '@/composables/useErrorMessage'
 import { getFeatureLimit, FeatureKey } from '@/utils/subscriptionFeatures'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const router = useRouter()
 const { t } = useI18n()

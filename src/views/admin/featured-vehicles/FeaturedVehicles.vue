@@ -1,14 +1,11 @@
 <template>
-  <div class="featured-vehicles-container">
+  <div class="panel-page featured-vehicles-container">
     <!-- Header Section -->
-    <div class="header-section mb-6">
-      <div class="d-flex justify-space-between align-center">
-        <div>
-          <h1 class="text-h4 font-weight-bold mb-1">Featured Vehicles Management</h1>
-          <p class="text-body-2 text-medium-emphasis mb-0">
-            Manage featured vehicle listings and their display order
-          </p>
-        </div>
+    <PageHeader
+      title="Featured Vehicles Management"
+      subtitle="Manage featured vehicle listings and their display order"
+    >
+      <template #actions>
         <v-btn
           v-if="hasPermission('admin.featured-vehicles.create')"
           color="primary"
@@ -18,8 +15,8 @@
         >
           Add Vehicle
         </v-btn>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
     <!-- Stats Card -->
     <v-row class="mb-6">
@@ -298,6 +295,7 @@ import { VehicleStatus } from '@/models/vehicle.model'
 import type { VehicleModel } from '@/models/vehicle.model'
 import type { PaginationModel, PaginationParams } from '@/models/pagination.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 const router = useRouter()

@@ -1,13 +1,10 @@
 <template>
-  <div class="vehicle-spec-definitions">
-    <div class="header-section mb-6">
-      <div class="d-flex justify-space-between align-center flex-wrap gap-4">
-        <div>
-          <h1 class="text-h4 font-weight-bold mb-1">Vehicle spec definitions</h1>
-          <p class="text-body-2 text-medium-emphasis mb-0">
-            Catalog spec name and value by brand, model, optional variants (multi-select), and inclusive model year range.
-          </p>
-        </div>
+  <div class="panel-page vehicle-spec-definitions">
+    <PageHeader
+      title="Vehicle spec definitions"
+      subtitle="Catalog spec name and value by brand, model, optional variants (multi-select), and inclusive model year range."
+    >
+      <template #actions>
         <v-btn
           color="primary"
           prepend-icon="mdi-plus"
@@ -17,8 +14,8 @@
         >
           Create
         </v-btn>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
     <v-card variant="flat" class="filters-card mb-4" elevation="0">
       <v-card-text class="pa-4">
@@ -338,6 +335,7 @@ import {
 } from '@/api/admin.api'
 import type { ConstantModel, VariantConstant, VehicleModelConstant } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const loading = ref(false)
 const saving = ref(false)

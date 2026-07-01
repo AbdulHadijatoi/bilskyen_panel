@@ -1,5 +1,5 @@
 <template>
-  <div class="flex w-full flex-col gap-4">
+  <div class="panel-page flex w-full flex-col gap-4">
     <!-- Header -->
     <div>
       <h2 class="text-xl font-bold">{{ t('dealer.views.profile.title') }}</h2>

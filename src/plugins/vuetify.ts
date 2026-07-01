@@ -12,22 +12,21 @@ export default createVuetify({
     themes: {
       light: {
         colors: {
-          // Brand colors from brand guide
-          primary: '#004aad', // Main brand color
-          secondary: '#f5f5f5', // oklch(0.97 0 0) - light gray
-          background: '#ffffff', // oklch(1 0 0) - white
-          surface: '#ffffff', // oklch(1 0 0) - white
-          error: '#d32f2f', // oklch(0.577 0.245 27.325) - red
-          info: '#3b82f6', // Blue accent
-          success: '#10b981', // Green accent
-          warning: '#f59e0b', // Amber accent
-          'on-primary': '#ffffff', // oklch(0.985 0 0) - white
-          'on-secondary': '#252525', // oklch(0.145 0 0) - dark text on secondary
-          'on-background': '#252525', // oklch(0.145 0 0) - very dark gray
-          'on-surface': '#252525', // oklch(0.145 0 0) - very dark gray
+          primary: '#03418b',
+          secondary: '#f0f1f4',
+          background: '#f4f5f7',
+          surface: '#ffffff',
+          error: '#ef4444',
+          info: '#03418b',
+          success: '#10b981',
+          warning: '#f59e0b',
+          'on-primary': '#ffffff',
+          'on-secondary': '#1a1d21',
+          'on-background': '#1a1d21',
+          'on-surface': '#1a1d21',
           'on-info': '#ffffff',
           'on-success': '#ffffff',
-          'on-warning': '#252525',
+          'on-warning': '#1a1d21',
         },
       },
     },
@@ -37,7 +36,9 @@ export default createVuetify({
       style: 'text-transform: none; font-family: "Sora", sans-serif;',
     },
     VCard: {
-      style: 'font-family: "Sora", sans-serif;',
+      elevation: 0,
+      rounded: 'lg',
+      style: 'font-family: "Sora", sans-serif; border: 1px solid #e5e7eb;',
     },
     VDataTable: {
       style: 'font-family: "Sora", sans-serif;',

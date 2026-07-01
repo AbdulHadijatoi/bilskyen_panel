@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="panel-page">
     <h1 class="text-h5 font-weight-medium mb-4">{{ t('dealer.views.tradeIn.title') }}</h1>
     <v-card variant="outlined">
       <v-table v-if="items.length" density="comfortable">

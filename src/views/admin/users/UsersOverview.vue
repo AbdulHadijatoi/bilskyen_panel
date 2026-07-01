@@ -1,106 +1,61 @@
 <template>
-  <div class="users-overview-container">
-    <!-- Header Section -->
-    <div class="header-section mb-6">
-      <div class="d-flex justify-space-between align-center">
-        <div>
-          <h1 class="text-h4 font-weight-bold mb-1">{{ t('admin.views.users.title') }}</h1>
-          <p class="text-body-2 text-medium-emphasis mb-0">
-            {{ t('admin.views.users.subtitle') }}
-          </p>
-        </div>
-        <v-btn
+  <div class="panel-page overview-page">
+    <PageHeader
+      :title="t('admin.views.users.title')"
+      :subtitle="t('admin.views.users.subtitle')"
+    >
+      <template #actions>
+        <button
           v-if="hasPermission('admin.users.create')"
-          color="primary"
-          prepend-icon="mdi-plus"
-          size="default"
+          type="button"
+          class="panel-btn panel-btn--primary"
           @click="showCreateDialog = true"
-          elevation="2"
         >
+          <v-icon size="16">mdi-plus</v-icon>
           {{ t('admin.views.users.createUser') }}
-        </v-btn>
-      </div>
-    </div>
+        </button>
+      </template>
+    </PageHeader>
 
-    <!-- Stats Cards -->
-    <v-row class="mb-6">
+    <v-row class="mb-5">
       <v-col cols="12" sm="6" md="3">
-        <v-card
-          variant="flat"
-          class="stat-card"
-          elevation="0"
-        >
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="stat-label">{{ t('admin.views.users.totalUsers') }}</div>
-                <div class="stat-value">{{ users.totalDocs || 0 }}</div>
-              </div>
-              <v-icon size="40" color="primary" class="stat-icon">mdi-account-group</v-icon>
-            </div>
-          </v-card-text>
-        </v-card>
+        <OverviewStatCard
+          :label="t('admin.views.users.totalUsers')"
+          :value="users.totalDocs || 0"
+          icon="mdi-account-group"
+          color="primary"
+        />
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <v-card
-          variant="flat"
-          class="stat-card"
-          elevation="0"
-        >
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="stat-label">{{ t('admin.views.users.activeUsers') }}</div>
-                <div class="stat-value text-success">{{ activeUsersCount }}</div>
-              </div>
-              <v-icon size="40" color="success" class="stat-icon">mdi-account-check</v-icon>
-            </div>
-          </v-card-text>
-        </v-card>
+        <OverviewStatCard
+          :label="t('admin.views.users.activeUsers')"
+          :value="activeUsersCount"
+          icon="mdi-account-check"
+          color="success"
+          value-tone="success"
+        />
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <v-card
-          variant="flat"
-          class="stat-card"
-          elevation="0"
-        >
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="stat-label">{{ t('admin.views.users.inactiveUsers') }}</div>
-                <div class="stat-value text-warning">{{ inactiveUsersCount }}</div>
-              </div>
-              <v-icon size="40" color="warning" class="stat-icon">mdi-account-off</v-icon>
-            </div>
-          </v-card-text>
-        </v-card>
+        <OverviewStatCard
+          :label="t('admin.views.users.inactiveUsers')"
+          :value="inactiveUsersCount"
+          icon="mdi-account-off"
+          color="warning"
+          value-tone="warning"
+        />
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <v-card
-          variant="flat"
-          class="stat-card"
-          elevation="0"
-        >
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="stat-label">{{ t('admin.views.users.suspended') }}</div>
-                <div class="stat-value text-error">{{ suspendedUsersCount }}</div>
-              </div>
-              <v-icon size="40" color="error" class="stat-icon">mdi-account-remove</v-icon>
-            </div>
-          </v-card-text>
-        </v-card>
+        <OverviewStatCard
+          :label="t('admin.views.users.suspended')"
+          :value="suspendedUsersCount"
+          icon="mdi-account-remove"
+          color="error"
+          value-tone="error"
+        />
       </v-col>
     </v-row>
 
-    <!-- Filters and Search Card -->
-    <v-card
-      variant="flat"
-      class="filters-card mb-4"
-      elevation="0"
-    >
-      <v-card-text class="pa-4">
+    <div class="panel-filters-card mb-4">
         <div class="d-flex align-center gap-4 flex-wrap">
           <v-text-field
             v-model="search"
@@ -154,25 +109,19 @@
             {{ t('common.refresh') }}
           </v-btn>
         </div>
-      </v-card-text>
-    </v-card>
+    </div>
 
-    <!-- Users Table Card -->
-    <v-card
-      variant="flat"
-      class="table-card"
-      elevation="0"
-    >
-      <v-card-title class="card-title">
-        <v-icon class="mr-2">mdi-table</v-icon>
+    <div class="panel-table-card">
+      <div class="panel-table-card__title">
+        <v-icon size="18">mdi-table</v-icon>
         {{ t('admin.views.users.usersList') }}
         <v-spacer />
         <span class="text-caption text-medium-emphasis">
           {{ t('admin.views.users.showingOf', { count: users.docs.length, total: users.totalDocs || 0 }) }}
         </span>
-      </v-card-title>
+      </div>
 
-      <v-card-text class="pa-0">
+      <div>
         <div v-if="loading" class="loading-container">
           <v-progress-circular indeterminate color="primary" size="48" />
           <p class="text-body-2 text-medium-emphasis mt-4">{{ t('admin.views.users.loadingUsers') }}</p>
@@ -296,8 +245,8 @@
             @update:model-value="handlePageChange"
           />
         </div>
-      </v-card-text>
-    </v-card>
+      </div>
+    </div>
 
     <!-- Create User Dialog -->
     <v-dialog v-model="showCreateDialog" max-width="600" persistent>
@@ -448,6 +397,8 @@ import { hasPermission } from '@/utils/permissions'
 import type { PaginationModel } from '@/models/pagination.model'
 import type { UserModel } from '@/models/user.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
+import OverviewStatCard from '@/components/panel/OverviewStatCard.vue'
 
 const router = useRouter()
 const { t } = useI18n()

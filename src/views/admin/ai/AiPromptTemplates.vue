@@ -1,9 +1,6 @@
 <template>
-  <div>
-    <div class="header-section mb-6">
-      <h1 class="text-h4 font-weight-bold mb-1">{{ t('admin.views.ai.promptsTitle') }}</h1>
-      <p class="text-body-2 text-medium-emphasis">{{ t('admin.views.ai.promptsSubtitle') }}</p>
-    </div>
+  <div class="panel-page">
+    <PageHeader :title="t('admin.views.ai.promptsTitle')" :subtitle="t('admin.views.ai.promptsSubtitle')" />
 
     <v-alert type="info" variant="tonal" class="mb-4">
       {{ t('admin.views.ai.promptPlaceholders') }}
@@ -54,6 +51,7 @@
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getAiPromptTemplates, updateAiPromptTemplate, type AiPromptTemplateModel } from '@/api/admin.api'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 const templates = ref<AiPromptTemplateModel[]>([])

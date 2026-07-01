@@ -1,5 +1,5 @@
 <template>
-  <div class="privacy-page-content-container">
+  <div class="panel-page privacy-page-content-container">
     <div class="page-header">
       <div class="header-content">
         <h2 class="page-title">{{ t('admin.views.privacyPageContent.title') }}</h2>

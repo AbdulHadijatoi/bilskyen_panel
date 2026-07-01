@@ -1,5 +1,5 @@
 <template>
-  <div class="pa-4">
+  <div class="panel-page pa-4">
     <h1 class="text-h5 mb-2">{{ t('admin.cms.seoTools.title') }}</h1>
     <p class="text-medium-emphasis mb-4">{{ t('admin.cms.seoTools.subtitle') }}</p>
 

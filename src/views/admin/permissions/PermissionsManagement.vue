@@ -1,14 +1,11 @@
 <template>
-  <div class="permissions-management">
+  <div class="panel-page permissions-management">
     <!-- Header -->
-    <div class="header-section mb-6">
-      <div class="d-flex justify-space-between align-center">
-        <div>
-          <h1 class="text-h4 font-weight-bold mb-1">{{ t('admin.views.permissions.title') }}</h1>
-          <p class="text-body-2 text-medium-emphasis">
-            {{ t('admin.views.permissions.subtitle') }}
-          </p>
-        </div>
+    <PageHeader
+      :title="t('admin.views.permissions.title')"
+      :subtitle="t('admin.views.permissions.subtitle')"
+    >
+      <template #actions>
         <v-btn
           color="primary"
           variant="outlined"
@@ -20,8 +17,8 @@
         >
           {{ t('admin.views.common.clearCache') }}
         </v-btn>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
     <!-- Two Column Layout -->
     <div class="permissions-layout">
@@ -228,6 +225,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import apiClient from '@/utils/axios'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 
@@ -577,7 +575,7 @@ onMounted(async () => {
 }
 
 .role-active {
-  background-color: #e3f2fd !important;
+  background-color: #e6eef7 !important;
 }
 
 .permissions-column {

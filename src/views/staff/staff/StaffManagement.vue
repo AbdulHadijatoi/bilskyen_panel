@@ -1,14 +1,11 @@
 <template>
-  <div class="staff-management">
+  <div class="panel-page staff-management">
     <!-- Header -->
-    <div class="header-section mb-6">
-      <div class="d-flex justify-space-between align-center">
-        <div>
-          <h1 class="text-h4 font-weight-bold mb-1">Staff Management</h1>
-          <p class="text-body-2 text-medium-emphasis mb-0">
-            Manage your dealer staff members
-          </p>
-        </div>
+    <PageHeader
+      title="Staff Management"
+      subtitle="Manage your dealer staff members"
+    >
+      <template #actions>
         <v-btn
           v-if="hasPermission('staff.staff.manage')"
           color="primary"
@@ -19,8 +16,8 @@
         >
           Add Staff
         </v-btn>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
     <!-- Stats Cards -->
     <v-row class="mb-6">
@@ -231,6 +228,7 @@ import AddStaffDialog from '@/components/staff/staff/AddStaffDialog.vue'
 import EditStaffDialog from '@/components/staff/staff/EditStaffDialog.vue'
 import DeleteStaffDialog from '@/components/staff/staff/DeleteStaffDialog.vue'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 

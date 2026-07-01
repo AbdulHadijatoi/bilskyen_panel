@@ -1,20 +1,19 @@
 <template>
-  <div>
-    <div class="d-flex justify-space-between align-center mb-4">
-      <div>
-        <h2 class="text-h5 font-weight-bold mb-1">{{ t('dealer.views.savedSearches.title') }}</h2>
-        <p class="text-body-2 text-medium-emphasis">
-          {{ t('dealer.views.savedSearches.subtitle') }}
-        </p>
-      </div>
-      <v-btn
-        color="primary"
-        prepend-icon="mdi-plus"
-        @click="showCreateDialog = true"
-      >
-        {{ t('dealer.views.savedSearches.saveSearch') }}
-      </v-btn>
-    </div>
+  <div class="panel-page">
+    <PageHeader
+      :title="t('dealer.views.savedSearches.title')"
+      :subtitle="t('dealer.views.savedSearches.subtitle')"
+    >
+      <template #actions>
+        <v-btn
+          color="primary"
+          prepend-icon="mdi-plus"
+          @click="showCreateDialog = true"
+        >
+          {{ t('dealer.views.savedSearches.saveSearch') }}
+        </v-btn>
+      </template>
+    </PageHeader>
 
     <v-card
       variant="outlined"
@@ -132,6 +131,7 @@ import {
   type CreateSavedSearchData,
 } from '@/api/dealer.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const router = useRouter()
 const { t } = useI18n()

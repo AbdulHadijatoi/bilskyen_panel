@@ -1,35 +1,11 @@
 <template>
-  <div class="enquiry-detail">
+  <div class="panel-page enquiry-detail">
     <!-- Header -->
-    <div class="header-section mb-6">
-      <div class="d-flex align-center gap-3 mb-2">
-        <v-btn
-          icon
-          variant="text"
-          @click="router.back()"
-          size="small"
-        >
-          <v-icon>mdi-arrow-left</v-icon>
-        </v-btn>
-        <div class="flex-grow-1">
-          <h1 class="text-h4 font-weight-bold mb-1">Enquiry Details</h1>
-          <p class="text-body-2 text-medium-emphasis mb-0">
-            View and manage customer enquiry information
-          </p>
-        </div>
-        <v-btn
-          v-if="enquiry"
-          icon
-          variant="outlined"
-          size="small"
-          @click="loadEnquiry"
-          :loading="loading"
-          title="Refresh"
-        >
-          <v-icon>mdi-refresh</v-icon>
-        </v-btn>
-      </div>
-    </div>
+    <PageHeader
+      title="Enquiry Details"
+      subtitle="View and manage customer enquiry information"
+      show-back
+    />
 
     <!-- Loading State -->
     <div v-if="loading && !enquiry" class="text-center py-12">
@@ -395,6 +371,7 @@ import { getEnquiry, updateEnquiryStatus, updateEnquiryType } from '@/api/staff.
 import type { EnquiryModel } from '@/models/enquiry.model'
 import { EnquiryStatus, EnquiryType } from '@/models/enquiry.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 const router = useRouter()

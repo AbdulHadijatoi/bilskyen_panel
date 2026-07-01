@@ -14,7 +14,7 @@
       }"
     >
       <Header />
-      <div :style="{ padding: '1.5rem', paddingBottom: '3rem' }">
+      <div class="panel-content">
         <router-view v-slot="{ Component, route }">
           <transition
             :name="getTransitionName(route.meta.transition)"

@@ -1,13 +1,9 @@
 <template>
-  <div>
-    <div class="d-flex justify-space-between align-center mb-4">
-      <div>
-        <h2 class="text-h5 font-weight-bold mb-1">{{ t('dealer.views.favorites.title') }}</h2>
-        <p class="text-body-2 text-medium-emphasis">
-          {{ t('dealer.views.favorites.subtitle') }}
-        </p>
-      </div>
-    </div>
+  <div class="panel-page">
+    <PageHeader
+      :title="t('dealer.views.favorites.title')"
+      :subtitle="t('dealer.views.favorites.subtitle')"
+    />
 
     <v-card
       variant="outlined"
@@ -107,6 +103,7 @@ import { getFavorites, removeFavorite as removeFavoriteApi } from '@/api/dealer.
 import type { PaginationModel } from '@/models/pagination.model'
 import type { VehicleModel } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const router = useRouter()
 const { t } = useI18n()

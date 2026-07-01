@@ -1,37 +1,36 @@
 <template>
-  <div class="dealer-analytics">
+  <div class="panel-page dealer-analytics">
     <!-- Header -->
-    <div class="analytics-header mb-6">
-      <div>
-        <h1 class="text-h4 font-weight-bold mb-2">{{ t('dealer.views.analytics.title') }}</h1>
-        <p class="text-body-1 text-medium-emphasis">
-          {{ t('dealer.views.analytics.subtitle') }}
-        </p>
-      </div>
-      <DateRangeFilter v-model="dateRange" @update:model-value="loadAllAnalytics" />
-      <div class="d-flex align-center gap-2 flex-wrap">
-        <v-switch
-          v-model="comparePeriod"
-          :label="t('dealer.views.analytics.comparePeriod')"
-          hide-details
-          density="compact"
-          color="primary"
-          @update:model-value="loadFunnel"
-        />
-        <v-menu>
-          <template #activator="{ props: menuProps }">
-            <v-btn v-bind="menuProps" variant="outlined" prepend-icon="mdi-download" size="small">
-              {{ t('dealer.views.analytics.export') }}
-            </v-btn>
-          </template>
-          <v-list density="compact">
-            <v-list-item title="Funnel" @click="exportReport('funnel')" />
-            <v-list-item title="Assignees" @click="exportReport('assignees')" />
-            <v-list-item title="Stock" @click="exportReport('stock')" />
-          </v-list>
-        </v-menu>
-      </div>
-    </div>
+    <PageHeader
+      :title="t('dealer.views.analytics.title')"
+      :subtitle="t('dealer.views.analytics.subtitle')"
+    >
+      <template #actions>
+        <div class="d-flex align-center gap-2 flex-wrap">
+          <DateRangeFilter v-model="dateRange" @update:model-value="loadAllAnalytics" />
+          <v-switch
+            v-model="comparePeriod"
+            :label="t('dealer.views.analytics.comparePeriod')"
+            hide-details
+            density="compact"
+            color="primary"
+            @update:model-value="loadFunnel"
+          />
+          <v-menu>
+            <template #activator="{ props: menuProps }">
+              <v-btn v-bind="menuProps" variant="outlined" prepend-icon="mdi-download" size="small">
+                {{ t('dealer.views.analytics.export') }}
+              </v-btn>
+            </template>
+            <v-list density="compact">
+              <v-list-item title="Funnel" @click="exportReport('funnel')" />
+              <v-list-item title="Assignees" @click="exportReport('assignees')" />
+              <v-list-item title="Stock" @click="exportReport('stock')" />
+            </v-list>
+          </v-menu>
+        </div>
+      </template>
+    </PageHeader>
 
     <v-alert
       v-if="sectionErrors.length"
@@ -583,6 +582,7 @@ import {
   formatSubscriptionStatus,
   getFeatureDisplayName,
 } from '@/utils/analyticsDisplay'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 const dateRange = ref<DateRange>('30d')

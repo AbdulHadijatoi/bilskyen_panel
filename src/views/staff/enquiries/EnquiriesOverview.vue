@@ -1,28 +1,23 @@
 <template>
-  <div class="enquiries-overview">
+  <div class="panel-page enquiries-overview">
     <!-- Header Section -->
-    <div class="header-section mb-6">
-      <div class="d-flex justify-space-between align-center flex-wrap gap-4">
-        <div>
-          <h1 class="text-h4 font-weight-bold mb-1">Customer Enquiries</h1>
-          <p class="text-body-2 text-medium-emphasis mb-0">
-            Manage and respond to customer enquiries for your vehicles
-          </p>
-        </div>
-        <div class="d-flex gap-2">
-          <v-btn
-            icon
-            variant="outlined"
-            size="small"
-            @click="loadEnquiries"
-            :loading="loading"
-            title="Refresh"
-          >
-            <v-icon>mdi-refresh</v-icon>
-          </v-btn>
-        </div>
-      </div>
-    </div>
+    <PageHeader
+      title="Customer Enquiries"
+      subtitle="Manage and respond to customer enquiries for your vehicles"
+    >
+      <template #actions>
+        <v-btn
+          icon
+          variant="outlined"
+          size="small"
+          @click="loadEnquiries"
+          :loading="loading"
+          title="Refresh"
+        >
+          <v-icon>mdi-refresh</v-icon>
+        </v-btn>
+      </template>
+    </PageHeader>
 
     <!-- Stats Cards -->
     <v-row class="mb-6" v-if="!loading && !error">
@@ -450,6 +445,7 @@ import type { EnquiryModel } from '@/models/enquiry.model'
 import { EnquiryStatus, EnquiryType } from '@/models/enquiry.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import type { PaginationModel, PaginationParams } from '@/models/pagination.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 const router = useRouter()

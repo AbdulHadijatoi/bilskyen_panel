@@ -1,14 +1,10 @@
 <template>
-  <div class="audit-logs-management">
+  <div class="panel-page audit-logs-management">
     <!-- Header -->
-    <div class="header-section mb-6">
-      <div>
-        <h1 class="text-h4 font-weight-bold mb-1">Audit Logs</h1>
-        <p class="text-body-2 text-medium-emphasis">
-          View and filter audit logs for your dealer account. Track all system activities and changes.
-        </p>
-      </div>
-    </div>
+    <PageHeader
+      title="Audit Logs"
+      subtitle="View and filter audit logs for your dealer account. Track all system activities and changes."
+    />
 
     <!-- Two Row Layout -->
     <div class="audit-logs-layout">
@@ -260,6 +256,7 @@ import { useI18n } from 'vue-i18n'
 import { ref, computed, onMounted, watch } from 'vue'
 import { getAuditLogs, type DealerAuditLogModel } from '@/api/staff.api'
 import type { PaginationModel } from '@/models/pagination.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 

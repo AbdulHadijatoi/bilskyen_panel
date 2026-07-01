@@ -1,11 +1,9 @@
 <template>
-  <div class="invoices-overview">
-    <div class="d-flex justify-space-between align-center mb-6">
-      <div>
-        <h1 class="text-h5 font-weight-medium mb-1">{{ t('admin.views.invoices.title') }}</h1>
-        <p class="text-body-2 text-medium-emphasis">{{ t('admin.views.invoices.subtitle') }}</p>
-      </div>
-    </div>
+  <div class="panel-page invoices-overview">
+    <PageHeader
+      :title="t('admin.views.invoices.title')"
+      :subtitle="t('admin.views.invoices.subtitle')"
+    />
 
     <v-card variant="flat" class="mb-4">
       <v-card-text class="pa-4">
@@ -131,6 +129,7 @@ import {
   type DealerInvoiceModel,
 } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 

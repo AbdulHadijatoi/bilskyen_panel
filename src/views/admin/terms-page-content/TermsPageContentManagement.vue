@@ -1,5 +1,5 @@
 <template>
-  <div class="terms-page-content-container">
+  <div class="panel-page terms-page-content-container">
     <div class="page-header">
       <div class="header-content">
         <h2 class="page-title">{{ t('admin.views.termsPageContent.title') }}</h2>

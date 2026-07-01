@@ -1,14 +1,11 @@
 <template>
-  <div class="translations-import-container">
+  <div class="panel-page translations-import-container">
     <!-- Header Section -->
-    <div class="header-section mb-6">
-      <div class="d-flex justify-space-between align-center">
-        <div>
-          <h1 class="text-h4 font-weight-bold mb-1">Import Translations</h1>
-          <p class="text-body-2 text-medium-emphasis mb-0">
-            Bulk import translations from Excel or CSV files
-          </p>
-        </div>
+    <PageHeader
+      title="Import Translations"
+      subtitle="Bulk import translations from Excel or CSV files"
+    >
+      <template #actions>
         <v-btn
           color="primary"
           prepend-icon="mdi-arrow-left"
@@ -18,8 +15,8 @@
         >
           Back to Management
         </v-btn>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
     <!-- Instructions Card -->
     <v-card variant="flat" class="mb-6" elevation="1">
@@ -190,6 +187,7 @@ validation_required,This field is required,This field is required,Dette felt er 
 <script setup lang="ts">
 import { ref } from 'vue'
 import { translationService } from '@/services/translationService'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const importFile = ref<File | null>(null)
 const importing = ref(false)

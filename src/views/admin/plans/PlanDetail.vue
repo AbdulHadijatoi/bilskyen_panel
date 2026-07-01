@@ -1,33 +1,24 @@
 <template>
-  <div class="plan-detail">
+  <div class="panel-page plan-detail">
     <!-- Header -->
-    <div class="d-flex justify-space-between align-center mb-4">
-      <div>
+    <PageHeader
+      :title="plan?.name || t('admin.views.plans.planDetails')"
+      :subtitle="plan?.slug || t('admin.views.plans.planDetailsSubtitle')"
+      show-back
+    >
+      <template #actions>
         <v-btn
-          icon
-          variant="text"
-          @click="router.back()"
+          v-if="plan"
+          :color="editMode ? 'error' : 'primary'"
+          variant="flat"
+          :prepend-icon="editMode ? 'mdi-close' : 'mdi-pencil'"
+          @click="editMode = !editMode"
           size="small"
-          class="mb-2"
         >
-          <v-icon>mdi-arrow-left</v-icon>
+          {{ editMode ? 'Cancel' : 'Edit' }}
         </v-btn>
-        <h1 class="text-h5 font-weight-medium mb-1">{{ plan?.name || t('admin.views.plans.planDetails') }}</h1>
-        <p class="text-body-2 text-medium-emphasis">
-          {{ plan?.slug || t('admin.views.plans.planDetailsSubtitle') }}
-        </p>
-      </div>
-      <v-btn
-        v-if="plan"
-        :color="editMode ? 'error' : 'primary'"
-        variant="flat"
-        :prepend-icon="editMode ? 'mdi-close' : 'mdi-pencil'"
-        @click="editMode = !editMode"
-        size="small"
-      >
-        {{ editMode ? 'Cancel' : 'Edit' }}
-      </v-btn>
-    </div>
+      </template>
+    </PageHeader>
 
     <!-- Loading State -->
     <div v-if="loading" class="text-center py-12">
@@ -688,6 +679,7 @@ import {
 } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import { featureDisplayName as featureDisplayNameUtil } from '@/utils/featureDisplay'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 const route = useRoute()

@@ -1,5 +1,5 @@
 <template>
-  <div class="constant-list">
+  <div class="panel-page constant-list">
     <!-- Loading State -->
     <div v-if="loading" class="list-state">
       <v-progress-circular indeterminate color="primary" size="32" />

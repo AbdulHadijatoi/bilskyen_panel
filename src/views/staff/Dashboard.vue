@@ -1,24 +1,19 @@
 <template>
-  <div class="staff-dashboard">
+  <div class="panel-page staff-dashboard">
     <!-- Header -->
-    <div class="dashboard-header mb-6">
-      <div>
-        <h1 class="text-h4 font-weight-bold mb-2">Staff Dashboard</h1>
-        <p class="text-body-1 text-medium-emphasis">
-          Overview of your vehicles, leads, and key metrics
-        </p>
-      </div>
-      <v-btn
-        color="primary"
-        prepend-icon="mdi-refresh"
-        @click="loadDashboard"
-        :loading="loading"
-        size="small"
-        variant="outlined"
-      >
-        Refresh
-      </v-btn>
-    </div>
+    <PageHeader title="Staff Dashboard" subtitle="Overview of your vehicles, leads, and key metrics">
+      <template #actions>
+        <button
+          type="button"
+          class="panel-btn panel-btn--outline panel-btn--sm"
+          :disabled="loading"
+          @click="loadDashboard"
+        >
+          <v-icon size="14">mdi-refresh</v-icon>
+          Refresh
+        </button>
+      </template>
+    </PageHeader>
 
     <!-- Loading State -->
     <div v-if="loading && !stats" class="loading-container">
@@ -229,20 +224,14 @@
               <span>Vehicle Creation Trend (30 Days)</span>
             </v-card-title>
             <v-card-text>
-              <div class="trend-chart">
-                <div class="trend-bars">
-                  <div
-                    v-for="(day, index) in stats.trends.vehicles"
-                    :key="index"
-                    class="trend-bar-item"
-                    :style="{ height: `${Math.max((day.count / Math.max(...stats.trends.vehicles.map(d => d.count), 1)) * 100, 5)}%` }"
-                    :title="`${day.date}: ${day.count} vehicles`"
-                  />
-                </div>
-                <div class="trend-labels">
-                  <span class="text-caption text-medium-emphasis">30 days ago</span>
-                  <span class="text-caption text-medium-emphasis">Today</span>
-                </div>
+              <TrendAreaChart
+                :points="stats.trends.vehicles"
+                color="#10b981"
+                value-label="Vehicles"
+              />
+              <div class="trend-area-chart__labels">
+                <span>30 days ago</span>
+                <span>Today</span>
               </div>
             </v-card-text>
           </v-card>
@@ -360,6 +349,8 @@ import { useRouter } from 'vue-router'
 import { getDashboardStats, type DashboardStats } from '@/api/staff.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import FinancialOverviewChart from '@/components/staff/dashboard/FinancialOverviewChart.vue'
+import TrendAreaChart from '@/components/panel/TrendAreaChart.vue'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 const router = useRouter()

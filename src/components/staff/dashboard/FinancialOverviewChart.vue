@@ -130,7 +130,7 @@ const hexToRgba = (hex: string, alpha: number) => {
 
 const rgbToHex = (rgb: string) => {
   const match = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/)
-  if (!match || !match[1] || !match[2] || !match[3]) return '#3b82f6'
+  if (!match || !match[1] || !match[2] || !match[3]) return '#03418b'
   return '#' + [1, 2, 3].map(i => {
     const hex = parseInt(match[i]!).toString(16)
     return hex.length === 1 ? '0' + hex : hex
@@ -253,7 +253,7 @@ const chartOption = computed(() => {
         },
         lineStyle: {
           color: chart1Rgb,
-          width: 0,
+          width: 2,
         },
         data: data.map((d) => d.revenue),
         smooth: true,
@@ -277,7 +277,7 @@ const chartOption = computed(() => {
         },
         lineStyle: {
           color: chart2Rgb,
-          width: 0,
+          width: 2,
         },
         data: data.map((d) => d.expense),
         smooth: true,
@@ -301,7 +301,7 @@ const chartOption = computed(() => {
         },
         lineStyle: {
           color: chart3Rgb,
-          width: 0,
+          width: 2,
         },
         data: data.map((d) => d.netProfit),
         smooth: true,
@@ -325,7 +325,7 @@ const chartOption = computed(() => {
         },
         lineStyle: {
           color: chart4Rgb,
-          width: 0,
+          width: 2,
         },
         data: data.map((d) => d.profitMargin),
         smooth: true,

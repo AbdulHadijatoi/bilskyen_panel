@@ -1,5 +1,5 @@
 <template>
-  <div class="flex w-full flex-col gap-4">
+  <div class="panel-page flex w-full flex-col gap-4">
     <div>
       <h2 class="text-xl font-bold">{{ t('dealer.views.sessions.title') }}</h2>
       <p class="text-muted-foreground max-w-2xl">View and manage your active sessions.</p>

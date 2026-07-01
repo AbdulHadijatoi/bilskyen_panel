@@ -1,15 +1,12 @@
 <template>
-  <div class="vehicles-overview-container">
+  <div class="panel-page vehicles-overview-container">
     <!-- Header Section -->
-    <div class="header-section mb-6">
-      <div class="d-flex justify-space-between align-center">
-  <div>
-          <h1 class="text-h4 font-weight-bold mb-1">{{ t('staff.views.vehicles.title') }}</h1>
-          <p class="text-body-2 text-medium-emphasis mb-0">
-          {{ t('dealer.views.vehicles.subtitle') }}
-        </p>
-      </div>
-      <div class="d-flex gap-2 flex-wrap">
+    <PageHeader
+      :title="t('staff.views.vehicles.title')"
+      :subtitle="t('dealer.views.vehicles.subtitle')"
+    >
+      <template #actions>
+        <div class="d-flex gap-2 flex-wrap">
         <v-btn
           v-if="hasPermission('staff.vehicles.create')"
           variant="outlined"
@@ -28,9 +25,9 @@
         >
           {{ t('staff.views.vehicles.addVehicle') }}
         </v-btn>
-      </div>
-    </div>
-    </div>
+        </div>
+      </template>
+    </PageHeader>
 
     <!-- Stats Cards -->
     <v-row class="mb-6">
@@ -320,6 +317,7 @@ import type { PaginationModel } from '@/models/pagination.model'
 import type { VehicleModel } from '@/models/vehicle.model'
 import type { VehicleStatus } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const router = useRouter()
 const { t } = useI18n()

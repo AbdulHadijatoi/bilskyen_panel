@@ -1,38 +1,30 @@
 <template>
-  <div>
-    <!-- Header -->
-    <div class="d-flex flex-column flex-md-row justify-space-between align-start align-md-center mb-4 gap-3">
-      <div class="flex-grow-1">
-        <h2 class="text-h5 font-weight-bold mb-1">{{ t('dealer.views.leads.title') }}</h2>
-        <p class="text-body-2 text-medium-emphasis">
-          {{ t('dealer.views.leads.subtitle') }}
-        </p>
-      </div>
-      <div class="d-flex gap-2 align-center w-100 w-md-auto">
-        <v-btn-toggle
-          v-model="viewMode"
-          mandatory
-          variant="outlined"
-          density="compact"
-          class="flex-grow-1 flex-md-grow-0"
-        >
-          <v-btn value="kanban" prepend-icon="mdi-view-column">
-            <span class="d-none d-sm-inline">{{ t('dealer.views.leads.kanban') }}</span>
+  <div class="panel-page">
+    <PageHeader
+      :title="t('dealer.views.leads.title')"
+      :subtitle="t('dealer.views.leads.subtitle')"
+    >
+      <template #actions>
+        <div class="d-flex gap-2 align-center flex-wrap">
+          <v-btn-toggle
+            v-model="viewMode"
+            mandatory
+            variant="outlined"
+            density="compact"
+          >
+            <v-btn value="kanban" prepend-icon="mdi-view-column">
+              <span class="d-none d-sm-inline">{{ t('dealer.views.leads.kanban') }}</span>
+            </v-btn>
+            <v-btn value="table" prepend-icon="mdi-table">
+              <span class="d-none d-sm-inline">{{ t('dealer.views.leads.table') }}</span>
+            </v-btn>
+          </v-btn-toggle>
+          <v-btn v-if="!showAnalytics" icon variant="text" @click="showAnalytics = true">
+            <v-icon>mdi-chart-box</v-icon>
           </v-btn>
-          <v-btn value="table" prepend-icon="mdi-table">
-            <span class="d-none d-sm-inline">{{ t('dealer.views.leads.table') }}</span>
-          </v-btn>
-        </v-btn-toggle>
-        <v-btn
-          v-if="!showAnalytics"
-          icon
-          variant="text"
-          @click="showAnalytics = true"
-        >
-          <v-icon>mdi-chart-box</v-icon>
-        </v-btn>
-      </div>
-    </div>
+        </div>
+      </template>
+    </PageHeader>
 
     <!-- Filters and Search -->
     <div class="filters-container mb-4">
@@ -506,6 +498,7 @@ import {
 } from '@/utils/leadHelpers'
 import LeadCard from '@/components/dealer/LeadCard.vue'
 import AnalyticsSidebar from '@/components/dealer/AnalyticsSidebar.vue'
+import PageHeader from '@/components/panel/PageHeader.vue'
 import { useLeadStagesStore } from '@/stores/leadStages.store'
 
 const router = useRouter()

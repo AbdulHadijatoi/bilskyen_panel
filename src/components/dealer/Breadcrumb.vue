@@ -38,11 +38,13 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { DEALER_ROUTE_BASE } from '@/constants/dealer'
 import { ADMIN_ROUTE_BASE } from '@/constants/admin'
+import { STAFF_ROUTE_BASE } from '@/constants/staff'
 
 const route = useRoute()
 const { t } = useI18n()
 
 const isAdmin = computed(() => route.path.startsWith(ADMIN_ROUTE_BASE))
+const isStaff = computed(() => route.path.startsWith(STAFF_ROUTE_BASE))
 
 const BREADCRUMB_KEY_MAP: Record<string, string> = {
   'user-profile': 'breadcrumb.userProfile',
@@ -74,16 +76,26 @@ const ADMIN_BREADCRUMB_KEY_MAP: Record<string, string> = {
   import: 'admin.breadcrumb.import',
 }
 
-const base = computed(() => (isAdmin.value ? ADMIN_ROUTE_BASE : DEALER_ROUTE_BASE))
+const base = computed(() => {
+  if (isAdmin.value) return ADMIN_ROUTE_BASE
+  if (isStaff.value) return STAFF_ROUTE_BASE
+  return DEALER_ROUTE_BASE
+})
 
-const label = computed(() =>
-  isAdmin.value ? t('admin.breadcrumb.dashboard') : t('breadcrumb.dashboard')
-)
+const label = computed(() => {
+  if (isAdmin.value) return t('admin.breadcrumb.dashboard')
+  if (isStaff.value) return t('breadcrumb.dashboard')
+  return t('breadcrumb.dashboard')
+})
 
 const visibleSegments = computed(() => {
   const path = route.path
   if (isAdmin.value) {
     const relativePath = path.replace(new RegExp(`^${ADMIN_ROUTE_BASE}/?`), '')
+    return relativePath ? relativePath.split('/').filter(Boolean) : []
+  }
+  if (isStaff.value) {
+    const relativePath = path.replace(new RegExp(`^${STAFF_ROUTE_BASE}/?`), '')
     return relativePath ? relativePath.split('/').filter(Boolean) : []
   }
   if (!path.startsWith(DEALER_ROUTE_BASE)) return []
@@ -156,7 +168,8 @@ const getLabel = (segment: string) => {
 
 .breadcrumb-page {
   color: var(--foreground) !important;
-  font-weight: 400;
+  font-weight: 600;
+  font-size: 0.9375rem;
   visibility: visible !important;
   opacity: 1 !important;
 }

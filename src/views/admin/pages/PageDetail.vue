@@ -1,29 +1,21 @@
 <template>
-  <div>
-    <div class="d-flex justify-space-between align-center mb-4">
-      <div>
+  <div class="panel-page">
+    <PageHeader
+      title="Page Editor"
+      subtitle="Edit page content and settings."
+      show-back
+    >
+      <template #actions>
         <v-btn
-          icon
-          variant="text"
-          @click="router.back()"
-          class="mb-2"
+          v-if="page"
+          color="primary"
+          @click="updatePage"
+          :loading="updating"
         >
-          <v-icon>mdi-arrow-left</v-icon>
+          Save Changes
         </v-btn>
-        <h2 class="text-h5 font-weight-bold mb-1">Page Editor</h2>
-        <p class="text-body-2 text-medium-emphasis">
-          Edit page content and settings.
-        </p>
-      </div>
-      <v-btn
-        v-if="page"
-        color="primary"
-        @click="updatePage"
-        :loading="updating"
-      >
-        Save Changes
-      </v-btn>
-    </div>
+      </template>
+    </PageHeader>
 
     <div v-if="loading" class="text-center py-8">
       <v-progress-circular indeterminate color="primary" />
@@ -84,6 +76,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getPage, updatePage as updatePageApi, publishPage as publishPageApi, type UpdatePageData, type PageModel } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -115,7 +108,7 @@ const loadPage = async () => {
       content: loadedPage.content || '',
     }
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || t('admin.views.seo.failedLoadPage')
+    error.value = (err as ApiErrorModel).message || t('admin.seoContent.failedLoadPage')
   } finally {
     loading.value = false
   }

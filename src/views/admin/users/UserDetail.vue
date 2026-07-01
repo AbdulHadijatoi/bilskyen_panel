@@ -1,23 +1,12 @@
 <template>
-  <div class="user-detail-container">
+  <div class="panel-page user-detail-container">
     <!-- Header Section -->
-    <div class="header-section mb-6">
-      <div class="d-flex align-center gap-4 mb-4">
-        <v-btn
-          icon
-          variant="text"
-          @click="router.back()"
-          size="large"
-          class="back-button"
-        >
-          <v-icon>mdi-arrow-left</v-icon>
-        </v-btn>
-        <div class="flex-grow-1">
-          <h1 class="text-h4 font-weight-bold mb-1">User Details</h1>
-          <p class="text-body-2 text-medium-emphasis mb-0">
-            Manage user account information and settings
-          </p>
-        </div>
+    <PageHeader
+      title="User Details"
+      subtitle="Manage user account information and settings"
+      show-back
+    >
+      <template #actions>
         <v-btn
           v-if="user && !editMode"
           color="primary"
@@ -45,8 +34,8 @@
             Save Changes
           </v-btn>
         </div>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
     <!-- Loading State -->
     <div v-if="loading" class="loading-container">
@@ -464,6 +453,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { getUser, updateUser as updateUserApi, banUser as banUserApi, unbanUser as unbanUserApi, changeUserPassword, getRoles, type UpdateUserData, type RoleModel } from '@/api/admin.api'
 import type { UserModel } from '@/models/user.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 const route = useRoute()

@@ -1,28 +1,16 @@
 <template>
-  <div class="enquiries-overview">
-    <!-- Header Section -->
-    <div class="header-section mb-6">
-      <div class="d-flex justify-space-between align-center flex-wrap gap-4">
-        <div>
-          <h1 class="text-h4 font-weight-bold mb-1">{{ t('dealer.views.enquiries.title') }}</h1>
-          <p class="text-body-2 text-medium-emphasis mb-0">
-            {{ t('dealer.views.enquiries.subtitle') }}
-          </p>
-        </div>
-        <div class="d-flex gap-2">
-          <v-btn
-            icon
-            variant="outlined"
-            size="small"
-            @click="loadEnquiries"
-            :loading="loading"
-            :title="t('dealer.views.enquiries.refresh')"
-          >
-            <v-icon>mdi-refresh</v-icon>
-          </v-btn>
-        </div>
-      </div>
-    </div>
+  <div class="panel-page enquiries-overview">
+    <PageHeader
+      :title="t('dealer.views.enquiries.title')"
+      :subtitle="t('dealer.views.enquiries.subtitle')"
+    >
+      <template #actions>
+        <button type="button" class="panel-btn panel-btn--outline panel-btn--sm" :disabled="loading" @click="loadEnquiries">
+          <v-icon size="14">mdi-refresh</v-icon>
+          {{ t('dealer.views.enquiries.refresh') }}
+        </button>
+      </template>
+    </PageHeader>
 
     <!-- Stats Cards -->
     <v-row class="mb-6" v-if="!loading && !error">
@@ -450,6 +438,7 @@ import type { EnquiryModel } from '@/models/enquiry.model'
 import { EnquiryStatus, EnquiryType } from '@/models/enquiry.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import type { PaginationModel, PaginationParams } from '@/models/pagination.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const router = useRouter()
 const { t } = useI18n()

@@ -1,5 +1,5 @@
 <template>
-  <div class="pa-4">
+  <div class="panel-page pa-4">
     <h1 class="text-h5 mb-4">{{ t('admin.cms.media.title') }}</h1>
     <v-file-input v-model="uploadFiles" :label="t('admin.cms.media.upload')" accept="image/*" prepend-icon="mdi-upload" class="mb-4" @update:model-value="onUpload" />
     <v-row>

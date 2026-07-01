@@ -1,32 +1,27 @@
 <template>
-  <div class="admin-dashboard">
-    <!-- Header -->
-    <div class="dashboard-header mb-6">
-      <div>
-        <h1 class="text-h4 font-weight-bold mb-2">{{ t('admin.views.dashboard.title') }}</h1>
-        <p class="text-body-1 text-medium-emphasis">
-          {{ t('admin.views.dashboard.subtitle') }}
-        </p>
-      </div>
-      <v-btn
-        color="primary"
-        prepend-icon="mdi-refresh"
-        @click="loadDashboard"
-        :loading="loading"
-        size="small"
-        variant="outlined"
-      >
-        {{ t('common.refresh') }}
-      </v-btn>
+  <div class="panel-page admin-dashboard">
+    <PageHeader
+      :title="t('admin.views.dashboard.title')"
+      :subtitle="t('admin.views.dashboard.subtitle')"
+    >
+      <template #actions>
+        <button
+          type="button"
+          class="panel-btn panel-btn--outline panel-btn--sm"
+          :disabled="loading"
+          @click="loadDashboard"
+        >
+          <v-icon size="14">mdi-refresh</v-icon>
+          {{ t('common.refresh') }}
+        </button>
+      </template>
+    </PageHeader>
+
+    <div v-if="loading && !stats" class="panel-loading">
+      <v-progress-circular indeterminate color="primary" size="48" />
+      <p>{{ t('admin.views.dashboard.loadingData') }}</p>
     </div>
 
-    <!-- Loading State -->
-    <div v-if="loading && !stats" class="loading-container">
-      <v-progress-circular indeterminate color="primary" size="64" />
-      <p class="text-body-1 text-medium-emphasis mt-4">{{ t('admin.views.dashboard.loadingData') }}</p>
-    </div>
-
-    <!-- Error State -->
     <v-alert
       v-else-if="error"
       type="error"
@@ -38,191 +33,88 @@
       {{ error }}
     </v-alert>
 
-    <!-- Dashboard Content -->
     <div v-else-if="stats">
-      <!-- Statistics Cards -->
-      <v-row class="mb-6">
+      <v-row class="mb-5">
         <v-col cols="12" sm="6" md="3">
-          <v-card
-            variant="flat"
-            class="stat-card stat-card-users"
-            elevation="2"
-          >
-            <v-card-text class="pa-4">
-              <div class="d-flex align-center justify-space-between mb-3">
-                <v-icon size="40" color="primary">mdi-account-group</v-icon>
-                <v-chip
-                  :color="stats.overview.users.growth_rate >= 0 ? 'success' : 'error'"
-                  size="x-small"
-                  variant="flat"
-                >
-                  <v-icon start size="14">
-                    {{ stats.overview.users.growth_rate >= 0 ? 'mdi-trending-up' : 'mdi-trending-down' }}
-                  </v-icon>
-                  {{ Math.abs(stats.overview.users.growth_rate) }}%
-                </v-chip>
-              </div>
-              <div class="text-h4 font-weight-bold mb-1">
-                {{ formatNumber(stats.overview.users.total) }}
-              </div>
-              <div class="text-caption text-medium-emphasis mb-2">{{ t('admin.views.dashboard.totalUsers') }}</div>
-              <div class="text-caption">
-                <v-icon size="12" class="mr-1">mdi-calendar-week</v-icon>
-                {{ stats.overview.users.new_last_7_days }} {{ t('admin.views.dashboard.newThisWeek') }}
-              </div>
-            </v-card-text>
-          </v-card>
+          <StatMetricCard
+            icon="mdi-account-group"
+            icon-color="primary"
+            :value="formatNumber(stats.overview.users.total)"
+            :label="t('admin.views.dashboard.totalUsers')"
+            :badge="growthBadge(stats.overview.users.growth_rate)"
+            :footer="{ icon: 'mdi-calendar-week', text: `${stats.overview.users.new_last_7_days} ${t('admin.views.dashboard.newThisWeek')}` }"
+            :detail-link="{ to: { name: 'admin.users' }, label: t('admin.views.dashboard.viewAll') }"
+          />
         </v-col>
-
         <v-col cols="12" sm="6" md="3">
-          <v-card
-            variant="flat"
-            class="stat-card stat-card-dealers"
-            elevation="2"
-          >
-            <v-card-text class="pa-4">
-              <div class="d-flex align-center justify-space-between mb-3">
-                <v-icon size="40" color="info">mdi-store</v-icon>
-                <v-chip
-                  :color="stats.overview.dealers.growth_rate >= 0 ? 'success' : 'error'"
-                  size="x-small"
-                  variant="flat"
-                >
-                  <v-icon start size="14">
-                    {{ stats.overview.dealers.growth_rate >= 0 ? 'mdi-trending-up' : 'mdi-trending-down' }}
-                  </v-icon>
-                  {{ Math.abs(stats.overview.dealers.growth_rate) }}%
-                </v-chip>
-              </div>
-              <div class="text-h4 font-weight-bold mb-1">
-                {{ formatNumber(stats.overview.dealers.total) }}
-              </div>
-              <div class="text-caption text-medium-emphasis mb-2">{{ t('admin.views.dashboard.totalDealers') }}</div>
-              <div class="text-caption">
-                <v-icon size="12" class="mr-1">mdi-calendar-week</v-icon>
-                {{ stats.overview.dealers.new_last_7_days }} {{ t('admin.views.dashboard.newThisWeek') }}
-              </div>
-            </v-card-text>
-          </v-card>
+          <StatMetricCard
+            icon="mdi-store"
+            icon-color="info"
+            :value="formatNumber(stats.overview.dealers.total)"
+            :label="t('admin.views.dashboard.totalDealers')"
+            :badge="growthBadge(stats.overview.dealers.growth_rate)"
+            :footer="{ icon: 'mdi-calendar-week', text: `${stats.overview.dealers.new_last_7_days} ${t('admin.views.dashboard.newThisWeek')}` }"
+          />
         </v-col>
-
         <v-col cols="12" sm="6" md="3">
-          <v-card
-            variant="flat"
-            class="stat-card stat-card-vehicles"
-            elevation="2"
-          >
-            <v-card-text class="pa-4">
-              <div class="d-flex align-center justify-space-between mb-3">
-                <v-icon size="40" color="success">mdi-car</v-icon>
-                <v-chip
-                  :color="stats.overview.vehicles.growth_rate >= 0 ? 'success' : 'error'"
-                  size="x-small"
-                  variant="flat"
-                >
-                  <v-icon start size="14">
-                    {{ stats.overview.vehicles.growth_rate >= 0 ? 'mdi-trending-up' : 'mdi-trending-down' }}
-                  </v-icon>
-                  {{ Math.abs(stats.overview.vehicles.growth_rate) }}%
-                </v-chip>
-              </div>
-              <div class="text-h4 font-weight-bold mb-1">
-                {{ formatNumber(stats.overview.vehicles.total) }}
-              </div>
-              <div class="text-caption text-medium-emphasis mb-2">{{ t('admin.views.dashboard.totalVehicles') }}</div>
-              <div class="text-caption">
-                <v-icon size="12" class="mr-1">mdi-check-circle</v-icon>
-                {{ stats.overview.vehicles.published }} {{ t('admin.views.dashboard.published') }}
-              </div>
-            </v-card-text>
-          </v-card>
+          <StatMetricCard
+            icon="mdi-car"
+            icon-color="success"
+            :value="formatNumber(stats.overview.vehicles.total)"
+            :label="t('admin.views.dashboard.totalVehicles')"
+            :badge="growthBadge(stats.overview.vehicles.growth_rate)"
+            :footer="{ icon: 'mdi-check-circle', text: `${stats.overview.vehicles.published} ${t('admin.views.dashboard.published')}` }"
+            :detail-link="{ to: { name: 'admin.vehicles' }, label: t('admin.views.dashboard.viewAll') }"
+          />
         </v-col>
-
         <v-col cols="12" sm="6" md="3">
-          <v-card
-            variant="flat"
-            class="stat-card stat-card-subscriptions"
-            elevation="2"
-          >
-            <v-card-text class="pa-4">
-              <div class="d-flex align-center justify-space-between mb-3">
-                <v-icon size="40" color="warning">mdi-crown</v-icon>
-                <v-chip
-                  :color="stats.overview.subscriptions.growth_rate >= 0 ? 'success' : 'error'"
-                  size="x-small"
-                  variant="flat"
-                >
-                  <v-icon start size="14">
-                    {{ stats.overview.subscriptions.growth_rate >= 0 ? 'mdi-trending-up' : 'mdi-trending-down' }}
-                  </v-icon>
-                  {{ Math.abs(stats.overview.subscriptions.growth_rate) }}%
-                </v-chip>
-              </div>
-              <div class="text-h4 font-weight-bold mb-1">
-                {{ formatNumber(stats.overview.subscriptions.total) }}
-              </div>
-              <div class="text-caption text-medium-emphasis mb-2">{{ t('admin.views.dashboard.totalSubscriptions') }}</div>
-              <div class="text-caption">
-                <v-icon size="12" class="mr-1">mdi-check-circle</v-icon>
-                {{ stats.overview.subscriptions.active }} {{ t('admin.views.dashboard.active') }}
-              </div>
-            </v-card-text>
-          </v-card>
+          <StatMetricCard
+            icon="mdi-crown"
+            icon-color="warning"
+            :value="formatNumber(stats.overview.subscriptions.total)"
+            :label="t('admin.views.dashboard.totalSubscriptions')"
+            :badge="growthBadge(stats.overview.subscriptions.growth_rate)"
+            :footer="{ icon: 'mdi-check-circle', text: `${stats.overview.subscriptions.active} ${t('admin.views.dashboard.active')}` }"
+          />
         </v-col>
       </v-row>
 
-      <!-- Secondary Stats Row -->
       <v-row class="mb-6">
         <v-col cols="12" sm="6" md="3">
-          <v-card variant="flat" class="secondary-stat-card" elevation="1">
-            <v-card-text class="pa-3">
-              <div class="d-flex align-center gap-2 mb-2">
-                <v-icon size="20" color="primary">mdi-account-plus</v-icon>
-                <span class="text-caption text-medium-emphasis">{{ t('admin.views.dashboard.newUsers') }}</span>
-              </div>
-              <div class="text-h6 font-weight-bold">{{ stats.overview.users.new_last_30_days }}</div>
-              <div class="text-caption text-medium-emphasis">{{ t('admin.views.dashboard.last30Days') }}</div>
-            </v-card-text>
-          </v-card>
+          <MiniStatCard
+            icon="mdi-account-plus"
+            icon-color="primary"
+            :label="t('admin.views.dashboard.newUsers')"
+            :value="stats.overview.users.new_last_30_days"
+            :subtitle="t('admin.views.dashboard.last30Days')"
+          />
         </v-col>
-
         <v-col cols="12" sm="6" md="3">
-          <v-card variant="flat" class="secondary-stat-card" elevation="1">
-            <v-card-text class="pa-3">
-              <div class="d-flex align-center gap-2 mb-2">
-                <v-icon size="20" color="success">mdi-car-plus</v-icon>
-                <span class="text-caption text-medium-emphasis">{{ t('admin.views.dashboard.newVehicles') }}</span>
-              </div>
-              <div class="text-h6 font-weight-bold">{{ stats.overview.vehicles.new_last_30_days }}</div>
-              <div class="text-caption text-medium-emphasis">{{ t('admin.views.dashboard.last30Days') }}</div>
-            </v-card-text>
-          </v-card>
+          <MiniStatCard
+            icon="mdi-car-plus"
+            icon-color="success"
+            :label="t('admin.views.dashboard.newVehicles')"
+            :value="stats.overview.vehicles.new_last_30_days"
+            :subtitle="t('admin.views.dashboard.last30Days')"
+          />
         </v-col>
-
         <v-col cols="12" sm="6" md="3">
-          <v-card variant="flat" class="secondary-stat-card" elevation="1">
-            <v-card-text class="pa-3">
-              <div class="d-flex align-center gap-2 mb-2">
-                <v-icon size="20" color="info">mdi-phone-in-talk</v-icon>
-                <span class="text-caption text-medium-emphasis">{{ t('admin.views.dashboard.totalLeads') }}</span>
-              </div>
-              <div class="text-h6 font-weight-bold">{{ formatNumber(stats.overview.leads.total) }}</div>
-              <div class="text-caption text-medium-emphasis">{{ stats.overview.leads.new_last_30_days }} {{ t('admin.views.dashboard.new30d') }}</div>
-            </v-card-text>
-          </v-card>
+          <MiniStatCard
+            icon="mdi-phone-in-talk"
+            icon-color="info"
+            :label="t('admin.views.dashboard.totalLeads')"
+            :value="formatNumber(stats.overview.leads.total)"
+            :subtitle="`${stats.overview.leads.new_last_30_days} ${t('admin.views.dashboard.new30d')}`"
+          />
         </v-col>
-
         <v-col cols="12" sm="6" md="3">
-          <v-card variant="flat" class="secondary-stat-card" elevation="1">
-            <v-card-text class="pa-3">
-              <div class="d-flex align-center gap-2 mb-2">
-                <v-icon size="20" color="warning">mdi-cash</v-icon>
-                <span class="text-caption text-medium-emphasis">{{ t('admin.views.dashboard.avgVehiclePrice') }}</span>
-              </div>
-              <div class="text-h6 font-weight-bold">{{ formatPrice(stats.overview.vehicles.average_price) }}</div>
-              <div class="text-caption text-medium-emphasis">{{ t('admin.views.dashboard.totalValue') }}: {{ formatPrice(stats.overview.vehicles.total_value) }}</div>
-            </v-card-text>
-          </v-card>
+          <MiniStatCard
+            icon="mdi-cash"
+            icon-color="warning"
+            :label="t('admin.views.dashboard.avgVehiclePrice')"
+            :value="formatPrice(stats.overview.vehicles.average_price)"
+            :subtitle="`${t('admin.views.dashboard.totalValue')}: ${formatPrice(stats.overview.vehicles.total_value)}`"
+          />
         </v-col>
       </v-row>
 
@@ -315,20 +207,15 @@
               <span>{{ t('admin.views.dashboard.vehicleCreationTrend') }}</span>
             </v-card-title>
             <v-card-text>
-              <div class="trend-chart">
-                <div class="trend-bars">
-                  <div
-                    v-for="(day, index) in stats.trends.vehicles"
-                    :key="index"
-                    class="trend-bar-item"
-                    :style="{ height: `${Math.max((day.count / Math.max(...stats.trends.vehicles.map(d => d.count))) * 100, 5)}%` }"
-                    :title="`${day.date}: ${day.count} vehicles`"
-                  />
-                </div>
-                <div class="trend-labels">
-                  <span class="text-caption text-medium-emphasis">30 days ago</span>
-                  <span class="text-caption text-medium-emphasis">{{ t('common.today') }}</span>
-                </div>
+              <TrendAreaChart
+                :points="stats.trends.vehicles"
+                color="#10b981"
+                :value-label="t('admin.views.dashboard.totalVehicles')"
+                :empty-text="t('admin.views.dashboard.noRecentVehicles')"
+              />
+              <div class="trend-area-chart__labels">
+                <span>{{ t('admin.views.dashboard.thirtyDaysAgo') }}</span>
+                <span>{{ t('common.today') }}</span>
               </div>
             </v-card-text>
           </v-card>
@@ -342,20 +229,14 @@
               <span>{{ t('admin.views.dashboard.userCreationTrend') }}</span>
             </v-card-title>
             <v-card-text>
-              <div class="trend-chart">
-                <div class="trend-bars">
-                  <div
-                    v-for="(day, index) in stats.trends.users"
-                    :key="index"
-                    class="trend-bar-item"
-                    :style="{ height: `${Math.max((day.count / Math.max(...stats.trends.users.map(d => d.count), 1)) * 100, 5)}%` }"
-                    :title="`${day.date}: ${day.count} users`"
-                  />
-                </div>
-                <div class="trend-labels">
-                  <span class="text-caption text-medium-emphasis">30 days ago</span>
-                  <span class="text-caption text-medium-emphasis">{{ t('common.today') }}</span>
-                </div>
+              <TrendAreaChart
+                :points="stats.trends.users"
+                color="#03418b"
+                :value-label="t('admin.views.dashboard.totalUsers')"
+              />
+              <div class="trend-area-chart__labels">
+                <span>{{ t('admin.views.dashboard.thirtyDaysAgo') }}</span>
+                <span>{{ t('common.today') }}</span>
               </div>
             </v-card-text>
           </v-card>
@@ -533,6 +414,10 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { getDashboardStats, type DashboardStats } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
+import StatMetricCard from '@/components/panel/StatMetricCard.vue'
+import MiniStatCard from '@/components/panel/MiniStatCard.vue'
+import TrendAreaChart from '@/components/panel/TrendAreaChart.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -567,6 +452,14 @@ const formatPrice = (price: number) => {
   }).format(price)
 }
 
+function growthBadge(rate: number) {
+  return {
+    text: `${Math.abs(rate)}%`,
+    variant: (rate >= 0 ? 'success' : 'error') as 'success' | 'error',
+    icon: rate >= 0 ? 'mdi-trending-up' : 'mdi-trending-down',
+  }
+}
+
 const getVehicleStatusColor = (statusId?: number) => {
   const colors: Record<number, string> = {
     1: 'warning', // Draft
@@ -594,75 +487,10 @@ onMounted(() => {
 
 <style scoped>
 .admin-dashboard {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 24px;
-}
-
-.dashboard-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-}
-
-.stat-card {
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, transparent, rgba(var(--v-theme-primary), 0.5), transparent);
-}
-
-.stat-card-users::before {
-  background: linear-gradient(90deg, transparent, rgba(var(--v-theme-primary), 0.5), transparent);
-}
-
-.stat-card-dealers::before {
-  background: linear-gradient(90deg, transparent, rgba(var(--v-theme-info), 0.5), transparent);
-}
-
-.stat-card-vehicles::before {
-  background: linear-gradient(90deg, transparent, rgba(var(--v-theme-success), 0.5), transparent);
-}
-
-.stat-card-subscriptions::before {
-  background: linear-gradient(90deg, transparent, rgba(var(--v-theme-warning), 0.5), transparent);
-}
-
-.stat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
-}
-
-.secondary-stat-card {
-  border-radius: 8px;
-  transition: all 0.2s ease;
-}
-
-.secondary-stat-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  width: 100%;
 }
 
 .chart-card {
-  border-radius: 12px;
   height: 100%;
 }
 
@@ -710,7 +538,6 @@ onMounted(() => {
 }
 
 .recent-card {
-  border-radius: 12px;
   height: 100%;
   max-height: 400px;
   display: flex;
@@ -718,17 +545,16 @@ onMounted(() => {
 }
 
 .recent-card :deep(.v-card-title) {
-  padding: 16px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid var(--border);
 }
 
 .recent-item {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  border-bottom: 1px solid var(--border);
   transition: background-color 0.2s ease;
 }
 
 .recent-item:hover {
-  background-color: rgba(0, 0, 0, 0.02);
+  background-color: var(--muted);
 }
 
 .recent-item:last-child {
@@ -736,14 +562,6 @@ onMounted(() => {
 }
 
 @media (max-width: 960px) {
-  .admin-dashboard {
-    padding: 16px;
-  }
-
-  .dashboard-header {
-    flex-direction: column;
-  }
-
   .trend-bars {
     height: 150px;
   }

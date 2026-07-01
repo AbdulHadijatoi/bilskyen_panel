@@ -1,9 +1,6 @@
 <template>
-  <div>
-    <div class="header-section mb-6">
-      <h1 class="text-h4 font-weight-bold mb-1">{{ t('admin.views.integrations.title') }}</h1>
-      <p class="text-body-2 text-medium-emphasis">{{ t('admin.views.integrations.subtitle') }}</p>
-    </div>
+  <div class="panel-page">
+    <PageHeader :title="t('admin.views.integrations.title')" :subtitle="t('admin.views.integrations.subtitle')" />
 
     <v-tabs v-model="tab" class="mb-4">
       <v-tab value="crm">{{ t('admin.views.integrations.tabCrm') }}</v-tab>
@@ -364,6 +361,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getIntegrations, updateIntegrations, testIntegration, testAiProvider as testAiProviderApi } from '@/api/admin.api'
 import { API_CONFIG } from '@/config/api'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 const tab = ref('crm')

@@ -1,13 +1,9 @@
 <template>
-  <div>
-    <div class="d-flex justify-space-between align-center mb-4">
-      <div>
-        <h2 class="text-h5 font-weight-bold mb-1">Favorites</h2>
-        <p class="text-body-2 text-medium-emphasis">
-          View and manage your favorite vehicles.
-        </p>
-      </div>
-    </div>
+  <div class="panel-page">
+    <PageHeader
+      title="Favorites"
+      subtitle="View and manage your favorite vehicles."
+    />
 
     <v-card
       variant="outlined"
@@ -107,6 +103,7 @@ import { getFavorites, removeFavorite as removeFavoriteApi } from '@/api/staff.a
 import type { PaginationModel } from '@/models/pagination.model'
 import type { VehicleModel } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 const router = useRouter()

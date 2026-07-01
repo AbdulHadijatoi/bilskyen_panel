@@ -1,14 +1,10 @@
 <template>
-  <div class="subscription-page">
+  <div class="panel-page subscription-page">
     <!-- Header -->
-    <div class="d-flex justify-space-between align-center mb-6">
-      <div>
-        <h1 class="text-h5 font-weight-medium mb-1">{{ t('dealer.views.subscription.selectYourPlan') }}</h1>
-        <p class="text-body-2 text-medium-emphasis">
-          {{ t('dealer.views.subscription.pickPlanSubtitle') }}
-        </p>
-      </div>
-    </div>
+    <PageHeader
+      :title="t('dealer.views.subscription.selectYourPlan')"
+      :subtitle="t('dealer.views.subscription.pickPlanSubtitle')"
+    />
 
     <v-alert
       v-if="successMessage"
@@ -307,6 +303,7 @@ import PlanSubscriptionDialog from '@/components/dealer/PlanSubscriptionDialog.v
 import type { ApiErrorModel } from '@/models/api-error.model'
 import { featureDisplayName } from '@/utils/featureDisplay'
 import { getSubscriptionStatusLabel } from '@/utils/analyticsDisplay'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t, locale } = useI18n()
 const route = useRoute()

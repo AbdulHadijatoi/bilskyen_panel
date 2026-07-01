@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="panel-page">
     <div class="d-flex justify-space-between align-center mb-3">
       <div>
         <h2 class="text-h6 font-weight-bold mb-1">Manage Pages</h2>
@@ -241,7 +241,7 @@ const loadPages = async () => {
     const response = await getPages({ page: currentPage.value, limit: 15 })
     pages.value = response
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || t('admin.views.seo.failedLoadPages')
+    error.value = (err as ApiErrorModel).message || t('admin.seoContent.failedLoadPages')
   } finally {
     loading.value = false
   }
@@ -272,7 +272,7 @@ const deletePage = async (id: number | string) => {
     await deletePageApi(id)
     await loadPages()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || t('admin.views.seo.failedDelete')
+    error.value = (err as ApiErrorModel).message || t('admin.seoContent.failedDelete')
   }
 }
 

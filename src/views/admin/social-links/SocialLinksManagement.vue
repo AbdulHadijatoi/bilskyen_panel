@@ -1,5 +1,5 @@
 <template>
-  <div class="social-links-container">
+  <div class="panel-page social-links-container">
     <div class="page-header">
       <div class="header-content">
         <h2 class="page-title">{{ t('admin.views.socialLinks.title') }}</h2>

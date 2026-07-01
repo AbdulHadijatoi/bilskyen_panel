@@ -135,7 +135,9 @@
       "failedRemoveFeaturedVehicle": "Kunne ikke fjerne fremhævet køretøj",
       "failedUpdateUser": "Kunne ikke opdatere bruger",
       "failedBanUser": "Kunne ikke udelukke bruger",
-      "failedUnbanUser": "Kunne ikke genaktivere bruger"
+      "failedUnbanUser": "Kunne ikke genaktivere bruger",
+      "failedSaveLocation": "Kunne ikke gemme lokation",
+      "failedDeleteLocation": "Kunne ikke slette lokation"
     },
     "toggleSidebar": "Skift sidebar",
     "justNow": "Lige nu",
@@ -204,7 +206,8 @@
       "max_vehicle_images": "Maks. billeder pr. køretøj",
       "max_equipment_per_vehicle": "Maks. udstyr pr. køretøj",
       "upload_3d_view": "Upload 3D-visning"
-    }
+    },
+    "system": "System"
   },
   "calendar": {
     "month": "Måned",
@@ -514,7 +517,8 @@
         "noRecentLeads": "Ingen seneste leads",
         "subscriptionStatus": "Abonnementsstatus",
         "vehicleCreationTrend": "Køretøjsoprettelsestendens (30 dage)",
-        "userCreationTrend": "Brugeroprettelsestendens (30 dage)"
+        "userCreationTrend": "Brugeroprettelsestendens (30 dage)",
+        "thirtyDaysAgo": "30 dage siden"
       },
       "users": {
         "title": "Brugeradministration",
@@ -778,7 +782,11 @@
         "monthly": "Månedlig",
         "yearly": "Årlig",
         "currency": "Valuta",
-        "pricingOptional": "Pris (valgfrit - i øre)"
+        "pricingOptional": "Pris (valgfrit - i øre)",
+        "failedLoadPlans": "Kunne ikke indlæse planer",
+        "planDetails": "Plandetaljer",
+        "planDetailsSubtitle": "Se og administrer planoplysninger",
+        "failedCreateSubscription": "Kunne ikke oprette abonnement"
       },
       "subscriptions": {
         "title": "Abonnementer",
@@ -1183,6 +1191,18 @@
           "contact_header_description": "We're here to help with your questions about vehicles, financing, and our services. Reach out to us anytime.",
           "contact_form_description": "Fill out the form below, and we'll get back to you as soon as possible."
         }
+      },
+      "seo": {
+        "failedLoadPages": "Kunne ikke indlæse sider",
+        "failedLoadPage": "Kunne ikke indlæse side",
+        "failedDelete": "Kunne ikke slette side"
+      },
+      "dealers": {
+        "title": "Forhandlere",
+        "subtitle": "Administrer forhandlerkonti, personale og abonnementer",
+        "vehicles": "Køretøjer",
+        "staff": "Personale",
+        "subscriptions": "Abonnementer"
       }
     }
   },
@@ -1249,7 +1269,12 @@
         "noData": "Ingen data",
         "byIntent": "Efter hensigt",
         "topVehicles": "Top køretøjer",
-        "noVehicleData": "Ingen køretøjsdata"
+        "noVehicleData": "Ingen køretøjsdata",
+        "failedAssignLead": "Kunne ikke tildele lead",
+        "failedLoadLead": "Kunne ikke indlæse lead",
+        "failedSendMessage": "Kunne ikke sende besked",
+        "failedUpdateCategory": "Kunne ikke opdatere kategori",
+        "failedUpdateIntent": "Kunne ikke opdatere hensigt"
       },
       "subscription": {
         "currentSubscription": "Nuværende abonnement",
@@ -1294,7 +1319,9 @@
         "chargedThisMonth": "Faktureret denne måned",
         "estimatedMonthly": "Estimeret månedlig omkostning",
         "paymentSuccess": "Betaling modtaget. Dit abonnement aktiveres snart.",
-        "redirectingToStripe": "Omdirigerer til sikker betaling…"
+        "redirectingToStripe": "Omdirigerer til sikker betaling…",
+        "title": "Abonnement",
+        "subtitle": "Se og administrer dit abonnement"
       },
       "billing": {
         "title": "Fakturering",
@@ -1709,7 +1736,16 @@
         "initialEnquiryOrMessage": "Indledende forespørgselsdetaljer",
         "purposeLabel": "Formål:",
         "subjectLabel": "Emne:",
-        "messageLabel": "Besked:"
+        "messageLabel": "Besked:",
+        "crm": {
+          "title": "CRM",
+          "timeline": "Tidslinje",
+          "notes": "Noter",
+          "tasks": "Opgaver",
+          "addNote": "Tilføj en note",
+          "taskTitle": "Opgavetitel",
+          "dueDate": "Forfaldsdato"
+        }
       },
       "enquiries": {
         "title": "Kundeforespørgsler",
@@ -1765,7 +1801,8 @@
         "closed": "Lukket",
         "cancelled": "Annulleret",
         "updatingStatusFor": "Opdaterer status for:",
-        "updatingTypeFor": "Opdaterer type for:"
+        "updatingTypeFor": "Opdaterer type for:",
+        "callCustomer": "Ring til kunde"
       },
       "vehicleDetail": {
         "title": "Køretøjsdetaljer",
@@ -1893,7 +1930,8 @@
         "batteryCapacityKwh": "Batterikapacitet (kWh)",
         "moreImagesSlotHint": "Du kan tilføje op til {count} billede(r) mere.",
         "planMaxImagesError": "Din plan tillader højst {max} billeder pr. køretøj. Fjern nogle eksisterende billeder eller upload færre.",
-        "planMaxEquipmentError": "Din plan tillader højst {max} udstyrspunkter pr. køretøj. Fravælg nogle."
+        "planMaxEquipmentError": "Din plan tillader højst {max} udstyrspunkter pr. køretøj. Fravælg nogle.",
+        "fuelType": "Brændstoftype"
       },
       "addVehicle": {
         "title": "Tilføj køretøj",

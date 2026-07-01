@@ -1,23 +1,13 @@
 <template>
-  <div class="subscription-detail">
+  <div class="panel-page subscription-detail">
     <!-- Header -->
-    <div class="d-flex justify-space-between align-center mb-6">
-      <div>
-        <v-btn
-          icon
-          variant="text"
-          @click="router.back()"
-          size="small"
-          class="mb-2"
-        >
-          <v-icon>mdi-arrow-left</v-icon>
-        </v-btn>
-        <h1 class="text-h5 font-weight-medium mb-1">Subscription Details</h1>
-        <p class="text-body-2 text-medium-emphasis">
-          View and manage subscription information
-        </p>
-      </div>
-      <div class="d-flex gap-2">
+    <PageHeader
+      title="Subscription Details"
+      subtitle="View and manage subscription information"
+      show-back
+    >
+      <template #actions>
+        <div class="d-flex gap-2">
         <v-btn
           v-if="subscription && subscription.subscription_status_id === 3"
           color="success"
@@ -50,8 +40,9 @@
         >
           {{ editMode ? 'Cancel' : 'Edit' }}
         </v-btn>
-      </div>
-    </div>
+        </div>
+      </template>
+    </PageHeader>
 
     <!-- Loading State -->
     <div v-if="loading" class="text-center py-12">
@@ -440,6 +431,7 @@ import {
 } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import { featureDisplayName } from '@/utils/featureDisplay'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const route = useRoute()
 const router = useRouter()

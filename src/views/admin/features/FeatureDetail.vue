@@ -1,13 +1,14 @@
 <template>
-  <div class="feature-detail">
-    <div class="d-flex justify-space-between align-center mb-6">
-      <div>
-        <v-btn icon variant="text" @click="router.back()" class="mb-2"><v-icon>mdi-arrow-left</v-icon></v-btn>
-        <h2 class="text-h5 font-weight-bold mb-1">Feature Details</h2>
-        <p class="text-body-2 text-medium-emphasis">View and edit feature information.</p>
-      </div>
-      <v-btn v-if="feature" color="primary" prepend-icon="mdi-pencil" @click="editMode = !editMode">{{ editMode ? 'Cancel' : 'Edit' }}</v-btn>
-    </div>
+  <div class="panel-page feature-detail">
+    <PageHeader
+      title="Feature Details"
+      subtitle="View and edit feature information."
+      show-back
+    >
+      <template #actions>
+        <v-btn v-if="feature" color="primary" prepend-icon="mdi-pencil" @click="editMode = !editMode">{{ editMode ? 'Cancel' : 'Edit' }}</v-btn>
+      </template>
+    </PageHeader>
 
     <div v-if="loading" class="text-center py-12">
       <v-progress-circular indeterminate color="primary" size="64" />
@@ -93,6 +94,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getFeature, updateFeature as updateFeatureApi, getPlans, type UpdateFeatureData, type FeatureModel } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 const route = useRoute()

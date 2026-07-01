@@ -1,14 +1,11 @@
 <template>
   <v-container class="pa-4" max-width="1400">
     <!-- Header with Actions -->
-    <div class="d-flex justify-space-between align-center flex-wrap mb-4">
-      <div>
-        <h2 class="text-h5 font-weight-bold mb-1">{{ t('dealer.views.addVehicle.title') }}</h2>
-        <p class="text-body-2 text-medium-emphasis mb-0">
-          {{ t('dealer.views.addVehicle.subtitle') }}
-        </p>
-      </div>
-      <div class="d-flex align-center gap-2">
+    <PageHeader
+      :title="t('dealer.views.addVehicle.title')"
+      :subtitle="t('dealer.views.addVehicle.subtitle')"
+    >
+      <template #actions>
         <v-chip
           v-if="draftSaved"
           size="small"
@@ -18,8 +15,8 @@
         >
           {{ t('dealer.views.addVehicle.draftSaved') }}
         </v-chip>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
     <!-- License Plate Lookup Section (Outside Tabs) -->
     <v-card elevation="0" class="mb-4 border border-gray-200">
@@ -1111,6 +1108,7 @@ import { useErrorMessage } from '@/composables/useErrorMessage'
 import { getFeatureLimit, getSubscriptionFeatures, FeatureKey } from '@/utils/subscriptionFeatures'
 import { SALES_TYPE_LEASING_DETAILS } from '@/constants/salesTypes'
 import AiGenerateButton from '@/components/ai/AiGenerateButton.vue'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const router = useRouter()
 const { t, locale } = useI18n()

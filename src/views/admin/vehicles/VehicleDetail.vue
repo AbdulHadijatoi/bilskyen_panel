@@ -1,52 +1,7 @@
 <template>
-  <div class="vehicle-detail-container">
+  <div class="panel-page vehicle-detail-container">
     <!-- Header Section -->
-    <div class="header-section mb-4">
-      <div class="d-flex align-center gap-3 mb-3">
-        <v-btn
-          icon
-          variant="text"
-          @click="router.back()"
-          size="small"
-          class="back-button"
-        >
-          <v-icon size="20">mdi-arrow-left</v-icon>
-        </v-btn>
-        <div class="flex-grow-1">
-          <h1 class="text-h5 font-weight-bold mb-1">{{ t('admin.views.vehicleDetail.title') }}</h1>
-          <p class="text-caption text-medium-emphasis mb-0">
-            {{ t('admin.views.vehicleDetail.viewSubtitle') }}
-          </p>
-        </div>
-        <v-btn
-          v-if="vehicle && !editMode"
-          color="primary"
-          prepend-icon="mdi-pencil"
-          @click="editMode = true"
-          size="small"
-        >
-          {{ t('admin.views.vehicleDetail.editVehicle') }}
-        </v-btn>
-        <div v-else-if="vehicle && editMode" class="d-flex gap-2">
-          <v-btn
-            variant="outlined"
-            @click="cancelEdit"
-            size="small"
-          >
-            {{ t('common.cancel') }}
-          </v-btn>
-          <v-btn
-            color="primary"
-            prepend-icon="mdi-content-save"
-            @click="saveVehicle"
-            :loading="updating"
-            size="small"
-          >
-            {{ t('dealer.views.profile.saveChanges') }}
-          </v-btn>
-        </div>
-      </div>
-    </div>
+    <PageHeader :title="t('admin.views.vehicleDetail.title')" :subtitle="t('admin.views.vehicleDetail.viewSubtitle')" show-back />
 
     <!-- Loading State -->
     <div v-if="loading" class="loading-container">
@@ -1972,6 +1927,7 @@ import type { VehicleImageModel } from '@/models/vehicle.model'
 import { VehicleStatus } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import { VEHICLE_LIST_STATUS_ID } from '@/constants/vehicle-list-status'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const route = useRoute()
 const router = useRouter()

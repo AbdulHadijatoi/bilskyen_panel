@@ -1,5 +1,5 @@
 <template>
-  <div class="pa-4">
+  <div class="panel-page pa-4">
     <div class="d-flex justify-space-between align-center mb-4 flex-wrap gap-2">
       <div>
         <h1 class="text-h5">{{ t('admin.cms.blog.title') }}</h1>

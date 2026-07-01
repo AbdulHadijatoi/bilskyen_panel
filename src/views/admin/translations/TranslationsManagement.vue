@@ -1,14 +1,11 @@
 <template>
-  <div class="translations-management-container">
+  <div class="panel-page translations-management-container">
     <!-- Header Section -->
-    <div class="header-section mb-6">
-      <div class="d-flex justify-space-between align-center">
-        <div>
-          <h1 class="text-h4 font-weight-bold mb-1">{{ t('admin.views.translations.title') }}</h1>
-          <p class="text-body-2 text-medium-emphasis mb-0">
-            {{ t('admin.views.translations.subtitle') }}
-          </p>
-        </div>
+    <PageHeader
+      :title="t('admin.views.translations.title')"
+      :subtitle="t('admin.views.translations.subtitle')"
+    >
+      <template #actions>
         <div class="d-flex gap-2">
           <v-btn
             color="success"
@@ -38,8 +35,8 @@
             {{ t('admin.views.translations.addTranslation') }}
           </v-btn>
         </div>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
     <!-- Search and Filters -->
     <v-card variant="flat" class="filters-card mb-4" elevation="1">
@@ -219,6 +216,7 @@
 import { ref, onMounted, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { translationService, type TranslationKey } from '@/services/translationService'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 

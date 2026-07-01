@@ -1,5 +1,5 @@
 <template>
-  <div class="pa-4">
+  <div class="panel-page pa-4">
     <div class="d-flex justify-space-between mb-4">
       <h1 class="text-h5">{{ t('admin.cms.redirects.title') }}</h1>
       <v-btn color="primary" prepend-icon="mdi-plus" @click="openCreate">{{ t('admin.cms.redirects.add') }}</v-btn>

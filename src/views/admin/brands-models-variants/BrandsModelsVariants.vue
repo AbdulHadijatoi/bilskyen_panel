@@ -1,5 +1,5 @@
 <template>
-  <div class="constants-container">
+  <div class="panel-page constants-container">
     <div class="constants-header">
       <div class="header-content">
         <h1 class="page-title">Brands, models & variants</h1>

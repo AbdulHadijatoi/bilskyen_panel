@@ -1,14 +1,7 @@
 <template>
-  <div class="audit-logs-management">
+  <div class="panel-page audit-logs-management">
     <!-- Header -->
-    <div class="header-section mb-6">
-      <div>
-        <h1 class="text-h4 font-weight-bold mb-1">{{ t('admin.views.auditLogs.title') }}</h1>
-        <p class="text-body-2 text-medium-emphasis">
-          {{ t('admin.views.auditLogs.subtitle') }}
-        </p>
-      </div>
-    </div>
+    <PageHeader :title="t('admin.views.auditLogs.title')" :subtitle="t('admin.views.auditLogs.subtitle')" />
 
     <!-- Two Row Layout -->
     <div class="audit-logs-layout">
@@ -467,6 +460,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getAuditLogs, getAuditLog, type AuditLogModel } from '@/api/admin.api'
 import type { PaginationModel } from '@/models/pagination.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 

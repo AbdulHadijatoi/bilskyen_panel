@@ -1,13 +1,10 @@
 <template>
-  <div class="lead-stages-admin-container">
-    <div class="header-section mb-6">
-      <div class="d-flex justify-space-between align-center flex-wrap gap-4">
-        <div>
-          <h1 class="text-h4 font-weight-bold mb-1">Lead-faser</h1>
-          <p class="text-body-2 text-medium-emphasis mb-0">
-            Rediger titlerne på lead-faserne, som vises i forhandlerpanelet (kanban og detaljevisning).
-          </p>
-        </div>
+  <div class="panel-page lead-stages-admin-container">
+    <PageHeader
+      title="Lead-faser"
+      subtitle="Rediger titlerne på lead-faserne, som vises i forhandlerpanelet (kanban og detaljevisning)."
+    >
+      <template #actions>
         <v-btn
           variant="outlined"
           prepend-icon="mdi-refresh"
@@ -16,8 +13,8 @@
         >
           Opdater
         </v-btn>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
     <v-card variant="flat" class="table-card" elevation="0">
       <v-card-text class="pa-0">
@@ -81,6 +78,7 @@ import {
   type AdminLeadStageModel,
 } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const loading = ref(false)
 const listError = ref<string | null>(null)

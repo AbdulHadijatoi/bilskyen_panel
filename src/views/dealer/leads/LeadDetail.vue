@@ -1,21 +1,10 @@
 <template>
-  <div>
-    <div class="d-flex justify-space-between align-center mb-4">
-      <div>
-        <v-btn
-          icon
-          variant="text"
-          @click="router.back()"
-          class="mb-2"
-        >
-          <v-icon>mdi-arrow-left</v-icon>
-        </v-btn>
-        <h2 class="text-h5 font-weight-bold mb-1">{{ t('dealer.views.leadsDetail.title') }}</h2>
-        <p class="text-body-2 text-medium-emphasis">
-          {{ t('dealer.views.leadsDetail.subtitle') }}
-        </p>
-      </div>
-    </div>
+  <div class="panel-page">
+    <PageHeader
+      :title="t('dealer.views.leadsDetail.title')"
+      :subtitle="t('dealer.views.leadsDetail.subtitle')"
+      show-back
+    />
 
     <div v-if="loading" class="text-center py-8">
       <v-progress-circular indeterminate color="primary" />
@@ -376,6 +365,7 @@ import {
 } from '@/utils/leadHelpers'
 import { formatCurrency } from '@/utils/formatCurrency'
 import { useLeadStagesStore } from '@/stores/leadStages.store'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const route = useRoute()
 const router = useRouter()

@@ -416,11 +416,11 @@ const onAfterLeave = (el: Element) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 32px;
-  padding: 0.375rem 0.75rem;
-  border-radius: 0.375rem;
+  min-height: 36px;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
   text-decoration: none;
   color: var(--sidebar-foreground);
   gap: 0.5rem;
@@ -432,21 +432,23 @@ const onAfterLeave = (el: Element) => {
 
 .__menu-item.router-link-active,
 .__menu-item.router-link-exact-active {
-  background-color: var(--sidebar-accent);
-  color: var(--sidebar-accent-foreground);
+  background-color: var(--sidebar-active-bg);
+  color: var(--sidebar-foreground);
   font-weight: 500;
+  box-shadow: var(--shadow-sidebar-active);
 }
 
 .__menu-item:hover,
 .__menu-item.hoverable:hover {
-  background-color: var(--sidebar-accent);
-  color: var(--sidebar-accent-foreground);
+  background-color: color-mix(in oklch, var(--sidebar-active-bg) 70%, var(--sidebar));
+  color: var(--sidebar-foreground);
 }
 
 .__menu-item.menu-item-active {
-  background-color: var(--sidebar-accent);
-  color: var(--sidebar-accent-foreground);
+  background-color: var(--sidebar-active-bg);
+  color: var(--sidebar-foreground);
   font-weight: 500;
+  box-shadow: var(--shadow-sidebar-active);
 }
 
 .__menu-item:focus-visible {

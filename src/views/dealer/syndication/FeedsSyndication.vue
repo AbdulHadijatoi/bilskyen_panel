@@ -1,19 +1,20 @@
 <template>
-  <div>
-    <div class="d-flex justify-space-between align-center mb-6">
-      <div>
-        <h1 class="text-h5 font-weight-medium mb-1">{{ t('dealer.views.syndication.title') }}</h1>
-        <p class="text-body-2 text-medium-emphasis">{{ t('dealer.views.syndication.subtitle') }}</p>
-      </div>
-      <v-btn
-        color="primary"
-        prepend-icon="mdi-sync"
-        :loading="syncing"
-        @click="runSync"
-      >
-        {{ t('dealer.views.syndication.syncNow') }}
-      </v-btn>
-    </div>
+  <div class="panel-page">
+    <PageHeader
+      :title="t('dealer.views.syndication.title')"
+      :subtitle="t('dealer.views.syndication.subtitle')"
+    >
+      <template #actions>
+        <v-btn
+          color="primary"
+          prepend-icon="mdi-sync"
+          :loading="syncing"
+          @click="runSync"
+        >
+          {{ t('dealer.views.syndication.syncNow') }}
+        </v-btn>
+      </template>
+    </PageHeader>
 
     <v-alert v-if="message" :type="messageType" variant="tonal" class="mb-4" closable @click:close="message = ''">
       {{ message }}
@@ -154,6 +155,7 @@ import {
   type DealerSyndicationProviderModel,
   type SyndicationLogModel,
 } from '@/api/dealer.api'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 
