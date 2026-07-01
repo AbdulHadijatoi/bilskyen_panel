@@ -60,13 +60,24 @@ export const dealerSidebarSections: SidebarSection[] = [
         url: `${DEALER_ROUTE_BASE}leads`,
         icon: 'mdi-account-group',
         permission: 'dealer.leads.view',
-        feature: 'lead_management',
         items: [
           {
             title: 'Overview',
             url: `${DEALER_ROUTE_BASE}leads/overview`,
             permission: 'dealer.leads.view',
-            feature: 'lead_management',
+          },
+        ],
+      },
+      {
+        title: 'Enquiries',
+        url: `${DEALER_ROUTE_BASE}enquiries`,
+        icon: 'mdi-email',
+        permission: 'dealer.enquiries.view',
+        items: [
+          {
+            title: 'Overview',
+            url: `${DEALER_ROUTE_BASE}enquiries/overview`,
+            permission: 'dealer.enquiries.view',
           },
         ],
       },
@@ -81,7 +92,6 @@ export const dealerSidebarSections: SidebarSection[] = [
         url: `${DEALER_ROUTE_BASE}staff`,
         icon: 'mdi-account-multiple',
         permission: 'dealer.staff.manage',
-        feature: 'staff_management',
       },
       {
         title: 'Subscription',
@@ -94,14 +104,12 @@ export const dealerSidebarSections: SidebarSection[] = [
         url: `${DEALER_ROUTE_BASE}audit-logs`,
         icon: 'mdi-file-document-outline',
         permission: 'dealer.audit.view',
-        feature: 'audit_logs',
       },
       {
         title: 'Analytics',
         url: `${DEALER_ROUTE_BASE}analytics`,
         icon: 'mdi-chart-line',
         permission: 'dealer.analytics.view',
-        feature: 'analytics',
       },
     ],
   },

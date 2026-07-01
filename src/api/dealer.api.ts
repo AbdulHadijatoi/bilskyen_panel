@@ -20,6 +20,7 @@ import {
   DEALER_DASHBOARD_ENDPOINTS,
   DEALER_AUDIT_ENDPOINTS,
   DEALER_ANALYTICS_ENDPOINTS,
+  DEALER_NOTIFICATION_ENDPOINTS,
 } from './endpoints'
 import type { VehicleModel } from '@/models/vehicle.model'
 import { mapVehicleFromApi } from '@/models/vehicle.model'
@@ -461,6 +462,36 @@ export async function renewVehicleListing(id: number | string): Promise<VehicleM
     const response = await httpClient.post<{ data: any }>(
       DEALER_VEHICLE_ENDPOINTS.RENEW_LISTING(id),
       {}
+    )
+    return mapVehicleFromApi(handleSuccess<any>(response))
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Upload or set 3D view URL for a vehicle
+ */
+export async function uploadVehicle3dView(
+  id: number | string,
+  data: { view_3d_url?: string; file?: File }
+): Promise<VehicleModel> {
+  try {
+    let payload: FormData | Record<string, string>
+    if (data.file) {
+      const formData = new FormData()
+      formData.append('file', data.file)
+      if (data.view_3d_url) {
+        formData.append('view_3d_url', data.view_3d_url)
+      }
+      payload = formData
+    } else {
+      payload = { view_3d_url: data.view_3d_url || '' }
+    }
+
+    const response = await httpClient.post<{ data: any }>(
+      DEALER_VEHICLE_ENDPOINTS.UPLOAD_3D_VIEW(id),
+      payload
     )
     return mapVehicleFromApi(handleSuccess<any>(response))
   } catch (error) {
@@ -1667,6 +1698,68 @@ export async function getAnalyticsSubscription(): Promise<import('@/models/analy
       DEALER_ANALYTICS_ENDPOINTS.SUBSCRIPTION
     )
     return handleSuccess(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// NOTIFICATIONS
+// ============================================================================
+
+export interface DealerNotificationModel {
+  id: number
+  title: string
+  message?: string
+  is_read?: boolean
+  created_at: string
+  metadata?: Record<string, unknown>
+}
+
+export async function getNotificationCount(unread = true): Promise<number> {
+  try {
+    const response = await httpClient.get<{ count: number }>(
+      DEALER_NOTIFICATION_ENDPOINTS.COUNT,
+      { params: { unread: unread ? 'true' : 'false' } }
+    )
+    return typeof response.data?.count === 'number' ? response.data.count : 0
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getNotifications(params?: {
+  unread?: boolean
+  perPage?: number
+  page?: number
+}): Promise<PaginationModel<DealerNotificationModel>> {
+  try {
+    const response = await httpClient.get<{
+      docs: DealerNotificationModel[]
+      totalDocs: number
+      limit: number
+      page: number
+      totalPages: number
+      hasPrevPage: boolean
+      hasNextPage: boolean
+      prevPage: number | null
+      nextPage: number | null
+    }>(DEALER_NOTIFICATION_ENDPOINTS.LIST, {
+      params: {
+        unread: params?.unread ? 'true' : undefined,
+        perPage: params?.perPage ?? 15,
+        page: params?.page ?? 1,
+      },
+    })
+    return response.data
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function markNotificationsRead(ids: number[]): Promise<void> {
+  try {
+    await httpClient.post(DEALER_NOTIFICATION_ENDPOINTS.MARK_READ, { ids })
   } catch (error) {
     throw handleError(error)
   }

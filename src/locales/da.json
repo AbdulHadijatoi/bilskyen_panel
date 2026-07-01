@@ -1202,6 +1202,15 @@
         "renewListingFailed": "Kunne ikke forny annoncen",
         "listingExpiresIn": "Denne annonce udløber om {days} dag(e).",
         "listingExpired": "Denne annonce er udløbet. Forny den for at holde den synlig.",
+        "view3dTitle": "3D-visning",
+        "add3dView": "Tilføj 3D-visning",
+        "update3dView": "Opdater 3D-visning",
+        "view3dLink": "Åbn 3D-model",
+        "no3dView": "Ingen 3D-visning uploadet endnu.",
+        "upload3dTitle": "Upload 3D-visning",
+        "view3dUrlLabel": "3D-model URL",
+        "view3dFileLabel": "Eller upload GLB/GLTF/ZIP-fil",
+        "upload3dFailed": "Kunne ikke uploade 3D-visning",
         "priceIncludesDelivery": "Engrospris inkluderer levering",
         "vin": "STEL-nr.",
         "registration": "Registrering",
@@ -1553,7 +1562,10 @@
       "system": "System"
     },
     "notificationsButton": {
-      "ariaLabel": "Notifikationer"
+      "ariaLabel": "Notifikationer",
+      "title": "Notifikationer",
+      "empty": "Ingen notifikationer endnu",
+      "markAllRead": "Markér alle som læst"
     }
   },
   "dealerDashboard": {

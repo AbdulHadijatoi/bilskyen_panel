@@ -1004,6 +1004,39 @@
             </v-card-text>
           </v-card>
 
+          <!-- 3D View Card -->
+          <v-card
+            v-if="canUpload3dView"
+            variant="flat"
+            class="info-card mb-3"
+            elevation="0"
+          >
+            <v-card-title class="card-title">
+              <v-icon size="18" class="mr-2">mdi-rotate-3d</v-icon>
+              <span class="text-subtitle-1">{{ t('dealer.views.vehicleDetail.view3dTitle') }}</span>
+              <v-spacer />
+              <v-btn
+                color="primary"
+                variant="outlined"
+                prepend-icon="mdi-upload"
+                size="x-small"
+                @click="show3dUploadDialog = true"
+              >
+                {{ vehicle?.view3dUrl ? t('dealer.views.vehicleDetail.update3dView') : t('dealer.views.vehicleDetail.add3dView') }}
+              </v-btn>
+            </v-card-title>
+            <v-card-text class="pa-3">
+              <div v-if="vehicle?.view3dUrl" class="text-body-2">
+                <a :href="vehicle.view3dUrl" target="_blank" rel="noopener noreferrer" class="text-primary">
+                  {{ t('dealer.views.vehicleDetail.view3dLink') }}
+                </a>
+              </div>
+              <div v-else class="text-caption text-medium-emphasis">
+                {{ t('dealer.views.vehicleDetail.no3dView') }}
+              </div>
+            </v-card-text>
+          </v-card>
+
           <!-- Equipment Management Card -->
           <v-card
             variant="flat"
@@ -1147,6 +1180,46 @@
             :loading="deletingImage"
           >
             {{ t('dealer.views.vehicleDetail.delete') }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- 3D View Upload Dialog -->
+    <v-dialog v-model="show3dUploadDialog" max-width="500">
+      <v-card>
+        <v-card-title class="text-subtitle-1">
+          {{ t('dealer.views.vehicleDetail.upload3dTitle') }}
+        </v-card-title>
+        <v-card-text class="pa-3">
+          <v-text-field
+            v-model="view3dUrlInput"
+            :label="t('dealer.views.vehicleDetail.view3dUrlLabel')"
+            variant="outlined"
+            density="compact"
+            class="mb-3"
+            placeholder="https://..."
+          />
+          <v-file-input
+            v-model="view3dFile"
+            :label="t('dealer.views.vehicleDetail.view3dFileLabel')"
+            variant="outlined"
+            density="compact"
+            accept=".glb,.gltf,.zip"
+            prepend-icon="mdi-file"
+          />
+        </v-card-text>
+        <v-card-actions class="pa-3">
+          <v-spacer />
+          <v-btn variant="text" size="small" @click="show3dUploadDialog = false">{{ t('common.cancel') }}</v-btn>
+          <v-btn
+            color="primary"
+            size="small"
+            :loading="uploading3dView"
+            :disabled="!view3dUrlInput && !view3dFile"
+            @click="handleUpload3dView"
+          >
+            {{ t('common.upload') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -1311,6 +1384,7 @@ import {
   updateVehicle,
   updateVehicleStatus,
   renewVehicleListing,
+  uploadVehicle3dView,
   updateVehicleEquipment,
   deleteVehicle as deleteVehicleApi,
   uploadVehicleImages,
@@ -1324,7 +1398,7 @@ import { VehicleStatus as VehicleStatusEnum } from '@/models/vehicle.model'
 import type { VehicleModel } from '@/models/vehicle.model'
 import type { VehicleImageModel } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
-import { getFeatureLimit, FeatureKey } from '@/utils/subscriptionFeatures'
+import { getFeatureLimit, hasFeature, FeatureKey } from '@/utils/subscriptionFeatures'
 import { SALES_TYPE_LEASING_DETAILS } from '@/constants/salesTypes'
 
 const route = useRoute()
@@ -1396,6 +1470,31 @@ const updatingStatus = ref(false)
 const selectedStatus = ref<number | null>(null)
 const markingAsSold = ref(false)
 const renewingListing = ref(false)
+const show3dUploadDialog = ref(false)
+const view3dUrlInput = ref('')
+const view3dFile = ref<File[] | null>(null)
+const uploading3dView = ref(false)
+
+const canUpload3dView = computed(() => hasFeature(FeatureKey.UPLOAD_3D_VIEW))
+
+async function handleUpload3dView() {
+  if (!vehicle.value) return
+  try {
+    uploading3dView.value = true
+    const file = view3dFile.value?.[0]
+    vehicle.value = await uploadVehicle3dView(vehicle.value.id, {
+      view_3d_url: view3dUrlInput.value || undefined,
+      file,
+    })
+    show3dUploadDialog.value = false
+    view3dUrlInput.value = ''
+    view3dFile.value = null
+  } catch (err) {
+    error.value = (err as ApiErrorModel).message || t('dealer.views.vehicleDetail.upload3dFailed')
+  } finally {
+    uploading3dView.value = false
+  }
+}
 const loadingConstants = ref(false)
 
 // Constants data

@@ -158,7 +158,6 @@ import { useAuthStore } from '@/stores/auth.store'
 import { logout, getCurrentUser } from '@/services/auth'
 import { dealerSidebarSections, type SidebarSection } from '@/constants/dealer'
 import { hasPermission } from '@/utils/permissions'
-import { hasFeature, getSubscriptionFeatures } from '@/utils/subscriptionFeatures'
 import SidebarItem from './SidebarItem.vue'
 import ChangePasswordDialog from './ChangePasswordDialog.vue'
 
@@ -194,65 +193,36 @@ const userInitials = computed(() => {
   return name.substring(0, 2).toUpperCase()
 })
 
-// Filter sidebar sections based on user permissions and subscription features
+// Filter sidebar sections based on user permissions (subscription features gate route access)
 const filteredSidebarSections = computed((): SidebarSection[] => {
-  const features = getSubscriptionFeatures()
-  
   return dealerSidebarSections
     .map((section) => {
-      // Filter items based on permissions and subscription features
-      const filteredItems = section.items.filter((item) => {
-        // Check permission if required
-        if (item.permission && !hasPermission(item.permission)) {
-          return false
-        }
-        
-        // Check subscription feature if required
-        if (item.feature) {
-          const featureValue = features[item.feature]
-          const hasFeatureValue = featureValue !== undefined && featureValue !== null && (
-            String(featureValue).toLowerCase() === 'true' || 
-            String(featureValue) === '1'
-          )
-          if (!hasFeatureValue) {
-            return false
+      const filteredItems = section.items
+        .map((item) => {
+          if (item.permission && !hasPermission(item.permission)) {
+            return null
           }
-        }
-        
-        // Filter sub-items if they have permissions or features
-        if (item.items && item.items.length > 0) {
-          item.items = item.items.filter((subItem) => {
-            // Check permission
-            if (subItem.permission && !hasPermission(subItem.permission)) {
-              return false
+
+          if (item.items && item.items.length > 0) {
+            const visibleSubItems = item.items.filter(
+              (subItem) => !subItem.permission || hasPermission(subItem.permission)
+            )
+            if (visibleSubItems.length === 0) {
+              return null
             }
-            // Check subscription feature
-            if (subItem.feature) {
-              const featureValue = features[subItem.feature]
-              const hasFeatureValue = featureValue !== undefined && featureValue !== null && (
-                String(featureValue).toLowerCase() === 'true' || 
-                String(featureValue) === '1'
-              )
-              if (!hasFeatureValue) {
-                return false
-              }
-            }
-            return true
-          })
-          // Show parent if at least one sub-item is visible
-          return item.items.length > 0
-        }
-        
-        return true
-      })
-      
-      // Return section only if it has visible items
+            return { ...item, items: visibleSubItems }
+          }
+
+          return item
+        })
+        .filter((item): item is NonNullable<typeof item> => item !== null)
+
       return {
         ...section,
         items: filteredItems,
       }
     })
-    .filter((section) => section.items.length > 0) // Remove empty sections
+    .filter((section) => section.items.length > 0)
 })
 
 const handleLogout = async () => {

@@ -3,7 +3,7 @@ import { useAuthStore } from '@/stores/auth.store'
 import { useLoadingStore } from '@/stores/loading'
 import { checkAuth } from '@/api/auth.api'
 import { encryptUrlParam } from '@/utils/urlEncryption'
-import { isAdmin, isDealer } from '@/utils/permissions'
+import { isAdmin, isDealer, hasPermission } from '@/utils/permissions'
 import { hasFeature, getSubscriptionFeatures } from '@/utils/subscriptionFeatures'
 import { loadSubscriptionFeatures } from '@/api/subscription-features.api'
 
@@ -50,6 +50,7 @@ const router = createRouter({
           path: '',
           name: 'dealer.dashboard',
           component: () => import('@/views/dealer/Dashboard.vue'),
+          meta: { requiresAuth: true, permission: 'dealer.dashboard.view' },
         },
         {
           path: 'vehicles',
@@ -59,16 +60,19 @@ const router = createRouter({
           path: 'vehicles/overview',
           name: 'dealer.vehicles.overview',
           component: () => import('@/views/dealer/vehicles/VehiclesOverview.vue'),
+          meta: { requiresAuth: true, permission: 'dealer.vehicles.view' },
         },
         {
           path: 'vehicles/add-vehicle',
           name: 'dealer.vehicles.add',
           component: () => import('@/views/dealer/vehicles/AddVehicle.vue'),
+          meta: { requiresAuth: true, permission: 'dealer.vehicles.create' },
         },
         {
           path: 'vehicles/:id',
           name: 'dealer.vehicles.detail',
           component: () => import('@/views/dealer/vehicles/VehicleDetail.vue'),
+          meta: { requiresAuth: true, permission: 'dealer.vehicles.view' },
         },
         {
           path: 'leads',
@@ -78,13 +82,13 @@ const router = createRouter({
           path: 'leads/overview',
           name: 'dealer.leads.overview',
           component: () => import('@/views/dealer/leads/LeadsOverview.vue'),
-          meta: { requiresAuth: true, feature: 'lead_management' },
+          meta: { requiresAuth: true, permission: 'dealer.leads.view', feature: 'lead_management' },
         },
         {
           path: 'leads/:id',
           name: 'dealer.leads.detail',
           component: () => import('@/views/dealer/leads/LeadDetail.vue'),
-          meta: { requiresAuth: true, feature: 'lead_management' },
+          meta: { requiresAuth: true, permission: 'dealer.leads.view', feature: 'lead_management' },
         },
         {
           path: 'enquiries',
@@ -94,24 +98,25 @@ const router = createRouter({
           path: 'enquiries/overview',
           name: 'dealer.enquiries.overview',
           component: () => import('@/views/dealer/enquiries/EnquiriesOverview.vue'),
-          meta: { requiresAuth: true, feature: 'enquiry_management' },
+          meta: { requiresAuth: true, permission: 'dealer.enquiries.view', feature: 'enquiry_management' },
         },
         {
           path: 'enquiries/:id',
           name: 'dealer.enquiries.detail',
           component: () => import('@/views/dealer/enquiries/EnquiryDetail.vue'),
-          meta: { requiresAuth: true, feature: 'enquiry_management' },
+          meta: { requiresAuth: true, permission: 'dealer.enquiries.view', feature: 'enquiry_management' },
         },
         {
           path: 'staff',
           name: 'dealer.staff',
           component: () => import('@/views/dealer/staff/StaffManagement.vue'),
-          meta: { requiresAuth: true, feature: 'staff_management' },
+          meta: { requiresAuth: true, permission: 'dealer.staff.manage', feature: 'staff_management' },
         },
         {
           path: 'subscription',
           name: 'dealer.subscription',
           component: () => import('@/views/dealer/subscription/Subscription.vue'),
+          meta: { requiresAuth: true, permission: 'dealer.subscription.manage' },
         },
         {
           path: 'audit-logs',
@@ -380,6 +385,19 @@ router.beforeEach(async (to, from, next) => {
               }
             }
             
+            // Check route permissions (dealer/staff routes)
+            if (!isAdmin()) {
+              for (const record of to.matched) {
+                const permission = record.meta.permission as string | undefined
+                if (permission && !hasPermission(permission)) {
+                  loadingStore.stopLoading()
+                  isNavigating = false
+                  next('/')
+                  return
+                }
+              }
+            }
+
             // Check subscription feature if required (only for dealer routes)
             if (to.meta.feature && !isAdmin()) {
               if (!hasFeature(to.meta.feature as string)) {

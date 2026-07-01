@@ -141,8 +141,8 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import axios from 'axios'
-import { API_DEALER_BASE } from '@/constants/app'
+import httpClient from '@/api/http'
+import { DEALER_ACCOUNTING_ENDPOINTS } from '@/api/endpoints'
 
 interface FinancialOverview {
   type: string
@@ -177,8 +177,9 @@ const getChangeIcon = (overview: FinancialOverview) => {
 const fetchFinancialOverview = async () => {
   try {
     loading.value = true
-    const response = await axios.get<FinancialOverview[]>(
-      `/api${API_DEALER_BASE}/accounting/get-financial-overview?period=${props.period}`
+    const response = await httpClient.get<FinancialOverview[]>(
+      DEALER_ACCOUNTING_ENDPOINTS.FINANCIAL_OVERVIEW,
+      { params: { period: props.period } }
     )
     financialOverview.value = Array.isArray(response.data) ? response.data : []
   } catch (error) {

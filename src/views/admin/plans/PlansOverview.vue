@@ -89,7 +89,14 @@
             </div>
             
             <!-- Pricing -->
-            <div v-if="getCurrentPricing(plan)" class="mb-3">
+            <div v-if="plan.billing_model === 'usage_daily'" class="mb-3">
+              <div class="text-h5 font-weight-bold mb-1">
+                {{ formatPrice(plan.price_per_listing_per_day || 0, 'DKK') }}
+                <span class="text-body-2 font-weight-normal text-medium-emphasis">/ listing / day</span>
+              </div>
+              <v-chip size="x-small" color="info" variant="tonal" class="mt-1">Pay-as-you-go</v-chip>
+            </div>
+            <div v-else-if="getCurrentPricing(plan)" class="mb-3">
               <div class="text-h5 font-weight-bold mb-1">
                 <template v-if="getCurrentPricing(plan)?.monthly">
                   {{ formatPrice(getCurrentPricing(plan)!.monthly!.price, getCurrentPricing(plan)!.monthly!.currency) }}

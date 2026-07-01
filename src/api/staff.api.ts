@@ -1085,6 +1085,8 @@ export interface PlanModel {
   description?: string
   is_active: boolean
   trial_days?: number
+  billing_model?: 'subscription' | 'usage_daily'
+  price_per_listing_per_day?: number
   features?: any[]
   price_history?: any[]
   priceHistory?: any[]
@@ -1348,3 +1350,20 @@ export async function getAuditLogs(params?: PaginationParams & {
     throw handleError(error)
   }
 }
+
+// Re-export dealer marketplace helpers used by staff panel (same API routes)
+export {
+  renewVehicleListing,
+  getSubscriptionUsage,
+  downloadVehicleImportTemplate,
+  getVehicleImportSample,
+  importVehicles,
+  getNotificationCount,
+  getNotifications,
+  markNotificationsRead,
+  uploadVehicle3dView,
+  type DealerSubscriptionUsageModel,
+  type VehicleImportSample,
+  type VehicleImportResult,
+  type DealerNotificationModel,
+} from './dealer.api'

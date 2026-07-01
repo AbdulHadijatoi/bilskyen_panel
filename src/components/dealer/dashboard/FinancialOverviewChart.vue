@@ -56,9 +56,9 @@ import {
   GridComponent,
 } from 'echarts/components'
 import VChart, { THEME_KEY } from 'vue-echarts'
-import axios from 'axios'
+import httpClient from '@/api/http'
+import { DEALER_ACCOUNTING_ENDPOINTS } from '@/api/endpoints'
 import FinancialOverviewCards from './FinancialOverviewCards.vue'
-import { API_DEALER_BASE } from '@/constants/app'
 import { provide } from 'vue'
 
 use([
@@ -340,8 +340,9 @@ const chartOption = computed(() => {
 const fetchChartData = async () => {
   try {
     loading.value = true
-    const response = await axios.get<ChartDataPoint[]>(
-      `/api${API_DEALER_BASE}/accounting/get-financial-overview-chart?granularity=${granularity.value}`
+    const response = await httpClient.get<ChartDataPoint[]>(
+      DEALER_ACCOUNTING_ENDPOINTS.FINANCIAL_OVERVIEW_CHART,
+      { params: { granularity: granularity.value } }
     )
     chartData.value = Array.isArray(response.data) ? response.data : []
   } catch (error) {

@@ -66,6 +66,7 @@ export const DEALER_VEHICLE_ENDPOINTS = {
     `/dealer/vehicles/${vehicleId}/images/${imageId}`,
   UPDATE_STATUS: (id: number | string) => `/dealer/vehicles/update-status/${id}`,
   RENEW_LISTING: (id: number | string) => `/dealer/vehicles/renew-listing/${id}`,
+  UPLOAD_3D_VIEW: (id: number | string) => `/dealer/vehicles/${id}/3d-view`,
   UPDATE_EQUIPMENT: (id: number | string) => `/dealer/vehicles/update-equipment/${id}`,
   UPDATE_PRICE: (id: number | string) => `/dealer/vehicles/${id}/price`,
   LOOKUP_BY_REGISTRATION: '/dealer/vehicles/lookup-by-registration',
@@ -161,6 +162,23 @@ export const DEALER_SUBSCRIPTION_ENDPOINTS = {
  */
 export const DEALER_DASHBOARD_ENDPOINTS = {
   STATS: '/dealer/dashboard',
+} as const
+
+/**
+ * Dealer notification endpoints
+ */
+export const DEALER_NOTIFICATION_ENDPOINTS = {
+  LIST: '/dealer/notifications',
+  COUNT: '/dealer/notifications/count',
+  MARK_READ: '/dealer/notifications/mark-read',
+} as const
+
+/**
+ * Dealer accounting endpoints
+ */
+export const DEALER_ACCOUNTING_ENDPOINTS = {
+  FINANCIAL_OVERVIEW: '/dealer/accounting/get-financial-overview',
+  FINANCIAL_OVERVIEW_CHART: '/dealer/accounting/get-financial-overview-chart',
 } as const
 
 /**
@@ -580,23 +598,5 @@ export const ADMIN_CONSTANTS_ENDPOINTS = {
     UPDATE: (id: number | string) => `/admin/equipments/update/${id}`,
     DELETE: (id: number | string) => `/admin/equipments/delete/${id}`,
   },
-} as const
-
-/**
- * Nummerplade proxy endpoints
- */
-export const NUMMERPLADE_ENDPOINTS = {
-  VEHICLE_BY_REGISTRATION: '/nummerplade/vehicle-by-registration',
-  VEHICLE_BY_VIN: '/nummerplade/vehicle-by-vin',
-  REFERENCE_BODY_TYPES: '/nummerplade/reference/body-types',
-  REFERENCE_COLORS: '/nummerplade/reference/colors',
-  REFERENCE_FUEL_TYPES: '/nummerplade/reference/fuel-types',
-  REFERENCE_EQUIPMENT: '/nummerplade/reference/equipment',
-  INSPECTIONS: (vehicleId: number | string) => `/nummerplade/inspections/${vehicleId}`,
-  DMR: (vehicleId: number | string) => `/nummerplade/dmr/${vehicleId}`,
-  DEBT: (vehicleId: number | string) => `/nummerplade/debt/${vehicleId}`,
-  TINGLYSNING: (vin: string) => `/nummerplade/tinglysning/${vin}`,
-  EMISSIONS: (input: string) => `/nummerplade/emissions/${input}`,
-  EVALUATIONS: (input: string) => `/nummerplade/evaluations/${input}`,
 } as const
 

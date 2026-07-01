@@ -1201,6 +1201,15 @@
         "renewListingFailed": "Failed to renew listing",
         "listingExpiresIn": "This listing expires in {days} day(s).",
         "listingExpired": "This listing has expired. Renew it to keep it visible.",
+        "view3dTitle": "3D View",
+        "add3dView": "Add 3D view",
+        "update3dView": "Update 3D view",
+        "view3dLink": "Open 3D model",
+        "no3dView": "No 3D view uploaded yet.",
+        "upload3dTitle": "Upload 3D View",
+        "view3dUrlLabel": "3D model URL",
+        "view3dFileLabel": "Or upload GLB/GLTF/ZIP file",
+        "upload3dFailed": "Failed to upload 3D view",
         "priceIncludesDelivery": "Wholesale price includes delivery",
         "vin": "VIN",
         "registration": "Registration",
@@ -1548,7 +1557,10 @@
       "system": "System"
     },
     "notificationsButton": {
-      "ariaLabel": "Notifications"
+      "ariaLabel": "Notifications",
+      "title": "Notifications",
+      "empty": "No notifications yet",
+      "markAllRead": "Mark all read"
     }
   },
   "dealerDashboard": {

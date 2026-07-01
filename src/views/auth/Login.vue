@@ -153,11 +153,11 @@
           {{ t('auth.login.noAccount') }}
           <router-link to="/auth/register" class="underline">{{ t('auth.login.signUp') }}</router-link>
         </div>
-        <!-- Staff login link - hidden for now -->
-        <!-- <div>
-          Staff member?
-          <router-link to="/auth/staff-login" class="underline">Staff login</router-link>
-        </div> -->
+        <!-- Staff login link -->
+        <div>
+          {{ t('auth.login.staffMember') }}
+          <router-link to="/auth/staff-login" class="underline">{{ t('auth.login.staffLogin') }}</router-link>
+        </div>
       </div>
     </div>
   </AuthLayout>
