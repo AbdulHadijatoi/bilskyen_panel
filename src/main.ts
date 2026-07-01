@@ -4,6 +4,7 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import vuetify from './plugins/vuetify'
 import i18n, { loadLocaleMessages } from './plugins/i18n'
+import { getDefaultLocale } from './utils/defaultLocale'
 
 import App from './App.vue'
 import router from './router'
@@ -21,8 +22,7 @@ async function bootstrap() {
   app.use(i18n)
   app.use(vuetify)
 
-  // Load Danish before first render; panel language switching is disabled.
-  await loadLocaleMessages('da')
+  await loadLocaleMessages(getDefaultLocale())
 
   app.mount('#app')
 }
