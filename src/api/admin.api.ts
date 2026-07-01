@@ -1439,7 +1439,13 @@ export interface DealerInvoiceLineModel {
 export interface DealerInvoiceModel {
   id: number
   dealer_id: number
-  dealer?: { id: number; name?: string }
+  dealer?: {
+    id: number
+    slug?: string
+    cvr?: string
+    city?: string
+    owner?: { id: number; name?: string; email?: string }
+  }
   period_start: string
   period_end: string
   total_cents: number
