@@ -596,6 +596,7 @@ export interface VehicleImportResult {
   summary: {
     total: number
     created: number
+    validated?: number
     failed: number
     warnings: number
   }

@@ -1640,6 +1640,7 @@
           "validateOnly": "Validate only",
           "import": "Import",
           "created": "Created",
+          "validated": "Validated",
           "failed": "Failed",
           "warnings": "Rows with warnings",
           "row": "Row",
@@ -1659,7 +1660,8 @@
             "created": "Created",
             "created_with_warnings": "Created (warnings)",
             "failed": "Failed",
-            "validated": "Valid"
+            "validated": "Valid",
+            "validated_with_warnings": "Valid (warnings)"
           }
         }
       },

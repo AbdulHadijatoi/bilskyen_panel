@@ -1649,6 +1649,7 @@
           "validateOnly": "Kun validering",
           "import": "Importer",
           "created": "Oprettet",
+          "validated": "Valideret",
           "failed": "Fejlet",
           "warnings": "Rækker med advarsler",
           "row": "Række",
@@ -1668,7 +1669,8 @@
             "created": "Oprettet",
             "created_with_warnings": "Oprettet (advarsler)",
             "failed": "Fejlet",
-            "validated": "Gyldig"
+            "validated": "Gyldig",
+            "validated_with_warnings": "Gyldig (advarsler)"
           }
         }
       },

@@ -119,7 +119,18 @@
         <template v-if="result">
           <v-divider class="my-4" />
           <div class="d-flex flex-wrap gap-3 mb-4">
-            <v-chip color="success" variant="flat">
+            <v-chip
+              v-if="dryRunLast"
+              color="success"
+              variant="flat"
+            >
+              {{ t('dealer.views.vehicles.import.validated') }}: {{ result.summary.validated ?? 0 }}
+            </v-chip>
+            <v-chip
+              v-else
+              color="success"
+              variant="flat"
+            >
               {{ t('dealer.views.vehicles.import.created') }}: {{ result.summary.created }}
             </v-chip>
             <v-chip color="error" variant="flat">
@@ -409,7 +420,9 @@ function showImportCompleteSnackbar(data: VehicleImportResult, dryRun: boolean) 
   const { created, failed, total } = data.summary
 
   if (dryRun) {
-    const valid = data.rows.filter((r) => r.status === 'validated').length
+    const valid = data.rows.filter((r) =>
+      r.status === 'validated' || r.status === 'validated_with_warnings'
+    ).length
     const message =
       failed > 0
         ? t('dealer.views.vehicles.import.validateCompleteWithFailures', { valid, failed, total })
@@ -479,7 +492,8 @@ async function runImport(dryRun: boolean) {
 
 function statusColor(status: string) {
   if (status === 'failed') return 'error'
-  if (status === 'created_with_warnings' || status === 'validated') return 'warning'
+  if (status === 'created_with_warnings' || status === 'validated_with_warnings') return 'warning'
+  if (status === 'validated') return 'success'
   if (status === 'created') return 'success'
   return 'grey'
 }
