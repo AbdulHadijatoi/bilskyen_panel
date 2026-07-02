@@ -1746,7 +1746,9 @@
         "auditLogDetails": "Audit Log Details",
         "close": "Close",
         "failedLoadLogs": "Failed to load audit logs",
-        "createdAt": "Created At"
+        "createdAt": "Created At",
+        "logId": "Log ID",
+        "performedBy": "Performed by"
       },
       "leadsDetail": {
         "title": "Lead Details",

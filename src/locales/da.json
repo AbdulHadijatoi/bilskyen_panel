@@ -1757,7 +1757,9 @@
         "auditLogDetails": "Revisionslogdetaljer",
         "close": "Luk",
         "failedLoadLogs": "Kunne ikke indlæse revisionslog",
-        "createdAt": "Oprettet den"
+        "createdAt": "Oprettet den",
+        "logId": "Log-ID",
+        "performedBy": "Udført af"
       },
       "leadsDetail": {
         "title": "Lead-detaljer",

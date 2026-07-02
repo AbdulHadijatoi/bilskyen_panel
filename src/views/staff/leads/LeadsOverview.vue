@@ -6,13 +6,13 @@
       subtitle="Track and manage customer leads. Follow up on inquiries and convert them into sales."
     >
       <template #actions>
-        <div class="d-flex gap-2 align-center w-100 w-md-auto">
+        <div class="panel-inline-actions w-100 w-md-auto">
         <v-btn-toggle
           v-model="viewMode"
           mandatory
           variant="outlined"
           density="compact"
-          class="flex-grow-1 flex-md-grow-0"
+          class="panel-segmented-toggle flex-grow-1 flex-md-grow-0"
         >
           <v-btn value="kanban" prepend-icon="mdi-view-column">
             <span class="d-none d-sm-inline">Kanban</span>
