@@ -1264,10 +1264,12 @@
           <v-file-input
             v-model="view3dFile"
             :label="t('dealer.views.vehicleDetail.view3dFileLabel')"
+            :hint="t('dealer.views.vehicleDetail.view3dFileHint')"
             variant="outlined"
             density="compact"
             accept=".glb,.gltf,.zip"
             prepend-icon="mdi-file"
+            hide-details="auto"
           />
         </v-card-text>
         <v-card-actions class="pa-3">

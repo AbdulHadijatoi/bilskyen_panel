@@ -1937,6 +1937,7 @@
         "upload3dTitle": "Upload 3D View",
         "view3dUrlLabel": "3D model URL",
         "view3dFileLabel": "Or upload GLB/GLTF/ZIP file",
+        "view3dFileHint": "Uploaded file must be 50MB or less. For larger models, use a URL instead.",
         "upload3dFailed": "Failed to upload 3D view",
         "videoTitle": "Video",
         "videoUrlLabel": "YouTube or Vimeo URL",

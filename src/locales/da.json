@@ -1947,6 +1947,7 @@
         "upload3dTitle": "Upload 3D-visning",
         "view3dUrlLabel": "3D-model URL",
         "view3dFileLabel": "Eller upload GLB/GLTF/ZIP-fil",
+        "view3dFileHint": "Uploadet fil må højst være 50 MB. Brug en URL til større modeller.",
         "upload3dFailed": "Kunne ikke uploade 3D-visning",
         "videoTitle": "Video",
         "videoUrlLabel": "YouTube- eller Vimeo-URL",
