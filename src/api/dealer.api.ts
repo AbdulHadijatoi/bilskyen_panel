@@ -585,7 +585,7 @@ export interface VehicleImportRowIssue {
 
 export interface VehicleImportRowResult {
   row: number
-  status: 'created' | 'created_with_warnings' | 'failed' | 'validated'
+  status: 'created' | 'created_with_warnings' | 'failed' | 'validated' | 'validated_with_warnings'
   vehicle_id?: number | null
   registration?: string | null
   warnings: VehicleImportRowIssue[]
