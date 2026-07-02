@@ -155,15 +155,6 @@
       class="table-card"
       elevation="0"
     >
-      <v-card-title class="card-title">
-        <v-icon class="mr-2">mdi-table</v-icon>
-        Vehicles List
-        <v-spacer />
-        <span class="text-caption text-medium-emphasis">
-          Showing {{ vehicles.docs.length }} of {{ vehicles.totalDocs || 0 }} vehicles
-        </span>
-      </v-card-title>
-
       <v-card-text class="pa-0">
         <div v-if="loading" class="loading-container">
           <v-progress-circular indeterminate color="primary" size="48" />

@@ -1,93 +1,57 @@
 <template>
   <div class="panel-page vehicle-spec-definitions">
     <PageHeader
-      title="Vehicle spec definitions"
+      :title="t('admin.nav.vehicleSpecDefinitions')"
       subtitle="Catalog spec name and value by brand, model, optional variants (multi-select), and inclusive model year range."
     >
       <template #actions>
-        <v-btn
-          color="primary"
-          prepend-icon="mdi-plus"
-          size="default"
-          elevation="2"
-          @click="openCreate"
-        >
+        <button type="button" class="panel-btn panel-btn--primary" @click="openCreate">
+          <v-icon size="16">mdi-plus</v-icon>
           Create
-        </v-btn>
+        </button>
       </template>
     </PageHeader>
 
-    <v-card variant="flat" class="filters-card mb-4" elevation="0">
-      <v-card-text class="pa-4">
-        <div class="d-flex align-center gap-4 flex-wrap">
+    <div class="panel-filters-card">
+      <div class="panel-filters-grid">
+        <div class="panel-filters-grid__search">
+          <span class="panel-filters-card__label">{{ t('common.search') }}</span>
           <v-text-field
-            v-model="searchInput"
+            v-model="search"
             placeholder="Search spec name or value..."
             density="comfortable"
             variant="outlined"
             prepend-inner-icon="mdi-magnify"
-            style="max-width: 360px"
             hide-details
             clearable
-            @keyup.enter="applySearch"
+            @update:model-value="handleSearch"
+            @keyup.enter="handleSearch"
           />
-
-          <v-btn
-            variant="tonal"
-            color="primary"
-            prepend-icon="mdi-filter-check"
-            @click="applySearch"
-          >
-            Search
-          </v-btn>
-
-          <v-select
-            v-model="limit"
-            :items="pageSizeOptions"
-            item-title="label"
-            item-value="value"
-            label="Rows"
-            variant="outlined"
-            density="comfortable"
-            prepend-inner-icon="mdi-format-list-numbered"
-            style="max-width: 140px"
-            hide-details
-            @update:model-value="handlePageSizeChange"
-          />
-
-          <v-spacer />
-
-          <v-btn
-            variant="outlined"
-            prepend-icon="mdi-refresh"
-            :loading="loading"
+        </div>
+        <div class="panel-filters-grid__actions panel-filters-grid__actions--trailing">
+          <button
+            type="button"
+            class="panel-btn panel-btn--outline"
+            :disabled="loading"
             @click="loadRows"
           >
-            Refresh
-          </v-btn>
+            <v-icon size="16">mdi-refresh</v-icon>
+            {{ t('common.refresh') }}
+          </button>
         </div>
-      </v-card-text>
-    </v-card>
+      </div>
+    </div>
 
-    <v-card variant="flat" class="table-card" elevation="0">
-      <v-card-title class="card-title d-flex align-center">
-        <v-icon class="mr-2">mdi-table</v-icon>
-        Definitions
-        <v-spacer />
-        <span class="text-caption text-medium-emphasis">
-          Page {{ page }} of {{ totalPages }} ({{ totalDocs }} total)
-        </span>
-      </v-card-title>
-
-      <v-card-text class="pa-0">
-        <div v-if="loading" class="loading-container pa-8 text-center">
+    <div class="panel-table-card">
+      <div class="panel-table-card__body">
+        <div v-if="loading" class="loading-container">
           <v-progress-circular indeterminate color="primary" size="48" />
-          <p class="text-body-2 text-medium-emphasis mt-4">Loading…</p>
+          <p class="text-body-2 text-medium-emphasis mt-4">{{ t('common.loading') }}</p>
         </div>
 
-        <div v-else-if="listError" class="pa-6">
+        <div v-else-if="listError" class="error-container pa-6">
           <v-alert type="error" variant="tonal" prominent>
-            <v-alert-title>Error</v-alert-title>
+            <v-alert-title>{{ t('common.error') }}</v-alert-title>
             {{ listError }}
           </v-alert>
         </div>
@@ -97,91 +61,75 @@
           :headers="headers"
           :items="rows"
           :items-per-page="limit"
+          :items-per-page-options="pageSizeOptions"
+          :items-length="totalDocs"
           :page="page"
           density="comfortable"
-          class="spec-table"
-          :class="$style.dataTable"
+          class="panel-data-table"
           elevation="0"
           @update:page="handlePageChange"
+          @update:items-per-page="handleItemsPerPageChange"
         >
           <template #item.brand="{ item }">
-            {{ item.brand?.name ?? '—' }}
+            <span class="panel-vehicle-cell__title">{{ item.brand?.name ?? '—' }}</span>
           </template>
 
           <template #item.model="{ item }">
-            {{ item.model?.name ?? '—' }}
+            <span class="panel-vehicle-cell__title">{{ item.model?.name ?? '—' }}</span>
           </template>
 
           <template #item.variants="{ item }">
-            <span class="text-body-2">{{ formatVariantsCell(item) }}</span>
+            <span class="panel-vehicle-cell__subtitle">{{ formatVariantsCell(item) }}</span>
           </template>
 
           <template #item.yearRange="{ item }">
-            <span class="font-weight-medium">{{ formatYearRange(item.modelYearFrom, item.modelYearTo) }}</span>
+            <span class="panel-id-cell">{{ formatYearRange(item.modelYearFrom, item.modelYearTo) }}</span>
           </template>
 
           <template #item.name="{ item }">
-            <span class="font-weight-medium">{{ item.name }}</span>
+            <span class="panel-vehicle-cell__title">{{ item.name }}</span>
           </template>
 
           <template #item.value="{ item }">
-            <span class="text-body-2 text-truncate d-inline-block" style="max-width: 280px" :title="item.value">
+            <span
+              class="panel-vehicle-cell__subtitle text-truncate d-inline-block"
+              style="max-width: 280px"
+              :title="item.value"
+            >
               {{ item.value }}
             </span>
           </template>
 
           <template #item.actions="{ item }">
-            <div class="d-flex gap-1 justify-center">
-              <v-tooltip text="Edit" location="top">
-                <template #activator="{ props }">
-                  <v-btn
-                    icon
-                    variant="text"
-                    size="small"
-                    color="info"
-                    v-bind="props"
-                    @click="openEdit(item)"
-                  >
-                    <v-icon size="20">mdi-pencil</v-icon>
-                  </v-btn>
-                </template>
-              </v-tooltip>
-              <v-tooltip text="Delete" location="top">
-                <template #activator="{ props }">
-                  <v-btn
-                    icon
-                    variant="text"
-                    size="small"
-                    color="error"
-                    v-bind="props"
-                    @click="confirmDelete(item)"
-                  >
-                    <v-icon size="20">mdi-delete</v-icon>
-                  </v-btn>
-                </template>
-              </v-tooltip>
+            <div class="panel-row-actions">
+              <button
+                type="button"
+                class="panel-icon-btn panel-icon-btn--primary"
+                :title="t('common.edit')"
+                @click="openEdit(item)"
+              >
+                <v-icon size="16">mdi-pencil-outline</v-icon>
+              </button>
+              <button
+                type="button"
+                class="panel-icon-btn panel-icon-btn--danger"
+                :title="t('common.delete')"
+                @click="confirmDelete(item)"
+              >
+                <v-icon size="16">mdi-trash-can-outline</v-icon>
+              </button>
             </div>
           </template>
 
           <template #no-data>
-            <div class="text-center py-8">
-              <v-icon size="64" color="grey-lighten-1" class="mb-2">mdi-inbox-outline</v-icon>
-              <p class="text-body-1 text-medium-emphasis">No definitions found</p>
+            <div class="panel-table-empty">
+              <v-icon size="48" color="disabled">mdi-inbox-outline</v-icon>
+              <p>No definitions found</p>
             </div>
           </template>
         </v-data-table>
-
-        <div v-if="totalPages > 1" class="pagination-container pa-4">
-          <v-pagination
-            v-model="page"
-            :length="totalPages"
-            :total-visible="7"
-            density="comfortable"
-            @update:model-value="handlePageChange"
-          />
-        </div>
-      </v-card-text>
-    </v-card>
+      </div>
+    </div>
 
     <v-dialog v-model="showDialog" max-width="640" scrollable persistent>
       <v-card>
@@ -322,6 +270,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import {
   createVehicleSpecDefinition,
   deleteVehicleSpecDefinition,
@@ -337,6 +286,8 @@ import type { ConstantModel, VariantConstant, VehicleModelConstant } from '@/api
 import type { ApiErrorModel } from '@/models/api-error.model'
 import PageHeader from '@/components/panel/PageHeader.vue'
 
+const { t } = useI18n()
+
 const loading = ref(false)
 const saving = ref(false)
 const listError = ref<string | null>(null)
@@ -347,8 +298,7 @@ const page = ref(1)
 const limit = ref(15)
 const totalDocs = ref(0)
 const totalPages = ref(1)
-const searchInput = ref('')
-const appliedSearch = ref('')
+const search = ref('')
 
 const brands = ref<ConstantModel[]>([])
 /** Models for the selected brand (loaded on demand). */
@@ -373,11 +323,7 @@ const form = ref({
   value: '',
 })
 
-const pageSizeOptions = [
-  { label: '15', value: 15 },
-  { label: '50', value: 50 },
-  { label: '100', value: 100 },
-]
+const pageSizeOptions = [15, 50, 100]
 
 const headers = [
   { title: 'Brand', key: 'brand', sortable: false },
@@ -386,7 +332,7 @@ const headers = [
   { title: 'Years', key: 'yearRange', sortable: false, width: '120px' },
   { title: 'Spec name', key: 'name', sortable: false },
   { title: 'Spec value', key: 'value', sortable: false },
-  { title: 'Actions', key: 'actions', sortable: false, width: '120px', align: 'center' as const },
+  { title: 'Actions', key: 'actions', sortable: false, width: '120px', align: 'end' as const },
 ]
 
 /** Model years: 1975 through current calendar year (newest first). */
@@ -525,7 +471,7 @@ async function loadRows(): Promise<void> {
     const data = await getVehicleSpecDefinitions({
       page: page.value,
       limit: limit.value,
-      search: appliedSearch.value.trim() || undefined,
+      search: search.value.trim() || undefined,
     })
     rows.value = data.docs
     totalDocs.value = data.totalDocs ?? data.total ?? data.docs.length
@@ -537,8 +483,7 @@ async function loadRows(): Promise<void> {
   }
 }
 
-function applySearch(): void {
-  appliedSearch.value = searchInput.value || ''
+function handleSearch(): void {
   page.value = 1
   loadRows()
 }
@@ -548,7 +493,8 @@ function handlePageChange(next: number): void {
   loadRows()
 }
 
-function handlePageSizeChange(): void {
+function handleItemsPerPageChange(next: number): void {
+  limit.value = next
   page.value = 1
   loadRows()
 }
@@ -658,22 +604,14 @@ onMounted(async () => {
 })
 </script>
 
-<style module>
-.dataTable :global(.v-data-table__thead th) {
-  font-size: 0.8125rem !important;
-  font-weight: 600 !important;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 16px !important;
-  background-color: rgba(0, 0, 0, 0.02) !important;
-  color: rgba(0, 0, 0, 0.87) !important;
-  border-bottom: 2px solid rgba(0, 0, 0, 0.08) !important;
-}
-
-.dataTable :global(.v-data-table__tbody td) {
-  font-size: 0.875rem !important;
-  padding: 16px !important;
-  height: auto !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+<style scoped>
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  padding: 2rem;
 }
 </style>

@@ -6,145 +6,72 @@
       subtitle="Define tax amounts by registration year range, km/l range, and DMR fuel type."
     >
       <template #actions>
-        <v-btn
-          color="primary"
-          prepend-icon="mdi-plus"
-          size="default"
-          @click="openCreate"
-          elevation="2"
-        >
+        <button type="button" class="panel-btn panel-btn--primary" @click="openCreate">
+          <v-icon size="16">mdi-plus</v-icon>
           Add Rule
-        </v-btn>
+        </button>
       </template>
     </PageHeader>
 
-    <!-- Stats Cards -->
-    <v-row class="mb-6">
+    <v-row class="mb-5">
       <v-col cols="12" sm="6" md="3">
-        <v-card variant="flat" class="stat-card" elevation="0">
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="stat-label">Rules (this page)</div>
-                <div class="stat-value">{{ rules.length }}</div>
-              </div>
-              <v-icon size="40" color="primary" class="stat-icon">mdi-cash-multiple</v-icon>
-            </div>
-          </v-card-text>
-        </v-card>
+        <OverviewStatCard label="Rules (this page)" :value="rules.length" icon="mdi-cash-multiple" color="primary" />
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <v-card variant="flat" class="stat-card" elevation="0">
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="stat-label">Fuel types (this page)</div>
-                <div class="stat-value text-success">{{ uniqueFuelTypesCount }}</div>
-              </div>
-              <v-icon size="40" color="success" class="stat-icon">mdi-fuel</v-icon>
-            </div>
-          </v-card-text>
-        </v-card>
+        <OverviewStatCard label="Fuel types (this page)" :value="uniqueFuelTypesCount" icon="mdi-fuel" color="success" value-tone="success" />
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <v-card variant="flat" class="stat-card" elevation="0">
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="stat-label">Filtered</div>
-                <div class="stat-value text-info">{{ filteredRules.length }}</div>
-              </div>
-              <v-icon size="40" color="info" class="stat-icon">mdi-filter</v-icon>
-            </div>
-          </v-card-text>
-        </v-card>
+        <OverviewStatCard label="Filtered" :value="filteredRules.length" icon="mdi-filter" color="info" value-tone="info" />
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <v-card variant="flat" class="stat-card" elevation="0">
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="stat-label">Total rules</div>
-                <div class="stat-value text-warning">{{ totalDocs }}</div>
-              </div>
-              <v-icon size="40" color="warning" class="stat-icon">mdi-database</v-icon>
-            </div>
-          </v-card-text>
-        </v-card>
+        <OverviewStatCard label="Total rules" :value="totalDocs" icon="mdi-database" color="warning" value-tone="warning" />
       </v-col>
     </v-row>
 
-    <!-- Filters and Search Card -->
-    <v-card variant="flat" class="filters-card mb-4" elevation="0">
-      <v-card-text class="pa-4">
-        <div class="d-flex align-center gap-4 flex-wrap">
+    <div class="panel-filters-card">
+      <div class="panel-filters-grid">
+        <div class="panel-filters-grid__search">
+          <span class="panel-filters-card__label">Search</span>
           <v-text-field
             v-model="search"
             placeholder="Search fuel type / ranges / amount..."
             density="comfortable"
             variant="outlined"
             prepend-inner-icon="mdi-magnify"
-            class="search-field flex-grow-1"
-            style="max-width: 400px;"
             hide-details
             clearable
           />
-
+        </div>
+        <div class="panel-filters-grid__field">
+          <span class="panel-filters-card__label">Fuel type</span>
           <v-select
             v-model="fuelFilter"
             :items="fuelFilterOptions"
             item-title="label"
             item-value="value"
-            label="Fuel type"
             variant="outlined"
             density="comfortable"
             prepend-inner-icon="mdi-fuel"
-            style="max-width: 260px;"
             hide-details
             clearable
           />
-
-          <v-select
-            v-model="limit"
-            :items="pageSizeOptions"
-            item-title="label"
-            item-value="value"
-            label="Rows"
-            variant="outlined"
-            density="comfortable"
-            prepend-inner-icon="mdi-format-list-numbered"
-            style="max-width: 160px;"
-            hide-details
-            @update:model-value="handlePageSizeChange"
-          />
-
-          <v-spacer />
-
-          <v-btn
-            variant="outlined"
-            prepend-icon="mdi-refresh"
-            @click="loadRules"
-            :loading="loading"
-            size="default"
-          >
-            Refresh
-          </v-btn>
         </div>
-      </v-card-text>
-    </v-card>
+        <div class="panel-filters-grid__actions panel-filters-grid__actions--trailing">
+          <button
+            type="button"
+            class="panel-btn panel-btn--outline"
+            :disabled="loading"
+            @click="loadRules"
+          >
+            <v-icon size="16">mdi-refresh</v-icon>
+            Refresh
+          </button>
+        </div>
+      </div>
+    </div>
 
-    <!-- Table Card -->
-    <v-card variant="flat" class="table-card" elevation="0">
-      <v-card-title class="card-title">
-        <v-icon class="mr-2">mdi-table</v-icon>
-        Rules List
-        <v-spacer />
-        <span class="text-caption text-medium-emphasis">
-          Showing {{ filteredRules.length }} of {{ totalDocs }}
-        </span>
-      </v-card-title>
-
-      <v-card-text class="pa-0">
+    <div class="panel-table-card">
+      <div class="panel-table-card__body">
         <div v-if="loading" class="loading-container">
           <v-progress-circular indeterminate color="primary" size="48" />
           <p class="text-body-2 text-medium-emphasis mt-4">Loading rules...</p>
@@ -162,12 +89,14 @@
           :headers="headers"
           :items="filteredRules"
           :items-per-page="limit"
+          :items-per-page-options="[15, 50, 100]"
+          :items-length="totalDocs"
           :page="page"
           density="comfortable"
-          class="rules-table"
-          :class="$style.dataTable"
+          class="panel-data-table"
           elevation="0"
           @update:page="handlePageChange"
+          @update:items-per-page="handleItemsPerPageChange"
         >
           <template #item.fuelType="{ item }">
             <div>
@@ -197,63 +126,35 @@
           </template>
 
           <template #item.actions="{ item }">
-            <div class="d-flex gap-1 align-center justify-center">
-              <v-tooltip text="Edit" location="top">
-                <template #activator="{ props }">
-                  <v-btn
-                    icon
-                    variant="text"
-                    size="small"
-                    color="info"
-                    v-bind="props"
-                    @click="openEdit(item)"
-                    class="action-btn"
-                  >
-                    <v-icon size="20">mdi-pencil</v-icon>
-                  </v-btn>
-                </template>
-              </v-tooltip>
-              <v-tooltip text="Delete" location="top">
-                <template #activator="{ props }">
-                  <v-btn
-                    icon
-                    variant="text"
-                    size="small"
-                    color="error"
-                    v-bind="props"
-                    @click="confirmDelete(item)"
-                    class="action-btn"
-                  >
-                    <v-icon size="20">mdi-delete</v-icon>
-                  </v-btn>
-                </template>
-              </v-tooltip>
+            <div class="panel-row-actions">
+              <button
+                type="button"
+                class="panel-icon-btn panel-icon-btn--primary"
+                title="Edit"
+                @click="openEdit(item)"
+              >
+                <v-icon size="16">mdi-pencil-outline</v-icon>
+              </button>
+              <button
+                type="button"
+                class="panel-icon-btn panel-icon-btn--danger"
+                title="Delete"
+                @click="confirmDelete(item)"
+              >
+                <v-icon size="16">mdi-trash-can-outline</v-icon>
+              </button>
             </div>
           </template>
 
           <template #no-data>
-            <div class="text-center py-8">
-              <v-icon size="64" color="grey-lighten-1" class="mb-2">mdi-inbox-outline</v-icon>
-              <p class="text-body-1 text-medium-emphasis">No rules found</p>
-              <p class="text-caption text-medium-emphasis mt-1">
-                {{ search || fuelFilter ? 'Try adjusting your filters' : 'Click “Add Rule” to create your first rule' }}
-              </p>
+            <div class="panel-table-empty">
+              <v-icon size="48" color="disabled">mdi-inbox-outline</v-icon>
+              <p>No rules found</p>
             </div>
           </template>
         </v-data-table>
-
-        <!-- Pagination -->
-        <div v-if="totalPages > 1" class="pagination-container pa-4">
-          <v-pagination
-            v-model="page"
-            :length="totalPages"
-            :total-visible="7"
-            density="comfortable"
-            @update:model-value="handlePageChange"
-          />
-        </div>
-      </v-card-text>
-    </v-card>
+      </div>
+    </div>
 
     <!-- Create/Edit Dialog -->
     <v-dialog v-model="showDialog" max-width="720" scrollable persistent>
@@ -426,6 +327,7 @@ import {
 } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import OverviewStatCard from '@/components/panel/OverviewStatCard.vue'
 
 const loading = ref(false)
 const saving = ref(false)
@@ -548,12 +450,6 @@ const fuelFilterOptions = computed(() => {
   return opts
 })
 
-const pageSizeOptions = [
-  { label: '15', value: 15 },
-  { label: '50', value: 50 },
-  { label: '100', value: 100 },
-]
-
 const filteredRules = computed(() => {
   const q = (search.value || '').trim().toLowerCase()
   return rules.value.filter((r) => {
@@ -598,7 +494,8 @@ const handlePageChange = (nextPage: number) => {
   loadRules()
 }
 
-const handlePageSizeChange = () => {
+const handleItemsPerPageChange = (next: number) => {
+  limit.value = next
   page.value = 1
   loadRules()
 }
@@ -742,148 +639,14 @@ onMounted(async () => {
 })
 </script>
 
-<style module>
-.dataTable :global(.v-data-table__thead th) {
-  font-size: 0.8125rem !important;
-  font-weight: 600 !important;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 16px !important;
-  background-color: rgba(0, 0, 0, 0.02) !important;
-  color: rgba(0, 0, 0, 0.87) !important;
-  border-bottom: 2px solid rgba(0, 0, 0, 0.08) !important;
-}
-
-.dataTable :global(.v-data-table__tbody td) {
-  font-size: 0.875rem !important;
-  padding: 16px !important;
-  height: auto !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
-}
-
-.dataTable :global(.v-data-table__tbody tr:hover) {
-  background-color: rgba(0, 0, 0, 0.02) !important;
-}
-
-.dataTable :global(.v-data-table) {
-  background-color: transparent !important;
-}
-</style>
-
 <style scoped>
-.ownership-tax-overview-container {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 24px;
-}
-
-.header-section {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-  padding-bottom: 24px;
-}
-
-.stat-card {
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 12px;
-  transition: all 0.2s ease;
-}
-
-.stat-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
-}
-
-.stat-label {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: rgba(0, 0, 0, 0.6);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 8px;
-}
-
-.stat-value {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: rgba(0, 0, 0, 0.87);
-}
-
-.stat-icon {
-  opacity: 0.8;
-}
-
-.filters-card {
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 12px;
-}
-
-.search-field {
-  flex: 1;
-  max-width: 400px;
-}
-
-.table-card {
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.card-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  padding: 20px 24px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  display: flex;
-  align-items: center;
-}
-
-.loading-container {
+.loading-container,
+.error-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 300px;
-}
-
-.error-container {
-  min-height: 200px;
-}
-
-.action-btn {
-  min-width: 36px !important;
-  width: 36px !important;
-  height: 36px !important;
-  padding: 0 !important;
-}
-
-.action-btn:hover {
-  background-color: rgba(0, 0, 0, 0.04) !important;
-}
-
-.pagination-container {
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-  background-color: rgba(0, 0, 0, 0.01);
-}
-
-.gap-4 {
-  gap: 16px;
-}
-
-.rules-table {
-  background-color: transparent;
-}
-
-@media (max-width: 960px) {
-  .ownership-tax-overview-container {
-    padding: 16px;
-  }
-
-  .stat-value {
-    font-size: 1.5rem;
-  }
-
-  .stat-icon {
-    font-size: 32px !important;
-  }
+  padding: 2rem;
 }
 </style>

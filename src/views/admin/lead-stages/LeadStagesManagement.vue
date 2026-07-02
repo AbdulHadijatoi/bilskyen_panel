@@ -5,64 +5,72 @@
       subtitle="Rediger titlerne på lead-faserne, som vises i forhandlerpanelet (kanban og detaljevisning)."
     >
       <template #actions>
-        <v-btn
-          variant="outlined"
-          prepend-icon="mdi-refresh"
-          :loading="loading"
+        <button
+          type="button"
+          class="panel-btn panel-btn--outline"
+          :disabled="loading"
           @click="loadStages"
         >
+          <v-icon size="16">mdi-refresh</v-icon>
           Opdater
-        </v-btn>
+        </button>
       </template>
     </PageHeader>
 
-    <v-card variant="flat" class="table-card" elevation="0">
-      <v-card-text class="pa-0">
-        <div v-if="loading" class="text-center py-8">
-          <v-progress-circular indeterminate color="primary" />
+    <div class="panel-table-card">
+      <div class="panel-table-card__body">
+        <div v-if="loading" class="loading-container">
+          <v-progress-circular indeterminate color="primary" size="48" />
         </div>
 
-        <v-alert v-else-if="listError" type="error" variant="tonal" class="ma-4">
-          {{ listError }}
-        </v-alert>
+        <div v-else-if="listError" class="error-container pa-6">
+          <v-alert type="error" variant="tonal" prominent>{{ listError }}</v-alert>
+        </div>
 
-        <v-table v-else density="comfortable">
-          <thead>
-            <tr>
-              <th style="width: 80px;">ID</th>
-              <th>Titel (dansk)</th>
-              <th style="width: 120px;" class="text-right">Handling</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="stage in stages" :key="stage.id">
-              <td>{{ stage.id }}</td>
-              <td>
-                <v-text-field
-                  v-model="editNames[stage.id]"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  maxlength="50"
+        <v-data-table
+          v-else
+          :headers="headers"
+          :items="stages"
+          density="compact"
+          class="panel-data-table panel-data-table--inline-edit"
+          elevation="0"
+          hide-default-footer
+        >
+          <template #item.id="{ item }">
+            <span class="panel-id-cell">#{{ item.id }}</span>
+          </template>
+
+          <template #item.name="{ item }">
+            <input
+              v-model="editNames[item.id]"
+              type="text"
+              class="panel-inline-input"
+              maxlength="50"
+              :aria-label="`Titel for fase ${item.id}`"
+            />
+          </template>
+
+          <template #item.actions="{ item }">
+            <div class="panel-row-actions">
+              <button
+                type="button"
+                class="panel-btn panel-btn--primary panel-btn--sm"
+                :disabled="editNames[item.id] === item.name"
+                @click="saveStage(item.id)"
+              >
+                <v-progress-circular
+                  v-if="savingId === item.id"
+                  indeterminate
+                  size="14"
+                  width="2"
                 />
-              </td>
-              <td class="text-right">
-                <v-btn
-                  color="primary"
-                  size="small"
-                  variant="flat"
-                  :loading="savingId === stage.id"
-                  :disabled="editNames[stage.id] === stage.name"
-                  @click="saveStage(stage.id)"
-                >
-                  Gem
-                </v-btn>
-              </td>
-            </tr>
-          </tbody>
-        </v-table>
-      </v-card-text>
-    </v-card>
+                <template v-else>Gem</template>
+              </button>
+            </div>
+          </template>
+        </v-data-table>
+      </div>
+    </div>
 
     <v-snackbar v-model="snackbar.show" :color="snackbar.color" timeout="3000">
       {{ snackbar.message }}
@@ -85,6 +93,12 @@ const listError = ref<string | null>(null)
 const stages = ref<AdminLeadStageModel[]>([])
 const editNames = reactive<Record<number, string>>({})
 const savingId = ref<number | null>(null)
+
+const headers = [
+  { title: 'ID', key: 'id', width: '88px', sortable: false },
+  { title: 'Titel (dansk)', key: 'name', sortable: false },
+  { title: 'Handling', key: 'actions', width: '120px', sortable: false, align: 'end' as const },
+]
 
 const snackbar = ref({
   show: false,
@@ -146,8 +160,13 @@ onMounted(() => {
   max-width: 900px;
 }
 
-.table-card {
-  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-  border-radius: 12px;
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 2rem;
 }
 </style>

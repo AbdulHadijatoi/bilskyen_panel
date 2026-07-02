@@ -84,12 +84,25 @@
             </div>
           </v-btn>
         </template>
-        <v-list>
-          <v-list-item prepend-icon="mdi-lock-reset" @click="showChangePasswordDialog = true">
+        <v-list density="compact" class="sidebar-user-menu__list">
+          <v-list-item
+            density="compact"
+            class="sidebar-user-menu__item"
+            @click="showChangePasswordDialog = true"
+          >
+            <template #prepend>
+              <v-icon size="16" class="sidebar-user-menu__icon">mdi-lock-reset</v-icon>
+            </template>
             <v-list-item-title>{{ t('nav.changePassword') }}</v-list-item-title>
           </v-list-item>
-          <v-divider />
-          <v-list-item prepend-icon="mdi-logout" @click="handleLogout">
+          <v-list-item
+            density="compact"
+            class="sidebar-user-menu__item sidebar-user-menu__item--danger"
+            @click="handleLogout"
+          >
+            <template #prepend>
+              <v-icon size="16" class="sidebar-user-menu__icon">mdi-logout</v-icon>
+            </template>
             <v-list-item-title>{{ t('nav.logout') }}</v-list-item-title>
           </v-list-item>
         </v-list>
@@ -343,11 +356,58 @@ onMounted(async () => {
 
 <style>
 /* Menu is teleported outside the sidebar — needs a global class */
-.sidebar-user-menu .v-list-item {
+.sidebar-user-menu {
+  border-radius: var(--radius-lg) !important;
+  border: 1px solid color-mix(in oklch, var(--border) 70%, transparent) !important;
+  box-shadow: var(--shadow-card-hover) !important;
+  background: var(--card) !important;
+  overflow: hidden;
+  min-width: 10.5rem;
+  padding: 0.25rem !important;
+}
+
+.sidebar-user-menu .sidebar-user-menu__list {
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.sidebar-user-menu .sidebar-user-menu__item {
+  min-height: 32px !important;
+  padding-inline: 0.625rem !important;
+  padding-block: 0.25rem !important;
+  border-radius: var(--radius) !important;
   justify-content: flex-start !important;
 }
 
+.sidebar-user-menu .sidebar-user-menu__item .v-list-item__prepend {
+  width: auto !important;
+  min-width: 0 !important;
+  margin-inline-end: 0.5rem !important;
+}
+
+.sidebar-user-menu .sidebar-user-menu__item .v-list-item__prepend > .v-icon {
+  margin-inline: 0 !important;
+}
+
+.sidebar-user-menu .sidebar-user-menu__icon {
+  color: var(--muted-foreground) !important;
+  opacity: 1 !important;
+}
+
+.sidebar-user-menu .sidebar-user-menu__item:hover {
+  background: var(--muted) !important;
+}
+
+.sidebar-user-menu .sidebar-user-menu__item--danger:hover .sidebar-user-menu__icon,
+.sidebar-user-menu .sidebar-user-menu__item--danger:hover .v-list-item-title {
+  color: var(--destructive) !important;
+}
+
 .sidebar-user-menu .v-list-item-title {
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+  line-height: 1.25 !important;
   text-align: left;
+  color: var(--foreground) !important;
 }
 </style>

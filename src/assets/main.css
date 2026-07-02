@@ -6,9 +6,10 @@
 @tailwind utilities;
 
 :root {
-  --radius: 0.625rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.25rem;
+  --radius: 5px;
+  --radius-lg: 5px;
+  --radius-xl: 5px;
+  --radius-icon-btn: 0.625rem;
   --background: #f4f5f7;
   --foreground: #1a1d21;
   --card: #ffffff;
@@ -177,6 +178,15 @@
   .v-data-table__thead th {
     background-color: var(--muted) !important;
     color: var(--muted-foreground) !important;
+    white-space: nowrap !important;
+  }
+
+  .v-data-table__th,
+  .v-data-table-header__content,
+  .v-table thead th,
+  .v-table th,
+  table thead th {
+    white-space: nowrap !important;
   }
   
   .v-data-table__tbody {
@@ -224,10 +234,16 @@
     background-color: var(--primary-hover) !important;
   }
 
-  :deep(.v-btn--variant-outlined:hover) {
-    background-color: var(--primary-light) !important;
+  :deep(.v-btn--variant-outlined) {
     border-color: var(--primary) !important;
     color: var(--primary) !important;
+    background-color: var(--card) !important;
+  }
+
+  :deep(.v-btn--variant-outlined:hover) {
+    background-color: var(--primary-light) !important;
+    border-color: var(--primary-hover) !important;
+    color: var(--primary-hover) !important;
   }
 
   :deep(.v-btn--variant-text:hover) {
@@ -386,7 +402,7 @@
     background-color: var(--accent);
     border-left: 3px solid var(--primary);
     padding: 1rem;
-    border-radius: 0.5rem;
+    border-radius: var(--radius);
   }
 
   /* Subtle background accents */
@@ -427,5 +443,42 @@
 }
 
 .auth-submit:hover:not(:disabled) {
+  color: #ffffff !important;
+}
+
+/*
+ * Filled primary buttons — white label text.
+ * Tailwind preflight sets `button { color: inherit }`; global `a { color: primary }`
+ * also overrides router-link primary actions.
+ */
+.panel-btn--primary,
+.panel-btn--primary:hover:not(:disabled),
+.panel-btn--primary:focus-visible,
+.panel-btn--primary:disabled,
+a.panel-btn--primary,
+a.panel-btn--primary:hover,
+a.panel-btn--primary:visited {
+  color: #ffffff !important;
+}
+
+.panel-btn--primary .v-icon {
+  color: currentColor !important;
+}
+
+.v-application button.v-btn.bg-primary,
+.v-application button.v-btn.text-on-primary,
+.v-application a.v-btn.bg-primary,
+.v-application a.v-btn.text-on-primary,
+.v-application button.v-btn.bg-primary:hover,
+.v-application button.v-btn.text-on-primary:hover,
+.v-application a.v-btn.bg-primary:hover,
+.v-application a.v-btn.text-on-primary:hover {
+  color: #ffffff !important;
+}
+
+.v-application .v-btn.bg-primary .v-btn__content,
+.v-application .v-btn.bg-primary .v-icon,
+.v-application .v-btn.text-on-primary .v-btn__content,
+.v-application .v-btn.text-on-primary .v-icon {
   color: #ffffff !important;
 }

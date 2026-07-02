@@ -1,122 +1,117 @@
 <template>
   <div class="panel-page constants-container">
-    <div class="constants-header">
-      <div class="header-content">
-        <h1 class="page-title">Brands, models & variants</h1>
-        <p class="page-subtitle">
-          Manage DMR brands, vehicle models, and variants
-        </p>
-      </div>
+    <PageHeader
+      title="Brands, models & variants"
+      subtitle="Manage DMR brands, vehicle models, and variants"
+    />
+
+    <div class="panel-tabs">
+      <button
+        v-for="tab in tabs"
+        :key="tab.key"
+        type="button"
+        :class="['panel-tabs__btn', { 'panel-tabs__btn--active': activeTab === tab.key }]"
+        @click="activeTab = tab.key"
+      >
+        {{ tab.label }}
+      </button>
     </div>
 
-    <div class="tabs-container">
-      <div class="tabs-wrapper">
-        <button
-          v-for="tab in tabs"
-          :key="tab.key"
-          :class="['tab-button', { active: activeTab === tab.key }]"
-          @click="activeTab = tab.key"
-        >
-          {{ tab.label }}
-        </button>
-      </div>
-    </div>
-
-    <v-card elevation="1" class="content-card">
-      <div class="content-container">
-        <div class="content-header">
-          <div class="filters-row">
-            <div v-if="activeTab === 'vehicle_models'" class="filter-field">
-              <label class="filter-label">Brand</label>
-              <v-select
-                v-model="filterBrandId"
-                :items="brandFilterItems"
-                item-title="name"
-                item-value="id"
-                variant="outlined"
-                density="compact"
-                hide-details
-                clearable
-                placeholder="All brands"
-                class="filter-select"
-                @update:model-value="onFilterBrandChange"
-              />
-            </div>
-            <div v-if="activeTab === 'variants'" class="filter-field">
-              <label class="filter-label">Brand</label>
-              <v-select
-                v-model="filterVariantBrandId"
-                :items="brandFilterItems"
-                item-title="name"
-                item-value="id"
-                variant="outlined"
-                density="compact"
-                hide-details
-                clearable
-                placeholder="All brands"
-                class="filter-select"
-                @update:model-value="onFilterVariantBrandChange"
-              />
-            </div>
-            <div v-if="activeTab === 'variants'" class="filter-field">
-              <label class="filter-label">Model</label>
-              <v-select
-                v-model="filterModelId"
-                :items="variantModelFilterItems"
-                item-title="name"
-                item-value="id"
-                variant="outlined"
-                density="compact"
-                hide-details
-                clearable
-                placeholder="All models"
-                class="filter-select"
-                @update:model-value="onFilterModelChange"
-              />
-            </div>
-            <div class="search-wrapper">
-              <v-icon class="search-icon">mdi-magnify</v-icon>
-              <input
-                v-model="searchQueries[activeTab]"
-                type="text"
-                class="search-input"
-                :placeholder="`Search ${getCurrentTab()?.label.toLowerCase() || ''}...`"
-              />
-            </div>
-          </div>
-          <button class="create-button" @click="handleCreateClick">
-            <v-icon size="18">mdi-plus</v-icon>
-            <span>Add New</span>
-          </button>
-        </div>
-
-        <div class="content-body">
-          <ConstantList
-            :items="displayedItems"
-            :loading="listLoading"
-            :error="errors[activeTab]"
-            :title="getCurrentTab()?.label || ''"
-            :search-query="searchQueries[activeTab]"
-            :show-brand="activeTab === 'vehicle_models'"
-            :show-equipment-type="false"
-            :show-model="false"
-            :show-variant-brand-model="activeTab === 'variants'"
-            @edit="(item) => handleEditClick(item)"
-            @delete="(id) => handleDeleteClick(id)"
+    <div class="panel-filters-card">
+      <div class="panel-filters-grid">
+        <div v-if="activeTab === 'vehicle_models'" class="panel-filters-grid__field">
+          <span class="panel-filters-card__label">Brand</span>
+          <v-select
+            v-model="filterBrandId"
+            :items="brandFilterItems"
+            item-title="name"
+            item-value="id"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            clearable
+            placeholder="All brands"
+            @update:model-value="onFilterBrandChange"
           />
         </div>
+        <template v-if="activeTab === 'variants'">
+          <div class="panel-filters-grid__field">
+            <span class="panel-filters-card__label">Brand</span>
+            <v-select
+              v-model="filterVariantBrandId"
+              :items="brandFilterItems"
+              item-title="name"
+              item-value="id"
+              variant="outlined"
+              density="comfortable"
+              hide-details
+              clearable
+              placeholder="All brands"
+              @update:model-value="onFilterVariantBrandChange"
+            />
+          </div>
+          <div class="panel-filters-grid__field">
+            <span class="panel-filters-card__label">Model</span>
+            <v-select
+              v-model="filterModelId"
+              :items="variantModelFilterItems"
+              item-title="name"
+              item-value="id"
+              variant="outlined"
+              density="comfortable"
+              hide-details
+              clearable
+              placeholder="All models"
+              @update:model-value="onFilterModelChange"
+            />
+          </div>
+        </template>
+        <div class="panel-filters-grid__search">
+          <span class="panel-filters-card__label">Search</span>
+          <v-text-field
+            v-model="searchQueries[activeTab]"
+            :placeholder="`Search ${getCurrentTab()?.label.toLowerCase() || ''}...`"
+            density="comfortable"
+            variant="outlined"
+            prepend-inner-icon="mdi-magnify"
+            hide-details
+            clearable
+          />
+        </div>
+        <div class="panel-filters-grid__actions panel-filters-grid__actions--trailing">
+          <button type="button" class="panel-btn panel-btn--primary" @click="handleCreateClick">
+            <v-icon size="16">mdi-plus</v-icon>
+            Add New
+          </button>
+        </div>
+      </div>
+    </div>
 
-        <div v-if="paginationTotalPages > 1" class="pagination-wrap">
+    <div class="panel-table-card">
+      <div class="panel-table-card__body">
+        <ConstantList
+          :items="displayedItems"
+          :loading="listLoading"
+          :error="errors[activeTab]"
+          :title="getCurrentTab()?.label || ''"
+          :search-query="searchQueries[activeTab]"
+          :show-brand="activeTab === 'vehicle_models'"
+          :show-variant-brand-model="activeTab === 'variants'"
+          @edit="(item) => handleEditClick(item)"
+          @delete="(id) => handleDeleteClick(id)"
+        />
+
+        <div v-if="paginationTotalPages > 1" class="d-flex justify-center pa-4">
           <v-pagination
             v-model="paginationPage"
             :length="paginationTotalPages"
             :total-visible="7"
-            rounded
+            density="comfortable"
             @update:model-value="onPaginationChange"
           />
         </div>
       </div>
-    </v-card>
+    </div>
 
     <ConstantForm
       v-model="showDialog"
@@ -158,6 +153,7 @@ import {
 import type { ApiErrorModel } from '@/models/api-error.model'
 import ConstantList from '@/views/admin/constants/components/ConstantList.vue'
 import ConstantForm from '@/views/admin/constants/components/ConstantForm.vue'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const PAGE_SIZE = 15
 const FORM_MODEL_LIMIT = 2000
@@ -451,204 +447,3 @@ onMounted(async () => {
   await Promise.all([loadFilterDropdowns(), loadFormLookups(), loadBrandsPage()])
 })
 </script>
-
-<style scoped>
-.constants-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  gap: 0;
-}
-
-.constants-header {
-  padding: 2rem 0 1.5rem;
-  border-bottom: 1px solid rgba(var(--v-border-opacity), var(--v-border-opacity));
-}
-
-.header-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.page-title {
-  font-size: 1.75rem;
-  font-weight: 600;
-  line-height: 1.2;
-  margin: 0;
-  color: var(--foreground);
-  letter-spacing: -0.02em;
-}
-
-.page-subtitle {
-  font-size: 0.875rem;
-  color: rgba(var(--v-theme-on-surface), 0.6);
-  margin: 0;
-  font-weight: 400;
-}
-
-.tabs-container {
-  border-bottom: 1px solid rgba(var(--v-border-opacity), var(--v-border-opacity));
-  background: var(--background);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.tabs-wrapper {
-  display: flex;
-  gap: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.tabs-wrapper::-webkit-scrollbar {
-  display: none;
-}
-
-.tab-button {
-  padding: 1rem 1.5rem;
-  border: none;
-  background: transparent;
-  color: rgba(var(--v-theme-on-surface), 0.6);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border-bottom: 2px solid transparent;
-  white-space: nowrap;
-  position: relative;
-}
-
-.tab-button:hover {
-  color: var(--foreground);
-  background: rgba(var(--v-theme-on-surface), 0.04);
-}
-
-.tab-button.active {
-  color: rgb(var(--v-theme-primary));
-  border-bottom-color: rgb(var(--v-theme-primary));
-  background: transparent;
-}
-
-.content-card {
-  overflow: hidden;
-}
-
-.content-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding-top: 1.5rem;
-}
-
-.content-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-}
-
-.filters-row {
-  display: flex;
-  flex: 1;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 1rem;
-  min-width: 0;
-}
-
-.filter-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  min-width: 180px;
-}
-
-.filter-label {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: rgba(var(--v-theme-on-surface), 0.7);
-}
-
-.filter-select {
-  max-width: 280px;
-}
-
-.search-wrapper {
-  position: relative;
-  flex: 1;
-  min-width: 200px;
-  max-width: 400px;
-  display: flex;
-  align-items: center;
-}
-
-.search-icon {
-  position: absolute;
-  left: 0.75rem;
-  color: rgba(var(--v-theme-on-surface), 0.5);
-  pointer-events: none;
-}
-
-.search-input {
-  width: 100%;
-  padding: 0.625rem 0.75rem 0.625rem 2.75rem;
-  border: 1px solid rgba(var(--v-border-opacity), var(--v-border-opacity));
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  background: rgba(var(--v-theme-on-surface), 0.01);
-  color: var(--foreground);
-  transition: all 0.2s ease;
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: rgb(var(--v-theme-primary));
-  background: rgba(var(--v-theme-on-surface), 0.02);
-  box-shadow: 0 0 0 3px rgba(var(--v-theme-primary), 0.1);
-}
-
-.search-input::placeholder {
-  color: rgba(var(--v-theme-on-surface), 0.5);
-}
-
-.create-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
-  background: rgb(var(--v-theme-primary));
-  color: rgb(var(--v-theme-on-primary));
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-}
-
-.create-button:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-.create-button:active {
-  transform: translateY(0);
-}
-
-.content-body {
-  flex: 1;
-  min-height: 0;
-}
-
-.pagination-wrap {
-  display: flex;
-  justify-content: center;
-  padding: 1rem 0 1.5rem;
-}
-</style>

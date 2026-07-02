@@ -298,25 +298,5 @@ export const adminSidebarSections: SidebarSection[] = [
       },
     ],
   },
-  {
-    title: 'Localization',
-    items: [
-      {
-        title: 'Translations',
-        url: `${ADMIN_ROUTE_BASE}/translations`,
-        icon: 'mdi-translate',
-        items: [
-          {
-            title: 'Manage Translations',
-            url: `${ADMIN_ROUTE_BASE}/translations`,
-          },
-          {
-            title: 'Import Translations',
-            url: `${ADMIN_ROUTE_BASE}/translations/import`,
-          },
-        ],
-      },
-    ],
-  },
 ]
 

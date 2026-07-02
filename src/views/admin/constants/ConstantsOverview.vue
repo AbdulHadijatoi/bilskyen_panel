@@ -1,67 +1,62 @@
 <template>
   <div class="panel-page constants-container">
-    <!-- Header -->
-    <div class="constants-header">
-      <div class="header-content">
-        <h1 class="page-title">Constants Management</h1>
-        <p class="page-subtitle">Manage vehicle-related constants and configurations</p>
-      </div>
+    <PageHeader
+      title="Constants Management"
+      subtitle="Manage vehicle-related constants and configurations"
+    />
+
+    <div class="panel-tabs">
+      <button
+        v-for="tab in tabs"
+        :key="tab.key"
+        type="button"
+        :class="['panel-tabs__btn', { 'panel-tabs__btn--active': activeTab === tab.key }]"
+        @click="activeTab = tab.key"
+      >
+        {{ tab.label }}
+      </button>
     </div>
 
-    <!-- Tabs -->
-    <div class="tabs-container">
-      <div class="tabs-wrapper">
-        <button
-          v-for="tab in tabs"
-          :key="tab.key"
-          :class="['tab-button', { active: activeTab === tab.key }]"
-          @click="activeTab = tab.key"
-        >
-          {{ tab.label }}
-        </button>
-      </div>
-    </div>
-
-    <!-- Content Area -->
-    <v-card elevation="1" class="content-card">
-      <div class="content-container">
-        <div class="content-header">
-          <div class="search-wrapper">
-            <v-icon class="search-icon">mdi-magnify</v-icon>
-            <input
-              v-model="searchQueries[activeTab]"
-              type="text"
-              class="search-input"
-              :placeholder="`Search ${getCurrentTab()?.label.toLowerCase() || ''}...`"
-            />
-          </div>
-          <button
-            class="create-button"
-            @click="handleCreateClick"
-          >
-            <v-icon size="18">mdi-plus</v-icon>
-            <span>Add New</span>
-          </button>
-        </div>
-
-        <div class="content-body">
-          <ConstantList
-            :items="getItemsForTab(activeTab)"
-            :loading="loadingStates[activeTab]"
-            :error="errors[activeTab]"
-            :title="getCurrentTab()?.label || ''"
-            :search-query="searchQueries[activeTab]"
-            :show-brand="getCurrentTab()?.showBrand || false"
-            :show-equipment-type="getCurrentTab()?.showEquipmentType || false"
-            :show-model="getCurrentTab()?.showModel || false"
-            @edit="(item) => handleEditClick(item)"
-            @delete="(id) => handleDeleteClick(id)"
+    <div class="panel-filters-card">
+      <div class="panel-filters-grid">
+        <div class="panel-filters-grid__search">
+          <span class="panel-filters-card__label">Search</span>
+          <v-text-field
+            v-model="searchQueries[activeTab]"
+            :placeholder="`Search ${getCurrentTab()?.label.toLowerCase() || ''}...`"
+            density="comfortable"
+            variant="outlined"
+            prepend-inner-icon="mdi-magnify"
+            hide-details
+            clearable
           />
         </div>
+        <div class="panel-filters-grid__actions panel-filters-grid__actions--trailing">
+          <button type="button" class="panel-btn panel-btn--primary" @click="handleCreateClick">
+            <v-icon size="16">mdi-plus</v-icon>
+            Add New
+          </button>
+        </div>
       </div>
-    </v-card>
+    </div>
 
-    <!-- Create/Edit Dialog -->
+    <div class="panel-table-card">
+      <div class="panel-table-card__body">
+        <ConstantList
+          :items="getItemsForTab(activeTab)"
+          :loading="loadingStates[activeTab]"
+          :error="errors[activeTab]"
+          :title="getCurrentTab()?.label || ''"
+          :search-query="searchQueries[activeTab]"
+          :show-brand="getCurrentTab()?.showBrand || false"
+          :show-equipment-type="getCurrentTab()?.showEquipmentType || false"
+          :show-model="getCurrentTab()?.showModel || false"
+          @edit="(item) => handleEditClick(item)"
+          @delete="(id) => handleDeleteClick(id)"
+        />
+      </div>
+    </div>
+
     <ConstantForm
       v-model="showDialog"
       :title="currentTab?.label || ''"
@@ -142,6 +137,7 @@ import {
 import type { ApiErrorModel } from '@/models/api-error.model'
 import ConstantList from './components/ConstantList.vue'
 import ConstantForm from './components/ConstantForm.vue'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 interface TabConfig {
   key: string
@@ -392,174 +388,3 @@ onMounted(() => {
   loadConstantsData()
 })
 </script>
-
-<style scoped>
-.constants-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  gap: 0;
-}
-
-/* Header */
-.constants-header {
-  padding: 2rem 0 1.5rem;
-  border-bottom: 1px solid rgba(var(--v-border-opacity), var(--v-border-opacity));
-}
-
-.header-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.page-title {
-  font-size: 1.75rem;
-  font-weight: 600;
-  line-height: 1.2;
-  margin: 0;
-  color: var(--foreground);
-  letter-spacing: -0.02em;
-}
-
-.page-subtitle {
-  font-size: 0.875rem;
-  color: rgba(var(--v-theme-on-surface), 0.6);
-  margin: 0;
-  font-weight: 400;
-}
-
-/* Tabs */
-.tabs-container {
-  border-bottom: 1px solid rgba(var(--v-border-opacity), var(--v-border-opacity));
-  background: var(--background);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.tabs-wrapper {
-  display: flex;
-  gap: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.tabs-wrapper::-webkit-scrollbar {
-  display: none;
-}
-
-.tab-button {
-  padding: 1rem 1.5rem;
-  border: none;
-  background: transparent;
-  color: rgba(var(--v-theme-on-surface), 0.6);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border-bottom: 2px solid transparent;
-  white-space: nowrap;
-  position: relative;
-}
-
-.tab-button:hover {
-  color: var(--foreground);
-  background: rgba(var(--v-theme-on-surface), 0.04);
-}
-
-.tab-button.active {
-  color: rgb(var(--v-theme-primary));
-  border-bottom-color: rgb(var(--v-theme-primary));
-  background: transparent;
-}
-
-/* Content Card */
-.content-card {
-  overflow: hidden;
-}
-
-/* Content */
-.content-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding-top: 1.5rem;
-  /* padding: 1.5rem; */
-}
-
-.content-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.search-wrapper {
-  position: relative;
-  flex: 1;
-  max-width: 400px;
-  display: flex;
-  align-items: center;
-}
-
-.search-icon {
-  position: absolute;
-  left: 0.75rem;
-  color: rgba(var(--v-theme-on-surface), 0.5);
-  pointer-events: none;
-}
-
-.search-input {
-  width: 100%;
-  padding: 0.625rem 0.75rem 0.625rem 2.75rem;
-  border: 1px solid rgba(var(--v-border-opacity), var(--v-border-opacity));
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  background: rgba(var(--v-theme-on-surface), 0.01);
-  color: var(--foreground);
-  transition: all 0.2s ease;
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: rgb(var(--v-theme-primary));
-  background: rgba(var(--v-theme-on-surface), 0.02);
-  box-shadow: 0 0 0 3px rgba(var(--v-theme-primary), 0.1);
-}
-
-.search-input::placeholder {
-  color: rgba(var(--v-theme-on-surface), 0.5);
-}
-
-.create-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
-  background: rgb(var(--v-theme-primary));
-  color: rgb(var(--v-theme-on-primary));
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.create-button:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-.create-button:active {
-  transform: translateY(0);
-}
-
-.content-body {
-  flex: 1;
-  min-height: 0;
-}
-</style>

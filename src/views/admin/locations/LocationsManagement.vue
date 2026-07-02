@@ -5,87 +5,52 @@
       subtitle="Manage city, postcode, region, and coordinates used in sell-your-car and vehicle forms."
     >
       <template #actions>
-        <v-btn
-          color="primary"
-          prepend-icon="mdi-plus"
-          elevation="2"
-          @click="openCreate"
-        >
+        <button type="button" class="panel-btn panel-btn--primary" @click="openCreate">
+          <v-icon size="16">mdi-plus</v-icon>
           Add location
-        </v-btn>
+        </button>
       </template>
     </PageHeader>
 
-    <v-row class="mb-4">
+    <v-row class="mb-5">
       <v-col cols="12" sm="6" md="4">
-        <v-card variant="flat" class="stat-card" elevation="0">
-          <v-card-text class="pa-4">
-            <div class="stat-label">This page</div>
-            <div class="stat-value">{{ locations.length }}</div>
-          </v-card-text>
-        </v-card>
+        <OverviewStatCard label="This page" :value="locations.length" icon="mdi-map-marker" color="primary" />
       </v-col>
       <v-col cols="12" sm="6" md="4">
-        <v-card variant="flat" class="stat-card" elevation="0">
-          <v-card-text class="pa-4">
-            <div class="stat-label">Total matching</div>
-            <div class="stat-value text-primary">{{ totalDocs }}</div>
-          </v-card-text>
-        </v-card>
+        <OverviewStatCard label="Total matching" :value="totalDocs" icon="mdi-map-marker-multiple" color="info" value-tone="info" />
       </v-col>
     </v-row>
 
-    <v-card variant="flat" class="filters-card mb-4" elevation="0">
-      <v-card-text class="pa-4">
-        <div class="d-flex align-center gap-4 flex-wrap">
+    <div class="panel-filters-card">
+      <div class="panel-filters-grid">
+        <div class="panel-filters-grid__search">
+          <span class="panel-filters-card__label">Search</span>
           <v-text-field
             v-model="search"
             placeholder="Search city, postcode, region, country…"
             density="comfortable"
             variant="outlined"
             prepend-inner-icon="mdi-magnify"
-            class="search-field flex-grow-1"
-            style="max-width: 420px;"
             hide-details
             clearable
           />
-          <v-select
-            v-model="limit"
-            :items="pageSizeOptions"
-            item-title="label"
-            item-value="value"
-            label="Rows"
-            variant="outlined"
-            density="comfortable"
-            prepend-inner-icon="mdi-format-list-numbered"
-            style="max-width: 160px;"
-            hide-details
-            @update:model-value="handlePageSizeChange"
-          />
-          <v-spacer />
-          <v-btn
-            variant="outlined"
-            prepend-icon="mdi-refresh"
-            :loading="loading"
+        </div>
+        <div class="panel-filters-grid__actions panel-filters-grid__actions--trailing">
+          <button
+            type="button"
+            class="panel-btn panel-btn--outline"
+            :disabled="loading"
             @click="loadLocations"
           >
+            <v-icon size="16">mdi-refresh</v-icon>
             Refresh
-          </v-btn>
+          </button>
         </div>
-      </v-card-text>
-    </v-card>
+      </div>
+    </div>
 
-    <v-card variant="flat" class="table-card" elevation="0">
-      <v-card-title class="card-title">
-        <v-icon class="mr-2">mdi-map-marker-multiple</v-icon>
-        Locations
-        <v-spacer />
-        <span class="text-caption text-medium-emphasis">
-          Page {{ page }} of {{ totalPages }} · {{ totalDocs }} total
-        </span>
-      </v-card-title>
-
-      <v-card-text class="pa-0">
+    <div class="panel-table-card">
+      <div class="panel-table-card__body">
         <div v-if="loading" class="loading-container">
           <v-progress-circular indeterminate color="primary" size="48" />
           <p class="text-body-2 text-medium-emphasis mt-4">Loading locations…</p>
@@ -103,12 +68,14 @@
           :headers="headers"
           :items="locations"
           :items-per-page="limit"
-          :page="1"
-          hide-default-footer
+          :items-per-page-options="[15, 50, 100]"
+          :items-length="totalDocs"
+          :page="page"
           density="comfortable"
-          class="locations-table"
-          :class="$style.dataTable"
+          class="panel-data-table"
           elevation="0"
+          @update:page="handlePageChange"
+          @update:items-per-page="handleItemsPerPageChange"
         >
           <template #item.coords="{ item }">
             <span class="text-medium-emphasis font-mono text-caption">
@@ -117,62 +84,35 @@
           </template>
 
           <template #item.actions="{ item }">
-            <div class="d-flex gap-1 align-center justify-center">
-              <v-tooltip text="Edit" location="top">
-                <template #activator="{ props }">
-                  <v-btn
-                    icon
-                    variant="text"
-                    size="small"
-                    color="info"
-                    v-bind="props"
-                    class="action-btn"
-                    @click="openEdit(item)"
-                  >
-                    <v-icon size="20">mdi-pencil</v-icon>
-                  </v-btn>
-                </template>
-              </v-tooltip>
-              <v-tooltip text="Delete" location="top">
-                <template #activator="{ props }">
-                  <v-btn
-                    icon
-                    variant="text"
-                    size="small"
-                    color="error"
-                    v-bind="props"
-                    class="action-btn"
-                    @click="confirmDelete(item)"
-                  >
-                    <v-icon size="20">mdi-delete</v-icon>
-                  </v-btn>
-                </template>
-              </v-tooltip>
+            <div class="panel-row-actions">
+              <button
+                type="button"
+                class="panel-icon-btn panel-icon-btn--primary"
+                title="Edit"
+                @click="openEdit(item)"
+              >
+                <v-icon size="16">mdi-pencil-outline</v-icon>
+              </button>
+              <button
+                type="button"
+                class="panel-icon-btn panel-icon-btn--danger"
+                title="Delete"
+                @click="confirmDelete(item)"
+              >
+                <v-icon size="16">mdi-trash-can-outline</v-icon>
+              </button>
             </div>
           </template>
 
           <template #no-data>
-            <div class="text-center py-8">
-              <v-icon size="64" color="grey-lighten-1" class="mb-2">mdi-map-marker-off</v-icon>
-              <p class="text-body-1 text-medium-emphasis">No locations found</p>
-              <p class="text-caption text-medium-emphasis mt-1">
-                {{ search ? 'Try a different search' : 'Add a location to get started' }}
-              </p>
+            <div class="panel-table-empty">
+              <v-icon size="48" color="disabled">mdi-map-marker-off</v-icon>
+              <p>No locations found</p>
             </div>
           </template>
         </v-data-table>
-
-        <div v-if="totalPages > 1" class="pagination-container pa-4">
-          <v-pagination
-            v-model="page"
-            :length="totalPages"
-            :total-visible="7"
-            density="comfortable"
-            @update:model-value="handlePageChange"
-          />
-        </div>
-      </v-card-text>
-    </v-card>
+      </div>
+    </div>
 
     <v-dialog v-model="showDialog" max-width="560" scrollable persistent>
       <v-card>
@@ -313,6 +253,7 @@ import {
 } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import OverviewStatCard from '@/components/panel/OverviewStatCard.vue'
 
 const { t } = useI18n()
 
@@ -374,13 +315,7 @@ const headers = [
   { title: 'Region', key: 'region', sortable: false },
   { title: 'Country', key: 'countryCode', sortable: false, width: '88px' },
   { title: 'Coordinates', key: 'coords', sortable: false, width: '200px' },
-  { title: 'Actions', key: 'actions', sortable: false, width: '120px', align: 'center' as const },
-]
-
-const pageSizeOptions = [
-  { label: '15', value: 15 },
-  { label: '50', value: 50 },
-  { label: '100', value: 100 },
+  { title: 'Actions', key: 'actions', sortable: false, width: '120px', align: 'end' as const },
 ]
 
 function formatCoord(n: number) {
@@ -430,7 +365,8 @@ const handlePageChange = (nextPage: number) => {
   loadLocations()
 }
 
-const handlePageSizeChange = () => {
+const handleItemsPerPageChange = (next: number) => {
+  limit.value = next
   page.value = 1
   loadLocations()
 }
@@ -529,121 +465,18 @@ onMounted(() => {
 })
 </script>
 
-<style module>
-.dataTable :global(.v-data-table__thead th) {
-  font-size: 0.8125rem !important;
-  font-weight: 600 !important;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 16px !important;
-  background-color: rgba(0, 0, 0, 0.02) !important;
-  color: rgba(0, 0, 0, 0.87) !important;
-  border-bottom: 2px solid rgba(0, 0, 0, 0.08) !important;
-}
-
-.dataTable :global(.v-data-table__tbody td) {
-  font-size: 0.875rem !important;
-  padding: 16px !important;
-  height: auto !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
-}
-
-.dataTable :global(.v-data-table__tbody tr:hover) {
-  background-color: rgba(0, 0, 0, 0.02) !important;
-}
-
-.dataTable :global(.v-data-table) {
-  background-color: transparent !important;
-}
-</style>
-
 <style scoped>
-.locations-admin-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 24px;
-}
-
-.header-section {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-  padding-bottom: 24px;
-}
-
-.stat-card {
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 12px;
-}
-
-.stat-label {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: rgba(0, 0, 0, 0.6);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 8px;
-}
-
-.stat-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: rgba(0, 0, 0, 0.87);
-}
-
-.filters-card {
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 12px;
-}
-
-.table-card {
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.card-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  padding: 20px 24px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  display: flex;
-  align-items: center;
-}
-
-.loading-container {
+.loading-container,
+.error-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 280px;
-}
-
-.error-container {
-  min-height: 200px;
-}
-
-.action-btn {
-  min-width: 36px !important;
-  width: 36px !important;
-  height: 36px !important;
-  padding: 0 !important;
-}
-
-.pagination-container {
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-  background-color: rgba(0, 0, 0, 0.01);
-}
-
-.gap-4 {
-  gap: 16px;
+  padding: 2rem;
 }
 
 .font-mono {
   font-family: ui-monospace, monospace;
-}
-
-@media (max-width: 960px) {
-  .locations-admin-container {
-    padding: 16px;
-  }
 }
 </style>

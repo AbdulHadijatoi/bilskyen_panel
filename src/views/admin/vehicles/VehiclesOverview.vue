@@ -25,79 +25,79 @@
       </v-col>
     </v-row>
 
-    <div class="panel-filters-card mb-4">
-        <div class="d-flex align-center gap-4 flex-wrap">
+    <div class="panel-filters-card">
+      <div class="panel-filters-grid">
+        <div class="panel-filters-grid__search">
+          <span class="panel-filters-card__label">{{ t('common.search') }}</span>
           <v-text-field
             v-model="search"
             :placeholder="t('admin.views.vehicles.searchPlaceholder')"
             density="comfortable"
             variant="outlined"
             prepend-inner-icon="mdi-magnify"
-            class="search-field flex-grow-1"
-            style="max-width: 400px;"
             hide-details
             clearable
             @update:model-value="handleSearch"
           />
+        </div>
+        <div class="panel-filters-grid__field">
+          <span class="panel-filters-card__label">{{ t('admin.views.vehicles.filterByStatus') }}</span>
           <v-select
             v-model="statusFilter"
             :items="statusFilterOptions"
             item-title="label"
             item-value="value"
-            :label="t('admin.views.vehicles.filterByStatus')"
+            :placeholder="t('admin.views.vehicles.allStatuses')"
             variant="outlined"
             density="comfortable"
-            prepend-inner-icon="mdi-filter"
-            style="max-width: 200px;"
+            prepend-inner-icon="mdi-filter-variant"
             hide-details
             clearable
             @update:model-value="loadVehicles"
           />
+        </div>
+        <div class="panel-filters-grid__field">
+          <span class="panel-filters-card__label">{{ t('admin.views.vehicles.colDealer') }}</span>
           <v-text-field
             v-model="dealerNameFilter"
             :placeholder="t('admin.views.vehicles.dealerNamePlaceholder')"
             density="comfortable"
             variant="outlined"
-            prepend-inner-icon="mdi-store"
-            style="max-width: 200px;"
+            prepend-inner-icon="mdi-store-outline"
             hide-details
             clearable
             @update:model-value="handleSearch"
           />
+        </div>
+        <div class="panel-filters-grid__field">
+          <span class="panel-filters-card__label">{{ t('admin.views.vehicles.filterByUser') }}</span>
           <v-text-field
             v-model="userNameFilter"
             :placeholder="t('admin.views.vehicles.userNamePlaceholder')"
             density="comfortable"
             variant="outlined"
-            prepend-inner-icon="mdi-account"
-            style="max-width: 200px;"
+            prepend-inner-icon="mdi-account-outline"
             hide-details
             clearable
             @update:model-value="handleSearch"
           />
-          <v-spacer />
-          <v-btn
-            variant="outlined"
-            prepend-icon="mdi-refresh"
-            @click="loadVehicles"
-            :loading="loading"
-            size="default"
-          >
-            Refresh
-          </v-btn>
         </div>
+        <div class="panel-filters-grid__actions">
+          <button
+            type="button"
+            class="panel-btn panel-btn--outline"
+            :disabled="loading"
+            @click="loadVehicles"
+          >
+            <v-icon size="16">mdi-refresh</v-icon>
+            {{ t('common.refresh') }}
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="panel-table-card">
-      <div class="panel-table-card__title">
-        <v-icon size="18">mdi-table</v-icon>
-        Vehicles List
-        <v-spacer />
-        <span class="text-caption text-medium-emphasis">
-          Showing {{ vehicles.docs.length }} of {{ vehicles.totalDocs || 0 }} vehicles
-        </span>
-      </div>
-      <div>
+      <div class="panel-table-card__body">
         <div v-if="loading" class="loading-container">
           <v-progress-circular indeterminate color="primary" size="48" />
           <p class="text-body-2 text-medium-emphasis mt-4">{{ t('admin.views.vehicles.loadingVehicles') }}</p>
@@ -115,32 +115,35 @@
           :headers="headers"
           :items="vehicles.docs"
           :items-per-page="vehicles.limit"
-          :page="vehicles.page"
+          :items-length="vehicles.totalDocs || 0"
+          :page="currentPage"
           density="comfortable"
-          class="vehicles-table"
-          :class="$style.dataTable"
+          class="panel-data-table"
           elevation="0"
           @update:page="handlePageChange"
         >
           <template #item.id="{ item }">
-            <span class="text-medium-emphasis font-weight-medium">#{{ item.id }}</span>
+            <span class="panel-id-cell">#{{ item.id }}</span>
           </template>
 
           <template #item.title="{ item }">
-            <div class="d-flex align-center gap-2">
-              <div v-if="item.images && item.images.length > 0 && item.images[0]" class="vehicle-thumbnail">
+            <div class="panel-vehicle-cell">
+              <div class="panel-vehicle-cell__thumb">
                 <v-img
+                  v-if="item.images && item.images.length > 0 && item.images[0]"
                   :src="item.images[0]?.url || item.images[0]?.thumbnailUrl"
                   :alt="item.title"
                   cover
-                  width="40"
-                  height="40"
-                  style="border-radius: 4px;"
+                  width="44"
+                  height="44"
                 />
+                <div v-else class="d-flex align-center justify-center h-100">
+                  <v-icon size="18" color="disabled">mdi-car</v-icon>
+                </div>
               </div>
-              <div>
-                <div class="font-weight-medium">{{ item.title || t('common.na') }}</div>
-                <div class="text-caption text-medium-emphasis">
+              <div class="min-w-0">
+                <div class="panel-vehicle-cell__title text-truncate">{{ item.title || t('common.na') }}</div>
+                <div class="panel-vehicle-cell__subtitle text-truncate">
                   {{ item.registration || t('common.noRegistration') }}
                 </div>
               </div>
@@ -149,76 +152,54 @@
 
           <template #item.dealer="{ item }">
             <div v-if="item.dealer">
-              <div class="font-weight-medium">{{ item.dealer.cvr || t('common.na') }}</div>
-              <div class="text-caption text-medium-emphasis">
-                {{ item.dealer.city || '' }}
-              </div>
+              <div class="panel-vehicle-cell__title">{{ item.dealer.cvr || t('common.na') }}</div>
+              <div class="panel-vehicle-cell__subtitle">{{ item.dealer.city || t('common.noLocation') }}</div>
             </div>
-            <span v-else class="text-medium-emphasis">N/A</span>
+            <span v-else class="panel-id-cell">{{ t('common.na') }}</span>
           </template>
 
           <template #item.price="{ item }">
-            <span class="font-weight-medium">
-              {{ formatPrice(item.price) }}
-            </span>
+            <span class="panel-price-cell">{{ formatPrice(item.price) }}</span>
           </template>
 
           <template #item.status="{ item }">
-            <v-chip
-              :color="getListStatusChipColor(item)"
-              size="small"
-              variant="flat"
-            >
+            <span class="panel-status-chip" :class="getListStatusChipClass(item)">
               {{ formatListStatusLabel(item) }}
-            </v-chip>
+            </span>
           </template>
 
           <template #item.actions="{ item }">
-            <div class="d-flex align-center justify-center gap-2">
-              <v-btn
+            <div class="panel-row-actions">
+              <button
                 v-if="item.vehicleListStatusId === VEHICLE_LIST_STATUS_ID.PENDING_REVIEW"
-                icon
-                variant="text"
-                size="small"
-                color="success"
-                :loading="approvingId === item.id"
+                type="button"
+                class="panel-icon-btn panel-icon-btn--success"
+                :disabled="approvingId === item.id"
                 :title="t('admin.views.vehicles.approveListing')"
                 @click="approveListing(item.id)"
               >
-                <v-icon size="20">mdi-check-decagram</v-icon>
-              </v-btn>
-              <v-btn
-                icon
-                variant="text"
-                size="small"
-                color="primary"
-                @click="viewVehicle(item.id)"
+                <v-progress-circular v-if="approvingId === item.id" indeterminate size="14" width="2" />
+                <v-icon v-else size="16">mdi-check-decagram</v-icon>
+              </button>
+              <button
+                type="button"
+                class="panel-icon-btn panel-icon-btn--primary"
                 :title="t('common.view')"
+                @click="viewVehicle(item.id)"
               >
-                <v-icon size="20">mdi-eye</v-icon>
-              </v-btn>
-              <v-btn
-                icon
-                variant="text"
-                size="small"
-                color="error"
-                @click="confirmDelete(item)"
+                <v-icon size="16">mdi-eye-outline</v-icon>
+              </button>
+              <button
+                type="button"
+                class="panel-icon-btn panel-icon-btn--danger"
                 :title="t('common.delete')"
+                @click="confirmDelete(item)"
               >
-                <v-icon size="20">mdi-delete</v-icon>
-              </v-btn>
+                <v-icon size="16">mdi-trash-can-outline</v-icon>
+              </button>
             </div>
           </template>
         </v-data-table>
-
-        <div v-if="vehicles.totalPages && vehicles.totalPages > 1" class="d-flex justify-center pa-4">
-          <v-pagination
-            v-model="currentPage"
-            :length="vehicles.totalPages"
-            density="comfortable"
-            @update:model-value="handlePageChange"
-          />
-        </div>
       </div>
     </div>
 
@@ -299,33 +280,35 @@ const deleting = ref(false)
 const approvingId = ref<number | null>(null)
 
 const statusFilterOptions = computed(() => {
-  const options: Array<{ label: string; value: number | null }> = [{ label: 'All Statuses', value: null }]
+  const options: Array<{ label: string; value: number | null }> = [
+    { label: t('admin.views.vehicles.allStatuses'), value: null },
+  ]
 
   const pushIfFound = (match: string, label: string) => {
     const found = vehicleListStatuses.value.find((s) => String(s.name || '').toLowerCase() === match)
     if (found?.id != null) options.push({ label, value: found.id })
   }
 
-  pushIfFound('draft', 'Draft')
-  pushIfFound('published', 'Published')
-  pushIfFound('sold', 'Sold')
+  pushIfFound('draft', t('admin.views.vehicles.draft'))
+  pushIfFound('published', t('admin.views.vehicles.published'))
+  pushIfFound('sold', t('admin.views.vehicles.sold'))
   pushIfFound('archived', 'Archived')
-  pushIfFound('pending_review', 'Pending review')
+  pushIfFound('pending_review', t('admin.views.vehicles.pendingReview'))
   if (!options.some((o) => o.value === VEHICLE_LIST_STATUS_ID.PENDING_REVIEW)) {
-    options.push({ label: 'Pending review', value: VEHICLE_LIST_STATUS_ID.PENDING_REVIEW })
+    options.push({ label: t('admin.views.vehicles.pendingReview'), value: VEHICLE_LIST_STATUS_ID.PENDING_REVIEW })
   }
 
   return options
 })
 
-const headers = [
-  { title: 'ID', key: 'id', width: '100px', sortable: false },
-  { title: 'Vehicle', key: 'title', sortable: false },
-  { title: 'Dealer', key: 'dealer', sortable: false },
-  { title: 'Price', key: 'price', width: '120px', sortable: false },
-  { title: 'Status', key: 'status', width: '120px', sortable: false },
-  { title: 'Actions', key: 'actions', sortable: false, width: '120px', align: 'center' as const },
-]
+const headers = computed(() => [
+  { title: t('admin.views.vehicles.colId'), key: 'id', width: '88px', sortable: false },
+  { title: t('admin.views.vehicles.colVehicle'), key: 'title', sortable: false },
+  { title: t('admin.views.vehicles.colDealer'), key: 'dealer', sortable: false },
+  { title: t('admin.views.vehicles.colPrice'), key: 'price', width: '128px', sortable: false },
+  { title: t('admin.views.vehicles.colStatus'), key: 'status', width: '128px', sortable: false },
+  { title: t('admin.views.vehicles.colActions'), key: 'actions', sortable: false, width: '140px', align: 'end' as const },
+])
 
 const publishedCount = computed(() =>
   listStatusCountFromPayload(vehicles.value.list_status_counts, VEHICLE_LIST_STATUS_ID.PUBLISHED)
@@ -426,29 +409,19 @@ const deleteVehicle = async () => {
   }
 }
 
-const LIST_STATUS_CHIP_COLORS: Record<number, string> = {
-  [VEHICLE_LIST_STATUS_ID.DRAFT]: 'grey',
-  [VEHICLE_LIST_STATUS_ID.PUBLISHED]: 'success',
-  [VEHICLE_LIST_STATUS_ID.SOLD]: 'info',
-  [VEHICLE_LIST_STATUS_ID.ARCHIVED]: 'warning',
-}
-
-const getStatusColor = (status?: string) => {
-  const colors: Record<string, string> = {
-    draft: 'grey',
-    published: 'success',
-    sold: 'info',
-    archived: 'warning',
-  }
-  return colors[status?.toLowerCase() || ''] || 'grey'
-}
-
-const getListStatusChipColor = (item: VehicleModel) => {
+const getListStatusChipClass = (item: VehicleModel) => {
   const id = item.vehicleListStatusId
-  if (id != null && LIST_STATUS_CHIP_COLORS[id] != null) {
-    return LIST_STATUS_CHIP_COLORS[id]
+  if (id === VEHICLE_LIST_STATUS_ID.PUBLISHED) return 'panel-status-chip--success'
+  if (id === VEHICLE_LIST_STATUS_ID.SOLD) return 'panel-status-chip--info'
+  if (id === VEHICLE_LIST_STATUS_ID.ARCHIVED || id === VEHICLE_LIST_STATUS_ID.PENDING_REVIEW) {
+    return 'panel-status-chip--warning'
   }
-  return getStatusColor(item.status || item.vehicleListStatusName)
+  if (id === VEHICLE_LIST_STATUS_ID.DRAFT) return 'panel-status-chip--neutral'
+  const status = (item.status || item.vehicleListStatusName || '').toLowerCase()
+  if (status === 'published') return 'panel-status-chip--success'
+  if (status === 'sold') return 'panel-status-chip--info'
+  if (status === 'archived' || status === 'pending_review') return 'panel-status-chip--warning'
+  return 'panel-status-chip--neutral'
 }
 
 const formatPrice = (price?: number) => {
@@ -473,59 +446,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.vehicles-overview-container {
-  padding: 0;
-}
-
-.header-section {
-  padding: 0;
-}
-
-.stat-card {
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 8px;
-  transition: all 0.2s ease;
-}
-
-.stat-card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.stat-label {
-  font-size: 0.75rem;
-  color: rgba(0, 0, 0, 0.6);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
-}
-
-.stat-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.stat-icon {
-  opacity: 0.8;
-}
-
-.filters-card {
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 8px;
-}
-
-.table-card {
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 8px;
-}
-
-.card-title {
-  padding: 16px 20px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-  font-size: 1rem;
-  font-weight: 600;
-}
-
 .loading-container,
 .error-container {
   display: flex;
@@ -533,45 +453,6 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   min-height: 300px;
-}
-
-.vehicle-thumbnail {
-  flex-shrink: 0;
-}
-
-.search-field :deep(.v-field) {
-  box-shadow: none !important;
-}
-</style>
-
-<style module>
-.dataTable :global(.v-data-table__thead th) {
-  font-size: 0.75rem !important;
-  font-weight: 600 !important;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 16px 20px !important;
-  background-color: transparent !important;
-  color: rgba(0, 0, 0, 0.6);
-}
-
-.dataTable :global(.v-data-table__tbody td) {
-  font-size: 0.875rem !important;
-  padding: 16px 20px !important;
-  height: auto !important;
-  background-color: transparent !important;
-}
-
-.dataTable :global(.v-data-table__tbody tr) {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
-  background-color: transparent !important;
-}
-
-.dataTable :global(.v-data-table__tbody tr:hover) {
-  background-color: rgba(0, 0, 0, 0.02) !important;
-}
-
-.dataTable :global(.v-data-table) {
-  background-color: transparent !important;
+  padding: 2rem;
 }
 </style>

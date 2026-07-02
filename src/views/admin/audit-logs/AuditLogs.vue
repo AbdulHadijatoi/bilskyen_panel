@@ -3,243 +3,175 @@
     <!-- Header -->
     <PageHeader :title="t('admin.views.auditLogs.title')" :subtitle="t('admin.views.auditLogs.subtitle')" />
 
-    <!-- Two Row Layout -->
-    <div class="audit-logs-layout">
-      <!-- Top Row: Filters -->
-      <div class="filters-row">
-        <v-card variant="flat" :style="{ border: '1px solid #f5f5f5' }">
-          <v-card-text class="pa-4">
-            <div class="filters-grid">
-              <!-- Search -->
-              <div class="filter-item filter-search">
-                <v-text-field
-                  v-model="filters.search"
-                  :label="t('admin.views.auditLogs.search')"
-                  :placeholder="t('admin.views.auditLogs.searchPlaceholder')"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  prepend-inner-icon="mdi-magnify"
-                  clearable
-                  :style="{ border: '1px solid #f5f5f5' }"
-                  @update:model-value="handleFilterChange"
-                />
-              </div>
-
-              <!-- Action Filter -->
-              <div class="filter-item">
-                <v-select
-                  v-model="filters.action"
-                  :items="actionOptions"
-                  :label="t('admin.views.auditLogs.action')"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  clearable
-                  :style="{ border: '1px solid #f5f5f5' }"
-                  @update:model-value="handleFilterChange"
-                />
-              </div>
-
-              <!-- Target Type Filter -->
-              <div class="filter-item">
-                <v-select
-                  v-model="filters.target_type"
-                  :items="targetTypeOptions"
-                  :label="t('admin.views.auditLogs.targetType')"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  clearable
-                  :style="{ border: '1px solid #f5f5f5' }"
-                  @update:model-value="handleFilterChange"
-                />
-              </div>
-
-              <!-- Severity Filter -->
-              <div class="filter-item">
-                <v-select
-                  v-model="filters.severity"
-                  :items="severityOptions"
-                  :label="t('admin.views.auditLogs.severity')"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  clearable
-                  :style="{ border: '1px solid #f5f5f5' }"
-                  @update:model-value="handleFilterChange"
-                />
-              </div>
-
-              <!-- Status Filter -->
-              <div class="filter-item">
-                <v-select
-                  v-model="filters.status"
-                  :items="statusOptions"
-                  :label="t('common.status')"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  clearable
-                  :style="{ border: '1px solid #f5f5f5' }"
-                  @update:model-value="handleFilterChange"
-                />
-              </div>
-
-              <!-- Time Period -->
-              <div class="filter-item">
-                <v-select
-                  v-model="filters.time_period"
-                  :items="timePeriodOptions"
-                  :label="t('admin.views.auditLogs.timePeriod')"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  clearable
-                  :style="{ border: '1px solid #f5f5f5' }"
-                  @update:model-value="handleTimePeriodChange"
-                />
-              </div>
-
-              <!-- Clear Filters Button -->
-              <div class="filter-item filter-button">
-                <v-btn
-                  variant="outlined"
-                  density="compact"
-                  prepend-icon="mdi-filter-off"
-                  :style="{ border: '1px solid #f5f5f5', height: '40px' }"
-                  @click="clearFilters"
-                >
-                  Clear Filters
-                </v-btn>
-              </div>
-            </div>
-
-            <!-- Filter Summary Chips -->
-            <div v-if="hasActiveFilters" class="mt-3 pt-3" style="border-top: 1px solid #f5f5f5;">
-              <div class="d-flex flex-wrap gap-2 align-center">
-                <span class="text-caption text-medium-emphasis">{{ t('admin.views.auditLogs.activeFilters') }}</span>
-                <v-chip
-                  v-for="(value, key) in activeFilters"
-                  :key="key"
-                  size="x-small"
-                  variant="flat"
-                  closable
-                  @click:close="removeFilter(key)"
-                  :style="{ backgroundColor: '#f5f5f5', color: 'rgba(0, 0, 0, 0.6)' }"
-                >
-                  {{ getFilterLabel(key) }}: {{ value }}
-                </v-chip>
-              </div>
-            </div>
-          </v-card-text>
-        </v-card>
+    <div class="panel-filters-card">
+      <div class="panel-filters-grid panel-filters-grid--audit">
+        <div class="panel-filters-grid__search">
+          <span class="panel-filters-card__label">{{ t('admin.views.auditLogs.search') }}</span>
+          <v-text-field
+            v-model="filters.search"
+            :placeholder="t('admin.views.auditLogs.searchPlaceholder')"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            prepend-inner-icon="mdi-magnify"
+            clearable
+            @update:model-value="handleFilterChange"
+          />
+        </div>
+        <div class="panel-filters-grid__field">
+          <span class="panel-filters-card__label">{{ t('admin.views.auditLogs.action') }}</span>
+          <v-select
+            v-model="filters.action"
+            :items="actionOptions"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            clearable
+            @update:model-value="handleFilterChange"
+          />
+        </div>
+        <div class="panel-filters-grid__field">
+          <span class="panel-filters-card__label">{{ t('admin.views.auditLogs.targetType') }}</span>
+          <v-select
+            v-model="filters.target_type"
+            :items="targetTypeOptions"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            clearable
+            @update:model-value="handleFilterChange"
+          />
+        </div>
+        <div class="panel-filters-grid__field">
+          <span class="panel-filters-card__label">{{ t('admin.views.auditLogs.severity') }}</span>
+          <v-select
+            v-model="filters.severity"
+            :items="severityOptions"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            clearable
+            @update:model-value="handleFilterChange"
+          />
+        </div>
+        <div class="panel-filters-grid__field">
+          <span class="panel-filters-card__label">{{ t('common.status') }}</span>
+          <v-select
+            v-model="filters.status"
+            :items="statusOptions"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            clearable
+            @update:model-value="handleFilterChange"
+          />
+        </div>
+        <div class="panel-filters-grid__field">
+          <span class="panel-filters-card__label">{{ t('admin.views.auditLogs.timePeriod') }}</span>
+          <v-select
+            v-model="filters.time_period"
+            :items="timePeriodOptions"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            clearable
+            @update:model-value="handleTimePeriodChange"
+          />
+        </div>
+        <div class="panel-filters-grid__actions">
+          <button type="button" class="panel-btn panel-btn--outline" @click="clearFilters">
+            <v-icon size="16">mdi-filter-off</v-icon>
+            Clear Filters
+          </button>
+        </div>
       </div>
 
-      <!-- Bottom Row: Audit Logs Table -->
-      <div class="audit-logs-row">
-        <!-- Audit Logs Table -->
-        <v-card variant="flat" :style="{ border: '1px solid #f5f5f5' }">
-          <v-card-text class="pa-4">
-            <div v-if="loading" class="text-center py-8">
-              <v-progress-circular indeterminate color="primary" size="32"></v-progress-circular>
+      <div v-if="hasActiveFilters" class="panel-active-filters">
+        <span class="panel-active-filters__label">{{ t('admin.views.auditLogs.activeFilters') }}</span>
+        <span
+          v-for="(value, key) in activeFilters"
+          :key="key"
+          class="panel-filter-chip"
+        >
+          {{ getFilterLabel(key) }}: {{ value }}
+          <button type="button" aria-label="Remove filter" @click="removeFilter(key)">
+            <v-icon size="12">mdi-close</v-icon>
+          </button>
+        </span>
+      </div>
+    </div>
+
+    <div class="panel-table-card">
+      <div class="panel-table-card__body">
+        <div v-if="loading" class="loading-container">
+          <v-progress-circular indeterminate color="primary" size="48" />
+        </div>
+
+        <div v-else-if="error" class="error-container pa-6">
+          <v-alert type="error" variant="tonal" prominent>{{ error }}</v-alert>
+        </div>
+
+        <div v-else-if="auditLogs.docs.length === 0" class="panel-table-empty">
+          <v-icon size="48" color="disabled">mdi-file-document-outline</v-icon>
+          <p>No audit logs found</p>
+        </div>
+
+        <v-data-table
+          v-else
+          :headers="headers"
+          :items="auditLogs.docs"
+          :items-per-page="auditLogs.limit"
+          :items-length="auditLogs.totalDocs || 0"
+          :page="currentPage"
+          density="comfortable"
+          class="panel-data-table"
+          elevation="0"
+          @update:page="handlePageChange"
+          @update:sort-by="handleSortChange"
+        >
+          <template #item.action="{ item }">
+            <span class="panel-status-chip" :class="getActionChipClass(item.action)">
+              {{ item.action }}
+            </span>
+          </template>
+
+          <template #item.severity="{ item }">
+            <span v-if="item.severity" class="panel-status-chip" :class="getSeverityChipClass(item.severity)">
+              {{ item.severity }}
+            </span>
+            <span v-else class="panel-id-cell">—</span>
+          </template>
+
+          <template #item.status="{ item }">
+            <span v-if="item.status" class="panel-status-chip" :class="getStatusChipClass(item.status)">
+              {{ item.status }}
+            </span>
+            <span v-else class="panel-id-cell">—</span>
+          </template>
+
+          <template #item.created_at="{ item }">
+            <span class="panel-id-cell">{{ formatDate(item.created_at) }}</span>
+          </template>
+
+          <template #item.description="{ item }">
+            <span class="panel-vehicle-cell__subtitle text-truncate d-inline-block" style="max-width: 240px" :title="item.description">
+              {{ truncateText(item.description || '—', 50) }}
+            </span>
+          </template>
+
+          <template #item.actions="{ item }">
+            <div class="panel-row-actions">
+              <button
+                type="button"
+                class="panel-icon-btn panel-icon-btn--primary"
+                :title="t('common.view')"
+                @click="openDetailDialog(item.id)"
+              >
+                <v-icon size="16">mdi-eye-outline</v-icon>
+              </button>
             </div>
-
-            <div v-else-if="error" class="text-center py-8">
-              <v-alert type="error" variant="tonal" density="compact">
-                {{ error }}
-              </v-alert>
-            </div>
-
-            <div v-else-if="auditLogs.docs.length === 0" class="text-center py-12">
-              <v-icon size="48" color="grey-lighten-1" class="mb-3">mdi-file-document-outline</v-icon>
-              <p class="text-body-1 text-medium-emphasis mb-1">No audit logs found</p>
-              <p class="text-caption text-medium-emphasis">
-                {{ hasActiveFilters ? 'Try adjusting your filters' : 'No audit logs available' }}
-              </p>
-            </div>
-
-            <v-data-table
-              v-else
-              :headers="headers"
-              :items="auditLogs.docs"
-              :items-per-page="auditLogs.limit"
-              :page="auditLogs.page"
-              density="compact"
-              class="audit-logs-table"
-              @update:page="handlePageChange"
-              @update:sort-by="handleSortChange"
-            >
-              <template #item.action="{ item }">
-                <v-chip
-                  size="x-small"
-                  variant="flat"
-                  :color="getActionColor(item.action)"
-                  :style="{ backgroundColor: getActionColor(item.action) + '20' }"
-                >
-                  {{ item.action }}
-                </v-chip>
-              </template>
-
-              <template #item.severity="{ item }">
-                <v-chip
-                  v-if="item.severity"
-                  size="x-small"
-                  variant="flat"
-                  :color="getSeverityColor(item.severity)"
-                  :style="{ backgroundColor: getSeverityColor(item.severity) + '20' }"
-                >
-                  {{ item.severity }}
-                </v-chip>
-                <span v-else class="text-caption text-medium-emphasis">-</span>
-              </template>
-
-              <template #item.status="{ item }">
-                <v-chip
-                  v-if="item.status"
-                  size="x-small"
-                  variant="flat"
-                  :color="getStatusColor(item.status)"
-                  :style="{ backgroundColor: getStatusColor(item.status) + '20' }"
-                >
-                  {{ item.status }}
-                </v-chip>
-                <span v-else class="text-caption text-medium-emphasis">-</span>
-              </template>
-
-              <template #item.created_at="{ item }">
-                <span class="text-caption">{{ formatDate(item.created_at) }}</span>
-              </template>
-
-              <template #item.description="{ item }">
-                <span class="text-caption" :title="item.description">
-                  {{ truncateText(item.description || '-', 50) }}
-                </span>
-              </template>
-
-              <template #item.actions="{ item }">
-                <v-btn
-                  size="small"
-                  variant="text"
-                  icon="mdi-eye"
-                  density="compact"
-                  @click="openDetailDialog(item.id)"
-                />
-              </template>
-            </v-data-table>
-
-            <!-- Pagination -->
-            <div v-if="auditLogs.totalPages && auditLogs.totalPages > 1" class="d-flex justify-center mt-4">
-              <v-pagination
-                v-model="currentPage"
-                :length="auditLogs.totalPages"
-                :total-visible="7"
-                density="compact"
-                @update:model-value="handlePageChange"
-              />
-            </div>
-          </v-card-text>
-        </v-card>
+          </template>
+        </v-data-table>
       </div>
     </div>
 
@@ -571,7 +503,7 @@ const headers = [
   { title: 'Severity', key: 'severity', sortable: true },
   { title: 'Status', key: 'status', sortable: true },
   { title: 'Created At', key: 'created_at', sortable: true },
-  { title: 'Actions', key: 'actions', sortable: false, width: '100px' },
+  { title: 'Actions', key: 'actions', sortable: false, width: '80px', align: 'end' as const },
 ]
 
 // Computed
@@ -744,6 +676,28 @@ const truncateText = (text: string, maxLength: number): string => {
   return text.substring(0, maxLength) + '...'
 }
 
+const getActionChipClass = (action: string): string => {
+  const key = action.toLowerCase()
+  if (key === 'create') return 'panel-status-chip--success'
+  if (key === 'delete') return 'panel-status-chip--warning'
+  if (key === 'update' || key === 'status') return 'panel-status-chip--info'
+  return 'panel-status-chip--neutral'
+}
+
+const getSeverityChipClass = (severity: string): string => {
+  const key = severity.toLowerCase()
+  if (key === 'low') return 'panel-status-chip--success'
+  if (key === 'medium') return 'panel-status-chip--warning'
+  return 'panel-status-chip--warning'
+}
+
+const getStatusChipClass = (status: string): string => {
+  const key = status.toLowerCase()
+  if (key === 'success') return 'panel-status-chip--success'
+  if (key === 'failed') return 'panel-status-chip--warning'
+  return 'panel-status-chip--neutral'
+}
+
 const getActionColor = (action: string): string => {
   const colors: Record<string, string> = {
     create: 'success',
@@ -809,89 +763,14 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.audit-logs-management {
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.header-section {
-  padding: 0;
-}
-
-.audit-logs-layout {
+.loading-container,
+.error-container {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-}
-
-.filters-row {
-  width: 100%;
-}
-
-.filters-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
-  align-items: end;
-}
-
-.filter-item {
-  min-width: 0;
-}
-
-.filter-search {
-  grid-column: span 2;
-}
-
-.filter-button {
-  display: flex;
   align-items: center;
-  justify-content: flex-end;
-}
-
-@media (max-width: 1200px) {
-  .filter-search {
-    grid-column: span 1;
-  }
-}
-
-.audit-logs-row {
-  width: 100%;
-}
-
-:deep(.v-card) {
-  box-shadow: none !important;
-}
-
-:deep(.v-text-field .v-field),
-:deep(.v-select .v-field) {
-  border: 1px solid #f5f5f5 !important;
-}
-
-:deep(.v-data-table) {
-  box-shadow: none !important;
-}
-
-:deep(.v-data-table__thead) {
-  background-color: #fafafa;
-}
-
-:deep(.v-data-table__tbody td) {
-  font-size: 0.75rem !important;
-  padding: 12px 16px !important;
-}
-
-:deep(.v-data-table__tbody tr) {
-  border-bottom: 1px solid #f5f5f5;
-}
-
-:deep(.v-data-table__tbody tr:hover) {
-  background-color: #fafafa;
-}
-
-:deep(.v-chip) {
-  font-size: 0.6875rem !important;
-  height: 20px !important;
+  justify-content: center;
+  min-height: 280px;
+  padding: 2rem;
 }
 
 .detail-section {

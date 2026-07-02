@@ -1,113 +1,92 @@
 <template>
-  <div class="panel-page constant-list">
-    <!-- Loading State -->
-    <div v-if="loading" class="list-state">
-      <v-progress-circular indeterminate color="primary" size="32" />
-      <p class="state-text">Loading...</p>
+  <div class="constant-list">
+    <div v-if="loading" class="loading-container">
+      <v-progress-circular indeterminate color="primary" size="48" />
+      <p class="text-body-2 text-medium-emphasis mt-4">Loading...</p>
     </div>
 
-    <!-- Error State -->
-    <div v-else-if="error" class="list-state error">
-      <v-icon size="48" color="error">mdi-alert-circle</v-icon>
-      <p class="state-text">{{ error }}</p>
+    <div v-else-if="error" class="error-container pa-6">
+      <v-alert type="error" variant="tonal" prominent>{{ error }}</v-alert>
     </div>
 
-    <!-- Empty State -->
-    <div v-else-if="filteredItems.length === 0" class="list-state empty">
-      <v-icon size="48" class="empty-icon">mdi-inbox-outline</v-icon>
-      <p class="state-text">
-        {{ searchQuery ? 'No results found' : `No ${title.toLowerCase()} yet` }}
-      </p>
-      <p v-if="searchQuery" class="state-subtext">Try adjusting your search terms</p>
+    <div v-else-if="filteredItems.length === 0" class="panel-table-empty">
+      <v-icon size="48" color="disabled">mdi-inbox-outline</v-icon>
+      <p>{{ searchQuery ? 'No results found' : `No ${title.toLowerCase()} yet` }}</p>
     </div>
 
-    <!-- List Items -->
     <div
       v-else
-      class="list-table"
+      class="panel-constant-table"
       :class="{
-        'has-meta': showMetaColumn,
-        'has-variant-meta': showVariantBrandModel,
+        'panel-constant-table--meta': showMetaColumn,
+        'panel-constant-table--variant': showVariantBrandModel,
       }"
     >
-      <div class="table-header">
-        <div class="table-cell name-cell">Name</div>
+      <div class="panel-constant-table__header">
+        <div class="panel-constant-table__cell panel-constant-table__cell--name">Name</div>
         <template v-if="showVariantBrandModel">
-          <div class="table-cell meta-cell">Brand</div>
-          <div class="table-cell meta-cell">Model</div>
+          <div class="panel-constant-table__cell">Brand</div>
+          <div class="panel-constant-table__cell">Model</div>
         </template>
-        <div
-          v-else-if="showBrand || showEquipmentType || showModel"
-          class="table-cell meta-cell"
-        >
+        <div v-else-if="showBrand || showEquipmentType || showModel" class="panel-constant-table__cell">
           <template v-if="showBrand">Brand</template>
           <template v-else-if="showEquipmentType">Type</template>
           <template v-else-if="showModel">Model</template>
         </div>
-        <div class="table-cell actions-cell">Actions</div>
+        <div class="panel-constant-table__cell panel-constant-table__cell--actions">Actions</div>
       </div>
-      <div class="table-body">
+      <div
+        v-for="item in filteredItems"
+        :key="item.id"
+        class="panel-constant-table__row"
+      >
+        <div class="panel-constant-table__cell panel-constant-table__cell--name text-truncate">
+          {{ item.name }}
+        </div>
+        <template v-if="showVariantBrandModel">
+          <div class="panel-constant-table__cell text-truncate">
+            {{
+              'model' in item && item.model?.brand?.name
+                ? item.model.brand.name
+                : '—'
+            }}
+          </div>
+          <div class="panel-constant-table__cell text-truncate">
+            {{ 'model' in item && item.model?.name ? item.model.name : '—' }}
+          </div>
+        </template>
         <div
-          v-for="(item, index) in filteredItems"
-          :key="item.id"
-          :class="['table-row', { 'row-even': index % 2 === 1, 'row-odd': index % 2 === 0 }]"
+          v-else-if="showBrand || showEquipmentType || showModel"
+          class="panel-constant-table__cell text-truncate"
         >
-          <div class="table-cell name-cell">
-            <span class="cell-content">{{ item.name }}</span>
-          </div>
-          <template v-if="showVariantBrandModel">
-            <div class="table-cell meta-cell">
-              <span class="cell-content">
-                {{
-                  'model' in item && item.model?.brand?.name
-                    ? item.model.brand.name
-                    : '—'
-                }}
-              </span>
-            </div>
-            <div class="table-cell meta-cell">
-              <span class="cell-content">
-                {{ 'model' in item && item.model?.name ? item.model.name : '—' }}
-              </span>
-            </div>
+          <template v-if="showBrand && 'brand' in item && item.brand">
+            {{ item.brand.name }}
           </template>
-          <div
-            v-else-if="showBrand || showEquipmentType || showModel"
-            class="table-cell meta-cell"
+          <template v-else-if="showEquipmentType && 'equipment_type' in item && item.equipment_type">
+            {{ item.equipment_type.name }}
+          </template>
+          <template v-else-if="showModel && 'model' in item && item.model">
+            {{ item.model.name }}
+          </template>
+          <span v-else class="panel-constant-table__muted">—</span>
+        </div>
+        <div class="panel-constant-table__cell panel-constant-table__cell--actions">
+          <button
+            type="button"
+            class="panel-icon-btn panel-icon-btn--primary"
+            title="Edit"
+            @click="$emit('edit', item)"
           >
-            <span class="cell-content">
-              <template v-if="showBrand && 'brand' in item && item.brand">
-                {{ item.brand.name }}
-              </template>
-              <template v-else-if="showEquipmentType && 'equipment_type' in item && item.equipment_type">
-                {{ item.equipment_type.name }}
-              </template>
-              <template v-else-if="showModel && 'model' in item && item.model">
-                {{ item.model.name }}
-              </template>
-              <template v-else>
-                <span class="text-muted">—</span>
-              </template>
-            </span>
-          </div>
-          <div class="table-cell actions-cell">
-            <div class="cell-content actions-wrapper">
-              <button
-                class="action-button edit"
-                @click="$emit('edit', item)"
-                title="Edit"
-              >
-                <v-icon size="18">mdi-pencil</v-icon>
-              </button>
-              <button
-                class="action-button delete"
-                @click="$emit('delete', item.id)"
-                title="Delete"
-              >
-                <v-icon size="18">mdi-delete-outline</v-icon>
-              </button>
-            </div>
-          </div>
+            <v-icon size="16">mdi-pencil-outline</v-icon>
+          </button>
+          <button
+            type="button"
+            class="panel-icon-btn panel-icon-btn--danger"
+            title="Delete"
+            @click="$emit('delete', item.id)"
+          >
+            <v-icon size="16">mdi-trash-can-outline</v-icon>
+          </button>
         </div>
       </div>
     </div>
@@ -127,7 +106,6 @@ interface Props {
   showBrand?: boolean
   showEquipmentType?: boolean
   showModel?: boolean
-  /** Variants: separate Brand + Model columns (uses `item.model.brand` / `item.model`) */
   showVariantBrandModel?: boolean
 }
 
@@ -180,178 +158,13 @@ const filteredItems = computed(() => {
 </script>
 
 <style scoped>
-.constant-list {
-  width: 100%;
-}
-
-/* State Messages */
-.list-state {
+.loading-container,
+.error-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4rem 2rem;
-  text-align: center;
-  gap: 1rem;
-}
-
-.state-text {
-  font-size: 0.875rem;
-  color: rgba(var(--v-theme-on-surface), 0.6);
-  margin: 0;
-  font-weight: 500;
-}
-
-.state-subtext {
-  font-size: 0.75rem;
-  color: rgba(var(--v-theme-on-surface), 0.5);
-  margin: 0;
-}
-
-.empty-icon {
-  color: rgba(var(--v-theme-on-surface), 0.3);
-}
-
-.list-state.error .state-text {
-  color: rgb(var(--v-theme-error));
-}
-
-/* Table List */
-.list-table {
-  width: 100%;
-  border: 1px solid rgba(var(--v-border-opacity), var(--v-border-opacity));
-  border-radius: 0.5rem;
-  overflow: hidden;
-  background: var(--background);
-}
-
-.list-table:not(.has-meta) .table-header,
-.list-table:not(.has-meta) .table-row {
-  grid-template-columns: 1fr 120px;
-}
-
-.list-table.has-meta:not(.has-variant-meta) .table-header,
-.list-table.has-meta:not(.has-variant-meta) .table-row {
-  grid-template-columns: 1fr 200px 120px;
-}
-
-.list-table.has-variant-meta .table-header,
-.list-table.has-variant-meta .table-row {
-  grid-template-columns: 1fr minmax(120px, 1fr) minmax(120px, 1fr) 120px;
-}
-
-.table-header {
-  display: grid;
-  background: rgba(var(--v-theme-on-surface), 0.02);
-  border-bottom: 1px solid rgba(var(--v-border-opacity), var(--v-border-opacity));
-}
-
-.table-body {
-  display: flex;
-  flex-direction: column;
-}
-
-.table-body .table-row {
-  display: grid;
-  border-bottom: 1px solid rgba(var(--v-border-opacity), 0.5);
-  transition: all 0.2s ease;
-  background: transparent;
-}
-
-.table-body .table-row:nth-child(odd),
-.table-body .table-row.row-odd {
-  background: rgba(var(--v-theme-on-surface), 0.04);
-}
-
-.table-body .table-row:nth-child(even),
-.table-body .table-row.row-even {
-  background: rgba(var(--v-theme-on-surface), 0.08);
-}
-
-.table-body .table-row:last-child {
-  border-bottom: none;
-}
-
-.table-body .table-row:hover {
-  background: rgba(var(--v-theme-primary), 0.05) !important;
-}
-
-.table-cell {
-  padding: 0.625rem 1rem;
-  display: flex;
-  align-items: center;
-  min-width: 0;
-}
-
-.table-header .table-cell {
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: rgba(var(--v-theme-on-surface), 0.7);
-  padding: 0.625rem 1rem;
-}
-
-.name-cell {
-  font-weight: 500;
-}
-
-.meta-cell {
-  justify-content: flex-start;
-}
-
-.actions-cell {
-  justify-content: flex-end;
-}
-
-.cell-content {
-  font-size: 0.875rem;
-  color: var(--foreground);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.text-muted {
-  color: rgba(var(--v-theme-on-surface), 0.4);
-}
-
-.actions-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.action-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  background: transparent;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: rgba(var(--v-theme-on-surface), 0.6);
-}
-
-.action-button:hover {
-  background: rgba(var(--v-theme-on-surface), 0.08);
-  color: var(--foreground);
-}
-
-.action-button.edit:hover {
-  color: rgb(var(--v-theme-primary));
-  background: rgba(var(--v-theme-primary), 0.1);
-}
-
-.action-button.delete:hover {
-  color: rgb(var(--v-theme-error));
-  background: rgba(var(--v-theme-error), 0.1);
-}
-
-.action-button:active {
-  transform: scale(0.95);
+  min-height: 200px;
+  padding: 2rem;
 }
 </style>

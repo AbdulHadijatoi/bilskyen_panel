@@ -82,15 +82,6 @@
       elevation="0"
       :style="{ border: '1px solid rgba(0, 0, 0, 0.12)' }"
     >
-      <v-card-title class="card-title pa-4">
-        <v-icon class="mr-2">mdi-table</v-icon>
-        Staff Members
-        <v-spacer />
-        <span class="text-caption text-medium-emphasis">
-          {{ filteredStaff.length }} {{ filteredStaff.length === 1 ? 'member' : 'members' }}
-        </span>
-      </v-card-title>
-
       <v-card-text class="pa-0">
         <div v-if="loading" class="loading-container py-8">
           <v-progress-circular indeterminate color="primary" size="48" />

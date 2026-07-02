@@ -112,15 +112,6 @@
     </div>
 
     <div class="panel-table-card">
-      <div class="panel-table-card__title">
-        <v-icon size="18">mdi-table</v-icon>
-        {{ t('admin.views.users.usersList') }}
-        <v-spacer />
-        <span class="text-caption text-medium-emphasis">
-          {{ t('admin.views.users.showingOf', { count: users.docs.length, total: users.totalDocs || 0 }) }}
-        </span>
-      </div>
-
       <div>
         <div v-if="loading" class="loading-container">
           <v-progress-circular indeterminate color="primary" size="48" />
