@@ -3,437 +3,299 @@
     <!-- Header -->
     <PageHeader :title="t('dealer.views.auditLogs.title')" :subtitle="t('dealer.views.auditLogs.subtitle')" />
 
-    <!-- Two Row Layout -->
-    <div class="audit-logs-layout">
-      <!-- Top Row: Filters -->
-      <div class="filters-row">
-        <v-card variant="flat" >
-          <v-card-text class="pa-4">
-            <div class="filters-grid">
-              <!-- Search -->
-              <div class="filter-item filter-search">
-                <v-text-field
-                  v-model="filters.search"
-                  :label="t('admin.views.auditLogs.search')"
-                  :placeholder="t('admin.views.auditLogs.searchPlaceholder')"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  prepend-inner-icon="mdi-magnify"
-                  clearable
-                  @update:model-value="handleFilterChange"
-                />
-              </div>
-
-              <!-- Action Filter -->
-              <div class="filter-item">
-                <v-select
-                  v-model="filters.action"
-                  :items="actionOptions"
-                  :label="t('admin.views.auditLogs.action')"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  clearable
-                  
-                  @update:model-value="handleFilterChange"
-                />
-              </div>
-
-              <!-- Target Type Filter -->
-              <div class="filter-item">
-                <v-select
-                  v-model="filters.target_type"
-                  :items="targetTypeOptions"
-                  :label="t('admin.views.auditLogs.targetType')"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  clearable
-                  
-                  @update:model-value="handleFilterChange"
-                />
-              </div>
-
-              <!-- Severity Filter -->
-              <div class="filter-item">
-                <v-select
-                  v-model="filters.severity"
-                  :items="severityOptions"
-                  :label="t('admin.views.auditLogs.severity')"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  clearable
-                  
-                  @update:model-value="handleFilterChange"
-                />
-              </div>
-
-              <!-- Status Filter -->
-              <div class="filter-item">
-                <v-select
-                  v-model="filters.status"
-                  :items="statusOptions"
-                  :label="t('common.status')"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  clearable
-                  
-                  @update:model-value="handleFilterChange"
-                />
-              </div>
-
-              <!-- Time Period -->
-              <div class="filter-item">
-                <v-select
-                  v-model="filters.time_period"
-                  :items="timePeriodOptions"
-                  :label="t('admin.views.auditLogs.timePeriod')"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  clearable
-                  
-                  @update:model-value="handleTimePeriodChange"
-                />
-              </div>
-
-              <!-- Clear Filters Button -->
-              <div class="filter-item filter-button">
-                <v-btn
-                  variant="outlined"
-                  density="compact"
-                  prepend-icon="mdi-filter-off"
-                  :style="{ height: '40px' }"
-                  class="border border-grey-100"
-                  @click="clearFilters"
-                >
-                  {{ t('dealer.views.auditLogs.clearFilters') }}
-                </v-btn>
-              </div>
-            </div>
-
-            <!-- Filter Summary Chips -->
-            <div v-if="hasActiveFilters" class="mt-3 pt-3" style="border-top: 1px solid #f5f5f5;">
-              <div class="d-flex flex-wrap gap-2 align-center">
-                <span class="text-caption text-medium-emphasis">{{ t('admin.views.auditLogs.activeFilters') }}</span>
-                <v-chip
-                  v-for="(value, key) in activeFilters"
-                  :key="key"
-                  size="x-small"
-                  variant="flat"
-                  closable
-                  @click:close="removeFilter(key)"
-                  :style="{ backgroundColor: '#f5f5f5', color: 'rgba(0, 0, 0, 0.6)' }"
-                >
-                  {{ getFilterLabel(key) }}: {{ value }}
-                </v-chip>
-              </div>
-            </div>
-          </v-card-text>
-        </v-card>
+    <div class="panel-filters-card">
+      <div class="panel-filters-grid panel-filters-grid--audit">
+        <div class="panel-filters-grid__search">
+          <span class="panel-filters-card__label">{{ t('admin.views.auditLogs.search') }}</span>
+          <v-text-field
+            v-model="filters.search"
+            :placeholder="t('admin.views.auditLogs.searchPlaceholder')"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            prepend-inner-icon="mdi-magnify"
+            clearable
+            @update:model-value="handleFilterChange"
+          />
+        </div>
+        <div class="panel-filters-grid__field">
+          <span class="panel-filters-card__label">{{ t('admin.views.auditLogs.action') }}</span>
+          <v-select
+            v-model="filters.action"
+            :items="actionOptions"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            clearable
+            @update:model-value="handleFilterChange"
+          />
+        </div>
+        <div class="panel-filters-grid__field">
+          <span class="panel-filters-card__label">{{ t('admin.views.auditLogs.targetType') }}</span>
+          <v-select
+            v-model="filters.target_type"
+            :items="targetTypeOptions"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            clearable
+            @update:model-value="handleFilterChange"
+          />
+        </div>
+        <div class="panel-filters-grid__field">
+          <span class="panel-filters-card__label">{{ t('admin.views.auditLogs.severity') }}</span>
+          <v-select
+            v-model="filters.severity"
+            :items="severityOptions"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            clearable
+            @update:model-value="handleFilterChange"
+          />
+        </div>
+        <div class="panel-filters-grid__field">
+          <span class="panel-filters-card__label">{{ t('common.status') }}</span>
+          <v-select
+            v-model="filters.status"
+            :items="statusOptions"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            clearable
+            @update:model-value="handleFilterChange"
+          />
+        </div>
+        <div class="panel-filters-grid__field">
+          <span class="panel-filters-card__label">{{ t('admin.views.auditLogs.timePeriod') }}</span>
+          <v-select
+            v-model="filters.time_period"
+            :items="timePeriodOptions"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            clearable
+            @update:model-value="handleTimePeriodChange"
+          />
+        </div>
+        <div class="panel-filters-grid__actions">
+          <button type="button" class="panel-btn panel-btn--outline" @click="clearFilters">
+            <v-icon size="16">mdi-filter-off</v-icon>
+            {{ t('dealer.views.auditLogs.clearFilters') }}
+          </button>
+        </div>
       </div>
 
-      <!-- Bottom Row: Audit Logs Table -->
-      <div class="audit-logs-row">
-        <!-- Audit Logs Table -->
-        <v-card variant="flat" >
-          <v-card-text class="pa-4">
-            <div v-if="loading" class="text-center py-8">
-              <v-progress-circular indeterminate color="primary" size="32"></v-progress-circular>
+      <div v-if="hasActiveFilters" class="panel-active-filters">
+        <span class="panel-active-filters__label">{{ t('admin.views.auditLogs.activeFilters') }}</span>
+        <span
+          v-for="(value, key) in activeFilters"
+          :key="key"
+          class="panel-filter-chip"
+        >
+          {{ getFilterLabel(key) }}: {{ value }}
+          <button type="button" aria-label="Remove filter" @click="removeFilter(key)">
+            <v-icon size="12">mdi-close</v-icon>
+          </button>
+        </span>
+      </div>
+    </div>
+
+    <div class="panel-table-card">
+      <div class="panel-table-card__body">
+        <div v-if="loading" class="panel-loading">
+          <v-progress-circular indeterminate color="primary" size="48" />
+        </div>
+
+        <div v-else-if="error" class="error-container pa-6">
+          <v-alert type="error" variant="tonal" prominent>{{ error }}</v-alert>
+        </div>
+
+        <div v-else-if="auditLogs.docs.length === 0" class="panel-table-empty">
+          <v-icon size="48" color="disabled">mdi-file-document-outline</v-icon>
+          <p>{{ t('dealer.views.auditLogs.noLogsFound') }}</p>
+          <p class="panel-table-empty__hint">
+            {{ hasActiveFilters ? t('dealer.views.auditLogs.tryAdjustingFilters') : t('dealer.views.auditLogs.noLogsAvailable') }}
+          </p>
+        </div>
+
+        <v-data-table
+          v-else
+          :headers="headers"
+          :items="auditLogs.docs"
+          :items-per-page="auditLogs.limit"
+          :items-length="auditLogs.totalDocs || 0"
+          :page="currentPage"
+          density="comfortable"
+          class="panel-data-table"
+          elevation="0"
+          @update:page="handlePageChange"
+          @update:sort-by="handleSortChange"
+        >
+          <template #item.action="{ item }">
+            <span class="panel-status-chip" :class="getActionChipClass(item.action)">
+              {{ item.action }}
+            </span>
+          </template>
+
+          <template #item.severity="{ item }">
+            <span v-if="item.severity" class="panel-status-chip" :class="getSeverityChipClass(item.severity)">
+              {{ item.severity }}
+            </span>
+            <span v-else class="panel-id-cell">—</span>
+          </template>
+
+          <template #item.status="{ item }">
+            <span v-if="item.status" class="panel-status-chip" :class="getStatusChipClass(item.status)">
+              {{ item.status }}
+            </span>
+            <span v-else class="panel-id-cell">—</span>
+          </template>
+
+          <template #item.created_at="{ item }">
+            <span class="panel-id-cell">{{ formatDate(item.created_at) }}</span>
+          </template>
+
+          <template #item.description="{ item }">
+            <span class="panel-vehicle-cell__subtitle text-truncate d-inline-block" style="max-width: 240px" :title="item.description || undefined">
+              {{ truncateText(item.description || '—', 50) }}
+            </span>
+          </template>
+
+          <template #item.actions="{ item }">
+            <div class="panel-row-actions">
+              <button
+                type="button"
+                class="panel-icon-btn panel-icon-btn--primary"
+                :title="t('common.view')"
+                @click="openDetailDialog(item.id)"
+              >
+                <v-icon size="16">mdi-eye-outline</v-icon>
+              </button>
             </div>
-
-            <div v-else-if="error" class="text-center py-8">
-              <v-alert type="error" variant="tonal" density="compact">
-                {{ error }}
-              </v-alert>
-            </div>
-
-            <div v-else-if="auditLogs.docs.length === 0" class="text-center py-12">
-              <v-icon size="48" color="grey-lighten-1" class="mb-3">mdi-file-document-outline</v-icon>
-              <p class="text-body-1 text-medium-emphasis mb-1">{{ t('dealer.views.auditLogs.noLogsFound') }}</p>
-              <p class="text-caption text-medium-emphasis">
-                {{ hasActiveFilters ? t('dealer.views.auditLogs.tryAdjustingFilters') : t('dealer.views.auditLogs.noLogsAvailable') }}
-              </p>
-            </div>
-
-            <v-data-table
-              v-else
-              :headers="headers"
-              :items="auditLogs.docs"
-              :items-per-page="auditLogs.limit"
-              :page="auditLogs.page"
-              density="compact"
-              class="audit-logs-table"
-              @update:page="handlePageChange"
-              @update:sort-by="handleSortChange"
-            >
-              <template #item.action="{ item }">
-                <v-chip
-                  size="x-small"
-                  variant="flat"
-                  :color="getActionColor(item.action)"
-                  :style="{ backgroundColor: getActionColor(item.action) + '20' }"
-                >
-                  {{ item.action }}
-                </v-chip>
-              </template>
-
-              <template #item.severity="{ item }">
-                <v-chip
-                  v-if="item.severity"
-                  size="x-small"
-                  variant="flat"
-                  :color="getSeverityColor(item.severity)"
-                  :style="{ backgroundColor: getSeverityColor(item.severity) + '20' }"
-                >
-                  {{ item.severity }}
-                </v-chip>
-                <span v-else class="text-caption text-medium-emphasis">-</span>
-              </template>
-
-              <template #item.status="{ item }">
-                <v-chip
-                  v-if="item.status"
-                  size="x-small"
-                  variant="flat"
-                  :color="getStatusColor(item.status)"
-                  :style="{ backgroundColor: getStatusColor(item.status) + '20' }"
-                >
-                  {{ item.status }}
-                </v-chip>
-                <span v-else class="text-caption text-medium-emphasis">-</span>
-              </template>
-
-              <template #item.created_at="{ item }">
-                <span class="text-caption">{{ formatDate(item.created_at) }}</span>
-              </template>
-
-              <template #item.description="{ item }">
-                <span class="text-caption" :title="item.description || undefined">
-                  {{ truncateText(item.description || '-', 50) }}
-                </span>
-              </template>
-
-              <template #item.actions="{ item }">
-                <div class="d-flex justify-center">
-                  <v-btn
-                    icon
-                    size="small"
-                    variant="text"
-                    color="primary"
-                    @click="openDetailDialog(item.id)"
-                  >
-                    <v-icon size="small">mdi-eye</v-icon>
-                  </v-btn>
-                </div>
-              </template>
-            </v-data-table>
-
-            <!-- Pagination -->
-            <div v-if="auditLogs.totalPages && auditLogs.totalPages > 1" class="d-flex justify-center mt-4">
-              <v-pagination
-                v-model="currentPage"
-                :length="auditLogs.totalPages"
-                :total-visible="7"
-                density="compact"
-                @update:model-value="handlePageChange"
-              />
-            </div>
-          </v-card-text>
-        </v-card>
+          </template>
+        </v-data-table>
       </div>
     </div>
 
     <!-- Audit Log Detail Dialog -->
-    <v-dialog v-model="detailDialog.show" max-width="800" scrollable>
-      <v-card>
-        <v-card-title class="d-flex align-center justify-space-between pa-4" style="background-color: #fafafa;">
-          <span class="text-h6">{{ t('dealer.views.auditLogs.auditLogDetails') }}</span>
-          <v-btn icon="mdi-close" variant="text" size="small" @click="detailDialog.show = false" />
-        </v-card-title>
+    <v-dialog v-model="detailDialog.show" max-width="640" scrollable>
+      <v-card class="panel-detail-dialog" variant="flat">
+        <div class="panel-detail-dialog__header">
+          <h2 class="panel-detail-dialog__title">
+            <v-icon size="20" color="primary">mdi-file-document-outline</v-icon>
+            {{ t('dealer.views.auditLogs.auditLogDetails') }}
+          </h2>
+          <button
+            type="button"
+            class="panel-icon-btn"
+            :aria-label="t('dealer.views.auditLogs.close')"
+            @click="detailDialog.show = false"
+          >
+            <v-icon size="16">mdi-close</v-icon>
+          </button>
+        </div>
 
-        <v-card-text v-if="detailDialog.loading" class="text-center py-8">
-          <v-progress-circular indeterminate color="primary" />
-        </v-card-text>
+        <div v-if="detailDialog.loading" class="panel-detail-dialog__body">
+          <div class="panel-detail-dialog__loading">
+            <v-progress-circular indeterminate color="primary" size="40" />
+            <span>{{ t('common.loading') }}</span>
+          </div>
+        </div>
 
-        <v-card-text v-else-if="detailDialog.error" class="text-center py-8">
-          <v-icon color="error" size="large">mdi-alert-circle</v-icon>
-            {{ detailDialog.error }}
-        </v-card-text>
+        <div v-else-if="detailDialog.error" class="panel-detail-dialog__body">
+          <div class="panel-detail-dialog__error">
+            <v-icon color="error" size="40">mdi-alert-circle-outline</v-icon>
+            <span>{{ detailDialog.error }}</span>
+          </div>
+        </div>
 
-        <v-card-text v-else-if="detailDialog.log" class="pa-6">
-          <!-- Basic Info -->
-          <div class="detail-section mb-4">
-            <h3 class="text-subtitle-1 font-weight-bold mb-3">{{ t('admin.views.auditLogs.basicInfo') }}</h3>
-            <div class="detail-grid">
-              <div class="detail-item mb-3">
-                <span class="text-caption text-medium-emphasis font-weight-bold">ID:</span>
-                  <span class="text-body-2 ml-2">{{ detailDialog.log.id }}</span>
-              </div>
-              <div class="detail-item mb-3">
-                <span class="text-caption text-medium-emphasis font-weight-bold">Action:</span>
-                <v-chip
-                  size="small"
-                  variant="flat"
-                    :color="getActionColor(detailDialog.log.action)"
-                    :style="{ backgroundColor: getActionColor(detailDialog.log.action) + '20' }"
-                  class="ml-2"
-                >
-                    {{ detailDialog.log.action }}
-                </v-chip>
-              </div>
-              <div class="detail-item mb-3">
-                <span class="text-caption text-medium-emphasis font-weight-bold">Target Type:</span>
-                  <span class="text-body-2 ml-2">{{ detailDialog.log.target_type }}</span>
-              </div>
-              <div class="detail-item mb-3">
-                <span class="text-caption text-medium-emphasis font-weight-bold">Target ID:</span>
-                  <span class="text-body-2 ml-2">{{ detailDialog.log.target_id }}</span>
-              </div>
-            </div>
-            <div class="detail-grid mt-3">
-              <div class="detail-item mb-3">
-                <span class="text-caption text-medium-emphasis font-weight-bold">Actor Type:</span>
-                  <span class="text-body-2 ml-2">{{ detailDialog.log.actor_type }}</span>
-              </div>
-              <div class="detail-item mb-3">
-                <span class="text-caption text-medium-emphasis font-weight-bold">Actor ID:</span>
-                  <span class="text-body-2 ml-2">{{ detailDialog.log.actor_id }}</span>
-              </div>
-              <div class="detail-item mb-3" v-if="detailDialog.log.dealer_id">
-                <span class="text-caption text-medium-emphasis font-weight-bold">Dealer ID:</span>
-                  <span class="text-body-2 ml-2">{{ detailDialog.log.dealer_id }}</span>
-              </div>
-              <div class="detail-item mb-3">
-                <span class="text-caption text-medium-emphasis font-weight-bold">Created At:</span>
-                  <span class="text-body-2 ml-2">{{ formatDate(detailDialog.log.created_at) }}</span>
-              </div>
-            </div>
+        <div v-else-if="detailDialog.log" class="panel-detail-dialog__body">
+          <div class="panel-detail-dialog__summary">
+            <span class="panel-status-chip" :class="getActionChipClass(detailDialog.log.action)">
+              {{ detailDialog.log.action }}
+            </span>
+            <span
+              v-if="detailDialog.log.status"
+              class="panel-status-chip"
+              :class="getStatusChipClass(detailDialog.log.status)"
+            >
+              {{ detailDialog.log.status }}
+            </span>
+            <span
+              v-if="detailDialog.log.severity"
+              class="panel-status-chip"
+              :class="getSeverityChipClass(detailDialog.log.severity)"
+            >
+              {{ detailDialog.log.severity }}
+            </span>
+            <span class="panel-detail-dialog__summary-meta">
+              {{ formatDetailDate(detailDialog.log.created_at) }}
+            </span>
           </div>
 
-          <v-divider class="my-4" />
-
-          <!-- Status & Severity -->
-          <div class="detail-section mb-4">
-            <h3 class="text-subtitle-1 font-weight-bold mb-3">Status & Severity</h3>
-            <div class="detail-grid">
-              <div class="detail-item mb-3">
-                <span class="text-caption text-medium-emphasis font-weight-bold">Status:</span>
-                <v-chip
-                    v-if="detailDialog.log.status"
-                  size="small"
-                  variant="flat"
-                    :color="getStatusColor(detailDialog.log.status)"
-                    :style="{ backgroundColor: getStatusColor(detailDialog.log.status) + '20' }"
-                  class="ml-2"
-                >
-                    {{ detailDialog.log.status }}
-                </v-chip>
-                <span v-else class="text-body-2 ml-2">-</span>
-              </div>
-              <div class="detail-item mb-3">
-                <span class="text-caption text-medium-emphasis font-weight-bold">Severity:</span>
-                <v-chip
-                    v-if="detailDialog.log.severity"
-                  size="small"
-                  variant="flat"
-                    :color="getSeverityColor(detailDialog.log.severity)"
-                    :style="{ backgroundColor: getSeverityColor(detailDialog.log.severity) + '20' }"
-                  class="ml-2"
-                >
-                    {{ detailDialog.log.severity }}
-                </v-chip>
-                <span v-else class="text-body-2 ml-2">-</span>
-              </div>
-            </div>
+          <div v-if="detailDialog.log.description" class="panel-detail-dialog__desc">
+            <span class="panel-detail-dialog__desc-label">{{ t('admin.views.auditLogs.description') }}</span>
+            <p class="panel-detail-dialog__desc-text">{{ detailDialog.log.description }}</p>
           </div>
 
-          <v-divider class="my-4" v-if="detailDialog.log.description" />
-
-          <div class="detail-section" v-if="detailDialog.log.description">
-            <h3 class="text-subtitle-1 font-weight-bold mb-3">{{ t('admin.views.auditLogs.description') }}</h3>
-            <p class="text-body-2">{{ detailDialog.log.description }}</p>
-          </div>
-
-          <v-divider class="my-4" v-if="detailDialog.log.metadata || detailDialog.log.tags" />
-
-          <div class="detail-section" v-if="detailDialog.log.metadata || detailDialog.log.tags">
-            <h3 class="text-subtitle-1 font-weight-bold mb-3">Metadata & Tags</h3>
-            <div v-if="detailDialog.log.tags" class="mb-3">
-              <span class="text-caption text-medium-emphasis font-weight-bold">Tags:</span>
-              <span class="text-body-2 ml-2">{{ detailDialog.log.tags }}</span>
+          <p class="panel-detail-dialog__section-title">{{ t('admin.views.auditLogs.basicInfo') }}</p>
+          <div class="panel-detail-dialog__grid">
+            <div class="panel-detail-field">
+              <span class="panel-detail-field__label">{{ t('dealer.views.auditLogs.logId') }}</span>
+              <span class="panel-detail-field__value">#{{ detailDialog.log.id }}</span>
             </div>
-            <div v-if="detailDialog.log.metadata">
-              <span class="text-caption text-medium-emphasis font-weight-bold">Metadata:</span>
-              <pre class="text-body-2 mt-2 pa-3" style="background-color: #f5f5f5; border-radius: 4px; overflow-x: auto;">{{ JSON.stringify(detailDialog.log.metadata, null, 2) }}</pre>
+            <div class="panel-detail-field">
+              <span class="panel-detail-field__label">{{ t('admin.views.auditLogs.createdAt') }}</span>
+              <span class="panel-detail-field__value">{{ formatDetailDate(detailDialog.log.created_at) }}</span>
             </div>
-          </div>
-
-          <v-divider class="my-4" v-if="detailDialog.log.request_method || detailDialog.log.request_url || detailDialog.log.ip_address" />
-
-          <div class="detail-section" v-if="detailDialog.log.request_method || detailDialog.log.request_url || detailDialog.log.ip_address">
-            <h3 class="text-subtitle-1 font-weight-bold mb-3">{{ t('admin.views.auditLogs.requestInfo') }}</h3>
-            <div class="detail-grid">
-              <div class="detail-column">
-                <div class="detail-item mb-3" v-if="detailDialog.log.request_method">
-                  <span class="text-caption text-medium-emphasis font-weight-bold">Method:</span>
-                  <span class="text-body-2 ml-2">{{ detailDialog.log.request_method }}</span>
-                </div>
-                <div class="detail-item mb-3" v-if="detailDialog.log.ip_address">
-                  <span class="text-caption text-medium-emphasis font-weight-bold">IP Address:</span>
-                  <span class="text-body-2 ml-2">{{ detailDialog.log.ip_address }}</span>
-                </div>
+            <div class="panel-detail-field">
+              <span class="panel-detail-field__label">{{ t('admin.views.auditLogs.action') }}</span>
+              <span class="panel-detail-field__value text-capitalize">{{ detailDialog.log.action }}</span>
+            </div>
+            <div class="panel-detail-field">
+              <span class="panel-detail-field__label">{{ t('dealer.views.auditLogs.performedBy') }}</span>
+              <span class="panel-detail-field__value">{{ formatActorType(detailDialog.log.actor_type) }}</span>
+            </div>
+            <div class="panel-detail-field">
+              <span class="panel-detail-field__label">{{ t('admin.views.auditLogs.targetType') }}</span>
+              <span class="panel-detail-field__value">{{ detailDialog.log.target_type }}</span>
+            </div>
+            <div class="panel-detail-field">
+              <span class="panel-detail-field__label">{{ t('admin.views.auditLogs.targetId') }}</span>
+              <span class="panel-detail-field__value">#{{ detailDialog.log.target_id }}</span>
+            </div>
+            <div v-if="detailDialog.log.status" class="panel-detail-field">
+              <span class="panel-detail-field__label">{{ t('common.status') }}</span>
+              <span class="panel-detail-field__value text-capitalize">{{ detailDialog.log.status }}</span>
+            </div>
+            <div v-if="detailDialog.log.severity" class="panel-detail-field">
+              <span class="panel-detail-field__label">{{ t('admin.views.auditLogs.severity') }}</span>
+              <span class="panel-detail-field__value text-capitalize">{{ detailDialog.log.severity }}</span>
+            </div>
+            <template v-if="detailDialog.log.related_target_type">
+              <div class="panel-detail-field">
+                <span class="panel-detail-field__label">{{ t('admin.views.auditLogs.relatedTargetType') }}</span>
+                <span class="panel-detail-field__value">{{ detailDialog.log.related_target_type }}</span>
               </div>
-              <div class="detail-column">
-                <div class="detail-item mb-3" v-if="detailDialog.log.user_agent">
-                  <span class="text-caption text-medium-emphasis font-weight-bold">User Agent:</span>
-                  <span class="text-body-2 ml-2" style="word-break: break-all;">{{ detailDialog.log.user_agent }}</span>
-                </div>
-                <div class="detail-item mb-3" v-if="detailDialog.log.duration_ms">
-                  <span class="text-caption text-medium-emphasis font-weight-bold">Duration:</span>
-                  <span class="text-body-2 ml-2">{{ detailDialog.log.duration_ms }} ms</span>
-                </div>
+              <div class="panel-detail-field">
+                <span class="panel-detail-field__label">{{ t('admin.views.auditLogs.relatedTargetId') }}</span>
+                <span class="panel-detail-field__value">#{{ detailDialog.log.related_target_id }}</span>
               </div>
-            </div>
-            <div class="detail-item mb-3" v-if="detailDialog.log.request_url">
-              <span class="text-caption text-medium-emphasis font-weight-bold">URL:</span>
-              <span class="text-body-2 ml-2" style="word-break: break-all;">{{ detailDialog.log.request_url }}</span>
-            </div>
+            </template>
           </div>
 
-          <v-divider class="my-4" v-if="detailDialog.log.error_message" />
-
-          <div class="detail-section" v-if="detailDialog.log.error_message">
-            <h3 class="text-subtitle-1 font-weight-bold mb-3">{{ t('admin.views.auditLogs.errorInfo') }}</h3>
-            <v-alert type="error" variant="tonal" density="compact">
-              {{ detailDialog.log.error_message }}
-            </v-alert>
+          <div v-if="detailDialog.log.error_message" class="panel-detail-dialog__error-box">
+            <span class="panel-detail-dialog__desc-label">{{ t('admin.views.auditLogs.errorInfo') }}</span>
+            <p class="panel-detail-dialog__desc-text mb-0">{{ detailDialog.log.error_message }}</p>
           </div>
+        </div>
 
-          <v-divider class="my-4" v-if="detailDialog.log.related_target_type" />
-
-          <div class="detail-section" v-if="detailDialog.log.related_target_type">
-            <h3 class="text-subtitle-1 font-weight-bold mb-3">{{ t('admin.views.auditLogs.relatedTarget') }}</h3>
-            <div class="detail-grid">
-              <div class="detail-item mb-3">
-                <span class="text-caption text-medium-emphasis font-weight-bold">Related Target Type:</span>
-                  <span class="text-body-2 ml-2">{{ detailDialog.log.related_target_type }}</span>
-              </div>
-              <div class="detail-item mb-3">
-                <span class="text-caption text-medium-emphasis font-weight-bold">Related Target ID:</span>
-                  <span class="text-body-2 ml-2">{{ detailDialog.log.related_target_id }}</span>
-              </div>
-            </div>
-          </div>
-        </v-card-text>
-
-        <v-card-actions class="pa-4" style="background-color: #fafafa;">
-          <v-spacer />
-          <v-btn variant="text" @click="detailDialog.show = false">{{ t('dealer.views.auditLogs.close') }}</v-btn>
-        </v-card-actions>
+        <div class="panel-detail-dialog__footer">
+          <button type="button" class="panel-btn panel-btn--outline" @click="detailDialog.show = false">
+            {{ t('dealer.views.auditLogs.close') }}
+          </button>
+        </div>
       </v-card>
     </v-dialog>
 
@@ -453,7 +315,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getAuditLogs, getAuditLog, type DealerAuditLogModel } from '@/api/dealer.api'
 import type { PaginationModel } from '@/models/pagination.model'
@@ -734,43 +596,23 @@ const formatDate = (date?: string): string => {
   return new Date(date).toLocaleString()
 }
 
+const formatDetailDate = (date?: string): string => {
+  if (!date) return t('common.na')
+  return new Date(date).toLocaleString(undefined, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  })
+}
+
+const formatActorType = (actorType?: string): string => {
+  if (!actorType) return t('common.na')
+  const normalized = actorType.includes('\\') ? actorType.split('\\').pop()! : actorType
+  return normalized.replace(/_/g, ' ')
+}
+
 const truncateText = (text: string, maxLength: number): string => {
   if (!text || text.length <= maxLength) return text
   return text.substring(0, maxLength) + '...'
-}
-
-const getActionColor = (action: string): string => {
-  const colors: Record<string, string> = {
-    create: 'success',
-    update: 'info',
-    delete: 'error',
-    view: 'primary',
-    assign: 'warning',
-    manage: 'primary',
-    status: 'info',
-    media: 'primary',
-    messages: 'primary',
-  }
-  return colors[action.toLowerCase()] || 'grey'
-}
-
-const getSeverityColor = (severity: string): string => {
-  const colors: Record<string, string> = {
-    low: 'success',
-    medium: 'warning',
-    high: 'error',
-    critical: 'error',
-  }
-  return colors[severity.toLowerCase()] || 'grey'
-}
-
-const getStatusColor = (status: string): string => {
-  const colors: Record<string, string> = {
-    success: 'success',
-    failed: 'error',
-    pending: 'warning',
-  }
-  return colors[status.toLowerCase()] || 'grey'
 }
 
 const showSnackbar = (message: string, color: 'success' | 'error' | 'info' = 'success') => {
@@ -800,91 +642,26 @@ const openDetailDialog = async (id: number) => {
 onMounted(() => {
   loadAuditLogs()
 })
+
+const getActionChipClass = (action: string): string => {
+  const key = action.toLowerCase()
+  if (key === 'create') return 'panel-status-chip--success'
+  if (key === 'delete') return 'panel-status-chip--warning'
+  if (key === 'update' || key === 'status') return 'panel-status-chip--info'
+  return 'panel-status-chip--neutral'
+}
+
+const getSeverityChipClass = (severity: string): string => {
+  const key = severity.toLowerCase()
+  if (key === 'low') return 'panel-status-chip--success'
+  if (key === 'medium') return 'panel-status-chip--warning'
+  return 'panel-status-chip--warning'
+}
+
+const getStatusChipClass = (status: string): string => {
+  const key = status.toLowerCase()
+  if (key === 'success') return 'panel-status-chip--success'
+  if (key === 'failed') return 'panel-status-chip--warning'
+  return 'panel-status-chip--neutral'
+}
 </script>
-
-<style scoped>
-.audit-logs-management {
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.header-section {
-  padding: 0;
-}
-
-.audit-logs-layout {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.filters-row {
-  width: 100%;
-}
-
-.filters-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
-  align-items: end;
-}
-
-.filter-item {
-  min-width: 0;
-}
-
-.filter-search {
-  grid-column: span 2;
-}
-
-.filter-button {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-@media (max-width: 1200px) {
-  .filter-search {
-    grid-column: span 1;
-  }
-}
-
-.audit-logs-row {
-  width: 100%;
-}
-
-:deep(.v-card) {
-  box-shadow: none !important;
-}
-
-:deep(.v-text-field .v-field),
-:deep(.v-select .v-field) {
-  border: 1px solid #f5f5f5 !important;
-}
-
-:deep(.v-data-table) {
-  box-shadow: none !important;
-}
-
-:deep(.v-data-table__thead) {
-  background-color: #fafafa;
-}
-
-:deep(.v-data-table__tbody td) {
-  font-size: 0.75rem !important;
-  padding: 12px 16px !important;
-}
-
-:deep(.v-data-table__tbody tr) {
-  border-bottom: 1px solid #f5f5f5;
-}
-
-:deep(.v-data-table__tbody tr:hover) {
-  background-color: #fafafa;
-}
-
-:deep(.v-chip) {
-  font-size: 0.6875rem !important;
-  height: 20px !important;
-}
-</style>

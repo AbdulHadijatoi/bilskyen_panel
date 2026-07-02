@@ -5,12 +5,13 @@
       :subtitle="t('dealer.views.leads.subtitle')"
     >
       <template #actions>
-        <div class="d-flex gap-2 align-center flex-wrap">
+        <div class="panel-inline-actions">
           <v-btn-toggle
             v-model="viewMode"
             mandatory
             variant="outlined"
             density="compact"
+            class="panel-segmented-toggle"
           >
             <v-btn value="kanban" prepend-icon="mdi-view-column">
               <span class="d-none d-sm-inline">{{ t('dealer.views.leads.kanban') }}</span>
@@ -26,79 +27,30 @@
       </template>
     </PageHeader>
 
-    <!-- Filters and Search -->
-    <div class="filters-container mb-4">
-      <!-- Search Bar -->
-      <div class="search-section mb-3">
-        <v-text-field
-          v-model="searchQuery"
-          prepend-inner-icon="mdi-magnify"
-          :placeholder="t('dealer.views.leads.searchPlaceholder')"
-      variant="outlined"
-          density="compact"
-          hide-details
-          clearable
-          class="search-field"
-          @update:model-value="debouncedSearch"
-        />
+    <div class="panel-filters-card mb-4">
+      <div class="panel-filters-grid">
+        <div class="panel-filters-grid__search">
+          <span class="panel-filters-card__label">{{ t('common.search') }}</span>
+          <v-text-field
+            v-model="searchQuery"
+            prepend-inner-icon="mdi-magnify"
+            :placeholder="t('dealer.views.leads.searchPlaceholder')"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            clearable
+            @update:model-value="debouncedSearch"
+          />
         </div>
-
-      <!-- Filter Chips and Controls -->
-      <div class="d-flex flex-wrap align-center gap-2">
-        <!-- Active Filters Display -->
-        <div v-if="hasActiveFilters" class="d-flex flex-wrap align-center gap-1 flex-grow-1">
-          <v-chip
-            v-if="filterDays"
-            size="small"
-            closable
-            @click:close="filterDays = null; applyFilters()"
-          >
-            <v-icon start size="small">mdi-calendar</v-icon>
-            {{ daysOptions.find(d => d.value === filterDays)?.label }}
-          </v-chip>
-          <v-chip
-            v-for="vehicleId in filterVehicles"
-            :key="vehicleId"
-            size="small"
-            closable
-            @click:close="filterVehicles = filterVehicles.filter(id => id !== vehicleId); applyFilters()"
-          >
-            <v-icon start size="small">mdi-car</v-icon>
-            {{ vehicleOptions.find(v => v.id === vehicleId)?.title || t('dealer.views.leads.vehicle') }}
-          </v-chip>
-          <v-chip
-            v-if="filterStage"
-            size="small"
-            closable
-            :color="getStageColor(filterStage)"
-            @click:close="filterStage = null; applyFilters()"
-          >
-            <v-icon start size="small">mdi-filter</v-icon>
-            {{ stages.find(s => s.id === filterStage)?.name }}
-          </v-chip>
-          <v-chip
-            v-if="filterIntent"
-            size="small"
-            closable
-            :color="getIntentColor(filterIntent)"
-            @click:close="filterIntent = null; applyFilters()"
-          >
-            <v-icon start size="small">mdi-star</v-icon>
-            {{ intentOptions.find(i => i.id === filterIntent)?.name }}
-          </v-chip>
-        </div>
-
-        <!-- Filter Dropdowns -->
-        <div class="d-flex flex-wrap align-center gap-2 ms-auto">
+        <div class="panel-filters-grid__actions panel-filters-grid__actions--trailing">
           <v-menu location="bottom start" :close-on-content-click="false">
             <template #activator="{ props }">
-              <v-btn
+              <button
                 v-bind="props"
-                variant="outlined"
-                size="small"
-                prepend-icon="mdi-filter-variant"
-                :class="{ 'text-primary': hasActiveFilters }"
+                type="button"
+                class="panel-btn panel-btn--outline"
               >
+                <v-icon size="16">mdi-filter-variant</v-icon>
                 {{ t('dealer.views.leads.filters') }}
                 <v-chip
                   v-if="activeFilterCount > 0"
@@ -108,7 +60,7 @@
                 >
                   {{ activeFilterCount }}
                 </v-chip>
-              </v-btn>
+              </button>
             </template>
             <v-card min-width="280" class="pa-3">
               <div class="text-subtitle-2 font-weight-bold mb-3">{{ t('dealer.views.leads.filterOptions') }}</div>
@@ -167,40 +119,65 @@
               />
             </v-card>
           </v-menu>
-
-          <v-btn
+          <button
             v-if="hasActiveFilters"
-            variant="text"
-            size="small"
-            prepend-icon="mdi-close-circle"
+            type="button"
+            class="panel-btn panel-btn--outline panel-btn--sm"
             @click="clearAllFilters"
           >
+            <v-icon size="16">mdi-close-circle</v-icon>
             {{ t('common.clearAll') }}
-          </v-btn>
+          </button>
         </div>
-            </div>
-                    </div>
+      </div>
+
+      <div v-if="hasActiveFilters" class="panel-active-filters">
+        <span class="panel-active-filters__label">{{ t('admin.views.auditLogs.activeFilters') }}</span>
+        <span v-if="filterDays" class="panel-filter-chip">
+          {{ daysOptions.find(d => d.value === filterDays)?.label }}
+          <button type="button" aria-label="Remove filter" @click="filterDays = null; applyFilters()">
+            <v-icon size="12">mdi-close</v-icon>
+          </button>
+        </span>
+        <span
+          v-for="vehicleId in filterVehicles"
+          :key="vehicleId"
+          class="panel-filter-chip"
+        >
+          {{ vehicleOptions.find(v => v.id === vehicleId)?.title || t('dealer.views.leads.vehicle') }}
+          <button type="button" aria-label="Remove filter" @click="filterVehicles = filterVehicles.filter(id => id !== vehicleId); applyFilters()">
+            <v-icon size="12">mdi-close</v-icon>
+          </button>
+        </span>
+        <span v-if="filterStage" class="panel-filter-chip">
+          {{ stages.find(s => s.id === filterStage)?.name }}
+          <button type="button" aria-label="Remove filter" @click="filterStage = null; applyFilters()">
+            <v-icon size="12">mdi-close</v-icon>
+          </button>
+        </span>
+        <span v-if="filterIntent" class="panel-filter-chip">
+          {{ intentOptions.find(i => i.id === filterIntent)?.name }}
+          <button type="button" aria-label="Remove filter" @click="filterIntent = null; applyFilters()">
+            <v-icon size="12">mdi-close</v-icon>
+          </button>
+        </span>
+      </div>
+    </div>
 
     <v-row v-if="!loading && !error" class="ma-0">
       <!-- Main Content -->
       <v-col cols="12" :md="showAnalytics ? 9 : 12" class="pa-0 pa-md-2">
         <!-- Table View -->
-                  <v-card
-          v-if="viewMode === 'table'"
-                    variant="outlined"
-                    :style="{
-                      backgroundColor: 'var(--card)',
-            color: 'var(--card-foreground)',
-                      borderColor: 'var(--border)',
-                    }"
-                  >
-                    <v-card-text>
+                  <div v-if="viewMode === 'table'" class="panel-table-card">
+          <div class="panel-table-card__body">
             <v-data-table
               :headers="tableHeaders"
               :items="filteredLeads"
               :loading="loading"
               item-value="id"
-              class="leads-table"
+              density="comfortable"
+              class="panel-data-table"
+              elevation="0"
             >
               <template #item.name="{ item }">
                         <div>
@@ -257,12 +234,13 @@
                 {{ formatLeadDate(item.createdAt) }}
               </template>
               <template #item.actions="{ item }">
-                        <v-menu>
-                          <template #activator="{ props }">
-                            <v-btn icon variant="text" size="small" v-bind="props">
-                              <v-icon>mdi-dots-vertical</v-icon>
-                            </v-btn>
-                          </template>
+                <div class="panel-row-actions">
+                  <v-menu>
+                    <template #activator="{ props }">
+                      <button type="button" class="panel-icon-btn" v-bind="props">
+                        <v-icon size="16">mdi-dots-vertical</v-icon>
+                      </button>
+                    </template>
                           <v-list>
                     <v-list-item @click="viewLead(item.id)">
                               <v-list-item-title>{{ t('dealer.views.leads.viewDetails') }}</v-list-item-title>
@@ -272,22 +250,19 @@
                             </v-list-item>
                           </v-list>
                         </v-menu>
+                </div>
               </template>
             </v-data-table>
-                    </v-card-text>
-                  </v-card>
+          </div>
+        </div>
 
         <!-- Kanban View -->
         <v-card
           v-if="viewMode === 'kanban'"
-          variant="outlined"
-          :style="{
-            backgroundColor: 'var(--card)',
-            color: 'var(--card-foreground)',
-            borderColor: 'var(--border)',
-          }"
+          class="panel-card"
+          variant="flat"
         >
-          <v-card-text>
+          <div class="panel-card__body">
             <div class="d-flex gap-4 overflow-x-auto kanban-container" style="min-height: 600px;">
               <div
                 v-for="stage in stages"
@@ -366,8 +341,8 @@
             </v-card>
           </div>
         </div>
-      </v-card-text>
-    </v-card>
+          </div>
+        </v-card>
 
       </v-col>
 
@@ -382,8 +357,8 @@
     </v-row>
 
     <!-- Loading State -->
-    <div v-if="loading && !leads.length" class="text-center py-8">
-      <v-progress-circular indeterminate color="primary" />
+    <div v-if="loading && !leads.length" class="panel-loading py-8">
+      <v-progress-circular indeterminate color="primary" size="48" />
     </div>
 
     <!-- Error State -->
@@ -1138,47 +1113,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.filters-container {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px;
-}
-
-.search-section {
-  position: relative;
-}
-
-.search-field {
-  max-width: 100%;
-}
-
-.search-field :deep(.v-field) {
-  background: var(--background);
-}
-
-/* Active filter chips */
-.filters-container :deep(.v-chip) {
-  font-size: 0.75rem;
-  height: 28px;
-}
-
-/* Filter menu button */
-.filters-container :deep(.v-btn) {
-  text-transform: none;
-  letter-spacing: normal;
-}
-
-/* Responsive adjustments */
-@media (max-width: 960px) {
-  .filters-container {
-    padding: 12px;
-  }
-  
-  .search-field {
-    margin-bottom: 12px;
-  }
-}
 .cursor-pointer {
   cursor: pointer;
 }

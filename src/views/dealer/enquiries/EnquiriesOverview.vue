@@ -12,207 +12,136 @@
       </template>
     </PageHeader>
 
-    <!-- Stats Cards -->
-    <v-row class="mb-6" v-if="!loading && !error">
+    <v-row v-if="!loading && !error" class="mb-5">
       <v-col cols="6" sm="4" md="3">
-        <v-card variant="flat" elevation="0" class="stat-card">
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="stat-label text-caption">{{ t('dealer.views.enquiries.total') }}</div>
-                <div class="stat-value text-h5 font-weight-bold">{{ pagination.total }}</div>
-              </div>
-              <v-icon size="32" color="primary" class="stat-icon">mdi-email-multiple</v-icon>
-            </div>
-          </v-card-text>
-        </v-card>
+        <OverviewStatCard :label="t('dealer.views.enquiries.total')" :value="pagination.total" icon="mdi-email-multiple" color="primary" />
       </v-col>
       <v-col cols="6" sm="4" md="3">
-        <v-card variant="flat" elevation="0" class="stat-card">
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="stat-label text-caption">{{ t('dealer.views.enquiries.new') }}</div>
-                <div class="stat-value text-h5 font-weight-bold text-blue">{{ newCount }}</div>
-              </div>
-              <v-icon size="32" color="blue" class="stat-icon">mdi-email-alert</v-icon>
-            </div>
-          </v-card-text>
-        </v-card>
+        <OverviewStatCard :label="t('dealer.views.enquiries.new')" :value="newCount" icon="mdi-email-alert" color="info" value-tone="info" />
       </v-col>
       <v-col cols="6" sm="4" md="3">
-        <v-card variant="flat" elevation="0" class="stat-card">
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="stat-label text-caption">{{ t('dealer.views.enquiries.inProgress') }}</div>
-                <div class="stat-value text-h5 font-weight-bold text-orange">{{ inProgressCount }}</div>
-              </div>
-              <v-icon size="32" color="orange" class="stat-icon">mdi-clock-outline</v-icon>
-            </div>
-          </v-card-text>
-        </v-card>
+        <OverviewStatCard :label="t('dealer.views.enquiries.inProgress')" :value="inProgressCount" icon="mdi-clock-outline" color="warning" value-tone="warning" />
       </v-col>
       <v-col cols="6" sm="4" md="3">
-        <v-card variant="flat" elevation="0" class="stat-card">
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="stat-label text-caption">{{ t('dealer.views.enquiries.responded') }}</div>
-                <div class="stat-value text-h5 font-weight-bold text-success">{{ respondedCount }}</div>
-              </div>
-              <v-icon size="32" color="success" class="stat-icon">mdi-check-circle</v-icon>
-            </div>
-          </v-card-text>
-        </v-card>
+        <OverviewStatCard :label="t('dealer.views.enquiries.responded')" :value="respondedCount" icon="mdi-check-circle" color="success" value-tone="success" />
       </v-col>
     </v-row>
 
-    <!-- Filters and Search -->
-    <v-card
-      variant="outlined"
-      class="mb-4"
-      :style="{
-        backgroundColor: 'var(--card)',
-        borderColor: 'var(--border)',
-      }"
-    >
-      <v-card-text class="pa-4">
-        <div class="d-flex flex-column flex-md-row gap-4 align-start">
-          <!-- Search -->
+    <div class="panel-filters-card mb-4">
+      <div class="panel-filters-grid">
+        <div class="panel-filters-grid__search">
+          <span class="panel-filters-card__label">{{ t('common.search') }}</span>
           <v-text-field
             v-model="searchQuery"
             prepend-inner-icon="mdi-magnify"
-            :label="t('dealer.views.enquiries.searchPlaceholder')"
+            :placeholder="t('dealer.views.enquiries.searchPlaceholder')"
             variant="outlined"
-            density="compact"
+            density="comfortable"
             clearable
             hide-details
-            style="flex: 1; min-width: 250px;"
             @update:model-value="handleSearch"
             @keyup.enter="handleSearch"
           />
-
-          <!-- Status Filter -->
+        </div>
+        <div class="panel-filters-grid__field">
+          <span class="panel-filters-card__label">{{ t('dealer.views.enquiries.status') }}</span>
           <v-select
             v-model="filters.status"
             :items="statusOptions"
             item-title="label"
             item-value="value"
-            :label="t('dealer.views.enquiries.status')"
             variant="outlined"
-            density="compact"
+            density="comfortable"
             clearable
-            prepend-inner-icon="mdi-filter"
             hide-details
-            style="min-width: 180px;"
             @update:model-value="loadEnquiries"
           />
-
-          <!-- Type Filter -->
+        </div>
+        <div class="panel-filters-grid__field">
+          <span class="panel-filters-card__label">{{ t('dealer.views.enquiries.type') }}</span>
           <v-select
             v-model="filters.type"
             :items="typeOptions"
             item-title="label"
             item-value="value"
-            :label="t('dealer.views.enquiries.type')"
             variant="outlined"
-            density="compact"
+            density="comfortable"
             clearable
-            prepend-inner-icon="mdi-tag"
             hide-details
-            style="min-width: 180px;"
             @update:model-value="loadEnquiries"
           />
         </div>
-
-        <!-- Active Filters Chips -->
-        <div v-if="hasActiveFilters" class="d-flex flex-wrap gap-2 mt-3">
-          <v-chip
-            v-if="filters.status"
-            closable
-            size="small"
-            @click:close="clearStatusFilter"
-            color="primary"
-            variant="flat"
-          >
-            Status: {{ getStatusLabel(filters.status) }}
-          </v-chip>
-          <v-chip
-            v-if="filters.type"
-            closable
-            size="small"
-            @click:close="clearTypeFilter"
-            color="primary"
-            variant="flat"
-          >
-            Type: {{ getTypeLabel(filters.type) }}
-          </v-chip>
-          <v-chip
-            v-if="searchQuery"
-            closable
-            size="small"
-            @click:close="clearSearch"
-            color="primary"
-            variant="flat"
-          >
-            Search: {{ searchQuery }}
-          </v-chip>
+        <div class="panel-filters-grid__actions panel-filters-grid__actions--trailing">
+          <button type="button" class="panel-btn panel-btn--outline" :disabled="loading" @click="loadEnquiries">
+            <v-icon size="16">mdi-refresh</v-icon>
+            {{ t('dealer.views.enquiries.refresh') }}
+          </button>
         </div>
-      </v-card-text>
-    </v-card>
+      </div>
 
-    <!-- Enquiries Table -->
-    <v-card
-      variant="outlined"
-      :style="{
-        backgroundColor: 'var(--card)',
-        color: 'var(--card-foreground)',
-        borderColor: 'var(--border)',
-      }"
-    >
-      <v-card-text class="pa-0">
-        <div v-if="loading" class="text-center py-12">
-          <v-progress-circular indeterminate color="primary" size="64" />
-          <p class="text-body-2 text-medium-emphasis mt-4">{{ t('dealer.views.enquiries.loadingEnquiries') }}</p>
+      <div v-if="hasActiveFilters" class="panel-active-filters">
+        <span class="panel-active-filters__label">{{ t('admin.views.auditLogs.activeFilters') }}</span>
+        <span v-if="filters.status" class="panel-filter-chip">
+          {{ t('dealer.views.enquiries.status') }}: {{ getStatusLabel(filters.status) }}
+          <button type="button" aria-label="Remove filter" @click="clearStatusFilter">
+            <v-icon size="12">mdi-close</v-icon>
+          </button>
+        </span>
+        <span v-if="filters.type" class="panel-filter-chip">
+          {{ t('dealer.views.enquiries.type') }}: {{ getTypeLabel(filters.type) }}
+          <button type="button" aria-label="Remove filter" @click="clearTypeFilter">
+            <v-icon size="12">mdi-close</v-icon>
+          </button>
+        </span>
+        <span v-if="searchQuery" class="panel-filter-chip">
+          {{ t('common.search') }}: {{ searchQuery }}
+          <button type="button" aria-label="Remove filter" @click="clearSearch">
+            <v-icon size="12">mdi-close</v-icon>
+          </button>
+        </span>
+      </div>
+    </div>
+
+    <div class="panel-table-card">
+      <div class="panel-table-card__body">
+        <div v-if="loading" class="panel-loading">
+          <v-progress-circular indeterminate color="primary" size="48" />
+          <p>{{ t('dealer.views.enquiries.loadingEnquiries') }}</p>
         </div>
 
-        <div v-else-if="error" class="text-center py-12">
-          <v-alert type="error" variant="tonal" class="mx-4">
+        <div v-else-if="error" class="error-container pa-6">
+          <v-alert type="error" variant="tonal" prominent>
             <v-alert-title>{{ t('dealer.views.enquiries.error') }}</v-alert-title>
             {{ error }}
           </v-alert>
         </div>
 
-        <div v-else-if="enquiries.length === 0" class="text-center py-12">
-          <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-email-off</v-icon>
-          <h3 class="text-h6 mb-2">{{ t('dealer.views.enquiries.noEnquiriesFound') }}</h3>
-          <p class="text-body-2 text-medium-emphasis mb-4">
+        <div v-else-if="enquiries.length === 0" class="panel-table-empty">
+          <v-icon size="48" color="disabled">mdi-email-off</v-icon>
+          <p>{{ t('dealer.views.enquiries.noEnquiriesFound') }}</p>
+          <p class="panel-table-empty__hint">
             {{ hasActiveFilters ? t('dealer.views.enquiries.tryAdjustingFilters') : t('dealer.views.enquiries.noEnquiriesYet') }}
           </p>
-          <v-btn
-            v-if="hasActiveFilters"
-            variant="outlined"
-            @click="clearAllFilters"
-          >
+          <button v-if="hasActiveFilters" type="button" class="panel-btn panel-btn--outline panel-btn--sm mt-2" @click="clearAllFilters">
             {{ t('dealer.views.enquiries.clearFilters') }}
-          </v-btn>
+          </button>
         </div>
 
-        <div v-else>
-          <v-data-table
-            :headers="headers"
-            :items="enquiries"
-            :items-per-page="pagination.limit"
-            :page="pagination.page"
-            :server-items-length="pagination.total"
-            :loading="loading"
-            @update:page="handlePageChange"
-            @update:items-per-page="handleItemsPerPageChange"
-            class="enquiries-table"
-            item-value="id"
-            hover
-          >
+        <v-data-table
+          v-else
+          :headers="headers"
+          :items="enquiries"
+          :items-per-page="pagination.limit"
+          :page="pagination.page"
+          :items-length="pagination.total"
+          :loading="loading"
+          density="comfortable"
+          class="panel-data-table"
+          elevation="0"
+          item-value="id"
+          @update:page="handlePageChange"
+          @update:items-per-page="handleItemsPerPageChange"
+        >
             <template #item.subject="{ item }">
               <div class="d-flex align-center gap-2">
                 <v-icon size="20" color="primary">mdi-email</v-icon>
@@ -287,27 +216,20 @@
             </template>
 
             <template #item.actions="{ item }">
-              <div class="d-flex gap-1">
-                <v-btn
-                  icon
-                  variant="text"
-                  size="small"
-                  @click="viewEnquiry(item.id)"
+              <div class="panel-row-actions">
+                <button
+                  type="button"
+                  class="panel-icon-btn panel-icon-btn--primary"
                   :title="t('dealer.views.enquiries.viewDetails')"
+                  @click="viewEnquiry(item.id)"
                 >
-                  <v-icon size="20">mdi-eye</v-icon>
-                </v-btn>
+                  <v-icon size="16">mdi-eye-outline</v-icon>
+                </button>
                 <v-menu>
                   <template #activator="{ props }">
-                    <v-btn
-                      icon
-                      variant="text"
-                      size="small"
-                      v-bind="props"
-                      :title="t('dealer.views.enquiries.moreActions')"
-                    >
-                      <v-icon size="20">mdi-dots-vertical</v-icon>
-                    </v-btn>
+                    <button type="button" class="panel-icon-btn" v-bind="props" :title="t('dealer.views.enquiries.moreActions')">
+                      <v-icon size="16">mdi-dots-vertical</v-icon>
+                    </button>
                   </template>
                   <v-list density="compact">
                     <v-list-item @click="viewEnquiry(item.id)" prepend-icon="mdi-eye">
@@ -331,9 +253,8 @@
               </div>
             </template>
           </v-data-table>
-        </div>
-      </v-card-text>
-    </v-card>
+      </div>
+    </div>
 
     <!-- Update Status Dialog -->
     <v-dialog v-model="statusDialog" max-width="500" persistent>
@@ -439,6 +360,7 @@ import { EnquiryStatus, EnquiryType } from '@/models/enquiry.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import type { PaginationModel, PaginationParams } from '@/models/pagination.model'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import OverviewStatCard from '@/components/panel/OverviewStatCard.vue'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -742,65 +664,3 @@ onMounted(() => {
   loadEnquiries()
 })
 </script>
-
-<style scoped>
-.enquiries-overview {
-  padding: 0;
-}
-
-.header-section {
-  padding: 0;
-}
-
-.stat-card {
-  background-color: var(--card);
-  border: 1px solid var(--border);
-  transition: all 0.2s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.stat-label {
-  color: var(--muted-foreground);
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
-}
-
-.stat-value {
-  color: var(--foreground);
-  line-height: 1.2;
-}
-
-.stat-icon {
-  opacity: 0.8;
-}
-
-.enquiries-table {
-  background-color: var(--card);
-  color: var(--card-foreground);
-}
-
-.enquiries-table :deep(.v-data-table__thead) {
-  background-color: var(--muted);
-}
-
-.enquiries-table :deep(.v-data-table__tr:hover) {
-  background-color: var(--muted);
-}
-
-.enquiries-table :deep(.v-data-table__td) {
-  padding: 12px 16px;
-}
-
-.enquiries-table :deep(.v-data-table__th) {
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.5px;
-}
-</style>

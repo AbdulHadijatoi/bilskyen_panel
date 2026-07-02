@@ -2,10 +2,11 @@
   <v-select
     v-model="selectedRange"
     :items="dateRangeOptions"
-    :label="t('dealer.views.analytics.dateRange.label')"
+    :label="showLabel ? t('dealer.views.analytics.dateRange.label') : undefined"
     variant="outlined"
-    density="compact"
+    :density="density"
     hide-details
+    prepend-inner-icon="mdi-calendar-range"
     class="date-range-filter"
     @update:model-value="handleChange"
   />
@@ -19,10 +20,14 @@ export type DateRange = '7d' | '30d' | '3m' | '1y' | 'all'
 
 interface Props {
   modelValue?: DateRange
+  showLabel?: boolean
+  density?: 'default' | 'comfortable' | 'compact'
 }
 
 const props = withDefaults(defineProps<Props>(), {
   modelValue: '30d',
+  showLabel: true,
+  density: 'compact',
 })
 
 const emit = defineEmits<{
@@ -52,6 +57,7 @@ onMounted(() => {
 
 <style scoped>
 .date-range-filter {
-  max-width: 200px;
+  width: 100%;
+  min-width: 11.5rem;
 }
 </style>

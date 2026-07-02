@@ -47,6 +47,7 @@
         }}
       </div>
       <v-btn
+        class="panel-btn panel-btn--sm"
         color="primary"
         variant="flat"
         size="small"
@@ -60,17 +61,25 @@
     <!-- Current Subscription (if exists) -->
     <v-card
       v-if="currentSubscription"
-      variant="elevated"
-      elevation="1"
-      class="mb-6"
+      class="panel-card panel-card--highlighted subscription-current-card mb-6"
+      variant="flat"
     >
-      <v-card-title class="pa-4">{{ t('dealer.views.subscription.currentSubscription') }}</v-card-title>
-      <v-card-text class="pa-4">
+      <div class="panel-card__header">
+        <h2 class="panel-card__title">
+          <v-icon size="18" color="primary">mdi-check-decagram</v-icon>
+          {{ t('dealer.views.subscription.currentSubscription') }}
+        </h2>
+        <span class="subscription-active-badge">
+          <v-icon size="14">mdi-check-circle</v-icon>
+          {{ getStatusLabel(currentSubscription.subscription_status_id) }}
+        </span>
+      </div>
+      <div class="panel-card__body">
         <v-row>
           <v-col cols="12" md="6">
             <div class="mb-2">
               <div class="text-caption text-medium-emphasis">{{ t('dealer.views.subscription.plan') }}</div>
-              <div class="font-weight-medium">{{ currentSubscription.plan?.name || t('common.na') }}</div>
+              <div class="font-weight-bold text-h6 text-primary">{{ currentSubscription.plan?.name || t('common.na') }}</div>
             </div>
           </v-col>
           <v-col cols="12" md="6">
@@ -98,12 +107,14 @@
             </div>
           </v-col>
         </v-row>
-      </v-card-text>
+      </div>
     </v-card>
 
-    <v-card v-if="usageSummary?.is_usage_plan" variant="elevated" elevation="1" class="mb-6">
-      <v-card-title class="pa-4">{{ t('dealer.views.subscription.usageTitle') }}</v-card-title>
-      <v-card-text class="pa-4">
+    <v-card v-if="usageSummary?.is_usage_plan" class="panel-card mb-6" variant="flat">
+      <div class="panel-card__header">
+        <h2 class="panel-card__title">{{ t('dealer.views.subscription.usageTitle') }}</h2>
+      </div>
+      <div class="panel-card__body">
         <v-row>
           <v-col cols="12" md="4">
             <div class="text-caption text-medium-emphasis">{{ t('dealer.views.subscription.publishedListings') }}</div>
@@ -122,11 +133,11 @@
             <div>{{ formatPrice(usageSummary.estimated_monthly_cents, 'DKK') }}</div>
           </v-col>
         </v-row>
-      </v-card-text>
+      </div>
     </v-card>
 
     <!-- Loading State -->
-    <div v-if="loadingPlans" class="text-center py-12">
+    <div v-if="loadingPlans" class="panel-loading py-12">
       <v-progress-circular indeterminate color="primary" size="48" />
     </div>
 
@@ -144,9 +155,8 @@
     <!-- Empty State -->
     <v-card
       v-else-if="availablePlans.length === 0"
-      variant="elevated"
-      elevation="1"
-      class="text-center py-12"
+      class="panel-card text-center py-12"
+      variant="flat"
     >
       <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-package-variant-closed</v-icon>
       <h3 class="text-h6 font-weight-medium mb-2">{{ t('dealer.views.subscription.noPlansAvailable') }}</h3>
@@ -156,7 +166,7 @@
     </v-card>
 
     <!-- Plans Grid -->
-    <v-row v-else class="plans-grid" dense>
+    <v-row v-else class="plans-grid align-stretch" dense>
       <v-col
         v-for="plan in availablePlans"
         :key="plan.id"
@@ -164,24 +174,22 @@
         sm="6"
         md="6"
         lg="3"
+        class="d-flex"
       >
         <v-card
-          :class="['plan-card', { 'plan-card-active': isPlanActive(plan) }]"
-          variant="elevated"
-          elevation="1"
+          :class="['panel-card plan-card w-100', { 'plan-card--active': isPlanActive(plan) }]"
+          variant="flat"
         >
-          <v-card-text class="pa-4">
+          <div class="panel-card__body plan-card__content">
             <!-- Plan Name -->
             <div class="d-flex justify-space-between align-center mb-2">
-              <h3 class="text-h6 font-weight-medium mb-0">{{ plan.name }}</h3>
-              <v-chip
-                v-if="isPlanActive(plan)"
-                color="success"
-                size="small"
-                variant="flat"
-              >
+              <h3 class="text-h6 font-weight-medium mb-0" :class="{ 'text-primary': isPlanActive(plan) }">
+                {{ plan.name }}
+              </h3>
+              <span v-if="isPlanActive(plan)" class="plan-card__active-badge">
+                <v-icon size="12">mdi-check</v-icon>
                 {{ t('dealer.views.subscription.statusActive') }}
-              </v-chip>
+              </span>
             </div>
             
             <!-- Pricing -->
@@ -242,29 +250,29 @@
                 {{ t('dealer.views.subscription.daysFreeTrial', { count: plan.trial_days }) }}
               </v-chip>
             </div>
-          </v-card-text>
+          </div>
 
-          <v-divider v-if="!isPlanActive(plan)" />
+          <div v-if="isPlanActive(plan)" class="plan-card__active-footer plan-card__footer">
+            <v-icon size="18" color="primary">mdi-check-circle</v-icon>
+            {{ t('dealer.views.subscription.statusActive') }}
+          </div>
 
-          <v-card-actions v-if="!isPlanActive(plan)" class="pa-3">
-            <v-btn
-              color="primary"
-              variant="flat"
-              size="small"
-              class="py-6"
+          <div v-else class="plan-card__footer panel-card__body panel-card__body--flush pa-3">
+            <button
+              type="button"
+              class="panel-btn panel-btn--primary w-100"
               :disabled="!!pendingChangeRequest"
-              block
               @click="openSubscriptionDialog(plan)"
             >
               {{ currentSubscription ? t('dealer.views.subscription.changePlan') : t('dealer.views.subscription.selectPlan') }}
-            </v-btn>
+            </button>
             <div
               v-if="pendingChangeRequest"
               class="text-caption text-medium-emphasis text-center mt-2 px-1"
             >
               {{ t('dealer.views.subscription.pendingBlocksNewRequest') }}
             </div>
-          </v-card-actions>
+          </div>
         </v-card>
       </v-col>
     </v-row>
@@ -532,40 +540,19 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.subscription-page {
-  padding: 0;
-}
-
 .plans-grid {
   margin-top: 0;
 }
 
-.plan-card {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  height: 100%;
+.feature-check-circle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(var(--v-theme-success), 0.12);
   display: flex;
-  flex-direction: column;
-  border-radius: 12px;
-  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
-  background: rgb(var(--v-theme-surface));
-}
-
-.plan-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
-  transform: translateY(-4px);
-  border-color: rgba(var(--v-theme-primary), 0.2);
-}
-
-.plan-card-active {
-  border-color: rgba(var(--v-theme-success), 0.5) !important;
-  background: linear-gradient(135deg, rgba(var(--v-theme-success), 0.08) 0%, rgba(var(--v-theme-success), 0.03) 100%);
-  box-shadow: 0 2px 12px rgba(var(--v-theme-success), 0.15) !important;
-}
-
-.plan-card-active:hover {
-  border-color: rgba(var(--v-theme-success), 0.6) !important;
-  box-shadow: 0 4px 20px rgba(var(--v-theme-success), 0.2) !important;
-  transform: translateY(-2px);
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .features-list {
@@ -577,16 +564,5 @@ onMounted(async () => {
 
 .feature-item {
   min-height: 24px;
-}
-
-.feature-check-circle {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 1px solid rgb(var(--v-theme-success));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
 }
 </style>

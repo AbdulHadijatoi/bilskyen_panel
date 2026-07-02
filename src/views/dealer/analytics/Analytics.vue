@@ -4,23 +4,40 @@
     <PageHeader
       :title="t('dealer.views.analytics.title')"
       :subtitle="t('dealer.views.analytics.subtitle')"
-    >
-      <template #actions>
-        <div class="d-flex align-center gap-2 flex-wrap">
-          <DateRangeFilter v-model="dateRange" @update:model-value="loadAllAnalytics" />
-          <v-switch
-            v-model="comparePeriod"
-            :label="t('dealer.views.analytics.comparePeriod')"
-            hide-details
-            density="compact"
-            color="primary"
-            @update:model-value="loadFunnel"
-          />
+    />
+
+    <div class="panel-filters-card panel-analytics-toolbar mb-4">
+      <div class="panel-analytics-toolbar__inner">
+        <div class="panel-analytics-toolbar__group">
+          <div class="panel-analytics-toolbar__field">
+            <span class="panel-filters-card__label">{{ t('dealer.views.analytics.dateRange.label') }}</span>
+            <DateRangeFilter
+              v-model="dateRange"
+              :show-label="false"
+              density="comfortable"
+              @update:model-value="loadAllAnalytics"
+            />
+          </div>
+          <div class="panel-analytics-toolbar__field panel-analytics-toolbar__field--compare">
+            <span class="panel-filters-card__label">{{ t('dealer.views.analytics.comparePeriod') }}</span>
+            <div class="panel-analytics-toolbar__switch">
+              <v-switch
+                v-model="comparePeriod"
+                hide-details
+                density="comfortable"
+                color="primary"
+                @update:model-value="loadFunnel"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="panel-analytics-toolbar__actions">
           <v-menu>
             <template #activator="{ props: menuProps }">
-              <v-btn v-bind="menuProps" variant="outlined" prepend-icon="mdi-download" size="small">
+              <button v-bind="menuProps" type="button" class="panel-btn panel-btn--outline">
+                <v-icon size="16">mdi-download</v-icon>
                 {{ t('dealer.views.analytics.export') }}
-              </v-btn>
+              </button>
             </template>
             <v-list density="compact">
               <v-list-item title="Funnel" @click="exportReport('funnel')" />
@@ -29,8 +46,8 @@
             </v-list>
           </v-menu>
         </div>
-      </template>
-    </PageHeader>
+      </div>
+    </div>
 
     <v-alert
       v-if="sectionErrors.length"
@@ -45,9 +62,9 @@
     </v-alert>
 
     <!-- Loading State -->
-    <div v-if="isAnyLoading && !overview" class="loading-container">
-      <v-progress-circular indeterminate color="primary" size="64" />
-      <p class="text-body-1 text-medium-emphasis mt-4">{{ t('dealer.views.analytics.loadingData') }}</p>
+    <div v-if="isAnyLoading && !overview" class="panel-loading">
+      <v-progress-circular indeterminate color="primary" size="48" />
+      <p>{{ t('dealer.views.analytics.loadingData') }}</p>
     </div>
 
     <!-- Error State -->
@@ -64,57 +81,50 @@
 
     <!-- Analytics Content -->
     <div v-else-if="overview">
-      <!-- Key Metrics -->
-      <v-row class="mb-6">
+      <v-row class="mb-5">
         <v-col cols="12" sm="6" md="3">
-          <MetricCard
-            :title="t('dealer.views.analytics.activeVehicles')"
+          <OverviewStatCard
+            :label="t('dealer.views.analytics.activeVehicles')"
             :value="overview.vehicles.total_active"
             icon="mdi-car"
-            icon-color="success"
-            :subtitle="`${overview.vehicles.sold} ${t('dealer.views.analytics.sold')}`"
-            subtitle-icon="mdi-check-circle"
+            color="success"
+            value-tone="success"
           />
         </v-col>
         <v-col cols="12" sm="6" md="3">
-          <MetricCard
-            :title="t('dealer.views.analytics.totalLeads')"
+          <OverviewStatCard
+            :label="t('dealer.views.analytics.totalLeads')"
             :value="overview.leads.total"
             icon="mdi-phone-in-talk"
-            icon-color="primary"
-            :subtitle="`${overview.leads.by_type.enquiry + overview.leads.by_type.phone} ${t('dealer.views.analytics.enquiries')}`"
-            subtitle-icon="mdi-phone"
+            color="primary"
           />
         </v-col>
         <v-col cols="12" sm="6" md="3">
-          <MetricCard
-            :title="t('dealer.views.analytics.conversionRate')"
-            :value="overview.conversion_rate"
+          <OverviewStatCard
+            :label="t('dealer.views.analytics.conversionRate')"
+            :value="`${overview.conversion_rate}%`"
             icon="mdi-chart-line"
-            icon-color="warning"
-            format="percentage"
-            :subtitle="`${overview.vehicles.sold} ${t('dealer.views.analytics.sold')}`"
-            subtitle-icon="mdi-check-circle"
+            color="warning"
+            value-tone="warning"
           />
         </v-col>
         <v-col cols="12" sm="6" md="3">
-          <MetricCard
-            :title="t('dealer.views.analytics.featuredVehicles')"
+          <OverviewStatCard
+            :label="t('dealer.views.analytics.featuredVehicles')"
             :value="overview.vehicles.featured_count"
             icon="mdi-star"
-            icon-color="info"
-            :subtitle="`${overview.vehicles.featured_limit} ${t('dealer.views.analytics.limit')}`"
-            subtitle-icon="mdi-information"
-            :badge="overview.vehicles.featured_count >= overview.vehicles.featured_limit ? t('dealer.views.analytics.limitReached') : undefined"
-            badge-color="warning"
+            color="info"
+            value-tone="info"
           />
         </v-col>
       </v-row>
 
       <!-- Conversion Funnel -->
-      <v-card variant="outlined" class="mb-6">
-        <v-card-title>{{ t('dealer.views.analytics.funnelTitle') }}</v-card-title>
-        <v-card-text>
+      <v-card class="panel-card mb-6" variant="flat">
+        <div class="panel-card__header">
+          <h2 class="panel-card__title">{{ t('dealer.views.analytics.funnelTitle') }}</h2>
+        </div>
+        <div class="panel-card__body">
           <v-row v-if="funnel">
             <v-col cols="6" md="3">
               <MetricCard :title="t('dealer.views.analytics.funnelViews')" :value="funnel.current.views" icon="mdi-eye" />
@@ -149,15 +159,17 @@
               <div class="text-body-2">{{ t('dealer.views.analytics.funnelWon') }}: {{ funnel.previous.won }}</div>
             </v-col>
           </v-row>
-        </v-card-text>
+        </div>
       </v-card>
 
       <!-- Trends & channels -->
       <v-row class="mb-6">
         <v-col cols="12" md="8">
-          <v-card variant="outlined" class="h-100">
-            <v-card-title>{{ t('dealer.views.analytics.trendsTitle') }}</v-card-title>
-            <v-card-text>
+          <v-card class="panel-card h-100" variant="flat">
+            <div class="panel-card__header">
+              <h2 class="panel-card__title">{{ t('dealer.views.analytics.trendsTitle') }}</h2>
+            </div>
+            <div class="panel-card__body">
               <LineChart
                 v-if="trends?.series?.length"
                 :data="{
@@ -170,13 +182,15 @@
                 }"
               />
               <div v-else class="text-medium-emphasis">{{ t('common.noData') }}</div>
-            </v-card-text>
+            </div>
           </v-card>
         </v-col>
         <v-col cols="12" md="4">
-          <v-card variant="outlined" class="h-100">
-            <v-card-title>{{ t('dealer.views.analytics.channelsTitle') }}</v-card-title>
-            <v-card-text>
+          <v-card class="panel-card h-100" variant="flat">
+            <div class="panel-card__header">
+              <h2 class="panel-card__title">{{ t('dealer.views.analytics.channelsTitle') }}</h2>
+            </div>
+            <div class="panel-card__body">
               <PieChart
                 v-if="channels?.by_channel?.length"
                 :data="{
@@ -189,18 +203,18 @@
                 }"
               />
               <div v-else class="text-medium-emphasis">{{ t('common.noData') }}</div>
-            </v-card-text>
+            </div>
           </v-card>
         </v-col>
       </v-row>
 
       <!-- Lead Analytics -->
-      <v-card variant="outlined" class="mb-6" style="border-color: rgba(0, 0, 0, 0.12);">
-        <v-card-title class="d-flex align-center">
+      <v-card class="panel-card mb-6" variant="flat">
+        <div class="panel-card__header d-flex align-center">
           <v-icon size="20" class="mr-2">mdi-phone-in-talk</v-icon>
-          <span>{{ t('dealer.views.analytics.leadAnalytics') }}</span>
-        </v-card-title>
-        <v-card-text>
+          <h2 class="panel-card__title mb-0">{{ t('dealer.views.analytics.leadAnalytics') }}</h2>
+        </div>
+        <div class="panel-card__body">
           <div v-if="loadingLeads" class="text-center py-4">
             <v-progress-circular indeterminate color="primary" size="small" />
           </div>
@@ -288,16 +302,16 @@
               </v-col>
             </v-row>
           </div>
-        </v-card-text>
+        </div>
       </v-card>
 
       <!-- Vehicle Performance -->
-      <v-card variant="outlined" class="mb-6" style="border-color: rgba(0, 0, 0, 0.12);">
-        <v-card-title class="d-flex align-center">
+      <v-card class="panel-card mb-6" variant="flat">
+        <div class="panel-card__header d-flex align-center">
           <v-icon size="20" class="mr-2">mdi-car</v-icon>
-          <span>{{ t('dealer.views.analytics.vehiclePerformance') }}</span>
-        </v-card-title>
-        <v-card-text>
+          <h2 class="panel-card__title mb-0">{{ t('dealer.views.analytics.vehiclePerformance') }}</h2>
+        </div>
+        <div class="panel-card__body">
           <div v-if="loadingVehicles" class="text-center py-4">
             <v-progress-circular indeterminate color="primary" size="small" />
           </div>
@@ -373,16 +387,16 @@
               </v-col>
             </v-row>
           </div>
-        </v-card-text>
+        </div>
       </v-card>
 
       <!-- Marketing Analytics -->
-      <v-card variant="outlined" class="mb-6" style="border-color: rgba(0, 0, 0, 0.12);">
-        <v-card-title class="d-flex align-center">
+      <v-card class="panel-card mb-6" variant="flat">
+        <div class="panel-card__header d-flex align-center">
           <v-icon size="20" class="mr-2">mdi-chart-bar</v-icon>
-          <span>{{ t('dealer.views.analytics.marketingAnalytics') }}</span>
-        </v-card-title>
-        <v-card-text>
+          <h2 class="panel-card__title mb-0">{{ t('dealer.views.analytics.marketingAnalytics') }}</h2>
+        </div>
+        <div class="panel-card__body">
           <div v-if="loadingMarketing" class="text-center py-4">
             <v-progress-circular indeterminate color="primary" size="small" />
           </div>
@@ -432,15 +446,17 @@
               </v-col>
             </v-row>
           </div>
-        </v-card-text>
+        </div>
       </v-card>
 
       <!-- Stock & assignees -->
       <v-row class="mb-6">
         <v-col cols="12" md="6">
-          <v-card variant="outlined" class="h-100">
-            <v-card-title>{{ t('dealer.views.analytics.stockTitle') }}</v-card-title>
-            <v-card-text v-if="stock">
+          <v-card class="panel-card h-100" variant="flat">
+            <div class="panel-card__header">
+              <h2 class="panel-card__title">{{ t('dealer.views.analytics.stockTitle') }}</h2>
+            </div>
+            <div v-if="stock" class="panel-card__body">
               <div class="mb-2"><strong>{{ t('dealer.views.analytics.soldRate') }}:</strong> {{ stock.sold_rate_percent }}%</div>
               <div class="mb-2"><strong>{{ t('dealer.views.analytics.averageDaysOnMarket') }}</strong> {{ stock.average_days_on_market }} {{ t('dealer.views.analytics.days') }}</div>
               <div class="mb-4"><strong>{{ t('dealer.views.analytics.priceDrops') }}:</strong> {{ stock.price_drops_in_period }}</div>
@@ -452,13 +468,15 @@
                   datasets: [{ label: t('dealer.views.analytics.vehicles'), data: stock.inventory_aging.map((b) => b.count), backgroundColor: 'rgba(75, 192, 192, 0.7)' }],
                 }"
               />
-            </v-card-text>
+            </div>
           </v-card>
         </v-col>
         <v-col cols="12" md="6">
-          <v-card variant="outlined" class="h-100">
-            <v-card-title>{{ t('dealer.views.analytics.assigneeTitle') }}</v-card-title>
-            <v-card-text>
+          <v-card class="panel-card h-100" variant="flat">
+            <div class="panel-card__header">
+              <h2 class="panel-card__title">{{ t('dealer.views.analytics.assigneeTitle') }}</h2>
+            </div>
+            <div class="panel-card__body">
               <v-table v-if="assignees?.assignees?.length" density="compact">
                 <thead>
                   <tr>
@@ -478,18 +496,18 @@
                 </tbody>
               </v-table>
               <div v-else class="text-medium-emphasis">{{ t('common.noData') }}</div>
-            </v-card-text>
+            </div>
           </v-card>
         </v-col>
       </v-row>
 
       <!-- Subscription Usage -->
-      <v-card variant="outlined" class="mb-6" style="border-color: rgba(0, 0, 0, 0.12);">
-        <v-card-title class="d-flex align-center">
+      <v-card class="panel-card mb-6" variant="flat">
+        <div class="panel-card__header d-flex align-center">
           <v-icon size="20" class="mr-2">mdi-crown</v-icon>
-          <span>{{ t('dealer.views.analytics.subscriptionLimits') }}</span>
-        </v-card-title>
-        <v-card-text>
+          <h2 class="panel-card__title mb-0">{{ t('dealer.views.analytics.subscriptionLimits') }}</h2>
+        </div>
+        <div class="panel-card__body">
           <div v-if="loadingSubscription" class="text-center py-4">
             <v-progress-circular indeterminate color="primary" size="small" />
           </div>
@@ -535,7 +553,7 @@
               </v-col>
             </v-row>
           </div>
-        </v-card-text>
+        </div>
       </v-card>
     </div>
   </div>
@@ -572,6 +590,7 @@ import type {
 import type { ApiErrorModel } from '@/models/api-error.model'
 import DateRangeFilter, { type DateRange } from '@/components/analytics/DateRangeFilter.vue'
 import MetricCard from '@/components/analytics/MetricCard.vue'
+import OverviewStatCard from '@/components/panel/OverviewStatCard.vue'
 import LineChart from '@/components/charts/LineChart.vue'
 import BarChart from '@/components/charts/BarChart.vue'
 import PieChart from '@/components/charts/PieChart.vue'
@@ -759,34 +778,4 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.dealer-analytics {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 24px;
-}
-
-.analytics-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-}
-
-@media (max-width: 960px) {
-  .dealer-analytics {
-    padding: 16px;
-  }
-
-  .analytics-header {
-    flex-direction: column;
-  }
-}
 </style>
