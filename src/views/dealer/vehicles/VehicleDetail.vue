@@ -1433,10 +1433,13 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <PanelSnackbar :snackbar="snackbar" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { useSnackbar } from '@/composables/useSnackbar'
+import PanelSnackbar from '@/components/panel/PanelSnackbar.vue'
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -1468,6 +1471,7 @@ import PageHeader from '@/components/panel/PageHeader.vue'
 const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
+const { snackbar, showError } = useSnackbar()
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -1721,7 +1725,7 @@ const loadConstants = async () => {
     const data = await getLookupConstants()
     constants.value = data
   } catch (err) {
-    console.error('Failed to load constants:', err)
+    showError(t('common.failedToLoadData'))
   } finally {
     loadingConstants.value = false
   }

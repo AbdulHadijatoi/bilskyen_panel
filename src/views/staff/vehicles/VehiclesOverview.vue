@@ -294,10 +294,13 @@
       v-model="showImportDialog"
       @imported="onImportCompleted"
     />
+    <PanelSnackbar :snackbar="snackbar" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { useSnackbar } from '@/composables/useSnackbar'
+import PanelSnackbar from '@/components/panel/PanelSnackbar.vue'
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -312,6 +315,7 @@ import PageHeader from '@/components/panel/PageHeader.vue'
 
 const router = useRouter()
 const { t } = useI18n()
+const { snackbar, showError } = useSnackbar()
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -387,7 +391,7 @@ const loadStatusCounts = async () => {
       }).length,
     }
   } catch (err) {
-    console.error('Failed to load status counts:', err)
+    showError(t('common.failedToLoadData'))
   }
 }
 

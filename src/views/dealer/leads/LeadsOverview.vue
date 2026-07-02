@@ -450,11 +450,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch, nextTick, onUnmounted } from 'vue'
+import { ref, onMounted, computed, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useDebounceFn } from '@vueuse/core'
-import Sortable, { type SortableEvent } from 'sortablejs'
+import { useKanbanSortable } from '@/composables/useKanbanSortable'
 import { getLeads, assignLead as assignLeadApi, getStaff, updateLeadStage, updateLeadIntent, updateLeadCategory, getVehicles } from '@/api/dealer.api'
 import type { VehicleModel } from '@/models/vehicle.model'
 import type { LeadModel } from '@/models/lead.model'
@@ -613,269 +613,89 @@ const filteredLeads = computed(() => {
 
 // Create reactive stage leads for drag and drop
 const stageLeads = ref<Record<number, LeadModel[]>>({})
-const sortableInstances = ref<Record<number, Sortable | null>>({})
-const stageListRefs = ref<Record<number, HTMLElement | null>>({})
-const isDragging = ref(false) // Flag to prevent re-initialization during drag
+const isDragging = ref(false)
 
-// Set ref for stage list element
-const setStageListRef = (el: any, stageId: number) => {
-  if (el) {
-    stageListRefs.value[stageId] = el as HTMLElement
-    
-    // Ensure placeholder exists immediately when ref is set
-    // This prevents SortableJS from encountering null elements
-    nextTick(() => {
-      if (el && el.children.length === 0) {
-        const placeholder = document.createElement('div')
-        placeholder.className = 'sortable-placeholder'
-        placeholder.style.height = '20px'
-        placeholder.style.minHeight = '20px'
-        placeholder.style.pointerEvents = 'none'
-        placeholder.style.opacity = '0'
-        placeholder.setAttribute('aria-hidden', 'true')
-        el.appendChild(placeholder)
-      }
-    })
-  }
-}
-
-// Initialize SortableJS for all stage columns
-const initializeSortable = async () => {
-  // Only initialize if in kanban view
-  if (viewMode.value !== 'kanban') {
+const handleKanbanStageDrop = async ({
+  leadId,
+  oldStageId,
+  newStageId,
+  newIndex,
+  oldIndex,
+}: {
+  leadId: number
+  oldStageId: number
+  newStageId: number
+  newIndex: number | undefined
+  oldIndex: number | undefined
+}) => {
+  const lead = leads.value.find((l) => l.id === leadId)
+  if (!lead) {
     return
   }
 
-  // Clean up existing instances
-  Object.values(sortableInstances.value).forEach(instance => {
-    if (instance) {
-      try {
-        instance.destroy()
-      } catch {
-        // Ignore cleanup errors from destroyed instances
-      }
+  const newStageName = getStageName(newStageId)
+  const oldStageLeads = stageLeads.value[oldStageId] || []
+  const newStageLeads = stageLeads.value[newStageId] || []
+
+  const leadIndex = oldStageLeads.findIndex((l) => l.id === leadId)
+  if (leadIndex !== -1) {
+    oldStageLeads.splice(leadIndex, 1)
+  }
+
+  if (newIndex !== undefined && newIndex >= 0) {
+    newStageLeads.splice(newIndex, 0, lead)
+  } else {
+    newStageLeads.push(lead)
+  }
+
+  try {
+    loading.value = true
+    const updatedLead = await updateLeadStage(lead.id, { stage_id: newStageId })
+
+    if (updatedLead?.stageId !== undefined) {
+      lead.stageId = updatedLead.stageId
+    } else {
+      lead.stageId = newStageId
     }
-  })
-  sortableInstances.value = {}
 
-  // Wait for next tick to ensure DOM is ready
-  await nextTick()
-  
-  // Wait a bit more to ensure all refs are set
-  await new Promise(resolve => setTimeout(resolve, 100))
-  
-  stages.value.forEach(stage => {
-    const listEl = stageListRefs.value[stage.id]
-    if (listEl && !sortableInstances.value[stage.id]) {
-      // Ensure the list element has at least one child for SortableJS to work with
-      // This prevents "lastElementChild" null errors during drag operations
-      // Check if placeholder exists, if not add it
-      let placeholder = listEl.querySelector('.sortable-placeholder')
-      if (!placeholder) {
-        placeholder = document.createElement('div')
-        placeholder.className = 'sortable-placeholder'
-        placeholder.setAttribute('aria-hidden', 'true')
-        listEl.insertBefore(placeholder, listEl.firstChild)
-      }
-      
-      try {
-        sortableInstances.value[stage.id] = Sortable.create(listEl, {
-        group: {
-          name: 'leads',
-          pull: true,
-          put: true,
-        },
-        animation: 200,
-        ghostClass: 'ghost-card',
-        chosenClass: 'chosen-card',
-        dragClass: 'drag-card',
-        emptyInsertThreshold: 5, // Distance in pixels before inserting into empty list
-        forceFallback: false, // Use native HTML5 drag if available
-        filter: '.empty-state-placeholder', // Ignore empty state (but keep sortable-placeholder for reference)
-        draggable: '.draggable-item', // Only make .draggable-item elements draggable
-        swapThreshold: 0.65, // Threshold for swap detection
-        invertSwap: false, // Don't invert swap on empty lists
-        onMove: (evt: any) => {
-          // Validate that the target element exists and is valid
-          try {
-            const related = evt.related
-            const to = evt.to
-            if (!to || !related) {
-              return false // Prevent move if target is invalid
-            }
-            // Ensure the target is not the empty state placeholder
-            if (related.classList && related.classList.contains('empty-state-placeholder')) {
-              return false
-            }
-            // Allow sortable-placeholder as it's needed for empty list reference
-            return true // Allow move
-          } catch {
-            return false // Prevent move on error
-          }
-        },
-        onStart: () => {
-          isDragging.value = true // Set flag to prevent re-initialization
-        },
-        onEnd: async (evt: SortableEvent) => {
-          const { from, to, item, oldIndex, newIndex } = evt
-          
-          // Validate that required elements exist
-          if (!from || !to || !item) {
-            return
-          }
-          
-          // Get the lead ID - the item should be the .draggable-item div
-          let leadId: number = 0
-          
-          // Method 1: Check the item itself (should work with draggable: '.draggable-item')
-          const itemLeadId = item.getAttribute('data-lead-id')
-          if (itemLeadId) {
-            leadId = parseInt(itemLeadId)
-          }
-          
-          // Method 2: If item is a component, look for the wrapper div inside
-          if (!leadId) {
-            const wrapperDiv = item.querySelector('.draggable-item[data-lead-id]') || 
-                              item.closest('[data-lead-id]') ||
-                              item.querySelector('[data-lead-id]')
-            if (wrapperDiv) {
-              const foundId = wrapperDiv.getAttribute('data-lead-id')
-              if (foundId) {
-                leadId = parseInt(foundId)
-              }
-            }
-          }
-          
-          // Method 3: Check parent element (in case item is the LeadCard component)
-          if (!leadId && item.parentElement) {
-            const parentId = item.parentElement.getAttribute('data-lead-id')
-            if (parentId) {
-              leadId = parseInt(parentId)
-            }
-          }
-          
-          if (!leadId || isNaN(leadId)) {
-            return
-          }
-
-          // Find the lead
-          const lead = leads.value.find(l => l.id === leadId)
-          if (!lead) {
-            return
-          }
-
-          // Get old and new stage IDs - with null checks
-          const fromStageId = from?.getAttribute('data-stage-id')
-          const toStageId = to?.getAttribute('data-stage-id')
-          
-          if (!fromStageId || !toStageId) {
-            return
-          }
-          
-          const oldStageId = parseInt(fromStageId)
-          const newStageId = parseInt(toStageId)
-          
-          if (!oldStageId || !newStageId || isNaN(oldStageId) || isNaN(newStageId)) {
-            return
-          }
-          
-          if (oldStageId === newStageId) {
-            // Same column, no change needed (just reordered within same column)
-            return
-          }
-
-          // Store old stage name for toast
-          const newStageName = getStageName(newStageId)
-
-          // Optimistically update UI - card is already moved by SortableJS
-          // We update stageLeads arrays directly without changing lead.stageId yet
-          // This prevents Vue from re-rendering and causing a blink
-          const oldStageLeads = stageLeads.value[oldStageId] || []
-          const newStageLeads = stageLeads.value[newStageId] || []
-          
-          // Remove from old stage
-          const leadIndex = oldStageLeads.findIndex(l => l.id === leadId)
-          if (leadIndex !== -1) {
-            oldStageLeads.splice(leadIndex, 1)
-          }
-          
-          // Add to new stage at the correct position
-          if (newIndex !== undefined && newIndex >= 0) {
-            newStageLeads.splice(newIndex, 0, lead)
-          } else {
-            newStageLeads.push(lead)
-          }
-          
-          // DON'T update lead.stageId yet - this would trigger Vue reactivity and cause blinking
-          // We'll update it after the API call succeeds
-
-          // Update backend
-          try {
-            loading.value = true
-            const updatedLead = await updateLeadStage(lead.id, { stage_id: newStageId })
-            
-            // Now update the lead's stageId after API call succeeds
-            // This ensures the data is in sync without causing visual blinking
-            if (updatedLead && updatedLead.stageId !== undefined) {
-              lead.stageId = updatedLead.stageId
-            } else {
-              // Fallback: update stageId even if API doesn't return it
-              lead.stageId = newStageId
-            }
-            
-            // Show success toast
-            snackbar.value = {
-              show: true,
-              message: t('dealer.views.leads.leadMovedTo', { name: newStageName }),
-              color: 'success',
-            }
-            
-            // Don't reinitialize - SortableJS already moved the DOM, and we've updated the data
-            // The reactive system will handle the rest since we mutated the object in place
-          } catch (err) {
-            // Revert UI changes - restore to original stage
-            const revertIndex = newStageLeads.findIndex(l => l.id === leadId)
-            if (revertIndex !== -1) {
-              newStageLeads.splice(revertIndex, 1)
-            }
-            // Restore to original position in old stage
-            if (oldIndex !== undefined && oldIndex >= 0 && oldIndex < oldStageLeads.length) {
-              oldStageLeads.splice(oldIndex, 0, lead)
-            } else {
-              oldStageLeads.push(lead)
-            }
-            // Restore original stageId
-            lead.stageId = oldStageId
-            
-            // Re-initialize SortableJS to restore the DOM state
-            await nextTick()
-            await initializeSortable()
-            
-            // Show error toast
-            snackbar.value = {
-              show: true,
-              message: (err as ApiErrorModel).message || t('dealer.views.leads.failedUpdateStage'),
-              color: 'error',
-            }
-            
-            // Reload to sync with backend
-            await loadLeads()
-          } finally {
-            loading.value = false
-            isDragging.value = false // Clear flag after drag operation completes
-          }
-        },
-      })
-      } catch {
-        // Continue with other stages even if one fails
-      }
-    } else if (!listEl) {
-      // List element not found - this can happen if the stage column isn't rendered yet
-      // This is not necessarily an error, so we'll skip initialization silently
-      // The watch on filteredLeads will retry when the DOM updates
+    snackbar.value = {
+      show: true,
+      message: t('dealer.views.leads.leadMovedTo', { name: newStageName }),
+      color: 'success',
     }
-  })
+  } catch (err) {
+    const revertIndex = newStageLeads.findIndex((l) => l.id === leadId)
+    if (revertIndex !== -1) {
+      newStageLeads.splice(revertIndex, 1)
+    }
+    if (oldIndex !== undefined && oldIndex >= 0 && oldIndex <= oldStageLeads.length) {
+      oldStageLeads.splice(oldIndex, 0, lead)
+    } else {
+      oldStageLeads.push(lead)
+    }
+    lead.stageId = oldStageId
+
+    await nextTick()
+    await initializeSortable()
+
+    snackbar.value = {
+      show: true,
+      message: (err as ApiErrorModel).message || t('dealer.views.leads.failedUpdateStage'),
+      color: 'error',
+    }
+
+    await loadLeads()
+  } finally {
+    loading.value = false
+  }
 }
+
+const { setStageListRef, initializeSortable } = useKanbanSortable({
+  viewMode,
+  stages,
+  isDragging,
+  onStageDrop: handleKanbanStageDrop,
+})
 
 // Initialize stage leads from filtered leads
 const initializeStageLeads = async () => {
@@ -1069,46 +889,10 @@ const loadVehicles = async () => {
   }
 }
 
-// Global error handler for SortableJS drag operations
-const originalErrorHandler = window.onerror
-window.onerror = function(message, source, lineno, colno, error) {
-  // Suppress SortableJS "lastElementChild" null errors during drag operations
-  if (typeof message === 'string' && (
-    message.includes('lastElementChild') || 
-    message.includes('Cannot read properties of null')
-  ) && source?.includes('sortablejs')) {
-    return true // Suppress the error
-  }
-  // Call original error handler for other errors
-  if (originalErrorHandler) {
-    return originalErrorHandler.call(window, message, source, lineno, colno, error)
-  }
-  return false
-}
-
 onMounted(async () => {
   await Promise.all([leadStagesStore.fetchStages(), loadLeads(), loadStaff(), loadVehicles()])
-  // Initialize Sortable after everything is loaded
   await nextTick()
   await initializeSortable()
-})
-
-onUnmounted(() => {
-  // Restore original error handler
-  if (originalErrorHandler) {
-    window.onerror = originalErrorHandler
-  }
-  
-  // Clean up Sortable instances
-  Object.values(sortableInstances.value).forEach(instance => {
-    if (instance) {
-      try {
-        instance.destroy()
-      } catch {
-        // Ignore cleanup errors from destroyed instances
-      }
-    }
-  })
 })
 </script>
 

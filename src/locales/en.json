@@ -40,6 +40,7 @@
     "back": "Back",
     "search": "Search",
     "loading": "Loading...",
+    "failedToLoadData": "Failed to load data. Please try again.",
     "noData": "No data",
     "actions": "Actions",
     "status": "Status",
@@ -238,6 +239,16 @@
     "copyright": "© {year} {name}. All rights reserved.",
     "privacyPolicy": "Privacy Policy",
     "termsOfService": "Terms of Service"
+  },
+  "public": {
+    "privacy": {
+      "description": "How we collect, use, and protect your personal information.",
+      "empty": "Privacy policy content is not available yet."
+    },
+    "terms": {
+      "description": "The terms and conditions that govern use of our services.",
+      "empty": "Terms of service content is not available yet."
+    }
   },
   "errors": {
     "NETWORK_ERROR": "Network error. Please check your connection.",
@@ -695,6 +706,7 @@
         "openPromptTemplates": "Open prompt templates",
         "aiUseProviderTest": "Use the provider test buttons below for AI.",
         "testFailed": "Connection test failed",
+        "testNotSupported": "Connection test is not available for this integration group. Configure and save settings, or use provider-specific test actions where available.",
         "tabCrm": "CRM",
         "tabPayment": "Payment (Stripe)",
         "tabAi": "AI",

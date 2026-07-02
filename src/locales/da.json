@@ -40,6 +40,7 @@
     "back": "Tilbage",
     "search": "Søg",
     "loading": "Indlæser...",
+    "failedToLoadData": "Kunne ikke indlæse data. Prøv igen.",
     "noData": "Ingen data",
     "actions": "Handlinger",
     "status": "Status",
@@ -238,6 +239,16 @@
     "copyright": "© {year} {name}. Alle rettigheder forbeholdes.",
     "privacyPolicy": "Privatlivspolitik",
     "termsOfService": "Servicevilkår"
+  },
+  "public": {
+    "privacy": {
+      "description": "Sådan indsamler, bruger og beskytter vi dine personoplysninger.",
+      "empty": "Indholdet til privatlivspolitikken er endnu ikke tilgængeligt."
+    },
+    "terms": {
+      "description": "Vilkårene for brug af vores tjenester.",
+      "empty": "Indholdet til servicevilkårene er endnu ikke tilgængeligt."
+    }
   },
   "errors": {
     "NETWORK_ERROR": "Netværksfejl. Tjek din forbindelse.",
@@ -688,6 +699,7 @@
         "openPromptTemplates": "Åbn promptskabeloner",
         "aiUseProviderTest": "Brug udbydertest-knapperne nedenfor for AI.",
         "testFailed": "Forbindelsestest mislykkedes",
+        "testNotSupported": "Forbindelsestest er ikke tilgængelig for denne integrationsgruppe. Konfigurer og gem indstillinger, eller brug udbyderspecifikke testhandlinger hvor det er muligt.",
         "tabCrm": "CRM",
         "tabPayment": "Betaling (Stripe)",
         "tabAi": "AI",

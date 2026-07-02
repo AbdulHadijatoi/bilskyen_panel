@@ -234,10 +234,13 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <PanelSnackbar :snackbar="snackbar" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { useSnackbar } from '@/composables/useSnackbar'
+import PanelSnackbar from '@/components/panel/PanelSnackbar.vue'
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -255,6 +258,7 @@ import {
 
 const router = useRouter()
 const { t } = useI18n()
+const { snackbar, showError } = useSnackbar()
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -439,7 +443,7 @@ onMounted(async () => {
     const data = await getConstantsData()
     vehicleListStatuses.value = data.vehicle_list_statuses || []
   } catch (err) {
-    console.error('Failed to load vehicle list statuses:', err)
+    showError(t('common.failedToLoadData'))
   }
   await loadVehicles()
 })

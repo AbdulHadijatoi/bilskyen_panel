@@ -111,12 +111,15 @@
   </v-navigation-drawer>
 
   <ChangePasswordDialog v-model="showChangePasswordDialog" />
+  <PanelSnackbar :snackbar="snackbar" />
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useSnackbar } from '@/composables/useSnackbar'
+import PanelSnackbar from '@/components/panel/PanelSnackbar.vue'
 import { useSidebarStore } from '@/stores/sidebar'
 import { useAuthStore } from '@/stores/auth.store'
 import SidebarSearch from '@/components/panel/SidebarSearch.vue'
@@ -143,6 +146,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const { t } = useI18n()
+const { snackbar, showError } = useSnackbar()
 const sidebarStore = useSidebarStore()
 const authStore = useAuthStore()
 const router = useRouter()
@@ -204,7 +208,7 @@ onMounted(async () => {
     const { getCurrentUser } = await import('@/services/auth')
     await getCurrentUser()
   } catch (error) {
-    console.error('Failed to fetch user data:', error)
+    showError(t('common.failedToLoadData'))
   }
 })
 </script>

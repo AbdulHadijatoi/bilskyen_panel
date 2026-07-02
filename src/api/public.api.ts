@@ -9,6 +9,7 @@ import { handleSuccess, handleError } from './response'
 import {
   PUBLIC_VEHICLE_ENDPOINTS,
   PUBLIC_LOOKUP_ENDPOINTS,
+  PUBLIC_PAGE_ENDPOINTS,
 } from './endpoints'
 import type { VehicleModel } from '@/models/vehicle.model'
 import { mapVehicleFromApi } from '@/models/vehicle.model'
@@ -128,6 +129,36 @@ export async function getTransmissions(): Promise<TransmissionModel[]> {
       PUBLIC_LOOKUP_ENDPOINTS.TRANSMISSIONS
     )
     return handleSuccess<TransmissionModel[]>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export type PublicPageContent = Record<string, string | null>
+
+/**
+ * Get public privacy policy page content
+ */
+export async function getPublicPrivacyContent(): Promise<PublicPageContent> {
+  try {
+    const response = await httpClient.get<{ data: PublicPageContent }>(
+      PUBLIC_PAGE_ENDPOINTS.PRIVACY
+    )
+    return handleSuccess<PublicPageContent>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Get public terms of service page content
+ */
+export async function getPublicTermsContent(): Promise<PublicPageContent> {
+  try {
+    const response = await httpClient.get<{ data: PublicPageContent }>(
+      PUBLIC_PAGE_ENDPOINTS.TERMS
+    )
+    return handleSuccess<PublicPageContent>(response)
   } catch (error) {
     throw handleError(error)
   }

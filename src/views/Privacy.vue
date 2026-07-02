@@ -1,17 +1,17 @@
 <template>
-  <div class="privacy-page">
-    <h1>Privacy Policy</h1>
-    <p>Privacy Policy page coming soon...</p>
-  </div>
+  <LegalPageContent
+    :title="t('footer.privacyPolicy')"
+    :description="t('public.privacy.description')"
+    body-key="privacy_body"
+    :empty-message="t('public.privacy.empty')"
+    :load-content="getPublicPrivacyContent"
+  />
 </template>
 
 <script setup lang="ts">
-// Privacy Policy page placeholder
+import { useI18n } from 'vue-i18n'
+import LegalPageContent from '@/components/legal/LegalPageContent.vue'
+import { getPublicPrivacyContent } from '@/api/public.api'
+
+const { t } = useI18n()
 </script>
-
-<style scoped>
-.privacy-page {
-  padding: 2rem;
-}
-</style>
-

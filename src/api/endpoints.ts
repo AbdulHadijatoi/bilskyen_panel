@@ -540,6 +540,14 @@ export const PUBLIC_HOME_PAGE_ENDPOINTS = {
 } as const
 
 /**
+ * Public legal page content endpoints
+ */
+export const PUBLIC_PAGE_ENDPOINTS = {
+  PRIVACY: '/privacy-policy',
+  TERMS: '/terms-of-service',
+} as const
+
+/**
  * Admin analytics endpoints
  */
 export const ADMIN_ANALYTICS_ENDPOINTS = {

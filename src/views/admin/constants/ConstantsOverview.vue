@@ -71,10 +71,14 @@
       @submit="handleSubmit"
     />
   </div>
+  <PanelSnackbar :snackbar="snackbar" />
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useSnackbar } from '@/composables/useSnackbar'
+import PanelSnackbar from '@/components/panel/PanelSnackbar.vue'
 import {
   getConstantsData,
   getFuelTypes,
@@ -275,6 +279,9 @@ const tabs: TabConfig[] = [
 
 const activeTab = ref('fuel_types')
 const constantsData = ref<ConstantsData | null>(null)
+const { t } = useI18n()
+const { snackbar, showError } = useSnackbar()
+
 const loadingStates = ref<Record<string, boolean>>({})
 const errors = ref<Record<string, string | null>>({})
 const searchQueries = ref<Record<string, string>>({})
@@ -326,7 +333,7 @@ const loadConstantsData = async () => {
     loadingStates.value['all'] = true
     constantsData.value = await getConstantsData()
   } catch (err) {
-    console.error('Failed to load constants data:', err)
+    showError(t('common.failedToLoadData'))
   } finally {
     loadingStates.value['all'] = false
   }

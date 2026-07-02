@@ -637,7 +637,27 @@ async function testConnection() {
   testing.value = true
   message.value = ''
   try {
-    const provider = tab.value === 'payment' ? 'stripe' : tab.value
+    const unsupportedTabs = new Set([
+      'crm',
+      'media',
+      'finance',
+      'marketplace',
+      'marketing',
+      'compliance',
+      'reputation',
+      'general',
+    ])
+
+    if (unsupportedTabs.has(tab.value)) {
+      message.value = t('admin.views.integrations.testNotSupported')
+      messageType.value = 'info'
+      return
+    }
+
+    let provider = tab.value === 'payment' ? 'stripe' : tab.value
+    if (tab.value === 'syndication') {
+      provider = 'syndication_sftp'
+    }
     if (provider === 'ai') {
       message.value = t('admin.views.integrations.aiUseProviderTest')
       messageType.value = 'info'

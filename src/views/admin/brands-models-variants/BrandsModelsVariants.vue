@@ -127,11 +127,15 @@
       :filter-models-by-brand="currentTab?.key === 'variants'"
       @submit="handleSubmit"
     />
+    <PanelSnackbar :snackbar="snackbar" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useSnackbar } from '@/composables/useSnackbar'
+import PanelSnackbar from '@/components/panel/PanelSnackbar.vue'
 import {
   getBrands,
   getVariants,
@@ -194,6 +198,8 @@ const tabs: TabConfig[] = [
 ]
 
 const activeTab = ref('brands')
+const { t } = useI18n()
+const { snackbar, showError } = useSnackbar()
 const searchQueries = ref<Record<string, string>>({})
 const errors = ref<Record<string, string | null>>({})
 const showDialog = ref(false)
@@ -333,7 +339,7 @@ async function loadFormLookups() {
     brandsForForm.value = brandsRes.docs
     vehicleModelsForForm.value = modelsRes.docs as VehicleModelConstant[]
   } catch (err) {
-    console.error('Failed to load form lookups:', err)
+    showError(t('common.failedToLoadData'))
   }
 }
 
@@ -346,7 +352,7 @@ async function loadFilterDropdowns() {
     brandFilterItems.value = brandsRes.docs
     modelFilterItems.value = modelsRes.docs as VehicleModelConstant[]
   } catch (err) {
-    console.error('Failed to load filter dropdowns:', err)
+    showError(t('common.failedToLoadData'))
   }
 }
 
