@@ -57,6 +57,7 @@ export const PUBLIC_LOOKUP_ENDPOINTS = {
 export const DEALER_VEHICLE_ENDPOINTS = {
   LIST: '/dealer/vehicles',
   SHOW: (id: number | string) => `/dealer/vehicles/show/${id}`,
+  LISTING_HEALTH: (id: number | string) => `/dealer/vehicles/${id}/listing-health`,
   CREATE: '/dealer/vehicles',
   DRAFT: '/dealer/vehicles/draft',
   UPDATE: (id: number | string) => `/dealer/vehicles/update/${id}`,
@@ -255,6 +256,8 @@ export const DEALER_AI_ENDPOINTS = {
  */
 export const DEALER_DASHBOARD_ENDPOINTS = {
   STATS: '/dealer/dashboard',
+  LISTING_HEALTH_ATTENTION: '/dealer/listing-health-attention',
+  MARKET_PULSE: '/dealer/market-pulse',
 } as const
 
 /**
@@ -296,6 +299,7 @@ export const DEALER_ANALYTICS_ENDPOINTS = {
   TRENDS: '/dealer/analytics/trends',
   CHANNELS: '/dealer/analytics/channels',
   EXPORT: '/dealer/analytics/export',
+  MARKET_PULSE: '/dealer/analytics/market-pulse',
 } as const
 
 /**

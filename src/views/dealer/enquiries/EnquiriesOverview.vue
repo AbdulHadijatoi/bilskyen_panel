@@ -217,6 +217,14 @@
 
             <template #item.actions="{ item }">
               <div class="panel-row-actions">
+                <AiGenerateButton
+                  v-if="item.message"
+                  task="enquiry_reply"
+                  :context="{ enquiry_message: item.message, subject: item.subject, tone: 'professional' }"
+                  :context-type="'enquiry'"
+                  :context-id="item.id"
+                  :label="t('dealer.views.ai.suggestReply')"
+                />
                 <button
                   type="button"
                   class="panel-icon-btn panel-icon-btn--primary"
@@ -361,6 +369,7 @@ import type { ApiErrorModel } from '@/models/api-error.model'
 import type { PaginationModel, PaginationParams } from '@/models/pagination.model'
 import PageHeader from '@/components/panel/PageHeader.vue'
 import OverviewStatCard from '@/components/panel/OverviewStatCard.vue'
+import AiGenerateButton from '@/components/ai/AiGenerateButton.vue'
 
 const router = useRouter()
 const { t } = useI18n()

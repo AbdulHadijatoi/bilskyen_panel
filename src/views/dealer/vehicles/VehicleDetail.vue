@@ -88,6 +88,42 @@
                   <v-icon size="16" color="primary">mdi-cash</v-icon>
                   <span class="text-caption font-weight-bold price-text">{{ formatPrice(vehicle.price) }}</span>
                 </div>
+                <v-tooltip
+                  v-if="fairPriceLabel"
+                  :text="fairPriceTooltip"
+                  location="top"
+                  max-width="320"
+                >
+                  <template #activator="{ props: tooltipProps }">
+                    <v-chip
+                      v-bind="tooltipProps"
+                      size="x-small"
+                      color="info"
+                      variant="flat"
+                      class="mt-1"
+                    >
+                      {{ fairPriceLabel }}
+                    </v-chip>
+                  </template>
+                </v-tooltip>
+                <v-tooltip
+                  v-if="listingHealthScore !== null"
+                  :text="t('dealer.views.vehicleDetail.listingHealthTooltip')"
+                  location="top"
+                  max-width="320"
+                >
+                  <template #activator="{ props: tooltipProps }">
+                    <v-chip
+                      v-bind="tooltipProps"
+                      size="x-small"
+                      :color="listingHealthScore >= 70 ? 'success' : 'warning'"
+                      variant="flat"
+                      class="mt-1"
+                    >
+                      {{ t('dealer.views.dashboard.listingHealthScore') }}: {{ listingHealthScore }}
+                    </v-chip>
+                  </template>
+                </v-tooltip>
                 <div class="d-flex align-center gap-1 views-highlight">
                   <v-icon size="16" color="info">mdi-eye</v-icon>
                   <span class="text-caption text-medium-emphasis">{{ t('dealer.views.vehicleDetail.viewsCount') }}</span>
@@ -106,8 +142,18 @@
               </div>
             </div>
 
-            <!-- Quick Actions (Read-only mode) -->
-            <div v-if="!editMode" class="quick-actions d-flex gap-2">
+            <!-- Quick Actions -->
+            <div v-if="!editMode" class="quick-actions d-flex gap-2 flex-wrap">
+              <v-btn
+                v-if="vehicle.status?.toLowerCase() !== VehicleStatusEnum.SOLD && vehicle.vehicleListStatusName?.toLowerCase() !== VehicleStatusEnum.SOLD"
+                color="primary"
+                variant="flat"
+                prepend-icon="mdi-pencil"
+                @click="startEdit"
+                size="small"
+              >
+                {{ t('dealer.views.vehicleDetail.editVehicle') }}
+              </v-btn>
               <v-btn
                 v-if="vehicle.status?.toLowerCase() !== VehicleStatusEnum.SOLD && vehicle.vehicleListStatusName?.toLowerCase() !== VehicleStatusEnum.SOLD"
                 color="success"
@@ -135,6 +181,24 @@
                 size="small"
               >
                 Delete
+              </v-btn>
+            </div>
+            <div v-else class="quick-actions d-flex gap-2">
+              <v-btn
+                variant="outlined"
+                @click="cancelEdit"
+                size="small"
+              >
+                {{ t('common.cancel') }}
+              </v-btn>
+              <v-btn
+                color="primary"
+                prepend-icon="mdi-content-save"
+                :loading="updating"
+                @click="saveVehicle"
+                size="small"
+              >
+                {{ t('dealer.views.vehicleDetail.save') }}
               </v-btn>
             </div>
           </div>
@@ -1558,6 +1622,26 @@ const vehicleListStatuses = computed(() => {
   return vehicleListStatusesFromConstants.value
 })
 
+const fairPriceLabel = computed(() => {
+  const label = (vehicle.value as VehicleModel & { fairPrice?: { label?: string } })?.fairPrice?.label
+  if (label === 'below_market') return 'Below market'
+  if (label === 'above_market') return 'Above market'
+  if (label === 'fair_price') return 'Fair price'
+  return null
+})
+
+const fairPriceTooltip = computed(() => {
+  const label = (vehicle.value as VehicleModel & { fairPrice?: { label?: string } })?.fairPrice?.label
+  if (label === 'below_market') return t('dealer.views.vehicleDetail.fairPriceTooltipBelowMarket')
+  if (label === 'above_market') return t('dealer.views.vehicleDetail.fairPriceTooltipAboveMarket')
+  if (label === 'fair_price') return t('dealer.views.vehicleDetail.fairPriceTooltipFairPrice')
+  return ''
+})
+
+const listingHealthScore = computed(() => {
+  return (vehicle.value as VehicleModel & { listingHealth?: { score?: number } })?.listingHealth?.score ?? null
+})
+
 const loadVehicle = async () => {
   const vehicleId = route.params.id as string
   if (!vehicleId) return
@@ -1646,6 +1730,12 @@ const loadConstants = async () => {
 const onBrandChange = () => {
   // Reset model_id when brand changes
   vehicleData.value.model_id = undefined
+}
+
+const startEdit = () => {
+  if (!vehicle.value) return
+  cancelEdit()
+  editMode.value = true
 }
 
 const cancelEdit = () => {

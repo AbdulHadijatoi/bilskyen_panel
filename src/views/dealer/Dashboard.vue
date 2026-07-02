@@ -102,6 +102,56 @@
         </v-col>
       </v-row>
 
+      <v-row class="mb-6">
+        <v-col cols="12" md="6">
+          <v-card variant="flat" elevation="1">
+            <v-card-title class="d-flex align-center">
+              <v-icon size="20" class="mr-2">mdi-pulse</v-icon>
+              {{ t('dealer.views.dashboard.marketPulseTitle') }}
+            </v-card-title>
+            <v-card-subtitle>{{ t('dealer.views.dashboard.marketPulseSubtitle') }}</v-card-subtitle>
+            <v-card-text>
+              <div v-if="loadingMarketPulse" class="text-center py-4">
+                <v-progress-circular indeterminate color="primary" size="32" />
+              </div>
+              <div v-else-if="marketPulse">
+                <p
+                  v-for="(item, key) in marketPulse.comparisons"
+                  :key="key"
+                  class="text-body-2 mb-2"
+                >
+                  {{ item.summary }}
+                </p>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col cols="12" md="6">
+          <v-card variant="flat" elevation="1">
+            <v-card-title class="d-flex align-center">
+              <v-icon size="20" class="mr-2">mdi-heart-pulse</v-icon>
+              {{ t('dealer.views.dashboard.listingHealthTitle') }}
+            </v-card-title>
+            <v-card-subtitle>{{ t('dealer.views.dashboard.listingHealthSubtitle') }}</v-card-subtitle>
+            <v-card-text>
+              <div v-if="loadingListingHealth" class="text-center py-4">
+                <v-progress-circular indeterminate color="primary" size="32" />
+              </div>
+              <div v-else-if="listingHealth?.items?.length">
+                <div v-for="item in listingHealth.items" :key="item.vehicle_id" class="mb-3">
+                  <div class="d-flex justify-space-between align-center">
+                    <span class="font-weight-medium">{{ item.title || `#${item.vehicle_id}` }}</span>
+                    <v-chip size="small" :color="item.score >= 70 ? 'success' : 'warning'">{{ item.score }}</v-chip>
+                  </div>
+                  <p v-if="item.issues?.[0]" class="text-caption text-medium-emphasis mb-0">{{ item.issues[0].message }}</p>
+                </div>
+              </div>
+              <p v-else class="text-medium-emphasis mb-0">{{ t('dealer.views.dashboard.noListingIssues') }}</p>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
       <!-- Charts and Distributions -->
       <v-row class="mb-6">
         <!-- Vehicle Status Distribution -->
@@ -275,7 +325,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { getDashboardStats, type DashboardStats } from '@/api/dealer.api'
+import { getDashboardStats, getMarketPulseWidget, getListingHealthAttention, type DashboardStats, type MarketPulseComparison, type ListingHealthAttention } from '@/api/dealer.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import PageHeader from '@/components/panel/PageHeader.vue'
 import StatMetricCard from '@/components/panel/StatMetricCard.vue'
@@ -289,12 +339,26 @@ const { t } = useI18n()
 const loading = ref(false)
 const error = ref<string | null>(null)
 const stats = ref<DashboardStats | null>(null)
+const marketPulse = ref<MarketPulseComparison | null>(null)
+const listingHealth = ref<ListingHealthAttention | null>(null)
+const loadingMarketPulse = ref(false)
+const loadingListingHealth = ref(false)
 
 const loadDashboard = async () => {
   try {
     loading.value = true
     error.value = null
     stats.value = await getDashboardStats()
+    loadingMarketPulse.value = true
+    loadingListingHealth.value = true
+    getMarketPulseWidget()
+      .then((data) => { marketPulse.value = data })
+      .catch(() => {})
+      .finally(() => { loadingMarketPulse.value = false })
+    getListingHealthAttention()
+      .then((data) => { listingHealth.value = data })
+      .catch(() => {})
+      .finally(() => { loadingListingHealth.value = false })
   } catch (err) {
     error.value = (err as ApiErrorModel).message || t('dealer.views.dashboard.failedLoadData')
   } finally {

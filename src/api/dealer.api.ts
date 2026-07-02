@@ -170,7 +170,13 @@ export async function getVehicle(id: number | string): Promise<VehicleModel> {
       DEALER_VEHICLE_ENDPOINTS.SHOW(id)
     )
     const data = handleSuccess<any>(response)
-    return mapVehicleFromApi(data)
+    const mapped = mapVehicleFromApi(data) as VehicleModel & {
+      fairPrice?: { label?: string; diff_percent?: number; suggested_min?: number; suggested_max?: number }
+      listingHealth?: { score?: number; issues?: Array<{ message: string }> }
+    }
+    mapped.fairPrice = data.fair_price
+    mapped.listingHealth = data.listing_health
+    return mapped
   } catch (error) {
     throw handleError(error)
   }
@@ -1720,6 +1726,34 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       DEALER_DASHBOARD_ENDPOINTS.STATS
     )
     return handleSuccess<DashboardStats>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export interface MarketPulseComparison {
+  period: { start: string; end: string }
+  comparisons: Record<string, { summary: string | null; better_than_market?: boolean; diff_percent?: number | null }>
+}
+
+export interface ListingHealthAttention {
+  count: number
+  items: Array<{ vehicle_id: number; title?: string; score: number; grade: string; issues: Array<{ message: string }> }>
+}
+
+export async function getMarketPulseWidget(): Promise<MarketPulseComparison> {
+  try {
+    const response = await httpClient.get<MarketPulseComparison>(DEALER_DASHBOARD_ENDPOINTS.MARKET_PULSE)
+    return response.data
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function getListingHealthAttention(): Promise<ListingHealthAttention> {
+  try {
+    const response = await httpClient.get<ListingHealthAttention>(DEALER_DASHBOARD_ENDPOINTS.LISTING_HEALTH_ATTENTION)
+    return response.data
   } catch (error) {
     throw handleError(error)
   }

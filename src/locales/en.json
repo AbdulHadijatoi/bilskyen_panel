@@ -1588,7 +1588,15 @@
         "last30Days": "Last 30 days",
         "creationTrendTitle": "Vehicle Creation Trend (30 Days)",
         "viewAll": "View All",
-        "totalValue": "Total value"
+        "totalValue": "Total value",
+        "marketPulseTitle": "Market Pulse",
+        "marketPulseSubtitle": "How you compare to the Bilskyen market",
+        "listingHealthTitle": "Listings needing attention",
+        "listingHealthSubtitle": "Improve these listings to get more enquiries",
+        "listingHealthScore": "Health score",
+        "noListingIssues": "All published listings look healthy",
+        "fairPriceTitle": "Market pricing",
+        "listingHealthCardTitle": "Listing health"
       },
       "vehicles": {
         "title": "Vehicle Management",
@@ -1994,6 +2002,10 @@
         "planMaxImagesError": "Your plan allows up to {max} images per vehicle. Remove some existing images or add fewer new ones.",
         "planMaxEquipmentError": "Your plan allows up to {max} equipment items per vehicle. Please deselect some.",
         "fuelType": "Fuel Type",
+        "fairPriceTooltipBelowMarket": "Compared to similar vehicles on Bilskyen (same brand, model, year, and mileage band). Your price is at least 5% below the market median. Buyers see a Below market badge on the listing.",
+        "fairPriceTooltipFairPrice": "Compared to similar vehicles on Bilskyen (same brand, model, year, and mileage band). Your price is within ±5% of the market median.",
+        "fairPriceTooltipAboveMarket": "Compared to similar vehicles on Bilskyen (same brand, model, year, and mileage band). Your price is at least 5% above the market median. Lowering the price may attract more buyers.",
+        "listingHealthTooltip": "A score from 0–100 measuring listing quality: photos, description, time on market, views vs enquiries, and pricing. 70 or above is healthy; a lower score suggests improvements shown on your dashboard.",
         "failedUpdateVehicle": "Failed to update vehicle"
       },
       "addVehicle": {
@@ -2139,7 +2151,12 @@
         "useText": "Use this text",
         "generateFailed": "AI generation failed",
         "suggestReply": "Suggest reply",
-        "summarizeLead": "Summarize lead"
+        "summarizeLead": "Summarize lead",
+        "tone": "Tone",
+        "toneProfessional": "Professional",
+        "toneFriendly": "Friendly",
+        "copy": "Copy",
+        "summaryAvailable": "AI summary available"
       },
       "favorites": {
         "title": "Favorites",

@@ -36,7 +36,20 @@
           </p>
         </v-card-text>
         <v-card-actions>
+          <v-select
+            v-model="tone"
+            :items="toneOptions"
+            density="compact"
+            variant="outlined"
+            hide-details
+            class="mr-2"
+            style="max-width: 160px"
+            :label="t('dealer.views.ai.tone')"
+          />
           <v-spacer />
+          <v-btn variant="text" :disabled="!previewText" @click="copyToClipboard">
+            {{ t('dealer.views.ai.copy') }}
+          </v-btn>
           <v-btn variant="text" @click="dialogOpen = false">{{ t('common.cancel') }}</v-btn>
           <v-btn color="primary" variant="flat" :disabled="!previewText" @click="accept">
             {{ t('dealer.views.ai.useText') }}
@@ -48,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { generateAiContent, getAiConfig, type AiGenerateResult } from '@/api/dealer.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
@@ -77,6 +90,12 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 const previewText = ref('')
 const meta = ref<AiGenerateResult | null>(null)
+const tone = ref('professional')
+
+const toneOptions = computed(() => [
+  { title: t('dealer.views.ai.toneProfessional'), value: 'professional' },
+  { title: t('dealer.views.ai.toneFriendly'), value: 'friendly' },
+])
 
 async function loadConfig() {
   try {
@@ -96,7 +115,7 @@ async function openDialog() {
   try {
     const result = await generateAiContent({
       task: props.task,
-      context: props.context,
+      context: { ...props.context, tone: tone.value },
       locale: props.locale || locale.value,
       context_type: props.contextType,
       context_id: props.contextId,
@@ -113,6 +132,15 @@ async function openDialog() {
 function accept() {
   emit('accept', previewText.value)
   dialogOpen.value = false
+}
+
+async function copyToClipboard() {
+  if (!previewText.value) return
+  try {
+    await navigator.clipboard.writeText(previewText.value)
+  } catch {
+    // ignore
+  }
 }
 
 onMounted(loadConfig)

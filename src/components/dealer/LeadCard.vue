@@ -52,6 +52,14 @@
       
       <div class="d-flex gap-1 flex-wrap mb-2">
         <v-chip
+          v-if="isStaleLead"
+          size="x-small"
+          color="secondary"
+          variant="flat"
+        >
+          {{ t('dealer.views.ai.summaryAvailable') }}
+        </v-chip>
+        <v-chip
           v-if="lead.intentId"
           size="x-small"
           variant="flat"
@@ -82,6 +90,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { LeadModel } from '@/models/lead.model'
 import {
@@ -103,6 +112,13 @@ const emit = defineEmits<{
   'change-intent': [lead: LeadModel]
   'change-category': [lead: LeadModel]
 }>()
+
+const isStaleLead = computed(() => {
+  if (!props.lead.createdAt) return false
+  const created = new Date(props.lead.createdAt).getTime()
+  const threeDaysAgo = Date.now() - 3 * 24 * 60 * 60 * 1000
+  return created < threeDaysAgo
+})
 
 // Simple click handler - let SortableJS handle drag detection
 const handleCardClick = (event: MouseEvent) => {
