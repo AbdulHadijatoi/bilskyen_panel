@@ -296,6 +296,12 @@ export const adminSidebarSections: SidebarSection[] = [
         icon: 'mdi-connection',
         permission: 'admin.integrations.view',
       },
+      {
+        title: 'AI Prompt Templates',
+        url: `${ADMIN_ROUTE_BASE}/ai/prompts`,
+        icon: 'mdi-text-box-edit-outline',
+        permission: 'admin.integrations.view',
+      },
     ],
   },
 ]

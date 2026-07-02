@@ -6,6 +6,7 @@
     open-on-click
     :open-delay="openDelay"
     close-delay="120"
+    :eager="false"
   >
     <template #activator="{ props: tooltipProps }">
       <button
@@ -14,7 +15,7 @@
         :class="size === 'sm' ? 'panel-help-hint--sm' : undefined"
         v-bind="tooltipProps"
         :aria-label="ariaLabel || text"
-        @click.stop
+        @click.stop.prevent
       >
         <span class="panel-help-hint__mark" aria-hidden="true">!</span>
       </button>
@@ -37,6 +38,6 @@ withDefaults(defineProps<Props>(), {
   size: 'md',
   location: 'top',
   maxWidth: 320,
-  openDelay: 350,
+  openDelay: 150,
 })
 </script>

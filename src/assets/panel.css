@@ -434,8 +434,10 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 1.125rem;
-  height: 1.125rem;
+  position: relative;
+  z-index: 3;
+  width: 1.25rem;
+  height: 1.25rem;
   padding: 0;
   border: 1.5px solid var(--primary);
   border-radius: 50%;
@@ -443,13 +445,25 @@
   color: var(--primary);
   cursor: help;
   vertical-align: middle;
+  pointer-events: auto;
+  touch-action: manipulation;
   transition: background-color 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
 }
 
+.panel-help-hint::before {
+  content: '';
+  position: absolute;
+  inset: -0.375rem;
+}
+
 .panel-help-hint--sm {
-  width: 1rem;
-  height: 1rem;
+  width: 1.125rem;
+  height: 1.125rem;
   border-width: 1.25px;
+}
+
+.panel-help-hint--sm::before {
+  inset: -0.3125rem;
 }
 
 .panel-help-hint__mark {

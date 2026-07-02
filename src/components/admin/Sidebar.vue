@@ -53,6 +53,7 @@ const ADMIN_NAV_TITLE_KEYS: Record<string, string> = {
   'Manage Translations': 'admin.nav.manageTranslations',
   'Import Translations': 'admin.nav.importTranslations',
   Integrations: 'admin.nav.integrations',
+  'AI Prompt Templates': 'admin.nav.aiPromptTemplates',
   Dealers: 'admin.nav.dealers',
   'Vehicle spec definitions': 'admin.nav.vehicleSpecDefinitions',
   'SEO Content': 'admin.nav.seoContent',

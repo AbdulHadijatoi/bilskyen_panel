@@ -17,27 +17,24 @@
         <v-card variant="outlined" class="integrations-card pa-4">
           <IntegrationTabIntro :title="t('admin.views.integrations.tabCrm')" :help="help('tabCrm')" />
 
-          <v-switch
-            v-model="crmSettings.email_on_new_lead"
-            color="primary"
-            hide-details
+          <IntegrationField
+            :label="t('admin.views.integrations.emailOnNewLead')"
+            help-key="emailOnNewLead"
+            switch-field
             class="mb-4"
           >
-            <template #label>
-              <IntegrationFieldLabel :label="t('admin.views.integrations.emailOnNewLead')" help-key="emailOnNewLead" />
-            </template>
-          </v-switch>
+            <v-switch v-model="crmSettings.email_on_new_lead" color="primary" hide-details />
+          </IntegrationField>
 
-          <v-text-field
-            v-model.number="crmSettings.stale_lead_hours"
-            type="number"
-            variant="outlined"
-            density="compact"
-          >
-            <template #label>
-              <IntegrationFieldLabel :label="t('admin.views.integrations.staleLeadHours')" help-key="staleLeadHours" />
-            </template>
-          </v-text-field>
+          <IntegrationField :label="t('admin.views.integrations.staleLeadHours')" help-key="staleLeadHours">
+            <v-text-field
+              v-model.number="crmSettings.stale_lead_hours"
+              type="number"
+              variant="outlined"
+              density="compact"
+              hide-details
+            />
+          </IntegrationField>
         </v-card>
       </v-window-item>
 
@@ -45,84 +42,78 @@
         <v-card variant="outlined" class="integrations-card pa-4">
           <IntegrationTabIntro :title="t('admin.views.integrations.tabPayment')" :help="help('tabPayment')" />
 
-          <v-switch v-model="paymentSettings.stripe_enabled" color="primary" class="mb-4">
-            <template #label>
-              <IntegrationFieldLabel :label="t('admin.views.integrations.enableStripe')" help-key="enableStripe" />
-            </template>
-          </v-switch>
-
-          <v-switch v-model="paymentSettings.instant_subscription_checkout" color="primary" class="mb-4">
-            <template #label>
-              <IntegrationFieldLabel
-                :label="t('admin.views.integrations.instantSubscriptionCheckout')"
-                help-key="instantSubscriptionCheckout"
-              />
-            </template>
-          </v-switch>
-
-          <v-select
-            v-model="paymentSettings.stripe_mode"
-            :items="stripeModeOptions"
-            item-title="title"
-            item-value="value"
-            variant="outlined"
-            density="compact"
-            class="mb-3"
+          <IntegrationField
+            :label="t('admin.views.integrations.enableStripe')"
+            help-key="enableStripe"
+            switch-field
+            class="mb-4"
           >
-            <template #label>
-              <IntegrationFieldLabel :label="t('admin.views.integrations.stripeMode')" help-key="stripeMode" />
-            </template>
-          </v-select>
+            <v-switch v-model="paymentSettings.stripe_enabled" color="primary" hide-details />
+          </IntegrationField>
 
-          <v-text-field
-            v-model="paymentSettings.publishable_key"
-            variant="outlined"
-            density="compact"
-            class="mb-3"
+          <IntegrationField
+            :label="t('admin.views.integrations.instantSubscriptionCheckout')"
+            help-key="instantSubscriptionCheckout"
+            switch-field
+            class="mb-4"
           >
-            <template #label>
-              <IntegrationFieldLabel :label="t('admin.views.integrations.publishableKey')" help-key="publishableKey" />
-            </template>
-          </v-text-field>
+            <v-switch v-model="paymentSettings.instant_subscription_checkout" color="primary" hide-details />
+          </IntegrationField>
 
-          <v-text-field
-            v-model="paymentSettings.secret_key"
-            type="password"
-            variant="outlined"
-            density="compact"
-            class="mb-3"
-          >
-            <template #label>
-              <IntegrationFieldLabel :label="t('admin.views.integrations.secretKey')" help-key="secretKey" />
-            </template>
-          </v-text-field>
+          <IntegrationField :label="t('admin.views.integrations.stripeMode')" help-key="stripeMode" class="mb-3">
+            <v-select
+              v-model="paymentSettings.stripe_mode"
+              :items="stripeModeOptions"
+              item-title="title"
+              item-value="value"
+              variant="outlined"
+              density="compact"
+              hide-details
+            />
+          </IntegrationField>
 
-          <v-text-field
-            v-model="paymentSettings.webhook_secret"
-            type="password"
-            variant="outlined"
-            density="compact"
-            class="mb-3"
-          >
-            <template #label>
-              <IntegrationFieldLabel :label="t('admin.views.integrations.webhookSecret')" help-key="webhookSecret" />
-            </template>
-          </v-text-field>
+          <IntegrationField :label="t('admin.views.integrations.publishableKey')" help-key="publishableKey" class="mb-3">
+            <v-text-field
+              v-model="paymentSettings.publishable_key"
+              variant="outlined"
+              density="compact"
+              hide-details
+            />
+          </IntegrationField>
 
-          <v-text-field
-            :model-value="stripeWebhookUrl"
-            variant="outlined"
-            density="compact"
-            readonly
-            class="mb-1"
-          >
-            <template #label>
-              <IntegrationFieldLabel :label="t('admin.views.integrations.webhookUrl')" help-key="webhookUrl" />
-            </template>
-          </v-text-field>
+          <IntegrationField :label="t('admin.views.integrations.secretKey')" help-key="secretKey" class="mb-3">
+            <v-text-field
+              v-model="paymentSettings.secret_key"
+              type="password"
+              variant="outlined"
+              density="compact"
+              hide-details
+            />
+          </IntegrationField>
+
+          <IntegrationField :label="t('admin.views.integrations.webhookSecret')" help-key="webhookSecret" class="mb-3">
+            <v-text-field
+              v-model="paymentSettings.webhook_secret"
+              type="password"
+              variant="outlined"
+              density="compact"
+              hide-details
+            />
+          </IntegrationField>
+
+          <IntegrationField :label="t('admin.views.integrations.webhookUrl')" help-key="webhookUrl" class="mb-1">
+            <v-text-field
+              :model-value="stripeWebhookUrl"
+              variant="outlined"
+              density="compact"
+              readonly
+              hide-details
+            />
+          </IntegrationField>
 
           <p class="integrations-note">
-            <IntegrationFieldLabel :label="t('admin.views.integrations.webhookEvents')" help-key="webhookEvents" size="sm" />
+            <span class="integrations-note__label">{{ t('admin.views.integrations.webhookEvents') }}</span>
+            <PanelHelpHint :text="help('webhookEvents')" size="sm" :aria-label="t('admin.views.integrations.helpAria')" />
           </p>
           <p class="integrations-note text-medium-emphasis mt-2">{{ t('admin.views.integrations.stripeR2Note') }}</p>
         </v-card>
@@ -132,77 +123,75 @@
         <v-card variant="outlined" class="integrations-card pa-4">
           <IntegrationTabIntro :title="t('admin.views.integrations.tabAi')" :help="help('tabAi')" />
 
+          <div class="integrations-prompts-banner">
+            <div class="integrations-prompts-banner__content">
+              <div class="integrations-prompts-banner__icon" aria-hidden="true">
+                <v-icon size="22" color="primary">mdi-text-box-edit-outline</v-icon>
+              </div>
+              <div class="integrations-prompts-banner__text">
+                <h3 class="integrations-prompts-banner__title">{{ t('admin.views.integrations.promptTemplatesTitle') }}</h3>
+                <p class="integrations-prompts-banner__desc">{{ t('admin.views.integrations.promptTemplatesDesc') }}</p>
+              </div>
+            </div>
+            <v-btn color="primary" :to="{ name: 'admin.ai.prompts' }">
+              <v-icon start>mdi-arrow-right</v-icon>
+              {{ t('admin.views.integrations.openPromptTemplates') }}
+            </v-btn>
+          </div>
+
           <v-row>
             <v-col cols="12" md="4">
-              <v-switch v-model="aiSettings.openai_enabled" color="primary" class="mb-2">
-                <template #label>
-                  <IntegrationFieldLabel :label="t('admin.views.integrations.openai')" help-key="openai" />
-                </template>
-              </v-switch>
-              <v-text-field
-                v-model="aiSettings.openai_api_key"
-                type="password"
-                variant="outlined"
-                density="compact"
-                class="mb-2"
-              >
-                <template #label>
-                  <IntegrationFieldLabel :label="t('admin.views.integrations.openaiApiKey')" help-key="openaiApiKey" />
-                </template>
-              </v-text-field>
-              <v-text-field v-model="aiSettings.openai_model" variant="outlined" density="compact">
-                <template #label>
-                  <IntegrationFieldLabel :label="t('admin.views.integrations.openaiModel')" help-key="openaiModel" />
-                </template>
-              </v-text-field>
+              <IntegrationField :label="t('admin.views.integrations.openai')" help-key="openai" switch-field class="mb-2">
+                <v-switch v-model="aiSettings.openai_enabled" color="primary" hide-details />
+              </IntegrationField>
+              <IntegrationField :label="t('admin.views.integrations.openaiApiKey')" help-key="openaiApiKey" class="mb-2">
+                <v-text-field
+                  v-model="aiSettings.openai_api_key"
+                  type="password"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                />
+              </IntegrationField>
+              <IntegrationField :label="t('admin.views.integrations.openaiModel')" help-key="openaiModel">
+                <v-text-field v-model="aiSettings.openai_model" variant="outlined" density="compact" hide-details />
+              </IntegrationField>
             </v-col>
 
             <v-col cols="12" md="4">
-              <v-switch v-model="aiSettings.anthropic_enabled" color="primary" class="mb-2">
-                <template #label>
-                  <IntegrationFieldLabel :label="t('admin.views.integrations.anthropic')" help-key="anthropic" />
-                </template>
-              </v-switch>
-              <v-text-field
-                v-model="aiSettings.anthropic_api_key"
-                type="password"
-                variant="outlined"
-                density="compact"
-                class="mb-2"
-              >
-                <template #label>
-                  <IntegrationFieldLabel :label="t('admin.views.integrations.anthropicApiKey')" help-key="anthropicApiKey" />
-                </template>
-              </v-text-field>
-              <v-text-field v-model="aiSettings.anthropic_model" variant="outlined" density="compact">
-                <template #label>
-                  <IntegrationFieldLabel :label="t('admin.views.integrations.anthropicModel')" help-key="anthropicModel" />
-                </template>
-              </v-text-field>
+              <IntegrationField :label="t('admin.views.integrations.anthropic')" help-key="anthropic" switch-field class="mb-2">
+                <v-switch v-model="aiSettings.anthropic_enabled" color="primary" hide-details />
+              </IntegrationField>
+              <IntegrationField :label="t('admin.views.integrations.anthropicApiKey')" help-key="anthropicApiKey" class="mb-2">
+                <v-text-field
+                  v-model="aiSettings.anthropic_api_key"
+                  type="password"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                />
+              </IntegrationField>
+              <IntegrationField :label="t('admin.views.integrations.anthropicModel')" help-key="anthropicModel">
+                <v-text-field v-model="aiSettings.anthropic_model" variant="outlined" density="compact" hide-details />
+              </IntegrationField>
             </v-col>
 
             <v-col cols="12" md="4">
-              <v-switch v-model="aiSettings.gemini_enabled" color="primary" class="mb-2">
-                <template #label>
-                  <IntegrationFieldLabel :label="t('admin.views.integrations.googleGemini')" help-key="googleGemini" />
-                </template>
-              </v-switch>
-              <v-text-field
-                v-model="aiSettings.gemini_api_key"
-                type="password"
-                variant="outlined"
-                density="compact"
-                class="mb-2"
-              >
-                <template #label>
-                  <IntegrationFieldLabel :label="t('admin.views.integrations.geminiApiKey')" help-key="geminiApiKey" />
-                </template>
-              </v-text-field>
-              <v-text-field v-model="aiSettings.gemini_model" variant="outlined" density="compact">
-                <template #label>
-                  <IntegrationFieldLabel :label="t('admin.views.integrations.geminiModel')" help-key="geminiModel" />
-                </template>
-              </v-text-field>
+              <IntegrationField :label="t('admin.views.integrations.googleGemini')" help-key="googleGemini" switch-field class="mb-2">
+                <v-switch v-model="aiSettings.gemini_enabled" color="primary" hide-details />
+              </IntegrationField>
+              <IntegrationField :label="t('admin.views.integrations.geminiApiKey')" help-key="geminiApiKey" class="mb-2">
+                <v-text-field
+                  v-model="aiSettings.gemini_api_key"
+                  type="password"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                />
+              </IntegrationField>
+              <IntegrationField :label="t('admin.views.integrations.geminiModel')" help-key="geminiModel">
+                <v-text-field v-model="aiSettings.gemini_model" variant="outlined" density="compact" hide-details />
+              </IntegrationField>
             </v-col>
           </v-row>
 
@@ -210,48 +199,41 @@
 
           <v-row>
             <v-col cols="12" md="4">
-              <v-text-field
-                v-model.number="aiSettings.max_tokens"
-                type="number"
-                variant="outlined"
-                density="compact"
-              >
-                <template #label>
-                  <IntegrationFieldLabel :label="t('admin.views.integrations.aiMaxTokens')" help-key="aiMaxTokens" />
-                </template>
-              </v-text-field>
+              <IntegrationField :label="t('admin.views.integrations.aiMaxTokens')" help-key="aiMaxTokens">
+                <v-text-field
+                  v-model.number="aiSettings.max_tokens"
+                  type="number"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                />
+              </IntegrationField>
             </v-col>
             <v-col cols="12" md="4">
-              <v-text-field
-                v-model.number="aiSettings.temperature"
-                type="number"
-                step="0.1"
-                min="0"
-                max="1"
-                variant="outlined"
-                density="compact"
-              >
-                <template #label>
-                  <IntegrationFieldLabel :label="t('admin.views.integrations.aiTemperature')" help-key="aiTemperature" />
-                </template>
-              </v-text-field>
+              <IntegrationField :label="t('admin.views.integrations.aiTemperature')" help-key="aiTemperature">
+                <v-text-field
+                  v-model.number="aiSettings.temperature"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="1"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                />
+              </IntegrationField>
             </v-col>
             <v-col cols="12" md="4">
-              <v-text-field
-                v-model.number="aiSettings.monthly_token_budget"
-                type="number"
-                variant="outlined"
-                density="compact"
-                :hint="t('admin.views.integrations.tokenBudgetUnlimitedHint')"
-                persistent-hint
-              >
-                <template #label>
-                  <IntegrationFieldLabel
-                    :label="t('admin.views.integrations.aiMonthlyTokenBudget')"
-                    help-key="aiMonthlyTokenBudget"
-                  />
-                </template>
-              </v-text-field>
+              <IntegrationField :label="t('admin.views.integrations.aiMonthlyTokenBudget')" help-key="aiMonthlyTokenBudget">
+                <v-text-field
+                  v-model.number="aiSettings.monthly_token_budget"
+                  type="number"
+                  variant="outlined"
+                  density="compact"
+                  :hint="t('admin.views.integrations.tokenBudgetUnlimitedHint')"
+                  persistent-hint
+                />
+              </IntegrationField>
             </v-col>
           </v-row>
 
@@ -274,12 +256,6 @@
               </v-btn>
               <PanelHelpHint :text="help('testGemini')" size="sm" :aria-label="t('admin.views.integrations.helpAria')" />
             </span>
-            <span class="integrations-action-with-help">
-              <v-btn variant="text" size="small" :to="{ name: 'admin.ai.prompts' }">
-                {{ t('admin.views.integrations.editPrompts') }}
-              </v-btn>
-              <PanelHelpHint :text="help('editPrompts')" size="sm" :aria-label="t('admin.views.integrations.helpAria')" />
-            </span>
           </div>
 
           <p class="integrations-note text-medium-emphasis mt-3">{{ t('admin.views.integrations.aiR3Note') }}</p>
@@ -290,49 +266,48 @@
         <v-card variant="outlined" class="integrations-card pa-4">
           <IntegrationTabIntro :title="t('admin.views.integrations.tabMedia')" :help="help('tabMedia')" />
 
-          <v-text-field
-            v-model.number="mediaSettings.min_images_before_publish"
-            type="number"
-            variant="outlined"
-            density="compact"
+          <IntegrationField
+            :label="t('admin.views.integrations.minImagesBeforePublish')"
+            help-key="minImagesBeforePublish"
             class="mb-3"
           >
-            <template #label>
-              <IntegrationFieldLabel
-                :label="t('admin.views.integrations.minImagesBeforePublish')"
-                help-key="minImagesBeforePublish"
-              />
-            </template>
-          </v-text-field>
+            <v-text-field
+              v-model.number="mediaSettings.min_images_before_publish"
+              type="number"
+              variant="outlined"
+              density="compact"
+              hide-details
+            />
+          </IntegrationField>
 
-          <v-text-field
-            v-model.number="mediaSettings.max_image_upload_mb"
-            type="number"
-            variant="outlined"
-            density="compact"
+          <IntegrationField :label="t('admin.views.integrations.maxImageUploadMb')" help-key="maxImageUploadMb" class="mb-3">
+            <v-text-field
+              v-model.number="mediaSettings.max_image_upload_mb"
+              type="number"
+              variant="outlined"
+              density="compact"
+              hide-details
+            />
+          </IntegrationField>
+
+          <IntegrationField
+            :label="t('admin.views.integrations.watermarkEnabled')"
+            help-key="watermarkEnabled"
+            switch-field
             class="mb-3"
           >
-            <template #label>
-              <IntegrationFieldLabel :label="t('admin.views.integrations.maxImageUploadMb')" help-key="maxImageUploadMb" />
-            </template>
-          </v-text-field>
+            <v-switch v-model="mediaSettings.watermark_enabled" color="primary" hide-details />
+          </IntegrationField>
 
-          <v-switch v-model="mediaSettings.watermark_enabled" color="primary" class="mb-3">
-            <template #label>
-              <IntegrationFieldLabel :label="t('admin.views.integrations.watermarkEnabled')" help-key="watermarkEnabled" />
-            </template>
-          </v-switch>
-
-          <v-text-field
-            v-model.number="mediaSettings.watermark_opacity"
-            type="number"
-            variant="outlined"
-            density="compact"
-          >
-            <template #label>
-              <IntegrationFieldLabel :label="t('admin.views.integrations.watermarkOpacity')" help-key="watermarkOpacity" />
-            </template>
-          </v-text-field>
+          <IntegrationField :label="t('admin.views.integrations.watermarkOpacity')" help-key="watermarkOpacity">
+            <v-text-field
+              v-model.number="mediaSettings.watermark_opacity"
+              type="number"
+              variant="outlined"
+              density="compact"
+              hide-details
+            />
+          </IntegrationField>
         </v-card>
       </v-window-item>
 
@@ -340,58 +315,62 @@
         <v-card variant="outlined" class="integrations-card pa-4">
           <IntegrationTabIntro :title="t('admin.views.integrations.tabFinance')" :help="help('tabFinance')" />
 
-          <v-switch
-            v-model="financeSettings.calculator_enabled"
-            color="primary"
-            hide-details
+          <IntegrationField
+            :label="t('admin.views.integrations.calculatorEnabled')"
+            help-key="calculatorEnabled"
+            switch-field
             class="mb-4"
           >
-            <template #label>
-              <IntegrationFieldLabel :label="t('admin.views.integrations.calculatorEnabled')" help-key="calculatorEnabled" />
-            </template>
-          </v-switch>
+            <v-switch v-model="financeSettings.calculator_enabled" color="primary" hide-details />
+          </IntegrationField>
 
-          <v-text-field v-model.number="financeSettings.default_rate_pct" type="number" variant="outlined" density="compact" class="mb-2">
-            <template #label>
-              <IntegrationFieldLabel :label="t('admin.views.integrations.defaultRatePct')" help-key="defaultRatePct" />
-            </template>
-          </v-text-field>
+          <IntegrationField :label="t('admin.views.integrations.defaultRatePct')" help-key="defaultRatePct" class="mb-2">
+            <v-text-field
+              v-model.number="financeSettings.default_rate_pct"
+              type="number"
+              variant="outlined"
+              density="compact"
+              hide-details
+            />
+          </IntegrationField>
 
-          <v-text-field v-model.number="financeSettings.min_rate_pct" type="number" variant="outlined" density="compact" class="mb-2">
-            <template #label>
-              <IntegrationFieldLabel :label="t('admin.views.integrations.minRatePct')" help-key="minRatePct" />
-            </template>
-          </v-text-field>
+          <IntegrationField :label="t('admin.views.integrations.minRatePct')" help-key="minRatePct" class="mb-2">
+            <v-text-field
+              v-model.number="financeSettings.min_rate_pct"
+              type="number"
+              variant="outlined"
+              density="compact"
+              hide-details
+            />
+          </IntegrationField>
 
-          <v-text-field v-model.number="financeSettings.max_rate_pct" type="number" variant="outlined" density="compact" class="mb-2">
-            <template #label>
-              <IntegrationFieldLabel :label="t('admin.views.integrations.maxRatePct')" help-key="maxRatePct" />
-            </template>
-          </v-text-field>
+          <IntegrationField :label="t('admin.views.integrations.maxRatePct')" help-key="maxRatePct" class="mb-2">
+            <v-text-field
+              v-model.number="financeSettings.max_rate_pct"
+              type="number"
+              variant="outlined"
+              density="compact"
+              hide-details
+            />
+          </IntegrationField>
 
-          <v-text-field
-            v-model.number="financeSettings.default_term_months"
-            type="number"
-            variant="outlined"
-            density="compact"
-            class="mb-2"
-          >
-            <template #label>
-              <IntegrationFieldLabel :label="t('admin.views.integrations.defaultTermMonths')" help-key="defaultTermMonths" />
-            </template>
-          </v-text-field>
+          <IntegrationField :label="t('admin.views.integrations.defaultTermMonths')" help-key="defaultTermMonths" class="mb-2">
+            <v-text-field
+              v-model.number="financeSettings.default_term_months"
+              type="number"
+              variant="outlined"
+              density="compact"
+              hide-details
+            />
+          </IntegrationField>
 
-          <v-textarea v-model="financeSettings.disclaimer_en" rows="2" variant="outlined" density="compact" class="mb-2">
-            <template #label>
-              <IntegrationFieldLabel :label="t('admin.views.integrations.disclaimerEn')" help-key="disclaimerEn" />
-            </template>
-          </v-textarea>
+          <IntegrationField :label="t('admin.views.integrations.disclaimerEn')" help-key="disclaimerEn" class="mb-2">
+            <v-textarea v-model="financeSettings.disclaimer_en" rows="2" variant="outlined" density="compact" hide-details />
+          </IntegrationField>
 
-          <v-textarea v-model="financeSettings.disclaimer_da" rows="2" variant="outlined" density="compact">
-            <template #label>
-              <IntegrationFieldLabel :label="t('admin.views.integrations.disclaimerDa')" help-key="disclaimerDa" />
-            </template>
-          </v-textarea>
+          <IntegrationField :label="t('admin.views.integrations.disclaimerDa')" help-key="disclaimerDa">
+            <v-textarea v-model="financeSettings.disclaimer_da" rows="2" variant="outlined" density="compact" hide-details />
+          </IntegrationField>
         </v-card>
       </v-window-item>
 
@@ -399,68 +378,61 @@
         <v-card variant="outlined" class="integrations-card pa-4">
           <IntegrationTabIntro :title="t('admin.views.integrations.tabMarketing')" :help="help('tabMarketing')" />
 
-          <v-switch v-model="marketingSettings.enquiry_sequence_enabled" color="primary" class="mb-2">
-            <template #label>
-              <IntegrationFieldLabel
-                :label="t('admin.views.integrations.enquirySequenceEnabled')"
-                help-key="enquirySequenceEnabled"
-              />
-            </template>
-          </v-switch>
-
-          <v-text-field
-            v-model.number="marketingSettings.enquiry_day1_hours"
-            type="number"
-            variant="outlined"
-            density="compact"
+          <IntegrationField
+            :label="t('admin.views.integrations.enquirySequenceEnabled')"
+            help-key="enquirySequenceEnabled"
+            switch-field
             class="mb-2"
           >
-            <template #label>
-              <IntegrationFieldLabel :label="t('admin.views.integrations.enquiryDay1Hours')" help-key="enquiryDay1Hours" />
-            </template>
-          </v-text-field>
+            <v-switch v-model="marketingSettings.enquiry_sequence_enabled" color="primary" hide-details />
+          </IntegrationField>
 
-          <v-text-field
-            v-model.number="marketingSettings.enquiry_day3_days"
-            type="number"
-            variant="outlined"
-            density="compact"
+          <IntegrationField :label="t('admin.views.integrations.enquiryDay1Hours')" help-key="enquiryDay1Hours" class="mb-2">
+            <v-text-field
+              v-model.number="marketingSettings.enquiry_day1_hours"
+              type="number"
+              variant="outlined"
+              density="compact"
+              hide-details
+            />
+          </IntegrationField>
+
+          <IntegrationField :label="t('admin.views.integrations.enquiryDay3Days')" help-key="enquiryDay3Days" class="mb-2">
+            <v-text-field
+              v-model.number="marketingSettings.enquiry_day3_days"
+              type="number"
+              variant="outlined"
+              density="compact"
+              hide-details
+            />
+          </IntegrationField>
+
+          <IntegrationField
+            :label="t('admin.views.integrations.abandonedEnquiryEnabled')"
+            help-key="abandonedEnquiryEnabled"
+            switch-field
             class="mb-2"
           >
-            <template #label>
-              <IntegrationFieldLabel :label="t('admin.views.integrations.enquiryDay3Days')" help-key="enquiryDay3Days" />
-            </template>
-          </v-text-field>
+            <v-switch v-model="marketingSettings.abandoned_enquiry_enabled" color="primary" hide-details />
+          </IntegrationField>
 
-          <v-switch v-model="marketingSettings.abandoned_enquiry_enabled" color="primary" class="mb-2">
-            <template #label>
-              <IntegrationFieldLabel
-                :label="t('admin.views.integrations.abandonedEnquiryEnabled')"
-                help-key="abandonedEnquiryEnabled"
-              />
-            </template>
-          </v-switch>
-
-          <v-text-field
-            v-model.number="marketingSettings.abandoned_timeout_minutes"
-            type="number"
-            variant="outlined"
-            density="compact"
+          <IntegrationField
+            :label="t('admin.views.integrations.abandonedTimeoutMinutes')"
+            help-key="abandonedTimeoutMinutes"
             class="mb-2"
           >
-            <template #label>
-              <IntegrationFieldLabel
-                :label="t('admin.views.integrations.abandonedTimeoutMinutes')"
-                help-key="abandonedTimeoutMinutes"
-              />
-            </template>
-          </v-text-field>
+            <v-text-field
+              v-model.number="marketingSettings.abandoned_timeout_minutes"
+              type="number"
+              variant="outlined"
+              density="compact"
+              hide-details
+            />
+          </IntegrationField>
 
-          <v-switch v-model="marketingSettings.whatsapp_auto_task" color="primary">
-            <template #label>
-              <IntegrationFieldLabel :label="t('admin.views.integrations.whatsappAutoTask')" help-key="whatsappAutoTask" />
-            </template>
-          </v-switch>
+          <IntegrationField :label="t('admin.views.integrations.whatsappAutoTask')" help-key="whatsappAutoTask" switch-field>
+            <v-switch v-model="marketingSettings.whatsapp_auto_task" color="primary" hide-details />
+          </IntegrationField>
         </v-card>
       </v-window-item>
 
@@ -468,29 +440,34 @@
         <v-card variant="outlined" class="integrations-card pa-4">
           <IntegrationTabIntro :title="t('admin.views.integrations.tabCompliance')" :help="help('tabCompliance')" />
 
-          <v-switch v-model="complianceSettings.gdpr_export_enabled" color="primary" class="mb-2">
-            <template #label>
-              <IntegrationFieldLabel :label="t('admin.views.integrations.gdprExportEnabled')" help-key="gdprExportEnabled" />
-            </template>
-          </v-switch>
-
-          <v-text-field
-            v-model.number="complianceSettings.data_retention_days"
-            type="number"
-            variant="outlined"
-            density="compact"
+          <IntegrationField
+            :label="t('admin.views.integrations.gdprExportEnabled')"
+            help-key="gdprExportEnabled"
+            switch-field
             class="mb-2"
           >
-            <template #label>
-              <IntegrationFieldLabel :label="t('admin.views.integrations.dataRetentionDays')" help-key="dataRetentionDays" />
-            </template>
-          </v-text-field>
+            <v-switch v-model="complianceSettings.gdpr_export_enabled" color="primary" hide-details />
+          </IntegrationField>
 
-          <v-text-field v-model="reputationSettings.google_places_api_key" type="password" variant="outlined" density="compact">
-            <template #label>
-              <IntegrationFieldLabel :label="t('admin.views.integrations.googlePlacesApiKey')" help-key="googlePlacesApiKey" />
-            </template>
-          </v-text-field>
+          <IntegrationField :label="t('admin.views.integrations.dataRetentionDays')" help-key="dataRetentionDays" class="mb-2">
+            <v-text-field
+              v-model.number="complianceSettings.data_retention_days"
+              type="number"
+              variant="outlined"
+              density="compact"
+              hide-details
+            />
+          </IntegrationField>
+
+          <IntegrationField :label="t('admin.views.integrations.googlePlacesApiKey')" help-key="googlePlacesApiKey">
+            <v-text-field
+              v-model="reputationSettings.google_places_api_key"
+              type="password"
+              variant="outlined"
+              density="compact"
+              hide-details
+            />
+          </IntegrationField>
         </v-card>
       </v-window-item>
     </v-window>
@@ -517,7 +494,7 @@ import { getIntegrations, updateIntegrations, testIntegration, testAiProvider as
 import { API_CONFIG } from '@/config/api'
 import PageHeader from '@/components/panel/PageHeader.vue'
 import PanelHelpHint from '@/components/panel/PanelHelpHint.vue'
-import IntegrationFieldLabel from '@/views/admin/integrations/components/IntegrationFieldLabel.vue'
+import IntegrationField from '@/views/admin/integrations/components/IntegrationField.vue'
 import IntegrationTabIntro from '@/views/admin/integrations/components/IntegrationTabIntro.vue'
 
 const { t } = useI18n()
@@ -686,9 +663,16 @@ onMounted(async () => {
 }
 
 .integrations-note {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
   font-size: 0.75rem;
   line-height: 1.45;
   margin: 0;
+}
+
+.integrations-note__label {
+  color: var(--muted-foreground);
 }
 
 .integrations-action-with-help {
@@ -699,5 +683,57 @@ onMounted(async () => {
 
 .integrations-footer {
   gap: 0.75rem;
+}
+
+.integrations-prompts-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid color-mix(in oklch, var(--primary) 22%, var(--border));
+  border-radius: var(--radius);
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--primary) 8%, var(--card)) 0%,
+    var(--card) 100%
+  );
+}
+
+.integrations-prompts-banner__content {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.integrations-prompts-banner__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  border-radius: var(--radius);
+  background: var(--primary-light);
+}
+
+.integrations-prompts-banner__title {
+  margin: 0 0 0.25rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--foreground);
+  line-height: 1.3;
+}
+
+.integrations-prompts-banner__desc {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--muted-foreground);
+  max-width: 42rem;
 }
 </style>
