@@ -8,6 +8,7 @@
       <v-tab value="ai">{{ t('admin.views.integrations.tabAi') }}</v-tab>
       <v-tab value="media">{{ t('admin.views.integrations.tabMedia') }}</v-tab>
       <v-tab value="finance">{{ t('admin.views.integrations.tabFinance') }}</v-tab>
+      <v-tab value="marketplace">{{ t('admin.views.integrations.tabMarketplace') }}</v-tab>
       <v-tab value="marketing">{{ t('admin.views.integrations.tabMarketing') }}</v-tab>
       <v-tab value="compliance">{{ t('admin.views.integrations.tabCompliance') }}</v-tab>
     </v-tabs>
@@ -374,6 +375,20 @@
         </v-card>
       </v-window-item>
 
+      <v-window-item value="marketplace">
+        <v-card variant="outlined" class="integrations-card pa-4">
+          <IntegrationTabIntro :title="t('admin.views.integrations.tabMarketplace')" :help="help('tabMarketplace')" />
+
+          <IntegrationField
+            :label="t('admin.views.integrations.trustReportEnabled')"
+            help-key="trustReportEnabled"
+            switch-field
+          >
+            <v-switch v-model="marketplaceSettings.trust_report_enabled" color="primary" hide-details />
+          </IntegrationField>
+        </v-card>
+      </v-window-item>
+
       <v-window-item value="marketing">
         <v-card variant="outlined" class="integrations-card pa-4">
           <IntegrationTabIntro :title="t('admin.views.integrations.tabMarketing')" :help="help('tabMarketing')" />
@@ -518,6 +533,7 @@ const paymentSettings = ref<Record<string, any>>({
 const aiSettings = ref<Record<string, any>>({})
 const mediaSettings = ref<Record<string, any>>({ min_images_before_publish: 0, max_image_upload_mb: 10, watermark_enabled: false, watermark_opacity: 40 })
 const financeSettings = ref<Record<string, any>>({ calculator_enabled: true, default_rate_pct: 4.9, min_rate_pct: 2.9, max_rate_pct: 12.9, default_term_months: 60 })
+const marketplaceSettings = ref<Record<string, any>>({ trust_report_enabled: true })
 const marketingSettings = ref<Record<string, any>>({ enquiry_sequence_enabled: true, enquiry_day1_hours: 24, enquiry_day3_days: 3, abandoned_enquiry_enabled: true, abandoned_timeout_minutes: 30, whatsapp_auto_task: true })
 const complianceSettings = ref<Record<string, any>>({ gdpr_export_enabled: true, data_retention_days: 730 })
 const reputationSettings = ref<Record<string, any>>({ google_places_api_key: '' })
@@ -546,6 +562,7 @@ async function load() {
   aiSettings.value = { ...aiSettings.value, ...normalizeAiBools(data.ai ?? {}) }
   mediaSettings.value = { ...mediaSettings.value, ...normalizeGenericBools(data.media ?? {}, ['watermark_enabled']) }
   financeSettings.value = { ...financeSettings.value, ...normalizeGenericBools(data.finance ?? {}, ['calculator_enabled']) }
+  marketplaceSettings.value = { ...marketplaceSettings.value, ...normalizeGenericBools(data.marketplace ?? {}, ['trust_report_enabled']) }
   marketingSettings.value = { ...marketingSettings.value, ...normalizeGenericBools(data.marketing ?? {}, ['enquiry_sequence_enabled', 'abandoned_enquiry_enabled', 'whatsapp_auto_task']) }
   complianceSettings.value = { ...complianceSettings.value, ...normalizeGenericBools(data.compliance ?? {}, ['gdpr_export_enabled']) }
   reputationSettings.value = { ...reputationSettings.value, ...(data.reputation ?? {}) }
@@ -589,7 +606,7 @@ async function save() {
   saving.value = true
   message.value = ''
   try {
-    const groupMap: Record<string, string> = { crm: 'crm', payment: 'payment', ai: 'ai', media: 'media', finance: 'finance', marketing: 'marketing', compliance: 'compliance' }
+    const groupMap: Record<string, string> = { crm: 'crm', payment: 'payment', ai: 'ai', media: 'media', finance: 'finance', marketplace: 'marketplace', marketing: 'marketing', compliance: 'compliance' }
     const group = groupMap[tab.value] ?? 'crm'
     const settingsMap: Record<string, any> = {
       crm: crmSettings.value,
@@ -597,6 +614,7 @@ async function save() {
       ai: aiSettings.value,
       media: mediaSettings.value,
       finance: financeSettings.value,
+      marketplace: marketplaceSettings.value,
       marketing: marketingSettings.value,
       compliance: complianceSettings.value,
     }
