@@ -36,6 +36,7 @@ export function resolveStorageAssetUrl(url: string | undefined | null): string |
   const storagePathMatch = trimmed.match(/(?:^|\/)storage\/(.+)$/)
   if (storagePathMatch) {
     const relativePath = `/storage/${storagePathMatch[1]}`
+    // In dev, load via Vite proxy (same origin as the panel) to avoid CORS on static files.
     if (import.meta.env.DEV && typeof window !== 'undefined') {
       return relativePath
     }

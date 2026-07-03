@@ -4,7 +4,8 @@
     max-width="900"
     scrollable
     @update:model-value="emit('update:modelValue', $event)"
-    @after-leave="clearViewer"
+    @after-enter="handleDialogOpened"
+    @after-leave="handleDialogClosed"
   >
     <v-card>
       <v-card-title class="d-flex align-center text-subtitle-1">
@@ -15,8 +16,18 @@
       </v-card-title>
       <v-card-text class="pa-3 pt-0">
         <div class="model-viewer-dialog__wrapper">
-          <div ref="viewerHost" class="model-viewer-dialog__host" />
-          <div v-if="loading" class="model-viewer-dialog__overlay">
+          <model-viewer
+            v-if="showViewer && resolvedSrc"
+            :key="resolvedSrc"
+            :src="resolvedSrc"
+            :alt="title"
+            camera-controls
+            auto-rotate
+            shadow-intensity="1"
+            class="model-viewer-dialog__viewer"
+            @error="onViewerError"
+          />
+          <div v-else-if="loading" class="model-viewer-dialog__overlay">
             <v-progress-circular indeterminate color="primary" size="40" />
           </div>
           <div v-else-if="loadError" class="model-viewer-dialog__overlay model-viewer-dialog__error text-body-2 text-error">
@@ -29,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { resolveStorageAssetUrl } from '@/utils/storageUrl'
 
 const MODEL_VIEWER_SCRIPT =
@@ -47,7 +58,7 @@ const emit = defineEmits<{
 
 const resolvedSrc = computed(() => resolveStorageAssetUrl(props.src) ?? '')
 
-const viewerHost = ref<HTMLElement | null>(null)
+const showViewer = ref(false)
 const loading = ref(false)
 const loadError = ref<string | null>(null)
 
@@ -74,69 +85,59 @@ function loadModelViewerScript(): Promise<void> {
   return scriptLoadPromise
 }
 
-function clearViewer() {
-  viewerHost.value?.replaceChildren()
-  loadError.value = null
+function onViewerError() {
+  loadError.value = 'Unable to load 3D preview.'
+  showViewer.value = false
 }
 
-async function renderViewer() {
-  if (!viewerHost.value || !resolvedSrc.value) return
+function handleDialogClosed() {
+  showViewer.value = false
+  loadError.value = null
+  loading.value = false
+}
 
-  clearViewer()
+async function handleDialogOpened() {
+  if (!resolvedSrc.value) {
+    loadError.value = 'No 3D model URL available.'
+    return
+  }
+
   loading.value = true
+  loadError.value = null
+  showViewer.value = false
 
   try {
     await loadModelViewerScript()
+    await customElements.whenDefined('model-viewer')
     await nextTick()
-
-    const viewer = document.createElement('model-viewer')
-    viewer.setAttribute('src', resolvedSrc.value)
-    viewer.setAttribute('camera-controls', '')
-    viewer.setAttribute('auto-rotate', '')
-    viewer.setAttribute('shadow-intensity', '1')
-    viewer.setAttribute('crossorigin', 'anonymous')
-    viewer.setAttribute('alt', props.title)
-    viewer.style.width = '100%'
-    viewer.style.height = 'min(70vh, 520px)'
-    viewer.style.borderRadius = '8px'
-    viewer.style.background = 'rgb(var(--v-theme-surface-variant))'
-
-    viewerHost.value.appendChild(viewer)
+    showViewer.value = true
   } catch {
-    loadError.value = 'Unable to load 3D preview.'
+    loadError.value = 'Unable to load 3D viewer.'
   } finally {
     loading.value = false
   }
 }
-
-watch(
-  () => [props.modelValue, resolvedSrc.value] as const,
-  ([visible, src]) => {
-    if (visible && src) {
-      void renderViewer()
-    } else if (!visible) {
-      clearViewer()
-    }
-  }
-)
 </script>
 
 <style scoped>
 .model-viewer-dialog__wrapper {
   position: relative;
-  min-height: min(70vh, 520px);
+  min-height: 520px;
 }
 
-.model-viewer-dialog__host {
-  min-height: min(70vh, 520px);
+.model-viewer-dialog__viewer {
+  display: block;
+  width: 100%;
+  height: 520px;
+  border-radius: 8px;
+  background: rgb(var(--v-theme-surface-variant));
 }
 
 .model-viewer-dialog__overlay {
-  position: absolute;
-  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 520px;
   background: rgb(var(--v-theme-surface));
 }
 
