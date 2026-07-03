@@ -485,28 +485,33 @@ export async function renewVehicleListing(id: number | string): Promise<VehicleM
 }
 
 /**
- * Upload or set 3D view URL for a vehicle
+ * Upload 3D view file for a vehicle
  */
 export async function uploadVehicle3dView(
   id: number | string,
-  data: { view_3d_url?: string; file?: File }
+  file: File
 ): Promise<VehicleModel> {
   try {
-    let payload: FormData | Record<string, string>
-    if (data.file) {
-      const formData = new FormData()
-      formData.append('file', data.file)
-      if (data.view_3d_url) {
-        formData.append('view_3d_url', data.view_3d_url)
-      }
-      payload = formData
-    } else {
-      payload = { view_3d_url: data.view_3d_url || '' }
-    }
+    const formData = new FormData()
+    formData.append('file', file)
 
     const response = await httpClient.post<{ data: any }>(
       DEALER_VEHICLE_ENDPOINTS.UPLOAD_3D_VIEW(id),
-      payload
+      formData
+    )
+    return mapVehicleFromApi(handleSuccess<any>(response))
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Remove 3D view from a vehicle
+ */
+export async function deleteVehicle3dView(id: number | string): Promise<VehicleModel> {
+  try {
+    const response = await httpClient.delete<{ data: any }>(
+      DEALER_VEHICLE_ENDPOINTS.DELETE_3D_VIEW(id)
     )
     return mapVehicleFromApi(handleSuccess<any>(response))
   } catch (error) {

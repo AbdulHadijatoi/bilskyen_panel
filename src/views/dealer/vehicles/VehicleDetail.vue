@@ -1077,20 +1077,38 @@
               <span class="text-subtitle-1">{{ t('dealer.views.vehicleDetail.view3dTitle') }}</span>
               <v-spacer />
               <v-btn
+                v-if="vehicle?.view3dUrl"
+                color="error"
+                variant="outlined"
+                prepend-icon="mdi-delete"
+                size="x-small"
+                class="mr-2"
+                @click="openRemove3dDialog"
+              >
+                {{ t('dealer.views.vehicleDetail.remove3dView') }}
+              </v-btn>
+              <v-btn
                 color="primary"
                 variant="outlined"
                 prepend-icon="mdi-upload"
                 size="x-small"
-                @click="show3dUploadDialog = true"
+                @click="open3dUploadDialog"
               >
                 {{ vehicle?.view3dUrl ? t('dealer.views.vehicleDetail.update3dView') : t('dealer.views.vehicleDetail.add3dView') }}
               </v-btn>
             </v-card-title>
             <v-card-text class="pa-3">
               <div v-if="vehicle?.view3dUrl" class="text-body-2">
-                <a :href="vehicle.view3dUrl" target="_blank" rel="noopener noreferrer" class="text-primary">
+                <v-btn
+                  variant="text"
+                  color="primary"
+                  size="small"
+                  class="px-0"
+                  prepend-icon="mdi-rotate-3d"
+                  @click="show3dPreviewDialog = true"
+                >
                   {{ t('dealer.views.vehicleDetail.view3dLink') }}
-                </a>
+                </v-btn>
               </div>
               <div v-else class="text-caption text-medium-emphasis">
                 {{ t('dealer.views.vehicleDetail.no3dView') }}
@@ -1253,14 +1271,17 @@
           {{ t('dealer.views.vehicleDetail.upload3dTitle') }}
         </v-card-title>
         <v-card-text class="pa-3">
-          <v-text-field
-            v-model="view3dUrlInput"
-            :label="t('dealer.views.vehicleDetail.view3dUrlLabel')"
-            variant="outlined"
+          <v-alert
+            v-if="upload3dError"
+            type="error"
+            variant="tonal"
             density="compact"
             class="mb-3"
-            placeholder="https://..."
-          />
+            closable
+            @click:close="upload3dError = null"
+          >
+            {{ upload3dError }}
+          </v-alert>
           <v-file-input
             v-model="view3dFile"
             :label="t('dealer.views.vehicleDetail.view3dFileLabel')"
@@ -1270,16 +1291,17 @@
             accept=".glb,.gltf,.zip"
             prepend-icon="mdi-file"
             hide-details="auto"
+            @update:model-value="onView3dFileSelected"
           />
         </v-card-text>
         <v-card-actions class="pa-3">
           <v-spacer />
-          <v-btn variant="text" size="small" @click="show3dUploadDialog = false">{{ t('common.cancel') }}</v-btn>
+          <v-btn variant="text" size="small" @click="close3dUploadDialog">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="primary"
             size="small"
             :loading="uploading3dView"
-            :disabled="!view3dUrlInput && !view3dFile"
+            :disabled="!canSubmit3dUpload"
             @click="handleUpload3dView"
           >
             {{ t('common.upload') }}
@@ -1287,6 +1309,49 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="showRemove3dDialog" max-width="400">
+      <v-card>
+        <v-card-title class="text-subtitle-1">
+          {{ t('dealer.views.vehicleDetail.remove3dViewTitle') }}
+        </v-card-title>
+        <v-card-text class="pa-3">
+          <v-alert
+            v-if="remove3dError"
+            type="error"
+            variant="tonal"
+            density="compact"
+            class="mb-3"
+            closable
+            @click:close="remove3dError = null"
+          >
+            {{ remove3dError }}
+          </v-alert>
+          <p class="text-body-2 mb-0">
+            {{ t('dealer.views.vehicleDetail.remove3dViewConfirm') }}
+          </p>
+        </v-card-text>
+        <v-card-actions class="pa-3">
+          <v-spacer />
+          <v-btn variant="text" size="small" @click="showRemove3dDialog = false">{{ t('common.cancel') }}</v-btn>
+          <v-btn
+            color="error"
+            size="small"
+            :loading="removing3dView"
+            @click="handleRemove3dView"
+          >
+            {{ t('dealer.views.vehicleDetail.remove3dView') }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <ModelViewerDialog
+      v-if="vehicle?.view3dUrl"
+      v-model="show3dPreviewDialog"
+      :src="vehicle.view3dUrl"
+      :title="t('dealer.views.vehicleDetail.view3dTitle')"
+    />
 
     <!-- Equipment Management Dialog -->
     <v-dialog v-model="showEquipmentDialog" max-width="700">
@@ -1451,6 +1516,7 @@ import {
   updateVehicleStatus,
   renewVehicleListing,
   uploadVehicle3dView,
+  deleteVehicle3dView,
   updateVehicleEquipment,
   deleteVehicle as deleteVehicleApi,
   uploadVehicleImages,
@@ -1469,10 +1535,13 @@ import type { ApiErrorModel } from '@/models/api-error.model'
 import { getFeatureLimit, hasFeature, FeatureKey } from '@/utils/subscriptionFeatures'
 import { SALES_TYPE_LEASING_DETAILS } from '@/constants/salesTypes'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import ModelViewerDialog from '@/components/shared/ModelViewerDialog.vue'
+import { useErrorMessage } from '@/composables/useErrorMessage'
 
 const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
+const { getDisplayMessage } = useErrorMessage()
 const { snackbar, showError } = useSnackbar()
 
 const loading = ref(false)
@@ -1541,9 +1610,14 @@ const selectedStatus = ref<number | null>(null)
 const markingAsSold = ref(false)
 const renewingListing = ref(false)
 const show3dUploadDialog = ref(false)
-const view3dUrlInput = ref('')
-const view3dFile = ref<File[] | null>(null)
+const show3dPreviewDialog = ref(false)
+const showRemove3dDialog = ref(false)
+const view3dFile = ref<File | File[] | null>(null)
+const view3dSelectedFile = ref<File | null>(null)
+const upload3dError = ref<string | null>(null)
 const uploading3dView = ref(false)
+const removing3dView = ref(false)
+const remove3dError = ref<string | null>(null)
 const videoUrlInput = ref('')
 const savingVideo = ref(false)
 const draggedImageIndex = ref<number | null>(null)
@@ -1552,22 +1626,93 @@ const reorderingImages = ref(false)
 
 const canUpload3dView = computed(() => hasFeature(FeatureKey.UPLOAD_3D_VIEW))
 
+const MAX_3D_FILE_SIZE = 50 * 1024 * 1024
+
+function get3dDialogErrorMessage(err: unknown, fallbackKey: string): string {
+  const apiError = err as ApiErrorModel
+  if (apiError.errors) {
+    const messages = Object.values(apiError.errors).flat().filter(Boolean)
+    if (messages.length > 0) {
+      return messages.join(' ')
+    }
+  }
+  return getDisplayMessage(apiError) || t(fallbackKey)
+}
+
+function resolveUploadFile(files: File | File[] | null | undefined): File | undefined {
+  if (!files) return undefined
+  const file = Array.isArray(files) ? files[0] : files
+  return file instanceof File ? file : undefined
+}
+
+function onView3dFileSelected(files: File | File[] | null) {
+  view3dFile.value = files
+  const file = resolveUploadFile(files)
+  if (file && file.size > MAX_3D_FILE_SIZE) {
+    view3dSelectedFile.value = null
+    upload3dError.value = t('dealer.views.vehicleDetail.view3dFileTooLarge')
+    return
+  }
+  view3dSelectedFile.value = file ?? null
+  upload3dError.value = null
+}
+
+function reset3dUploadForm() {
+  view3dFile.value = null
+  view3dSelectedFile.value = null
+  upload3dError.value = null
+}
+
+function open3dUploadDialog() {
+  upload3dError.value = null
+  show3dUploadDialog.value = true
+}
+
+function openRemove3dDialog() {
+  remove3dError.value = null
+  showRemove3dDialog.value = true
+}
+
+function close3dUploadDialog() {
+  show3dUploadDialog.value = false
+  reset3dUploadForm()
+}
+
+const canSubmit3dUpload = computed(() => !!view3dSelectedFile.value)
+
 async function handleUpload3dView() {
   if (!vehicle.value) return
+  const file = view3dSelectedFile.value
+  if (!file) return
+  if (file.size > MAX_3D_FILE_SIZE) {
+    upload3dError.value = t('dealer.views.vehicleDetail.view3dFileTooLarge')
+    return
+  }
   try {
     uploading3dView.value = true
-    const file = view3dFile.value?.[0]
-    vehicle.value = await uploadVehicle3dView(vehicle.value.id, {
-      view_3d_url: view3dUrlInput.value || undefined,
-      file,
-    })
+    upload3dError.value = null
+    vehicle.value = await uploadVehicle3dView(vehicle.value.id, file)
     show3dUploadDialog.value = false
-    view3dUrlInput.value = ''
-    view3dFile.value = null
+    reset3dUploadForm()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || t('dealer.views.vehicleDetail.upload3dFailed')
+    upload3dError.value = get3dDialogErrorMessage(err, 'dealer.views.vehicleDetail.upload3dFailed')
   } finally {
     uploading3dView.value = false
+  }
+}
+
+async function handleRemove3dView() {
+  if (!vehicle.value) return
+  try {
+    removing3dView.value = true
+    remove3dError.value = null
+    vehicle.value = await deleteVehicle3dView(vehicle.value.id)
+    showRemove3dDialog.value = false
+    show3dPreviewDialog.value = false
+  } catch (err) {
+    remove3dError.value = get3dDialogErrorMessage(err, 'dealer.views.vehicleDetail.remove3dViewFailed')
+  } finally {
+    removing3dView.value = false
   }
 }
 const loadingConstants = ref(false)

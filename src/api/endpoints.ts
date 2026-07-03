@@ -68,6 +68,7 @@ export const DEALER_VEHICLE_ENDPOINTS = {
   UPDATE_STATUS: (id: number | string) => `/dealer/vehicles/update-status/${id}`,
   RENEW_LISTING: (id: number | string) => `/dealer/vehicles/renew-listing/${id}`,
   UPLOAD_3D_VIEW: (id: number | string) => `/dealer/vehicles/${id}/3d-view`,
+  DELETE_3D_VIEW: (id: number | string) => `/dealer/vehicles/${id}/3d-view`,
   UPDATE_EQUIPMENT: (id: number | string) => `/dealer/vehicles/update-equipment/${id}`,
   UPDATE_PRICE: (id: number | string) => `/dealer/vehicles/${id}/price`,
   LOOKUP_BY_REGISTRATION: '/dealer/vehicles/lookup-by-registration',

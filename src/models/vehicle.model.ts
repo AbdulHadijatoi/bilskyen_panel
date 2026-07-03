@@ -5,6 +5,7 @@
  */
 
 import { listStatusNameFromId } from '@/constants/vehicle-list-status'
+import { resolveStorageAssetUrl } from '@/utils/storageUrl'
 
 /**
  * Vehicle list status (matches backend VehicleListStatus constants)
@@ -284,7 +285,7 @@ export function mapVehicleFromApi(data: any): VehicleModel {
     status: statusResolved as VehicleModel['status'],
     publishedAt: data.published_at,
     expiresAt: data.expires_at,
-    view3dUrl: data.view_3d_url,
+    view3dUrl: resolveStorageAssetUrl(data.view_3d_url),
     videoUrl: data.video_url,
     videoProvider: data.video_provider,
     listingBillingStartedAt: data.listing_billing_started_at,
