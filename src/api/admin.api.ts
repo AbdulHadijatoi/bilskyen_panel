@@ -7,6 +7,7 @@
 
 import httpClient from './http'
 import { handleSuccess, handleError } from './response'
+import type { AiGenerateResult } from './dealer.api'
 import {
   ADMIN_USER_ENDPOINTS,
   ADMIN_DEALER_ENDPOINTS,
@@ -488,6 +489,54 @@ export async function updateAiPromptTemplate(id: number, data: Partial<AiPromptT
 export async function testAiProvider(provider: 'openai' | 'anthropic' | 'gemini') {
   const response = await httpClient.post<{ data: { success: boolean; message: string } }>(ADMIN_AI_ENDPOINTS.TEST, { provider })
   return handleSuccess<{ success: boolean; message: string }>(response)
+}
+
+export interface AiUsageLogModel {
+  id: number
+  user_id: number | null
+  dealer_id: number | null
+  provider: string
+  model: string | null
+  task: string
+  prompt_tokens: number
+  completion_tokens: number
+  context_type: string | null
+  context_id: number | null
+  status: string
+  error_message: string | null
+  created_at: string
+  user?: { id: number; name: string; email: string } | null
+  dealer?: { id: number; slug: string; cvr: string | null; owner?: { id: number; name: string; email: string } } | null
+}
+
+export async function getAiUsageLogs(params?: {
+  page?: number
+  limit?: number
+  dealer_id?: number
+  provider?: string
+  task?: string
+  status?: string
+}) {
+  const response = await httpClient.get<{ data: { docs: AiUsageLogModel[]; page: number; totalDocs?: number; hasNextPage: boolean } }>(
+    ADMIN_AI_ENDPOINTS.USAGE,
+    { params }
+  )
+  return handleSuccess<{ docs: AiUsageLogModel[]; page: number; totalDocs?: number; hasNextPage: boolean }>(response)
+}
+
+export async function generateAdminAiContent(data: {
+  task: string
+  context: Record<string, unknown>
+  locale?: string
+  context_type?: string
+  context_id?: number
+}) {
+  try {
+    const response = await httpClient.post<{ data: AiGenerateResult }>(ADMIN_AI_ENDPOINTS.GENERATE, data)
+    return handleSuccess<AiGenerateResult>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
 }
 
 /**

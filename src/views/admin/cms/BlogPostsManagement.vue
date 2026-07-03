@@ -26,6 +26,17 @@
           <v-text-field v-model="form.slug" :label="t('admin.cms.blog.slug')" class="mb-2" />
           <v-select v-model="form.status" :items="statusOptions" :label="t('admin.cms.blog.status')" class="mb-2" />
           <v-textarea v-model="form.excerpt" :label="t('admin.cms.blog.excerpt')" rows="2" class="mb-2" />
+          <div class="d-flex justify-end mb-1">
+            <AiGenerateButton
+              mode="admin"
+              task="cms_rewrite"
+              :context="{ title: form.title, excerpt: form.excerpt, content: form.content_html }"
+              :label="t('dealer.views.ai.rewriteCopy')"
+              auto-generate
+              :show-tone-selector="false"
+              @accept="form.content_html = $event"
+            />
+          </div>
           <v-textarea v-model="form.content_html" :label="t('admin.cms.blog.content')" rows="8" class="mb-2" />
           <v-text-field v-model="form.meta_title" :label="t('admin.seoContent.metaTitle')" class="mb-2" />
           <v-textarea v-model="form.meta_description" :label="t('admin.seoContent.metaDescription')" rows="2" />
@@ -44,6 +55,7 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getCmsPosts, createCmsPost, updateCmsPost, deleteCmsPost } from '@/api/admin.api'
+import AiGenerateButton from '@/components/ai/AiGenerateButton.vue'
 
 const { t } = useI18n()
 const loading = ref(false)

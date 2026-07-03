@@ -169,7 +169,12 @@ export const ADMIN_AI_ENDPOINTS = {
   USAGE: '/admin/ai/usage',
   PROMPT_TEMPLATES: '/admin/ai/prompt-templates',
   UPDATE_PROMPT_TEMPLATE: (id: number | string) => `/admin/ai/prompt-templates/${id}`,
+  GENERATE: '/admin/ai/generate',
   TEST: '/admin/ai/test',
+} as const
+
+export const PUBLIC_AI_ENDPOINTS = {
+  SELL_YOUR_CAR_GENERATE: '/sell-your-car/ai/generate',
 } as const
 
 /**

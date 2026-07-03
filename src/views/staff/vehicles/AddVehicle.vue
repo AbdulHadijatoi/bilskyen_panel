@@ -947,10 +947,20 @@
 
                 <v-divider class="my-6" />
                 <div class="mb-4">
-                  <h4 class="text-subtitle-1 font-weight-semibold mb-4">
-                    <v-icon size="20" class="mr-2">mdi-text</v-icon>
-                    Description
-                  </h4>
+                  <div class="d-flex align-center justify-space-between mb-2">
+                    <h4 class="text-subtitle-1 font-weight-semibold mb-0">
+                      <v-icon size="20" class="mr-2">mdi-text</v-icon>
+                      Description
+                    </h4>
+                    <AiGenerateButton
+                      task="vehicle_description"
+                      :context="vehicleAiContext"
+                      label="AI description"
+                      auto-generate
+                      :show-tone-selector="false"
+                      @accept="onAiDescriptionAccept"
+                    />
+                  </div>
                 <v-textarea
                   v-model="form.description"
                   label="Vehicle Description"
@@ -1141,6 +1151,7 @@ import { useI18n } from 'vue-i18n'
 import { useErrorMessage } from '@/composables/useErrorMessage'
 import { getFeatureLimit, FeatureKey } from '@/utils/subscriptionFeatures'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import AiGenerateButton from '@/components/ai/AiGenerateButton.vue'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -1376,6 +1387,33 @@ const upsertLookupOption = <T extends LookupOption>(
 
 // Track if description was manually edited by user
 const isDescriptionManuallyEdited = ref(false)
+
+const vehicleAiContext = computed(() => ({
+  make: form.value.make,
+  model: form.value.model,
+  variant: form.value.variant,
+  fuel_type: form.value.fuelType,
+  registration_number: form.value.registrationNumber,
+  odometer_km: form.value.odometer,
+  price: form.value.price,
+  equipment: resolveStaffEquipmentNames(),
+}))
+
+function resolveStaffEquipmentNames(): string[] {
+  const names: string[] = []
+  form.value.equipment.forEach((equipmentId: string) => {
+    equipmentTypes.value.forEach(type => {
+      const equipment = type.equipments.find(eq => eq.id.toString() === equipmentId)
+      if (equipment) names.push(equipment.name)
+    })
+  })
+  return names.slice(0, 15)
+}
+
+function onAiDescriptionAccept(text: string) {
+  form.value.description = text
+  isDescriptionManuallyEdited.value = true
+}
 
 function appendLookupEquipmentAndSpecifications(
   vehicleData: Record<string, unknown>,

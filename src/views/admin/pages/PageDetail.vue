@@ -47,6 +47,18 @@
             />
           </v-col>
           <v-col cols="12">
+            <div class="d-flex align-center justify-space-between mb-2">
+              <span class="text-subtitle-2">Content</span>
+              <AiGenerateButton
+                mode="admin"
+                task="cms_rewrite"
+                :context="cmsAiContext"
+                :label="t('dealer.views.ai.rewriteCopy')"
+                auto-generate
+                :show-tone-selector="false"
+                @accept="onCmsRewriteAccept"
+              />
+            </div>
             <v-textarea
               v-model="pageData.content"
               label="Content"
@@ -72,11 +84,12 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getPage, updatePage as updatePageApi, publishPage as publishPageApi, type UpdatePageData, type PageModel } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import AiGenerateButton from '@/components/ai/AiGenerateButton.vue'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -92,6 +105,15 @@ const pageData = ref<UpdatePageData>({
 })
 const updating = ref(false)
 const publishing = ref(false)
+
+const cmsAiContext = computed(() => ({
+  title: pageData.value.title,
+  content: pageData.value.content,
+}))
+
+function onCmsRewriteAccept(text: string) {
+  pageData.value.content = text
+}
 
 const loadPage = async () => {
   const pageId = route.params.id as string

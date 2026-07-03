@@ -204,6 +204,11 @@ const router = createRouter({
           component: () => import('@/views/admin/ai/AiPromptTemplates.vue'),
         },
         {
+          path: 'ai/usage',
+          name: 'admin.ai.usage',
+          component: () => import('@/views/admin/ai/AiUsageLogs.vue'),
+        },
+        {
           path: 'vehicles',
           name: 'admin.vehicles',
           component: () => import('@/views/admin/vehicles/VehiclesOverview.vue'),

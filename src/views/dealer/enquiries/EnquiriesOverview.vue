@@ -224,6 +224,9 @@
                   :context-type="'enquiry'"
                   :context-id="item.id"
                   :label="t('dealer.views.ai.suggestReply')"
+                  auto-generate
+                  :show-tone-selector="false"
+                  @accept="onAiReplyCopied"
                 />
                 <button
                   type="button"
@@ -351,6 +354,10 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-snackbar v-model="snackbar.show" :timeout="3000" color="success">
+      {{ snackbar.text }}
+    </v-snackbar>
   </div>
 </template>
 
@@ -396,6 +403,17 @@ const typeDialog = ref(false)
 const selectedEnquiry = ref<EnquiryModel | null>(null)
 const selectedStatus = ref<string>('')
 const selectedType = ref<string>('')
+
+const snackbar = ref({ show: false, text: '' })
+
+async function onAiReplyCopied(text: string) {
+  try {
+    await navigator.clipboard.writeText(text)
+    snackbar.value = { show: true, text: t('dealer.views.ai.replyCopied') }
+  } catch {
+    snackbar.value = { show: true, text: text.slice(0, 80) + (text.length > 80 ? '…' : '') }
+  }
+}
 
 const statusOptions = [
   { label: 'New', value: EnquiryStatus.NEW },

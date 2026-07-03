@@ -38,6 +38,8 @@
               context-type="lead"
               :context-id="leadId"
               :label="t('dealer.views.ai.summarizeLead')"
+              auto-generate
+              :show-tone-selector="false"
               @accept="onAiSummaryAccept"
             />
           </div>

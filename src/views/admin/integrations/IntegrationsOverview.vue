@@ -260,6 +260,7 @@
           </div>
 
           <p class="integrations-note text-medium-emphasis mt-3">{{ t('admin.views.integrations.aiR3Note') }}</p>
+          <p class="integrations-note text-medium-emphasis">{{ t('admin.views.integrations.aiTokenBudgetNote') }}</p>
         </v-card>
       </v-window-item>
 
@@ -556,16 +557,21 @@ const stripeWebhookUrl = computed(() => {
 })
 
 async function load() {
-  const data = await getIntegrations()
-  crmSettings.value = { ...crmSettings.value, ...normalizeBools(data.crm ?? {}) }
-  paymentSettings.value = { ...paymentSettings.value, ...normalizePaymentBools(data.payment ?? {}) }
-  aiSettings.value = { ...aiSettings.value, ...normalizeAiBools(data.ai ?? {}) }
-  mediaSettings.value = { ...mediaSettings.value, ...normalizeGenericBools(data.media ?? {}, ['watermark_enabled']) }
-  financeSettings.value = { ...financeSettings.value, ...normalizeGenericBools(data.finance ?? {}, ['calculator_enabled']) }
-  marketplaceSettings.value = { ...marketplaceSettings.value, ...normalizeGenericBools(data.marketplace ?? {}, ['trust_report_enabled']) }
-  marketingSettings.value = { ...marketingSettings.value, ...normalizeGenericBools(data.marketing ?? {}, ['enquiry_sequence_enabled', 'abandoned_enquiry_enabled', 'whatsapp_auto_task']) }
-  complianceSettings.value = { ...complianceSettings.value, ...normalizeGenericBools(data.compliance ?? {}, ['gdpr_export_enabled']) }
-  reputationSettings.value = { ...reputationSettings.value, ...(data.reputation ?? {}) }
+  try {
+    const data = await getIntegrations()
+    crmSettings.value = { ...crmSettings.value, ...normalizeBools(data.crm ?? {}) }
+    paymentSettings.value = { ...paymentSettings.value, ...normalizePaymentBools(data.payment ?? {}) }
+    aiSettings.value = { ...aiSettings.value, ...normalizeAiBools(data.ai ?? {}) }
+    mediaSettings.value = { ...mediaSettings.value, ...normalizeGenericBools(data.media ?? {}, ['watermark_enabled']) }
+    financeSettings.value = { ...financeSettings.value, ...normalizeGenericBools(data.finance ?? {}, ['calculator_enabled']) }
+    marketplaceSettings.value = { ...marketplaceSettings.value, ...normalizeGenericBools(data.marketplace ?? {}, ['trust_report_enabled']) }
+    marketingSettings.value = { ...marketingSettings.value, ...normalizeGenericBools(data.marketing ?? {}, ['enquiry_sequence_enabled', 'abandoned_enquiry_enabled', 'whatsapp_auto_task']) }
+    complianceSettings.value = { ...complianceSettings.value, ...normalizeGenericBools(data.compliance ?? {}, ['gdpr_export_enabled']) }
+    reputationSettings.value = { ...reputationSettings.value, ...(data.reputation ?? {}) }
+  } catch {
+    message.value = t('admin.views.integrations.loadFailed')
+    messageType.value = 'error'
+  }
 }
 
 function normalizeBools(obj: Record<string, any>) {
@@ -602,6 +608,29 @@ function normalizeGenericBools(obj: Record<string, any>, keys: string[]) {
   return out
 }
 
+/** Omit masked secret fields so unchanged API keys are not sent to the server. */
+function stripMaskedSecrets(settings: Record<string, any>): Record<string, any> {
+  const out = { ...settings }
+  for (const [key, value] of Object.entries(out)) {
+    if (value === '********') {
+      delete out[key]
+      continue
+    }
+    const isSecret =
+      key.endsWith('_api_key') ||
+      key.endsWith('_secret') ||
+      key.endsWith('_token') ||
+      key.endsWith('_password') ||
+      key === 'secret_key' ||
+      key === 'webhook_secret' ||
+      key === 'api_key'
+    if (isSecret && value === '********') {
+      delete out[key]
+    }
+  }
+  return out
+}
+
 async function save() {
   saving.value = true
   message.value = ''
@@ -618,9 +647,9 @@ async function save() {
       marketing: marketingSettings.value,
       compliance: complianceSettings.value,
     }
-    await updateIntegrations(group, settingsMap[group])
+    await updateIntegrations(group, stripMaskedSecrets(settingsMap[group]))
     if (tab.value === 'compliance') {
-      await updateIntegrations('reputation', reputationSettings.value)
+      await updateIntegrations('reputation', stripMaskedSecrets(reputationSettings.value))
     }
     message.value = t('admin.views.integrations.saved')
     messageType.value = 'success'
@@ -681,8 +710,8 @@ async function testAiProvider(provider: 'openai' | 'anthropic' | 'gemini') {
     const result = await testAiProviderApi(provider)
     message.value = result.message || t('admin.views.integrations.testOk')
     messageType.value = 'success'
-  } catch {
-    message.value = t('admin.views.integrations.testFailed')
+  } catch (err) {
+    message.value = (err as { message?: string }).message || t('admin.views.integrations.testFailed')
     messageType.value = 'error'
   } finally {
     testingProvider.value = null

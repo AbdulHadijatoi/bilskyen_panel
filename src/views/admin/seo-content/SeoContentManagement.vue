@@ -130,6 +130,17 @@
               <v-textarea v-model="schemaJsonText" :label="$t('admin.seoContent.schemaJson')" :hint="$t('admin.seoContent.hintSchemaJson')" persistent-hint variant="outlined" density="compact" rows="8" class="font-monospace mb-2" />
             </v-window-item>
             <v-window-item value="content">
+              <div class="d-flex justify-end mb-1">
+                <AiGenerateButton
+                  mode="admin"
+                  task="cms_rewrite"
+                  :context="{ title: form.title, content: form.content_html }"
+                  :label="$t('dealer.views.ai.rewriteCopy')"
+                  auto-generate
+                  :show-tone-selector="false"
+                  @accept="form.content_html = $event"
+                />
+              </div>
               <v-textarea v-model="form.content_html" :label="$t('admin.seoContent.contentHtml')" :hint="$t('admin.seoContent.hintContentHtml')" persistent-hint variant="outlined" density="compact" rows="4" class="mb-2" />
               <v-textarea v-model="faqJsonText" :label="$t('admin.seoContent.faqJson')" :hint="$t('admin.seoContent.hintFaqJson')" persistent-hint variant="outlined" density="compact" rows="4" class="mb-2 font-monospace" />
               <v-textarea v-model="breadcrumbsJsonText" :label="$t('admin.seoContent.breadcrumbsJson')" :hint="$t('admin.seoContent.hintBreadcrumbsJson')" persistent-hint variant="outlined" density="compact" rows="4" class="font-monospace" />
@@ -186,6 +197,7 @@ import {
   type UpdateSeoPageData,
   type SeoPageKeyOption,
 } from '@/api/admin.api'
+import AiGenerateButton from '@/components/ai/AiGenerateButton.vue'
 
 const { t: $t } = useI18n()
 

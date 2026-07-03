@@ -907,6 +907,90 @@
                 <div class="mb-4">
                   <div class="d-flex align-center justify-space-between mb-2">
                     <h4 class="text-subtitle-1 font-weight-semibold mb-0">
+                      <v-icon size="20" class="mr-2">mdi-format-title</v-icon>
+                      {{ t('dealer.views.addVehicle.listingTitle') }}
+                    </h4>
+                    <AiGenerateButton
+                      task="vehicle_title"
+                      :context="vehicleAiContext"
+                      :label="t('dealer.views.ai.generateTitle')"
+                      auto-generate
+                      :show-tone-selector="false"
+                      @accept="onAiTitleAccept"
+                    />
+                  </div>
+                  <v-text-field
+                    v-model="form.title"
+                    :label="t('dealer.views.addVehicle.listingTitle')"
+                    density="compact"
+                    variant="outlined"
+                    hide-details="auto"
+                  />
+                </div>
+
+                <div class="mb-4">
+                  <div class="d-flex align-center justify-space-between mb-2">
+                    <h4 class="text-subtitle-1 font-weight-semibold mb-0">
+                      <v-icon size="20" class="mr-2">mdi-format-list-bulleted</v-icon>
+                      {{ t('dealer.views.addVehicle.listingHighlights') }}
+                    </h4>
+                    <AiGenerateButton
+                      task="vehicle_highlights"
+                      :context="vehicleAiContext"
+                      :label="t('dealer.views.ai.generateHighlights')"
+                      auto-generate
+                      :show-tone-selector="false"
+                      @accept="onAiHighlightsAccept"
+                    />
+                  </div>
+                  <v-textarea
+                    v-model="form.highlights"
+                    :label="t('dealer.views.addVehicle.listingHighlights')"
+                    density="compact"
+                    variant="outlined"
+                    rows="4"
+                    hide-details="auto"
+                  />
+                </div>
+
+                <div class="mb-4">
+                  <div class="d-flex align-center justify-space-between mb-2">
+                    <h4 class="text-subtitle-1 font-weight-semibold mb-0">
+                      <v-icon size="20" class="mr-2">mdi-search-web</v-icon>
+                      {{ t('dealer.views.addVehicle.seoMeta') }}
+                    </h4>
+                    <AiGenerateButton
+                      task="seo_meta"
+                      :context="vehicleAiContext"
+                      :label="t('dealer.views.ai.generateSeoMeta')"
+                      auto-generate
+                      :show-tone-selector="false"
+                      :parse-accept="parseSeoMeta"
+                      @accept:parsed="onAiSeoMetaParsed"
+                    />
+                  </div>
+                  <v-text-field
+                    v-model="form.metaTitle"
+                    :label="t('dealer.views.addVehicle.metaTitle')"
+                    density="compact"
+                    variant="outlined"
+                    class="mb-2"
+                    hide-details="auto"
+                  />
+                  <v-textarea
+                    v-model="form.metaDescription"
+                    :label="t('dealer.views.addVehicle.metaDescription')"
+                    density="compact"
+                    variant="outlined"
+                    rows="2"
+                    hide-details="auto"
+                  />
+                </div>
+
+                <v-divider class="my-6" />
+                <div class="mb-4">
+                  <div class="d-flex align-center justify-space-between mb-2">
+                    <h4 class="text-subtitle-1 font-weight-semibold mb-0">
                       <v-icon size="20" class="mr-2">mdi-text</v-icon>
                       {{ t('dealer.views.addVehicle.vehicleDescription') }}
                     </h4>
@@ -914,6 +998,8 @@
                         task="vehicle_description"
                         :context="vehicleAiContext"
                         :label="t('dealer.views.ai.generateDescription')"
+                        auto-generate
+                        :show-tone-selector="false"
                         @accept="onAiDescriptionAccept"
                       />
                   </div>
@@ -1334,11 +1420,46 @@ const vehicleAiContext = computed(() => ({
   odometer_km: form.value.odometer,
   first_registration: form.value.firstRegistrationDate,
   price: form.value.price,
-  equipment: form.value.equipment,
+  equipment: resolveEquipmentNames(),
   condition: form.value.conditionId,
   transmission: form.value.transmissionType,
   power_kw: form.value.powerKw,
 }))
+
+function resolveEquipmentNames(): string[] {
+  const names: string[] = []
+  form.value.equipment.forEach((equipmentId: string) => {
+    equipmentTypes.value.forEach(type => {
+      const equipment = type.equipments.find(eq => eq.id.toString() === equipmentId)
+      if (equipment) {
+        names.push(equipment.name)
+      }
+    })
+  })
+  return names.slice(0, 15)
+}
+
+function parseSeoMeta(text: string): Record<string, string> {
+  const result: Record<string, string> = {}
+  const titleMatch = text.match(/Title:\s*(.+)/i)
+  const descMatch = text.match(/Description:\s*(.+)/i)
+  if (titleMatch?.[1]) result.meta_title = titleMatch[1].trim()
+  if (descMatch?.[1]) result.meta_description = descMatch[1].trim()
+  return result
+}
+
+function onAiTitleAccept(text: string) {
+  form.value.title = text.trim()
+}
+
+function onAiHighlightsAccept(text: string) {
+  form.value.highlights = text.trim()
+}
+
+function onAiSeoMetaParsed(fields: Record<string, string>) {
+  if (fields.meta_title) form.value.metaTitle = fields.meta_title
+  if (fields.meta_description) form.value.metaDescription = fields.meta_description
+}
 
 function onAiDescriptionAccept(text: string) {
   form.value.description = text
@@ -1696,6 +1817,10 @@ const form = ref({
   // Step 6 (Media)
   images: [] as File[],
   coverImageIndex: 0,
+  title: null as string | null,
+  highlights: null as string | null,
+  metaTitle: null as string | null,
+  metaDescription: null as string | null,
   description: null as string | null,
 })
 
@@ -2436,8 +2561,10 @@ const saveAsDraft = async () => {
     const nummerpladeData = lookupData.value || {}
     const vehicleData: any = {}
 
-    // Generate title from make, model, variant (if available)
-    if (form.value.make || form.value.model) {
+    // Title: use manual entry or generate from make/model/variant
+    if (form.value.title?.trim()) {
+      vehicleData.title = form.value.title.trim()
+    } else if (form.value.make || form.value.model) {
       const titleParts = [form.value.make, form.value.model, form.value.variant].filter(Boolean)
       vehicleData.title = titleParts.join(' ') || `${form.value.make || ''} ${form.value.model || ''}`.trim() || undefined
     }
@@ -2523,6 +2650,15 @@ const saveAsDraft = async () => {
     // Description
     if (form.value.description) {
       vehicleData.description = form.value.description
+    }
+    if (form.value.highlights) {
+      vehicleData.highlights = form.value.highlights
+    }
+    if (form.value.metaTitle) {
+      vehicleData.meta_title = form.value.metaTitle
+    }
+    if (form.value.metaDescription) {
+      vehicleData.meta_description = form.value.metaDescription
     }
 
     // Images (optional for draft)
@@ -2919,9 +3055,8 @@ const submitForm = async () => {
       return
     }
 
-    // Generate title from make, model, variant
     const titleParts = [form.value.make, form.value.model, form.value.variant].filter(Boolean)
-    const title = titleParts.join(' ') || `${form.value.make} ${form.value.model}`
+    const title = form.value.title?.trim() || titleParts.join(' ') || `${form.value.make} ${form.value.model}`
 
     // Define nummerpladeData from lookupData (API response)
     const nummerpladeData = lookupData.value || {}
@@ -2937,6 +3072,9 @@ const submitForm = async () => {
       price: toNumberOrNull(form.value.price) ?? 0,
       km_driven: toNumberOrNull(form.value.odometer) ?? 0,
       description: form.value.description,
+      highlights: form.value.highlights,
+      meta_title: form.value.metaTitle,
+      meta_description: form.value.metaDescription,
       images: form.value.images,
       equipment_ids: form.value.equipment.map(id => parseInt(id)),
       list_status_id: 2,
