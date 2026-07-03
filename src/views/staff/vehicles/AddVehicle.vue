@@ -1395,7 +1395,7 @@ const vehicleAiContext = computed(() => ({
   fuel_type: form.value.fuelType,
   registration_number: form.value.registrationNumber,
   odometer_km: form.value.odometer,
-  price: form.value.price,
+  price: form.value.retailPrice,
   equipment: resolveStaffEquipmentNames(),
 }))
 
