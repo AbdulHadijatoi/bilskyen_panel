@@ -2969,6 +2969,10 @@ const clearDraft = () => {
     // Step 6 (Media)
     images: [],
     coverImageIndex: 0,
+    title: null,
+    highlights: null,
+    metaTitle: null,
+    metaDescription: null,
     description: '',
   }
   
