@@ -59,97 +59,35 @@
     </v-card>
 
     <!-- Plans Grid -->
-    <v-row v-else class="plans-grid" dense>
-      <v-col
-        v-for="plan in plans"
-        :key="plan.id"
-        cols="12"
-        sm="6"
-        md="6"
-        lg="3"
-      >
-        <v-card
-          class="plan-card"
-          variant="elevated"
-          elevation="1"
-          @click="viewPlan(plan.id)"
-        >
-          <v-card-text class="pa-4">
-            <!-- Plan Name -->
-            <div class="d-flex justify-space-between align-center mb-2">
-              <h3 class="text-h6 font-weight-medium mb-0">{{ plan.name }}</h3>
-              <v-chip
-                :color="plan.is_active !== false ? 'success' : 'grey'"
-                size="small"
-                variant="flat"
-              >
-                {{ plan.is_active !== false ? 'Active' : 'Inactive' }}
-              </v-chip>
-            </div>
-            
-            <!-- Pricing -->
-            <div v-if="plan.billing_model === 'usage_daily'" class="mb-3">
-              <div class="text-h5 font-weight-bold mb-1">
-                {{ formatPrice(plan.price_per_listing_per_day || 0, 'DKK') }}
-                <span class="text-body-2 font-weight-normal text-medium-emphasis">/ listing / day</span>
-              </div>
-              <v-chip size="x-small" color="info" variant="tonal" class="mt-1">Pay-as-you-go</v-chip>
-            </div>
-            <div v-else-if="getCurrentPricing(plan)" class="mb-3">
-              <div class="text-h5 font-weight-bold mb-1">
-                <template v-if="getCurrentPricing(plan)?.monthly">
-                  {{ formatPrice(getCurrentPricing(plan)!.monthly!.price, getCurrentPricing(plan)!.monthly!.currency) }}
-                </template>
-                <template v-else-if="getCurrentPricing(plan)?.yearly">
-                  {{ formatPrice(getCurrentPricing(plan)!.yearly!.price, getCurrentPricing(plan)!.yearly!.currency) }}
-                </template>
-                <span class="text-body-2 font-weight-normal text-medium-emphasis">/ Month</span>
-              </div>
-              <div v-if="getCurrentPricing(plan)?.yearly && getCurrentPricing(plan)?.monthly" class="text-caption text-medium-emphasis">
-                or {{ formatPrice(getCurrentPricing(plan)!.yearly!.price, getCurrentPricing(plan)!.yearly!.currency) }} / Year
-              </div>
-            </div>
-            <div v-else class="mb-3">
-              <div class="text-h6 font-weight-bold text-medium-emphasis">No pricing</div>
-            </div>
+    <template v-else>
+      <div v-if="showBillingToggle" class="subscription-pricing-toolbar">
+        <BillingCycleToggle v-model="billingCycle" />
+      </div>
 
-            <!-- Description -->
-            <p class="text-body-2 text-medium-emphasis mb-4" style="min-height: 2.5em;">
-              {{ plan.description || t('common.noDescription') }}
-            </p>
+      <PlanPricingGrid
+        :plans="plans"
+        cta-mode="view"
+        :billing-cycle="billingCycle"
+        :show-status-chip="true"
+        :show-section-titles="true"
+        @select="viewPlan"
+      />
 
-            <!-- Features List -->
-            <div v-if="getFilteredFeatures(plan).length > 0" class="features-list mb-4">
-              <div
-                v-for="feature in getFilteredFeatures(plan)"
-                :key="feature.id"
-                class="feature-item d-flex align-center mb-2"
-              >
-                <div class="feature-check-circle mr-2">
-                  <v-icon size="12" color="success">mdi-check</v-icon>
-                </div>
-                <span class="text-body-2">{{ formatFeatureDisplay(feature) }}</span>
-              </div>
-            </div>
-            <div v-else class="mb-4">
-              <div class="text-body-2 text-medium-emphasis">No features assigned</div>
-            </div>
+      <PlanFeatureComparison
+        v-if="subscriptionPlansForComparison.length > 0"
+        :plans="subscriptionPlansForComparison"
+        :highlight-column="false"
+        feature-info-mode="admin"
+      />
 
-            <!-- Trial Badge -->
-            <div v-if="plan.trial_days && plan.trial_days > 0" class="mb-3">
-              <v-chip
-                color="success"
-                size="small"
-                variant="flat"
-                class="text-white"
-              >
-                {{ plan.trial_days }} Days free trial
-              </v-chip>
-            </div>
-          </v-card-text>
-    </v-card>
-      </v-col>
-    </v-row>
+      <PlanFeatureComparison
+        v-if="paygPlansForComparison.length > 0"
+        :plans="paygPlansForComparison"
+        :highlight-column="false"
+        :title="paygComparisonTitle"
+        feature-info-mode="admin"
+      />
+    </template>
 
     <!-- Create Plan Dialog -->
     <v-dialog v-model="showCreateDialog" max-width="600" scrollable persistent>
@@ -308,17 +246,22 @@ import {
   type PlanModel
 } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
-import { featureDisplayName } from '@/utils/featureDisplay'
+import BillingCycleToggle from '@/components/subscription/BillingCycleToggle.vue'
+import PlanPricingGrid from '@/components/subscription/PlanPricingGrid.vue'
+import PlanFeatureComparison from '@/components/subscription/PlanFeatureComparison.vue'
+import { splitPlansByBillingModel } from '@/utils/planFeatureGroups'
+import { usePlanDisplay, type BillingCycle, type PlanLike } from '@/composables/usePlanDisplay'
 import PageHeader from '@/components/panel/PageHeader.vue'
 
 const router = useRouter()
-const { t, locale } = useI18n()
+const { t } = useI18n()
+const { plansHaveBothCycles } = usePlanDisplay()
 
 const loading = ref(false)
 const loadingRoles = ref(false)
 const loadingDealers = ref(false)
 const error = ref<string | null>(null)
-const plans = ref<PlanModel[]>([])
+const plans = ref<PlanLike[]>([])
 const roles = ref<any[]>([])
 const dealers = ref<any[]>([])
 const rolesList = computed(() => {
@@ -331,6 +274,24 @@ const showCreateDialog = ref(false)
 const creating = ref(false)
 const createFormValid = ref(false)
 const createFormRef = ref()
+const billingCycle = ref<BillingCycle>('monthly')
+
+const showBillingToggle = computed(() => plansHaveBothCycles(plans.value))
+
+const subscriptionPlansForComparison = computed(
+  () => splitPlansByBillingModel(plans.value).subscriptionPlans
+)
+
+const paygPlansForComparison = computed(
+  () => splitPlansByBillingModel(plans.value).paygPlans
+)
+
+const paygComparisonTitle = computed(() => {
+  if (subscriptionPlansForComparison.value.length === 0) {
+    return undefined
+  }
+  return t('subscription.comparison.title') + ' — ' + t('subscription.pricing.payAsYouGoPlans')
+})
 
 const newPlan = ref<CreatePlanData>({
   name: '',
@@ -352,23 +313,10 @@ const canCreatePlan = computed(() => {
     newPlan.value.name &&
     newPlan.value.slug &&
     ((newPlan.value.role_ids && newPlan.value.role_ids.length > 0) ||
-    (newPlan.value.dealer_ids && newPlan.value.dealer_ids.length > 0)) &&
+      (newPlan.value.dealer_ids && newPlan.value.dealer_ids.length > 0)) &&
     createFormValid.value
   )
 })
-
-const getCurrentPricing = (plan: PlanModel) => {
-  const priceHistory = plan.priceHistory || plan.price_history || []
-  if (priceHistory.length === 0) return null
-  
-  const activePricing = priceHistory.filter((p: any) => !p.ends_at)
-  if (activePricing.length === 0) return null
-  
-  const monthly = activePricing.find((p: any) => p.billing_cycle === 'monthly')
-  const yearly = activePricing.find((p: any) => p.billing_cycle === 'yearly')
-  
-  return { monthly, yearly }
-}
 
 const loadPlans = async () => {
   try {
@@ -457,8 +405,8 @@ const createPlan = async () => {
   }
 }
 
-const viewPlan = (id: number) => {
-  router.push({ name: 'admin.plans.detail', params: { id } })
+const viewPlan = (plan: PlanLike) => {
+  router.push({ name: 'admin.plans.detail', params: { id: plan.id } })
 }
 
 const deletePlan = async (id: number | string) => {
@@ -472,108 +420,9 @@ const deletePlan = async (id: number | string) => {
   }
 }
 
-const formatPrice = (priceInCents: number, currency: string) => {
-  const price = priceInCents / 100
-  return `${price.toFixed(2)} ${currency}`
-}
-
-const getFilteredFeatures = (plan: PlanModel) => {
-  if (!plan.features || plan.features.length === 0) return []
-  
-  return plan.features.filter((feature: any) => {
-    const valueTypeId = feature.feature_value_type_id || feature.featureValueType?.id || feature.feature_value_type?.id
-    const value = feature.pivot?.value || feature.value
-    
-    // For boolean features, only show if value is true
-    if (valueTypeId === 1) { // BOOLEAN
-      return value === 'true' || value === '1' || value === true || value === 1
-    }
-    
-    // For number and text features, always show
-    return true
-  })
-}
-
-const formatFeatureDisplay = (feature: any) => {
-  const key = feature.key || ''
-  const name = featureDisplayName(
-    { key, label_en: feature.label_en, label_da: feature.label_da },
-    locale.value
-  )
-  const valueTypeId = feature.feature_value_type_id || feature.featureValueType?.id || feature.feature_value_type?.id
-  const value = feature.pivot?.value || feature.value
-  
-  // Boolean features: just show the key name
-  if (valueTypeId === 1) { // BOOLEAN
-    return name
-  }
-  
-  // Number features: show "Key Name: value"
-  if (valueTypeId === 2) { // NUMBER
-    return `${name}: ${value}`
-  }
-  
-  // Text features: show "Key Name: value"
-  if (valueTypeId === 3) { // TEXT
-    return `${name}: ${value}`
-  }
-  
-  // Fallback: just show key name
-  return name
-}
-
 onMounted(() => {
   loadPlans()
   loadRoles()
   loadDealers()
 })
 </script>
-
-<style scoped>
-.plans-overview {
-  padding: 0;
-}
-
-.plans-grid {
-  margin-top: 0;
-}
-
-.plan-card {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  border-radius: 12px;
-  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
-  background: rgb(var(--v-theme-surface));
-  cursor: pointer;
-}
-
-.plan-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
-  transform: translateY(-4px);
-  border-color: rgba(var(--v-theme-primary), 0.2);
-}
-
-.features-list {
-  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
-  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
-  padding-top: 12px;
-  padding-bottom: 12px;
-}
-
-.feature-item {
-  min-height: 24px;
-}
-
-.feature-check-circle {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 1px solid rgb(var(--v-theme-success));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-</style>

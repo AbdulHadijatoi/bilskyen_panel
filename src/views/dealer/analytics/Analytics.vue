@@ -43,6 +43,11 @@
               <v-list-item title="Funnel" @click="exportReport('funnel')" />
               <v-list-item title="Assignees" @click="exportReport('assignees')" />
               <v-list-item title="Stock" @click="exportReport('stock')" />
+              <v-list-item
+                v-if="canExportPdf"
+                :title="t('dealer.views.analytics.exportPdf')"
+                @click="exportPdfReport"
+              />
             </v-list>
           </v-menu>
         </div>
@@ -120,7 +125,7 @@
       </v-row>
 
       <!-- Conversion Funnel -->
-      <v-card class="panel-card mb-6" variant="flat">
+      <v-card v-if="canListingFunnel" class="panel-card mb-6" variant="flat">
         <div class="panel-card__header">
           <h2 class="panel-card__title">{{ t('dealer.views.analytics.funnelTitle') }}</h2>
         </div>
@@ -161,9 +166,14 @@
           </v-row>
         </div>
       </v-card>
+      <UpgradePrompt
+        v-else
+        class="mb-6"
+        :feature-key="FeatureKey.ANALYTICS_LISTING_FUNNEL"
+      />
 
       <!-- Trends & channels -->
-      <v-row class="mb-6">
+      <v-row v-if="canAdvancedAnalytics" class="mb-6">
         <v-col cols="12" md="8">
           <v-card class="panel-card h-100" variant="flat">
             <div class="panel-card__header">
@@ -207,6 +217,11 @@
           </v-card>
         </v-col>
       </v-row>
+      <UpgradePrompt
+        v-else
+        class="mb-6"
+        :feature-key="FeatureKey.ADVANCED_ANALYTICS"
+      />
 
       <!-- Lead Analytics -->
       <v-card class="panel-card mb-6" variant="flat">
@@ -450,7 +465,7 @@
       </v-card>
 
       <!-- Stock & assignees -->
-      <v-row class="mb-6">
+      <v-row v-if="canAdvancedAnalytics" class="mb-6">
         <v-col cols="12" md="6">
           <v-card class="panel-card h-100" variant="flat">
             <div class="panel-card__header">
@@ -574,6 +589,7 @@ import {
   getAnalyticsChannels,
   getAnalyticsTrends,
   downloadDealerAnalyticsExport,
+  downloadDealerAnalyticsPdf,
 } from '@/api/dealer.api'
 import type {
   DealerAnalyticsOverview,
@@ -602,6 +618,12 @@ import {
   getFeatureDisplayName,
 } from '@/utils/analyticsDisplay'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import UpgradePrompt from '@/components/dealer/UpgradePrompt.vue'
+import { FeatureKey, hasFeature } from '@/utils/subscriptionFeatures'
+
+const canListingFunnel = hasFeature(FeatureKey.ANALYTICS_LISTING_FUNNEL)
+const canAdvancedAnalytics = hasFeature(FeatureKey.ADVANCED_ANALYTICS)
+const canExportPdf = hasFeature(FeatureKey.ANALYTICS_PDF_EXPORT)
 
 const { t } = useI18n()
 const dateRange = ref<DateRange>('30d')
@@ -743,6 +765,10 @@ async function exportReport(report: string) {
   await downloadDealerAnalyticsExport(report, dateRange.value)
 }
 
+async function exportPdfReport() {
+  await downloadDealerAnalyticsPdf(dateRange.value)
+}
+
 const loadSubscription = async () => {
   try {
     loadingSubscription.value = true
@@ -757,18 +783,23 @@ const loadSubscription = async () => {
 const loadAllAnalytics = async () => {
   sectionErrors.value = []
   loading.value = true
-  await Promise.all([
+  const tasks = [
     loadOverview(),
-    loadFunnel(),
-    loadStock(),
-    loadAssignees(),
-    loadChannels(),
-    loadTrends(),
     loadLeads(),
     loadVehicles(),
     loadMarketing(),
     loadSubscription(),
-  ])
+  ]
+
+  if (canListingFunnel) {
+    tasks.push(loadFunnel())
+  }
+
+  if (canAdvancedAnalytics) {
+    tasks.push(loadStock(), loadAssignees(), loadChannels(), loadTrends())
+  }
+
+  await Promise.all(tasks)
   loading.value = false
 }
 

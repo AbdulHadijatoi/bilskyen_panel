@@ -287,6 +287,12 @@
             </v-card-text>
           </v-card>
 
+          <DealBuilderPanel
+            v-if="lead.id"
+            :lead-id="lead.id"
+            :default-list-price="lead.vehicle?.price"
+          />
+
           <!-- Assigned To -->
           <v-card
             v-if="lead.assignedTo"
@@ -353,6 +359,7 @@ import { getLead, updateLeadStage, updateLeadIntent, updateLeadCategory, assignL
 import type { LeadModel } from '@/models/lead.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import LeadCrmPanel from '@/components/crm/LeadCrmPanel.vue'
+import DealBuilderPanel from '@/components/dealer/leads/DealBuilderPanel.vue'
 import {
   getStageColor,
   getIntentName,

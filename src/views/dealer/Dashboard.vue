@@ -111,7 +111,8 @@
             </v-card-title>
             <v-card-subtitle>{{ t('dealer.views.dashboard.marketPulseSubtitle') }}</v-card-subtitle>
             <v-card-text>
-              <div v-if="loadingMarketPulse" class="text-center py-4">
+              <UpgradePrompt v-if="!canSeeMarketPulse" :feature-key="FeatureKey.MARKET_PULSE" />
+              <div v-else-if="loadingMarketPulse" class="text-center py-4">
                 <v-progress-circular indeterminate color="primary" size="32" />
               </div>
               <div v-else-if="marketPulse">
@@ -127,28 +128,23 @@
           </v-card>
         </v-col>
         <v-col cols="12" md="6">
-          <v-card variant="flat" elevation="1">
-            <v-card-title class="d-flex align-center">
-              <v-icon size="20" class="mr-2">mdi-heart-pulse</v-icon>
-              {{ t('dealer.views.dashboard.listingHealthTitle') }}
-            </v-card-title>
-            <v-card-subtitle>{{ t('dealer.views.dashboard.listingHealthSubtitle') }}</v-card-subtitle>
-            <v-card-text>
-              <div v-if="loadingListingHealth" class="text-center py-4">
-                <v-progress-circular indeterminate color="primary" size="32" />
-              </div>
-              <div v-else-if="listingHealth?.items?.length">
-                <div v-for="item in listingHealth.items" :key="item.vehicle_id" class="mb-3">
-                  <div class="d-flex justify-space-between align-center">
-                    <span class="font-weight-medium">{{ item.title || `#${item.vehicle_id}` }}</span>
-                    <v-chip size="small" :color="item.score >= 70 ? 'success' : 'warning'">{{ item.score }}</v-chip>
-                  </div>
-                  <p v-if="item.issues?.[0]" class="text-caption text-medium-emphasis mb-0">{{ item.issues[0].message }}</p>
-                </div>
-              </div>
-              <p v-else class="text-medium-emphasis mb-0">{{ t('dealer.views.dashboard.noListingIssues') }}</p>
-            </v-card-text>
-          </v-card>
+          <UpgradePrompt
+            v-if="!canSeeListingHealthInbox"
+            :feature-key="FeatureKey.LISTING_HEALTH_INBOX"
+            class="mb-2"
+          />
+          <ListingAttentionInbox
+            v-else
+            :data="listingHealth"
+            :loading="loadingListingHealth"
+            @price-applied="loadDashboard"
+          />
+        </v-col>
+      </v-row>
+
+      <v-row v-if="canSeeFixImpact" class="mb-6">
+        <v-col cols="12">
+          <ListingFixImpact :items="listingHealth?.fix_impact" />
         </v-col>
       </v-row>
 
@@ -332,6 +328,10 @@ import StatMetricCard from '@/components/panel/StatMetricCard.vue'
 import MiniStatCard from '@/components/panel/MiniStatCard.vue'
 import TrendAreaChart from '@/components/panel/TrendAreaChart.vue'
 import FinancialOverviewChart from '@/components/dealer/dashboard/FinancialOverviewChart.vue'
+import ListingAttentionInbox from '@/components/dealer/dashboard/ListingAttentionInbox.vue'
+import ListingFixImpact from '@/components/dealer/dashboard/ListingFixImpact.vue'
+import UpgradePrompt from '@/components/dealer/UpgradePrompt.vue'
+import { FeatureKey, hasFeature } from '@/utils/subscriptionFeatures'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -343,22 +343,29 @@ const marketPulse = ref<MarketPulseComparison | null>(null)
 const listingHealth = ref<ListingHealthAttention | null>(null)
 const loadingMarketPulse = ref(false)
 const loadingListingHealth = ref(false)
+const canSeeFixImpact = hasFeature(FeatureKey.LISTING_HEALTH_BEFORE_AFTER)
+const canSeeMarketPulse = hasFeature(FeatureKey.MARKET_PULSE)
+const canSeeListingHealthInbox = hasFeature(FeatureKey.LISTING_HEALTH_INBOX)
 
 const loadDashboard = async () => {
   try {
     loading.value = true
     error.value = null
     stats.value = await getDashboardStats()
-    loadingMarketPulse.value = true
-    loadingListingHealth.value = true
-    getMarketPulseWidget()
-      .then((data) => { marketPulse.value = data })
-      .catch(() => {})
-      .finally(() => { loadingMarketPulse.value = false })
-    getListingHealthAttention()
-      .then((data) => { listingHealth.value = data })
-      .catch(() => {})
-      .finally(() => { loadingListingHealth.value = false })
+    if (canSeeMarketPulse) {
+      loadingMarketPulse.value = true
+      getMarketPulseWidget()
+        .then((data) => { marketPulse.value = data })
+        .catch(() => {})
+        .finally(() => { loadingMarketPulse.value = false })
+    }
+    if (canSeeListingHealthInbox) {
+      loadingListingHealth.value = true
+      getListingHealthAttention()
+        .then((data) => { listingHealth.value = data })
+        .catch(() => {})
+        .finally(() => { loadingListingHealth.value = false })
+    }
   } catch (err) {
     error.value = (err as ApiErrorModel).message || t('dealer.views.dashboard.failedLoadData')
   } finally {

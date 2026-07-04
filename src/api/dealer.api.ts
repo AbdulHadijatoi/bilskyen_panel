@@ -30,6 +30,9 @@ import {
   DEALER_BRANDING_ENDPOINTS,
   DEALER_DMS_ENDPOINTS,
   DEALER_COMPLIANCE_ENDPOINTS,
+  DEALER_BULK_PRICE_ENDPOINTS,
+  DEALER_MARKETING_ENDPOINTS,
+  DEALER_DEAL_QUOTE_ENDPOINTS,
 } from './endpoints'
 import type { VehicleModel } from '@/models/vehicle.model'
 import { mapVehicleFromApi } from '@/models/vehicle.model'
@@ -176,6 +179,8 @@ export async function getVehicle(id: number | string): Promise<VehicleModel> {
     }
     mapped.fairPrice = data.fair_price
     mapped.listingHealth = data.listing_health
+    ;(mapped as VehicleModel & { pricingIntelligence?: unknown }).pricingIntelligence = data.pricing_intelligence
+    ;(mapped as VehicleModel & { listingBoost?: unknown }).listingBoost = data.listing_boost
     return mapped
   } catch (error) {
     throw handleError(error)
@@ -566,6 +571,56 @@ export async function updateVehiclePrice(
     )
     const vehicleData = handleSuccess<any>(response)
     return mapVehicleFromApi(vehicleData)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export interface ApplySuggestedPriceResult {
+  vehicleId: number
+  oldPrice: number
+  newPrice: number
+  listingHealth?: Record<string, unknown>
+}
+
+export async function applyVehicleSuggestedPrice(
+  id: number | string,
+): Promise<ApplySuggestedPriceResult> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      DEALER_VEHICLE_ENDPOINTS.APPLY_SUGGESTED_PRICE(id),
+    )
+    const data = handleSuccess<any>(response)
+    return {
+      vehicleId: data.vehicle_id,
+      oldPrice: data.old_price,
+      newPrice: data.new_price,
+      listingHealth: data.listing_health,
+    }
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export interface BoostVehicleListingResult {
+  vehicleId: number
+  boost: { expires_at?: string; days_remaining?: number }
+  activeCount: number
+}
+
+export async function boostVehicleListing(
+  id: number | string,
+): Promise<BoostVehicleListingResult> {
+  try {
+    const response = await httpClient.post<{ data: any }>(
+      DEALER_VEHICLE_ENDPOINTS.BOOST_LISTING(id),
+    )
+    const data = handleSuccess<any>(response)
+    return {
+      vehicleId: data.vehicle_id,
+      boost: data.boost,
+      activeCount: data.active_count,
+    }
   } catch (error) {
     throw handleError(error)
   }
@@ -1742,9 +1797,66 @@ export interface MarketPulseComparison {
   comparisons: Record<string, { summary: string | null; better_than_market?: boolean; diff_percent?: number | null }>
 }
 
+export interface ListingHealthIssue {
+  key: string
+  message: string
+  severity: 'high' | 'medium' | 'low'
+  actions?: Array<{
+    type: 'ai' | 'navigate'
+    task?: string
+    target?: string
+    label: string
+    suggested_min?: number | null
+    suggested_max?: number | null
+  }>
+}
+
+export interface ListingHealthAttentionItem {
+  vehicle_id: number
+  title?: string
+  slug?: string
+  score: number
+  grade: string
+  category?: 'quality' | 'expiring' | 'incomplete'
+  priority_score?: number
+  impact_label?: string | null
+  issues: ListingHealthIssue[]
+  metrics?: Record<string, unknown>
+  pricing?: Record<string, unknown> | null
+}
+
+export interface ListingHealthFixImpactItem {
+  id: number
+  vehicle_id: number
+  title?: string
+  slug?: string
+  fix_type?: string
+  issue_key?: string
+  status: 'pending' | 'measured'
+  fixed_at?: string
+  measured_at?: string
+  enquiry_lift?: number | null
+  views_lift?: number | null
+  score_lift?: number | null
+  days_until_measured?: number | null
+}
+
 export interface ListingHealthAttention {
   count: number
-  items: Array<{ vehicle_id: number; title?: string; score: number; grade: string; issues: Array<{ message: string }> }>
+  items: ListingHealthAttentionItem[]
+  fix_impact?: ListingHealthFixImpactItem[]
+  portfolio?: {
+    avg_score: number | null
+    platform_avg_score: number
+    attention_count: number
+    published_count: number
+    trend_7d?: number
+  }
+  categories?: {
+    quality: number
+    expiring: number
+    incomplete: number
+  }
 }
 
 export async function getMarketPulseWidget(): Promise<MarketPulseComparison> {
@@ -2007,6 +2119,19 @@ export async function downloadDealerAnalyticsExport(report: string, dateRange?: 
   window.URL.revokeObjectURL(url)
 }
 
+export async function downloadDealerAnalyticsPdf(dateRange?: string): Promise<void> {
+  const response = await httpClient.get(DEALER_ANALYTICS_ENDPOINTS.EXPORT_PDF, {
+    params: { date_range: dateRange },
+    responseType: 'blob',
+  })
+  const url = window.URL.createObjectURL(response.data)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `dealer-analytics-${new Date().toISOString().slice(0, 10)}.pdf`
+  link.click()
+  window.URL.revokeObjectURL(url)
+}
+
 // ============================================================================
 // NOTIFICATIONS
 // ============================================================================
@@ -2247,6 +2372,77 @@ export async function createDealerApiKey(name: string): Promise<any> {
 export async function createDealerWebhook(url: string, events: string[]): Promise<any> {
   const response = await httpClient.post(DEALER_DMS_ENDPOINTS.WEBHOOKS, { url, events })
   return handleSuccess<any>(response)
+}
+
+export async function deleteDealerApiKey(id: number): Promise<void> {
+  await httpClient.delete(DEALER_DMS_ENDPOINTS.API_KEY(id))
+}
+
+export async function deleteDealerWebhook(id: number): Promise<void> {
+  await httpClient.delete(DEALER_DMS_ENDPOINTS.WEBHOOK(id))
+}
+
+export async function getDealerAuditLink(): Promise<any> {
+  const response = await httpClient.get(DEALER_BRANDING_ENDPOINTS.AUDIT_LINK)
+  return handleSuccess<any>(response)
+}
+
+export async function getDealerReviewSummary(): Promise<any> {
+  const response = await httpClient.get(DEALER_BRANDING_ENDPOINTS.REVIEW_SUMMARY)
+  return handleSuccess<any>(response)
+}
+
+export async function bulkUpdateVehiclePrices(updates: Array<{ vehicle_id: number; price: number }>): Promise<any> {
+  const response = await httpClient.post(DEALER_BULK_PRICE_ENDPOINTS.UPDATE, { updates })
+  return handleSuccess<any>(response)
+}
+
+export async function getMarketingCampaigns(): Promise<any[]> {
+  const response = await httpClient.get(DEALER_MARKETING_ENDPOINTS.CAMPAIGNS)
+  return handleSuccess<any[]>(response)
+}
+
+export async function createMarketingCampaign(data: Record<string, unknown>): Promise<any> {
+  const response = await httpClient.post(DEALER_MARKETING_ENDPOINTS.CAMPAIGNS, data)
+  return handleSuccess<any>(response)
+}
+
+export async function updateMarketingCampaign(id: number, data: Record<string, unknown>): Promise<any> {
+  const response = await httpClient.put(DEALER_MARKETING_ENDPOINTS.CAMPAIGN(id), data)
+  return handleSuccess<any>(response)
+}
+
+export async function sendMarketingCampaign(id: number): Promise<any> {
+  const response = await httpClient.post(DEALER_MARKETING_ENDPOINTS.SEND_CAMPAIGN(id))
+  return handleSuccess<any>(response)
+}
+
+export async function deleteMarketingCampaign(id: number): Promise<void> {
+  await httpClient.delete(DEALER_MARKETING_ENDPOINTS.CAMPAIGN(id))
+}
+
+export async function getDealQuotes(leadId: number): Promise<any[]> {
+  const response = await httpClient.get(DEALER_DEAL_QUOTE_ENDPOINTS.LIST(leadId))
+  return handleSuccess<any[]>(response)
+}
+
+export async function createDealQuote(leadId: number, data: Record<string, unknown>): Promise<any> {
+  const response = await httpClient.post(DEALER_DEAL_QUOTE_ENDPOINTS.CREATE(leadId), data)
+  return handleSuccess<any>(response)
+}
+
+export async function updateDealQuote(leadId: number, id: number, data: Record<string, unknown>): Promise<any> {
+  const response = await httpClient.put(DEALER_DEAL_QUOTE_ENDPOINTS.UPDATE(leadId, id), data)
+  return handleSuccess<any>(response)
+}
+
+export async function sendDealQuote(leadId: number, id: number): Promise<any> {
+  const response = await httpClient.post(DEALER_DEAL_QUOTE_ENDPOINTS.SEND(leadId, id))
+  return handleSuccess<any>(response)
+}
+
+export async function deleteDealQuote(leadId: number, id: number): Promise<void> {
+  await httpClient.delete(DEALER_DEAL_QUOTE_ENDPOINTS.DELETE(leadId, id))
 }
 
 export async function exportLeadPiiAudit(): Promise<void> {

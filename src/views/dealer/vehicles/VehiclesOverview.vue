@@ -27,6 +27,15 @@
             <v-icon size="16">mdi-upload</v-icon>
             {{ t('dealer.views.vehicles.import.bulkImport') }}
           </button>
+          <button
+            v-if="canBulkPriceUpdate"
+            type="button"
+            class="panel-btn panel-btn--outline"
+            @click="showBulkPriceDialog = true"
+          >
+            <v-icon size="16">mdi-currency-usd</v-icon>
+            {{ t('dealer.views.bulkPrice.button') }}
+          </button>
           <router-link
             v-if="hasPermission('dealer.vehicles.create')"
             :to="{ name: 'dealer.vehicles.add' }"
@@ -223,6 +232,11 @@
       v-model="showImportDialog"
       @imported="onImportCompleted"
     />
+
+    <BulkPriceUpdateDialog
+      v-model="showBulkPriceDialog"
+      @completed="loadVehicles"
+    />
   </div>
 </template>
 
@@ -232,7 +246,9 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { getVehicles, deleteVehicle as deleteVehicleApi, exportVehicleStock } from '@/api/dealer.api'
 import VehicleBulkImportDialog from '@/components/dealer/vehicles/VehicleBulkImportDialog.vue'
+import BulkPriceUpdateDialog from '@/components/dealer/vehicles/BulkPriceUpdateDialog.vue'
 import { hasPermission } from '@/utils/permissions'
+import { FeatureKey, hasFeature } from '@/utils/subscriptionFeatures'
 import type { PaginationModel } from '@/models/pagination.model'
 import type { VehicleModel } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
@@ -263,10 +279,12 @@ const vehicles = ref<PaginationModel<VehicleModel>>({
 })
 const currentPage = ref(1)
 const showImportDialog = ref(false)
+const showBulkPriceDialog = ref(false)
 const showDeleteDialog = ref(false)
 const vehicleToDelete = ref<VehicleModel | null>(null)
 const deleting = ref(false)
 const exporting = ref(false)
+const canBulkPriceUpdate = hasFeature(FeatureKey.BULK_PRICE_UPDATE)
 
 const statusFilterOptions = computed(() => [
   { label: t('dealer.views.vehicles.allStatuses'), value: null },

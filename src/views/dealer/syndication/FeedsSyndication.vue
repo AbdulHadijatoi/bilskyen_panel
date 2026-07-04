@@ -20,9 +20,15 @@
       {{ message }}
     </v-alert>
 
-    <v-row>
+    <UpgradePrompt
+      v-if="!canUseFeeds && !canUseSyndication"
+      :feature-key="FeatureKey.INVENTORY_FEEDS"
+      class="mb-4"
+    />
+
+    <v-row v-else>
       <v-col cols="12" lg="6">
-        <v-card variant="outlined" class="mb-6">
+        <v-card v-if="canUseFeeds" variant="outlined" class="mb-6">
           <v-card-title class="d-flex align-center">
             {{ t('dealer.views.syndication.feedTokens') }}
             <v-spacer />
@@ -74,10 +80,11 @@
             </template>
           </v-card-text>
         </v-card>
+        <UpgradePrompt v-else :feature-key="FeatureKey.INVENTORY_FEEDS" class="mb-6" />
       </v-col>
 
       <v-col cols="12" lg="6">
-        <v-card variant="outlined" class="mb-6">
+        <v-card v-if="canUseSyndication" variant="outlined" class="mb-6">
           <v-card-title>{{ t('dealer.views.syndication.providers') }}</v-card-title>
           <v-card-text>
             <div v-if="loading" class="text-center py-6">
@@ -104,10 +111,11 @@
             </template>
           </v-card-text>
         </v-card>
+        <UpgradePrompt v-else :feature-key="FeatureKey.SYNDICATION" class="mb-6" />
       </v-col>
     </v-row>
 
-    <v-card variant="outlined">
+    <v-card v-if="canUseSyndication" variant="outlined">
       <v-card-title>{{ t('dealer.views.syndication.recentLogs') }}</v-card-title>
       <v-card-text class="pa-0">
         <v-table v-if="logs.length > 0" density="comfortable">
@@ -156,6 +164,11 @@ import {
   type SyndicationLogModel,
 } from '@/api/dealer.api'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import UpgradePrompt from '@/components/dealer/UpgradePrompt.vue'
+import { FeatureKey, hasFeature } from '@/utils/subscriptionFeatures'
+
+const canUseFeeds = hasFeature(FeatureKey.INVENTORY_FEEDS)
+const canUseSyndication = hasFeature(FeatureKey.SYNDICATION)
 
 const { t } = useI18n()
 

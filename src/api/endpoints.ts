@@ -71,6 +71,8 @@ export const DEALER_VEHICLE_ENDPOINTS = {
   DELETE_3D_VIEW: (id: number | string) => `/dealer/vehicles/${id}/3d-view`,
   UPDATE_EQUIPMENT: (id: number | string) => `/dealer/vehicles/update-equipment/${id}`,
   UPDATE_PRICE: (id: number | string) => `/dealer/vehicles/${id}/price`,
+  APPLY_SUGGESTED_PRICE: (id: number | string) => `/dealer/vehicles/${id}/apply-suggested-price`,
+  BOOST_LISTING: (id: number | string) => `/dealer/vehicles/${id}/boost`,
   LOOKUP_BY_REGISTRATION: '/dealer/vehicles/lookup-by-registration',
   IMPORT_TEMPLATE: '/dealer/vehicles/import/template',
   IMPORT_SAMPLE: '/dealer/vehicles/import/sample',
@@ -103,6 +105,8 @@ export const DEALER_BRANDING_ENDPOINTS = {
   DOMAINS: '/dealer/branding/domains',
   VERIFY_DOMAIN: (id: number | string) => `/dealer/branding/domains/${id}/verify`,
   DELETE_DOMAIN: (id: number | string) => `/dealer/branding/domains/${id}`,
+  AUDIT_LINK: '/dealer/branding/audit-link',
+  REVIEW_SUMMARY: '/dealer/branding/review-summary',
 } as const
 
 export const DEALER_DMS_ENDPOINTS = {
@@ -111,6 +115,24 @@ export const DEALER_DMS_ENDPOINTS = {
   API_KEY: (id: number | string) => `/dealer/dms/api-keys/${id}`,
   WEBHOOKS: '/dealer/dms/webhooks',
   WEBHOOK: (id: number | string) => `/dealer/dms/webhooks/${id}`,
+} as const
+
+export const DEALER_BULK_PRICE_ENDPOINTS = {
+  UPDATE: '/dealer/vehicles/bulk-price-update',
+} as const
+
+export const DEALER_MARKETING_ENDPOINTS = {
+  CAMPAIGNS: '/dealer/marketing/campaigns',
+  CAMPAIGN: (id: number | string) => `/dealer/marketing/campaigns/${id}`,
+  SEND_CAMPAIGN: (id: number | string) => `/dealer/marketing/campaigns/${id}/send`,
+} as const
+
+export const DEALER_DEAL_QUOTE_ENDPOINTS = {
+  LIST: (leadId: number | string) => `/dealer/leads/${leadId}/deal-quotes`,
+  CREATE: (leadId: number | string) => `/dealer/leads/${leadId}/deal-quotes`,
+  UPDATE: (leadId: number | string, id: number | string) => `/dealer/leads/${leadId}/deal-quotes/${id}`,
+  SEND: (leadId: number | string, id: number | string) => `/dealer/leads/${leadId}/deal-quotes/${id}/send`,
+  DELETE: (leadId: number | string, id: number | string) => `/dealer/leads/${leadId}/deal-quotes/${id}`,
 } as const
 
 export const DEALER_COMPLIANCE_ENDPOINTS = {
@@ -305,6 +327,7 @@ export const DEALER_ANALYTICS_ENDPOINTS = {
   TRENDS: '/dealer/analytics/trends',
   CHANNELS: '/dealer/analytics/channels',
   EXPORT: '/dealer/analytics/export',
+  EXPORT_PDF: '/dealer/analytics/export-pdf',
   MARKET_PULSE: '/dealer/analytics/market-pulse',
 } as const
 

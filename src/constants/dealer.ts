@@ -123,6 +123,25 @@ export const dealerSidebarSections: SidebarSection[] = [
         icon: 'mdi-car-arrow-right',
         permission: 'dealer.trade_in.manage',
       },
+      {
+        title: 'Feeds & Syndication',
+        url: `${DEALER_ROUTE_BASE}feeds-syndication`,
+        icon: 'mdi-rss',
+        permission: 'dealer.syndication.manage',
+      },
+      {
+        title: 'Branding & DMS',
+        url: `${DEALER_ROUTE_BASE}branding`,
+        icon: 'mdi-palette',
+        permission: 'dealer.branding.manage',
+      },
+      {
+        title: 'Marketing',
+        url: `${DEALER_ROUTE_BASE}marketing`,
+        icon: 'mdi-bullhorn',
+        permission: 'dealer.branding.manage',
+        feature: 'marketing_campaigns',
+      },
     ],
   },
 ]

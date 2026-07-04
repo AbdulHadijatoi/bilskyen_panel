@@ -166,116 +166,36 @@
     </v-card>
 
     <!-- Plans Grid -->
-    <v-row v-else class="plans-grid align-stretch" dense>
-      <v-col
-        v-for="plan in availablePlans"
-        :key="plan.id"
-        cols="12"
-        sm="6"
-        md="6"
-        lg="3"
-        class="d-flex"
-      >
-        <v-card
-          :class="['panel-card plan-card w-100', { 'plan-card--active': isPlanActive(plan) }]"
-          variant="flat"
-        >
-          <div class="panel-card__body plan-card__content">
-            <!-- Plan Name -->
-            <div class="d-flex justify-space-between align-center mb-2">
-              <h3 class="text-h6 font-weight-medium mb-0" :class="{ 'text-primary': isPlanActive(plan) }">
-                {{ plan.name }}
-              </h3>
-              <span v-if="isPlanActive(plan)" class="plan-card__active-badge">
-                <v-icon size="12">mdi-check</v-icon>
-                {{ t('dealer.views.subscription.statusActive') }}
-              </span>
-            </div>
-            
-            <!-- Pricing -->
-            <div v-if="getCurrentPricing(plan)" class="mb-3">
-              <div v-if="plan.billing_model === 'usage_daily'" class="text-h5 font-weight-bold mb-1">
-                {{ formatPrice(plan.price_per_listing_per_day || 0, 'DKK') }}
-                <span class="text-body-2 font-weight-normal text-medium-emphasis">{{ t('dealer.views.subscription.perListingPerDay') }}</span>
-              </div>
-              <template v-else>
-                <div class="text-h5 font-weight-bold mb-1">
-                  <template v-if="getCurrentPricing(plan)?.monthly">
-                    {{ formatPrice(getCurrentPricing(plan)!.monthly!.price, getCurrentPricing(plan)!.monthly!.currency) }}
-                  </template>
-                  <template v-else-if="getCurrentPricing(plan)?.yearly">
-                    {{ formatPrice(getCurrentPricing(plan)!.yearly!.price, getCurrentPricing(plan)!.yearly!.currency) }}
-                  </template>
-                  <span class="text-body-2 font-weight-normal text-medium-emphasis">{{ t('dealer.views.subscription.perMonth') }}</span>
-                </div>
-                <div v-if="getCurrentPricing(plan)?.yearly && getCurrentPricing(plan)?.monthly" class="text-caption text-medium-emphasis">
-                  {{ t('dealer.views.subscription.orPerYear', { price: formatPrice(getCurrentPricing(plan)!.yearly!.price, getCurrentPricing(plan)!.yearly!.currency) }) }}
-                </div>
-              </template>
-            </div>
-            <div v-else class="mb-3">
-              <div class="text-h6 font-weight-bold text-medium-emphasis">{{ t('dealer.views.subscription.noPricing') }}</div>
-            </div>
+    <template v-else>
+      <div v-if="showBillingToggle" class="subscription-pricing-toolbar">
+        <BillingCycleToggle v-model="billingCycle" />
+      </div>
 
-            <!-- Description -->
-            <p class="text-body-2 text-medium-emphasis mb-4" style="min-height: 2.5em;">
-              {{ plan.description || t('dealer.views.subscription.noDescription') }}
-            </p>
+      <PlanPricingGrid
+        :plans="availablePlans"
+        :active-plan-id="currentSubscription?.plan_id ?? null"
+        :has-current-subscription="!!currentSubscription"
+        :disabled="!!pendingChangeRequest"
+        :disabled-hint="pendingChangeRequest ? t('dealer.views.subscription.pendingBlocksNewRequest') : undefined"
+        :billing-cycle="billingCycle"
+        @select="openSubscriptionDialog"
+      />
 
-            <!-- Features List -->
-            <div v-if="getFilteredFeatures(plan).length > 0" class="features-list mb-4">
-              <div
-                v-for="feature in getFilteredFeatures(plan)"
-                :key="feature.id"
-                class="feature-item d-flex align-center mb-2"
-              >
-                <div class="feature-check-circle mr-2">
-                  <v-icon size="12" color="success">mdi-check</v-icon>
-                </div>
-                <span class="text-body-2">{{ formatFeatureDisplay(feature) }}</span>
-              </div>
-            </div>
-            <div v-else class="mb-4">
-              <div class="text-body-2 text-medium-emphasis">{{ t('dealer.views.subscription.noFeaturesAssigned') }}</div>
-            </div>
+      <PlanFeatureComparison
+        v-if="(subscriptionPlansForComparison?.length ?? 0) > 0"
+        :plans="subscriptionPlansForComparison"
+        :active-plan-id="currentSubscription?.plan_id ?? null"
+        feature-info-mode="dealer"
+      />
 
-            <!-- Trial Badge -->
-            <div v-if="plan.trial_days && plan.trial_days > 0" class="mb-3">
-              <v-chip
-                color="success"
-                size="small"
-                variant="flat"
-                class="text-white"
-              >
-                {{ t('dealer.views.subscription.daysFreeTrial', { count: plan.trial_days }) }}
-              </v-chip>
-            </div>
-          </div>
-
-          <div v-if="isPlanActive(plan)" class="plan-card__active-footer plan-card__footer">
-            <v-icon size="18" color="primary">mdi-check-circle</v-icon>
-            {{ t('dealer.views.subscription.statusActive') }}
-          </div>
-
-          <div v-else class="plan-card__footer panel-card__body panel-card__body--flush pa-3">
-            <button
-              type="button"
-              class="panel-btn panel-btn--primary w-100"
-              :disabled="!!pendingChangeRequest"
-              @click="openSubscriptionDialog(plan)"
-            >
-              {{ currentSubscription ? t('dealer.views.subscription.changePlan') : t('dealer.views.subscription.selectPlan') }}
-            </button>
-            <div
-              v-if="pendingChangeRequest"
-              class="text-caption text-medium-emphasis text-center mt-2 px-1"
-            >
-              {{ t('dealer.views.subscription.pendingBlocksNewRequest') }}
-            </div>
-          </div>
-        </v-card>
-      </v-col>
-    </v-row>
+      <PlanFeatureComparison
+        v-if="(paygPlansForComparison?.length ?? 0) > 0"
+        :plans="paygPlansForComparison"
+        :active-plan-id="currentSubscription?.plan_id ?? null"
+        :title="paygComparisonTitle"
+        feature-info-mode="dealer"
+      />
+    </template>
 
     <!-- Subscription Dialog -->
     <PlanSubscriptionDialog
@@ -289,7 +209,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import {
@@ -308,13 +228,19 @@ import {
   type DealerBillingConfig,
 } from '@/api/dealer.api'
 import PlanSubscriptionDialog from '@/components/dealer/PlanSubscriptionDialog.vue'
+import BillingCycleToggle from '@/components/subscription/BillingCycleToggle.vue'
+import PlanPricingGrid from '@/components/subscription/PlanPricingGrid.vue'
+import PlanFeatureComparison from '@/components/subscription/PlanFeatureComparison.vue'
 import type { ApiErrorModel } from '@/models/api-error.model'
-import { featureDisplayName } from '@/utils/featureDisplay'
 import { getSubscriptionStatusLabel } from '@/utils/analyticsDisplay'
+import { PLAN_SORT_ORDER } from '@/utils/subscriptionFeatures'
+import { splitPlansByBillingModel } from '@/utils/planFeatureGroups'
+import { usePlanDisplay, type BillingCycle, type PlanLike } from '@/composables/usePlanDisplay'
 import PageHeader from '@/components/panel/PageHeader.vue'
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const route = useRoute()
+const { formatPrice, plansHaveBothCycles } = usePlanDisplay()
 
 const loadingPlans = ref(false)
 const error = ref<string | null>(null)
@@ -328,13 +254,35 @@ const usageSummary = ref<DealerSubscriptionUsageModel | null>(null)
 const billingConfig = ref<DealerBillingConfig | null>(null)
 const successMessage = ref<string | null>(null)
 const cancellingPending = ref(false)
+const billingCycle = ref<BillingCycle>('monthly')
+
+const showBillingToggle = computed(() => plansHaveBothCycles(availablePlans.value))
+
+const subscriptionPlansForComparison = computed(
+  () => splitPlansByBillingModel(availablePlans.value).subscriptionPlans
+)
+
+const paygPlansForComparison = computed(
+  () => splitPlansByBillingModel(availablePlans.value).paygPlans
+)
+
+const paygComparisonTitle = computed(() => {
+  if (subscriptionPlansForComparison.value.length === 0) {
+    return undefined
+  }
+  return t('subscription.comparison.title') + ' — ' + t('subscription.pricing.payAsYouGoPlans')
+})
 
 const loadPlans = async () => {
   try {
     loadingPlans.value = true
     error.value = null
     const plans = await getAvailablePlans()
-    availablePlans.value = plans
+    availablePlans.value = plans.sort((a, b) => {
+      const orderA = PLAN_SORT_ORDER[a.slug || ''] ?? 99
+      const orderB = PLAN_SORT_ORDER[b.slug || ''] ?? 99
+      return orderA - orderB
+    })
   } catch (err) {
     error.value = (err as ApiErrorModel).message || t('dealer.views.subscription.failedLoadPlans')
     availablePlans.value = []
@@ -383,31 +331,13 @@ const handleCancelPending = async () => {
   }
 }
 
-const getCurrentPricing = (plan: PlanModel) => {
-  const priceHistory = plan.priceHistory || plan.price_history || []
-  if (priceHistory.length === 0) return null
-  
-  const activePricing = priceHistory.filter((p: any) => !p.ends_at || new Date(p.ends_at) > new Date())
-  if (activePricing.length === 0) return null
-  
-  const monthly = activePricing.find((p: any) => p.billing_cycle === 'monthly')
-  const yearly = activePricing.find((p: any) => p.billing_cycle === 'yearly')
-  
-  return { monthly, yearly }
-}
-
-const formatPrice = (priceInCents: number, currency: string) => {
-  const price = priceInCents / 100
-  return `${price.toFixed(2)} ${currency}`
-}
-
 const getStatusColor = (statusId?: number) => {
   const colors: Record<number, string> = {
     1: 'info',
     2: 'success',
     3: 'error',
     4: 'warning',
-    5: 'primary'
+    5: 'primary',
   }
   return colors[statusId || 0] || 'grey'
 }
@@ -419,62 +349,12 @@ const formatDate = (date?: string) => {
   return new Date(date).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
   })
 }
 
-const getFilteredFeatures = (plan: PlanModel) => {
-  if (!plan.features || plan.features.length === 0) return []
-  
-  return plan.features.filter((feature: any) => {
-    const valueTypeId = feature.feature_value_type_id || feature.featureValueType?.id || feature.feature_value_type?.id
-    const value = feature.pivot?.value || feature.value
-    
-    // For boolean features, only show if value is true
-    if (valueTypeId === 1) { // BOOLEAN
-      return value === 'true' || value === '1' || value === true || value === 1
-    }
-    
-    // For number and text features, always show
-    return true
-  })
-}
-
-const formatFeatureDisplay = (feature: any) => {
-  const key = feature.key || ''
-  const name = featureDisplayName(
-    { key, label_en: feature.label_en, label_da: feature.label_da },
-    locale.value
-  )
-  const valueTypeId = feature.feature_value_type_id || feature.featureValueType?.id || feature.feature_value_type?.id
-  const value = feature.pivot?.value || feature.value
-  
-  // Boolean features: just show the key name
-  if (valueTypeId === 1) { // BOOLEAN
-    return name
-  }
-  
-  // Number features: show "Key Name: value"
-  if (valueTypeId === 2) { // NUMBER
-    return `${name}: ${value}`
-  }
-  
-  // Text features: show "Key Name: value"
-  if (valueTypeId === 3) { // TEXT
-    return `${name}: ${value}`
-  }
-  
-  // Fallback: just show key name
-  return name
-}
-
-const isPlanActive = (plan: PlanModel) => {
-  if (!currentSubscription.value) return false
-  return currentSubscription.value.plan_id === plan.id
-}
-
-const openSubscriptionDialog = (plan: PlanModel) => {
-  selectedPlan.value = plan
+const openSubscriptionDialog = (plan: PlanLike) => {
+  selectedPlan.value = plan as PlanModel
   showSubscriptionDialog.value = true
 }
 
@@ -483,14 +363,14 @@ const closeSubscriptionDialog = () => {
   selectedPlan.value = null
 }
 
-const handleSubscriptionConfirm = async (billingCycle: 'monthly' | 'yearly' | 'usage_daily') => {
+const handleSubscriptionConfirm = async (selectedBillingCycle: 'monthly' | 'yearly' | 'usage_daily') => {
   if (!selectedPlan.value) return
 
   try {
     creatingSubscription.value = true
 
     const useStripeCheckout =
-      billingCycle !== 'usage_daily' &&
+      selectedBillingCycle !== 'usage_daily' &&
       billingConfig.value?.stripe_enabled &&
       billingConfig.value?.instant_subscription_checkout &&
       selectedPlan.value.billing_model !== 'usage_daily'
@@ -498,7 +378,7 @@ const handleSubscriptionConfirm = async (billingCycle: 'monthly' | 'yearly' | 'u
     if (useStripeCheckout) {
       const result = await checkoutSubscription({
         plan_id: selectedPlan.value.id,
-        billing_cycle: billingCycle as 'monthly' | 'yearly',
+        billing_cycle: selectedBillingCycle as 'monthly' | 'yearly',
       })
       closeSubscriptionDialog()
       window.location.href = result.checkout_url
@@ -507,7 +387,7 @@ const handleSubscriptionConfirm = async (billingCycle: 'monthly' | 'yearly' | 'u
 
     const data: CreateDealerSubscriptionData = {
       plan_id: selectedPlan.value.id,
-      billing_cycle: billingCycle
+      billing_cycle: selectedBillingCycle,
     }
     const result = await createSubscription(data)
     closeSubscriptionDialog()
@@ -538,31 +418,3 @@ onMounted(async () => {
   ])
 })
 </script>
-
-<style scoped>
-.plans-grid {
-  margin-top: 0;
-}
-
-.feature-check-circle {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: rgba(var(--v-theme-success), 0.12);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.features-list {
-  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
-  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
-  padding-top: 12px;
-  padding-bottom: 12px;
-}
-
-.feature-item {
-  min-height: 24px;
-}
-</style>

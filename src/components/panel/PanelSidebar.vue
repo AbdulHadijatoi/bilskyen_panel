@@ -38,6 +38,7 @@
     />
 
     <aside
+      ref="sidebarContentRef"
       class="sidebar-content"
       :class="{ 'sidebar-content-collapsed': sidebarStore.isCollapsed && !sidebarStore.isMobile }"
     >
@@ -115,8 +116,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useSnackbar } from '@/composables/useSnackbar'
 import PanelSnackbar from '@/components/panel/PanelSnackbar.vue'
@@ -150,8 +151,70 @@ const { snackbar, showError } = useSnackbar()
 const sidebarStore = useSidebarStore()
 const authStore = useAuthStore()
 const router = useRouter()
+const route = useRoute()
 const showChangePasswordDialog = ref(false)
 const searchQuery = ref('')
+const sidebarContentRef = ref<HTMLElement | null>(null)
+
+function scrollActiveItemIntoView() {
+  if (sidebarStore.isCollapsed && !sidebarStore.isMobile) return
+
+  const container = sidebarContentRef.value
+  if (!container) return
+
+  const activeItems = container.querySelectorAll<HTMLElement>(
+    '.menu-item-active[data-sidebar-item], .__menu-item.router-link-exact-active[data-sidebar-item]'
+  )
+  const activeEl = activeItems.length > 0 ? activeItems[activeItems.length - 1] : null
+  if (!activeEl) return
+
+  const containerRect = container.getBoundingClientRect()
+  const activeRect = activeEl.getBoundingClientRect()
+  const padding = 8
+  const isAbove = activeRect.top < containerRect.top + padding
+  const isBelow = activeRect.bottom > containerRect.bottom - padding
+
+  if (isAbove || isBelow) {
+    activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
+  }
+}
+
+function scheduleScrollActiveItemIntoView() {
+  nextTick(() => {
+    scrollActiveItemIntoView()
+    // Allow submenu expand transitions to finish before a second pass
+    window.setTimeout(scrollActiveItemIntoView, 250)
+  })
+}
+
+watch(
+  () => route.path,
+  () => {
+    scheduleScrollActiveItemIntoView()
+  }
+)
+
+watch(
+  () => sidebarStore.isCollapsed,
+  (isCollapsed) => {
+    if (!isCollapsed && !sidebarStore.isMobile) {
+      scheduleScrollActiveItemIntoView()
+    }
+  }
+)
+
+watch(
+  () => sidebarStore.isOpen,
+  (isOpen) => {
+    if (isOpen && sidebarStore.isMobile) {
+      scheduleScrollActiveItemIntoView()
+    }
+  }
+)
+
+watch(searchQuery, () => {
+  scheduleScrollActiveItemIntoView()
+})
 
 const userInitials = computed(() => {
   const name = authStore.user?.name || t('common.userFallback')
@@ -202,6 +265,8 @@ const handleLogout = async () => {
 }
 
 onMounted(async () => {
+  scheduleScrollActiveItemIntoView()
+
   if (!props.bootstrapUser) return
   if (!authStore.accessToken || authStore.user) return
   try {

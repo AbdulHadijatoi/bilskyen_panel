@@ -156,6 +156,12 @@ const router = createRouter({
           meta: { requiresAuth: true, permission: 'dealer.branding.manage' },
         },
         {
+          path: 'marketing',
+          name: 'dealer.marketing',
+          component: () => import('@/views/dealer/marketing/MarketingCampaigns.vue'),
+          meta: { requiresAuth: true, permission: 'dealer.branding.manage' },
+        },
+        {
           path: 'profile',
           name: 'dealer.profile',
           component: () => import('@/views/dealer/settings/ProfileSettings.vue'),

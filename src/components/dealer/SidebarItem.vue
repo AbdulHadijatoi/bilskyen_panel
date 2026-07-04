@@ -220,6 +220,7 @@ const NAV_TITLE_KEYS: Record<string, string> = {
   'Feeds & Syndication': 'nav.feedsSyndication',
   'Trade-In': 'nav.tradeIn',
   'Branding & DMS': 'nav.brandingDms',
+  Marketing: 'nav.marketing',
 }
 
 interface Props {

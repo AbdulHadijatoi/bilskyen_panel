@@ -970,6 +970,27 @@
             </v-card-text>
           </v-card>
 
+          <div
+            v-if="canSeePricingIntelligence"
+            id="vehicle-price"
+            class="mb-3"
+          >
+            <PricingIntelligencePanel
+              :vehicle-id="vehicle.id"
+              :current-price="vehicle.price"
+              :pricing="pricingIntelligence"
+              @applied="onSuggestedPriceApplied"
+            />
+          </div>
+
+          <div v-if="canSeeListingBoost" class="mb-3">
+            <ListingBoostPanel
+              :vehicle-id="vehicle.id"
+              :meta="listingBoostMeta"
+              @boosted="onListingBoosted"
+            />
+          </div>
+
           <!-- Images Management Card -->
           <v-card
             variant="flat"
@@ -1535,6 +1556,8 @@ import type { ApiErrorModel } from '@/models/api-error.model'
 import { getFeatureLimit, hasFeature, FeatureKey } from '@/utils/subscriptionFeatures'
 import { SALES_TYPE_LEASING_DETAILS } from '@/constants/salesTypes'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import PricingIntelligencePanel from '@/components/dealer/vehicles/PricingIntelligencePanel.vue'
+import ListingBoostPanel, { type ListingBoostMeta } from '@/components/dealer/vehicles/ListingBoostPanel.vue'
 import ModelViewerDialog from '@/components/shared/ModelViewerDialog.vue'
 import { useErrorMessage } from '@/composables/useErrorMessage'
 
@@ -1542,7 +1565,7 @@ const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
 const { getDisplayMessage } = useErrorMessage()
-const { snackbar, showError } = useSnackbar()
+const { snackbar, showError, showSnackbar } = useSnackbar()
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -1792,6 +1815,40 @@ const fairPriceTooltip = computed(() => {
 const listingHealthScore = computed(() => {
   return (vehicle.value as VehicleModel & { listingHealth?: { score?: number } })?.listingHealth?.score ?? null
 })
+
+const canSeePricingIntelligence = hasFeature(FeatureKey.PRICING_INTELLIGENCE)
+const canSeeListingBoost = hasFeature(FeatureKey.LISTING_BOOST)
+
+const pricingIntelligence = computed(() => {
+  return (vehicle.value as VehicleModel & {
+    pricingIntelligence?: Record<string, unknown> | null
+  })?.pricingIntelligence ?? null
+})
+
+const listingBoostMeta = computed((): ListingBoostMeta | null => {
+  const raw = (vehicle.value as VehicleModel & { listingBoost?: ListingBoostMeta | null })?.listingBoost
+  if (!raw) return null
+
+  return {
+    active: raw.active ?? null,
+    can_boost: Boolean(raw.can_boost),
+    active_count: Number(raw.active_count ?? 0),
+    max_active: Number(raw.max_active ?? 5),
+  }
+})
+
+async function onListingBoosted(meta: ListingBoostMeta) {
+  ;(vehicle.value as VehicleModel & { listingBoost?: ListingBoostMeta }).listingBoost = meta
+  showSnackbar(t('dealer.views.vehicleDetail.listingBoostApplied'), 'success')
+  await loadVehicle()
+}
+
+async function onSuggestedPriceApplied(payload: { newPrice: number }) {
+  if (!vehicle.value) return
+  vehicle.value.price = payload.newPrice
+  showSnackbar(t('dealer.views.vehicleDetail.suggestedPriceApplied'), 'success')
+  await loadVehicle()
+}
 
 const loadVehicle = async () => {
   const vehicleId = route.params.id as string
