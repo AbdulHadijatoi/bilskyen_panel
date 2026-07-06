@@ -365,6 +365,13 @@
     },
     "register": {
       "failed": "Kunne ikke registrere."
+    },
+    "marketing": {
+      "pricing": "Priser",
+      "forDealers": "For forhandlere",
+      "forStaff": "For medarbejdere",
+      "privacy": "Privatliv",
+      "terms": "Vilkår"
     }
   },
   "admin": {
@@ -380,6 +387,7 @@
       "privacyPageContent": "Privatliv sideindhold",
       "termsPageContent": "Vilkår sideindhold",
       "loginPageContent": "Login sideindhold",
+      "pricingPageContent": "Prissideindhold",
       "socialLinks": "Sociale links",
       "seoContent": "SEO-indhold",
       "featuredVehicles": "Fremhævede køretøjer",
@@ -431,6 +439,7 @@
       "privacyPageContent": "Privatliv sideindhold",
       "termsPageContent": "Vilkår sideindhold",
       "loginPageContent": "Login sideindhold",
+      "pricingPageContent": "Prissideindhold",
       "socialLinks": "Sociale links",
       "seoContent": "SEO-indhold",
       "featuredVehicles": "Fremhævede køretøjer",
@@ -677,6 +686,23 @@
         "successMessage": "Login sideindhold er opdateret!",
         "failedLoad": "Kunne ikke indlæse login sideindhold",
         "failedSave": "Kunne ikke gemme login sideindhold"
+      },
+      "pricingPageContent": {
+        "title": "Forhandler prissideindhold",
+        "description": "Rediger hero, FAQ, fodnote og enterprise-kort på den offentlige /for-dealers/pricing side.",
+        "saveChanges": "Gem ændringer",
+        "headerTitle": "Sidetitel",
+        "headerDescription": "Undertitel",
+        "faqTitle": "FAQ-sektionstitel",
+        "footnote": "Prisfodnote / ansvarsfraskrivelse",
+        "showEnterpriseCard": "Vis enterprise kontaktkort",
+        "faqItems": "FAQ-elementer",
+        "addFaq": "Tilføj spørgsmål",
+        "question": "Spørgsmål",
+        "answer": "Svar",
+        "successMessage": "Prissideindhold opdateret!",
+        "failedLoad": "Kunne ikke indlæse prissideindhold",
+        "failedSave": "Kunne ikke gemme prissideindhold"
       },
       "socialLinks": {
         "title": "Administration af sociale links",

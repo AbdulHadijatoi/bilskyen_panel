@@ -310,6 +310,11 @@ const router = createRouter({
           component: () => import('@/views/admin/login-page-content/LoginPageContentManagement.vue'),
         },
         {
+          path: 'pages/pricing-page-content',
+          name: 'admin.pricing-page-content',
+          component: () => import('@/views/admin/pricing-page-content/PricingPageContentManagement.vue'),
+        },
+        {
           path: 'pages/social-links',
           name: 'admin.social-links',
           component: () => import('@/views/admin/social-links/SocialLinksManagement.vue'),

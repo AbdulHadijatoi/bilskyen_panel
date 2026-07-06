@@ -164,3 +164,28 @@ export async function getPublicTermsContent(): Promise<PublicPageContent> {
   }
 }
 
+export type PublicPlanModel = {
+  id: number
+  name: string
+  slug: string
+  description?: string
+  feature_highlights?: string[]
+  is_popular?: boolean
+  is_free?: boolean
+  pricing?: {
+    monthly?: { price: number; currency: string; formatted: string } | null
+    yearly?: { price: number; currency: string; formatted: string } | null
+  }
+}
+
+export async function getPublicPlans(): Promise<{ plans: PublicPlanModel[]; max_yearly_savings_percent?: number | null }> {
+  try {
+    const response = await httpClient.get<{ data: { plans: PublicPlanModel[]; max_yearly_savings_percent?: number | null } }>(
+      PUBLIC_PAGE_ENDPOINTS.PLANS
+    )
+    return handleSuccess<{ plans: PublicPlanModel[]; max_yearly_savings_percent?: number | null }>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+

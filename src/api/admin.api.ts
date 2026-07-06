@@ -27,6 +27,7 @@ import {
   ADMIN_PRIVACY_PAGE_ENDPOINTS,
   ADMIN_TERMS_PAGE_ENDPOINTS,
   ADMIN_LOGIN_PAGE_ENDPOINTS,
+  ADMIN_PRICING_PAGE_ENDPOINTS,
   ADMIN_SEO_PAGE_ENDPOINTS,
   ADMIN_CMS_POST_ENDPOINTS,
   ADMIN_LANDING_PAGE_ENDPOINTS,
@@ -2489,6 +2490,44 @@ export async function bulkUpdateLoginPageContent(
     }
 
     return mapHomePageSectionsFromApi(sectionsData)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// PRICING PAGE CONTENT (dealer marketing FAQ)
+// ============================================================================
+
+export async function getPricingPageContent(
+  pageName?: string
+): Promise<HomePageSectionModel[]> {
+  try {
+    const response = await httpClient.get<{ data: any[] }>(
+      ADMIN_PRICING_PAGE_ENDPOINTS.LIST,
+      { params: pageName ? { page_name: pageName } : {} }
+    )
+    const sections = handleSuccess<any[]>(response)
+    return mapHomePageSectionsFromApi(sections)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export async function bulkUpdatePricingPageContent(
+  sections: Record<string, string | null>,
+  pageName?: string
+): Promise<HomePageSectionModel[]> {
+  try {
+    const response = await httpClient.post<{ data: any[] }>(
+      ADMIN_PRICING_PAGE_ENDPOINTS.BULK_UPDATE,
+      {
+        sections,
+        ...(pageName ? { page_name: pageName } : {}),
+      }
+    )
+    const sectionsData = handleSuccess<any>(response)
+    return mapHomePageSectionsFromApi(Array.isArray(sectionsData) ? sectionsData : [sectionsData])
   } catch (error) {
     throw handleError(error)
   }

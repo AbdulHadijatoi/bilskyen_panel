@@ -27,6 +27,13 @@
         </router-link>
       </div>
       <slot />
+      <nav class="auth-marketing-links" aria-label="Marketing">
+        <a :href="`${APP.MARKETPLACE_URL}/for-dealers/pricing`">{{ t('auth.marketing.pricing') }}</a>
+        <a :href="`${APP.MARKETPLACE_URL}/for-dealers`">{{ t('auth.marketing.forDealers') }}</a>
+        <a :href="`${APP.MARKETPLACE_URL}/for-staff`">{{ t('auth.marketing.forStaff') }}</a>
+        <a :href="`${APP.MARKETPLACE_URL}/privacy-policy`">{{ t('auth.marketing.privacy') }}</a>
+        <a :href="`${APP.MARKETPLACE_URL}/terms-of-service`">{{ t('auth.marketing.terms') }}</a>
+      </nav>
     </div>
   </div>
 </template>
@@ -34,9 +41,12 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useTheme } from 'vuetify'
+import { useI18n } from 'vue-i18n'
 import { APP } from '@/constants/app'
 import { BRANDING } from '@/constants/branding'
 import { useThemeStore } from '@/stores/theme'
+
+const { t } = useI18n()
 
 withDefaults(
   defineProps<{

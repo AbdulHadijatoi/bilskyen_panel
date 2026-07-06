@@ -310,6 +310,29 @@
   min-height: 2.35rem;
 }
 
+.plan-pricing-card__features {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.plan-pricing-card__feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--foreground);
+}
+
+.plan-pricing-card__feature-icon {
+  margin-top: 0.125rem;
+  flex-shrink: 0;
+}
+
 .plan-pricing-card__trial {
   margin-top: auto;
 }

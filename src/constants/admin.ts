@@ -115,6 +115,11 @@ export const adminSidebarSections: SidebarSection[] = [
             permission: 'admin.pages.update',
           },
           {
+            title: 'Pricing Page Content',
+            url: `${ADMIN_ROUTE_BASE}/pages/pricing-page-content`,
+            permission: 'admin.pages.update',
+          },
+          {
             title: 'Social Links',
             url: `${ADMIN_ROUTE_BASE}/pages/social-links`,
             permission: 'admin.pages.update',

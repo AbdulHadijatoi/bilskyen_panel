@@ -365,6 +365,13 @@
     },
     "register": {
       "failed": "Failed to register."
+    },
+    "marketing": {
+      "pricing": "Pricing",
+      "forDealers": "For dealers",
+      "forStaff": "For staff",
+      "privacy": "Privacy",
+      "terms": "Terms"
     }
   },
   "admin": {
@@ -380,6 +387,7 @@
       "privacyPageContent": "Privacy Page Content",
       "termsPageContent": "Terms Page Content",
       "loginPageContent": "Login Page Content",
+      "pricingPageContent": "Pricing Page Content",
       "socialLinks": "Social Links",
       "seoContent": "SEO Content",
       "featuredVehicles": "Featured Vehicles",
@@ -431,6 +439,7 @@
       "privacyPageContent": "Privacy Page Content",
       "termsPageContent": "Terms Page Content",
       "loginPageContent": "Login Page Content",
+      "pricingPageContent": "Pricing Page Content",
       "socialLinks": "Social Links",
       "seoContent": "SEO Content",
       "featuredVehicles": "Featured Vehicles",
@@ -677,6 +686,23 @@
         "successMessage": "Login page content updated successfully!",
         "failedLoad": "Failed to load login page content",
         "failedSave": "Failed to save login page content"
+      },
+      "pricingPageContent": {
+        "title": "Dealer Pricing Page Content",
+        "description": "Edit the public /for-dealers/pricing page hero, FAQ accordion, footnote, and enterprise card visibility.",
+        "saveChanges": "Save Changes",
+        "headerTitle": "Page title",
+        "headerDescription": "Page subtitle",
+        "faqTitle": "FAQ section title",
+        "footnote": "Pricing footnote / disclaimer",
+        "showEnterpriseCard": "Show enterprise contact card",
+        "faqItems": "FAQ items",
+        "addFaq": "Add question",
+        "question": "Question",
+        "answer": "Answer",
+        "successMessage": "Pricing page content updated successfully!",
+        "failedLoad": "Failed to load pricing page content",
+        "failedSave": "Failed to save pricing page content"
       },
       "socialLinks": {
         "title": "Social Links Management",

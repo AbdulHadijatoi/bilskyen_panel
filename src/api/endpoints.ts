@@ -508,6 +508,12 @@ export const ADMIN_LOGIN_PAGE_ENDPOINTS = {
   BULK_UPDATE: '/admin/login-page-content/bulk-update',
 } as const
 
+export const ADMIN_PRICING_PAGE_ENDPOINTS = {
+  LIST: '/admin/pricing-page-content',
+  UPDATE: (sectionKey: string) => `/admin/pricing-page-content/${sectionKey}`,
+  BULK_UPDATE: '/admin/pricing-page-content/bulk-update',
+} as const
+
 /**
  * Admin SEO pages endpoints
  */
@@ -574,6 +580,8 @@ export const PUBLIC_HOME_PAGE_ENDPOINTS = {
 export const PUBLIC_PAGE_ENDPOINTS = {
   PRIVACY: '/privacy-policy',
   TERMS: '/terms-of-service',
+  PLANS: '/public/plans',
+  PRICING_FAQ: '/public/pricing-faq',
 } as const
 
 /**

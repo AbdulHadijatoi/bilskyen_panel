@@ -59,6 +59,13 @@
         {{ plan.description || t('dealer.views.subscription.noDescription') }}
       </p>
 
+      <ul v-if="featureHighlights.length > 0" class="plan-pricing-card__features">
+        <li v-for="(feature, index) in featureHighlights" :key="index" class="plan-pricing-card__feature">
+          <v-icon size="14" color="success" class="plan-pricing-card__feature-icon">mdi-check</v-icon>
+          <span>{{ feature }}</span>
+        </li>
+      </ul>
+
       <div v-if="plan.trial_days && plan.trial_days > 0" class="plan-pricing-card__trial">
         <v-chip color="success" size="x-small" variant="flat" class="text-white">
           {{ t('dealer.views.subscription.daysFreeTrial', { count: plan.trial_days }) }}
@@ -127,9 +134,15 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const { getDisplayPrice, isUsagePlan } = usePlanDisplay()
+const { getDisplayPrice, isUsagePlan, getFilteredFeatures, formatFeatureDisplay } = usePlanDisplay()
 
 const displayPrice = computed(() => getDisplayPrice(props.plan, props.billingCycle))
+
+const featureHighlights = computed(() =>
+  getFilteredFeatures(props.plan)
+    .slice(0, 8)
+    .map((feature) => formatFeatureDisplay(feature))
+)
 
 const priceSuffix = computed(() => {
   if (!displayPrice.value) return ''

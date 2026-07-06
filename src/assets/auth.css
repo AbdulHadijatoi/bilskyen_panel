@@ -252,3 +252,25 @@
 .auth-link-row a:hover {
   color: var(--foreground);
 }
+
+.auth-marketing-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem 1rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  width: 100%;
+  max-width: 28rem;
+  border-top: 1px solid var(--border);
+}
+
+.auth-marketing-links a {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  text-decoration: none;
+}
+
+.auth-marketing-links a:hover {
+  color: var(--foreground);
+}
