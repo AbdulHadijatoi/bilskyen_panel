@@ -27,7 +27,18 @@
   "settings": {
     "nav": {
       "account": "Account",
-      "profile": "Profile"
+      "profile": "Profile",
+      "platform": "Platform",
+      "localization": "Localization"
+    },
+    "platform": {
+      "localizationTitle": "Localization",
+      "localizationDescription": "Control language options shown on the public marketplace and in the panel.",
+      "languageSwitcherEnabled": "Language switcher (public site & panel)",
+      "languageSwitcherHint": "When enabled, users can switch between Danish and English on the Laravel marketplace and in the dealer, staff, and admin panel.",
+      "saved": "Localization settings saved.",
+      "saveFailed": "Could not save localization settings.",
+      "loadFailed": "Could not load localization settings."
     }
   },
   "subscription": {
@@ -839,6 +850,7 @@
         "aiUseProviderTest": "Use the provider test buttons below for AI.",
         "testFailed": "Connection test failed",
         "testNotSupported": "Connection test is not available for this integration group. Configure and save settings, or use provider-specific test actions where available.",
+        "tabGeneral": "General",
         "tabCrm": "CRM",
         "tabPayment": "Payment (Stripe)",
         "tabAi": "AI",
@@ -896,6 +908,7 @@
         "defaultTermMonths": "Default term (months)",
         "calculatorEnabled": "Show monthly payment calculator on vehicle pages",
         "trustReportEnabled": "Show Bilskyen Trust Report on vehicle detail pages",
+        "languageSwitcherEnabled": "Language switcher (public site & panel)",
         "disclaimerEn": "Disclaimer (EN)",
         "disclaimerDa": "Disclaimer (DA)",
         "enquirySequenceEnabled": "Enquiry follow-up sequence",
@@ -909,6 +922,8 @@
         "googlePlacesApiKey": "Google Places API key",
         "helpAria": "Show help for this setting",
         "help": {
+          "tabGeneral": "Platform-wide UI settings that apply across the public marketplace and the dealer, staff, and admin panel.",
+          "languageSwitcherEnabled": "When enabled, users can switch between Danish and English on the public Laravel site and in the Vue panel. Disable for production if Danish-only is required.",
           "tabCrm": "CRM notifications and lead hygiene. Controls when dealers are emailed about new leads and when inactive leads are flagged as stale in the pipeline.",
           "tabPayment": "Stripe powers dealer subscription checkout and billing webhooks. Use test mode while configuring keys; switch to live only when ready for production payments.",
           "tabAi": "Connect one or more AI providers for dealer-facing assistant features. Dealers need the ai_assistant plan feature. Test each provider after saving keys.",

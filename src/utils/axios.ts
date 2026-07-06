@@ -1,5 +1,6 @@
 import axios, { type InternalAxiosRequestConfig, type AxiosError } from 'axios'
 import { useAuthStore } from '@/stores/auth.store'
+import { getRequestLocale } from '@/utils/defaultLocale'
 import router from '@/router'
 
 // Create axios instance
@@ -22,6 +23,8 @@ apiClient.interceptors.request.use(
     if (authStore.accessToken) {
       config.headers.Authorization = `Bearer ${authStore.accessToken}`
     }
+
+    config.headers['Accept-Language'] = getRequestLocale()
     
     return config
   },

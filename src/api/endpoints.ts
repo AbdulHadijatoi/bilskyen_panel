@@ -584,6 +584,10 @@ export const PUBLIC_PAGE_ENDPOINTS = {
   PRICING_FAQ: '/public/pricing-faq',
 } as const
 
+export const PUBLIC_PLATFORM_ENDPOINTS = {
+  UI_SETTINGS: '/platform/ui-settings',
+} as const
+
 /**
  * Admin analytics endpoints
  */

@@ -40,6 +40,14 @@
   margin-top: auto;
 }
 
+.auth-layout-left-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 1rem;
+}
+
 .auth-testimonial {
   max-width: 28rem;
 }
@@ -68,7 +76,8 @@
 
 .auth-layout-right-header {
   display: flex;
-  justify-content: center;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 1.5rem;
   width: 100%;
 }

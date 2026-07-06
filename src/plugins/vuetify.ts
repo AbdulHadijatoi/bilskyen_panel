@@ -4,9 +4,9 @@ import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { da, en } from 'vuetify/locale'
-import { getDefaultLocale } from '@/utils/defaultLocale'
+import { getInitialLocale } from '@/utils/defaultLocale'
 
-const appLocale = getDefaultLocale()
+const appLocale = getInitialLocale()
 
 export default createVuetify({
   components,

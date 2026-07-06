@@ -1,11 +1,11 @@
 import { createI18n } from 'vue-i18n'
-import { getDefaultLocale } from '@/utils/defaultLocale'
+import { getInitialLocale } from '@/utils/defaultLocale'
 
 export type SupportedLocale = 'en' | 'da'
 
 const i18n = createI18n({
   legacy: false,
-  locale: getDefaultLocale(),
+  locale: getInitialLocale(),
   fallbackLocale: 'en',
   messages: {},
 })

@@ -10,6 +10,7 @@ import {
   PUBLIC_VEHICLE_ENDPOINTS,
   PUBLIC_LOOKUP_ENDPOINTS,
   PUBLIC_PAGE_ENDPOINTS,
+  PUBLIC_PLATFORM_ENDPOINTS,
 } from './endpoints'
 import type { VehicleModel } from '@/models/vehicle.model'
 import { mapVehicleFromApi } from '@/models/vehicle.model'
@@ -184,6 +185,21 @@ export async function getPublicPlans(): Promise<{ plans: PublicPlanModel[]; max_
       PUBLIC_PAGE_ENDPOINTS.PLANS
     )
     return handleSuccess<{ plans: PublicPlanModel[]; max_yearly_savings_percent?: number | null }>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+export interface PlatformUiSettings {
+  language_switcher_enabled: boolean
+}
+
+export async function getPlatformUiSettings(): Promise<PlatformUiSettings> {
+  try {
+    const response = await httpClient.get<{ data: PlatformUiSettings }>(
+      PUBLIC_PLATFORM_ENDPOINTS.UI_SETTINGS
+    )
+    return handleSuccess<PlatformUiSettings>(response)
   } catch (error) {
     throw handleError(error)
   }

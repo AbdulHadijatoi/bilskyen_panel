@@ -8,6 +8,7 @@
         <router-link to="/" class="auth-logo-link">
           <img src="/images/logo.png" alt="Bilskyen" class="auth-logo" />
         </router-link>
+        <LanguageSwitcher />
       </div>
       <div class="auth-layout-left-content">
         <blockquote class="auth-testimonial">
@@ -25,6 +26,7 @@
         <router-link to="/" class="auth-logo-link-mobile">
           <img src="/images/logo.png" alt="Bilskyen" class="auth-logo-mobile" />
         </router-link>
+        <LanguageSwitcher />
       </div>
       <slot />
       <nav class="auth-marketing-links" aria-label="Marketing">
@@ -45,6 +47,7 @@ import { useI18n } from 'vue-i18n'
 import { APP } from '@/constants/app'
 import { BRANDING } from '@/constants/branding'
 import { useThemeStore } from '@/stores/theme'
+import LanguageSwitcher from '@/components/shared/LanguageSwitcher.vue'
 
 const { t } = useI18n()
 

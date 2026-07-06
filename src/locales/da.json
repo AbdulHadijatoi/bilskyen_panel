@@ -27,7 +27,18 @@
   "settings": {
     "nav": {
       "account": "Konto",
-      "profile": "Profil"
+      "profile": "Profil",
+      "platform": "Platform",
+      "localization": "Sprog"
+    },
+    "platform": {
+      "localizationTitle": "Sprog",
+      "localizationDescription": "Styr sprogvalg på den offentlige markedsplads og i panelet.",
+      "languageSwitcherEnabled": "Sprogvælger (offentlig side og panel)",
+      "languageSwitcherHint": "Når aktiveret, kan brugere skifte mellem dansk og engelsk på Laravel-markedspladsen og i forhandler-, medarbejder- og admin-panelet.",
+      "saved": "Sprogindstillinger gemt.",
+      "saveFailed": "Kunne ikke gemme sprogindstillinger.",
+      "loadFailed": "Kunne ikke indlæse sprogindstillinger."
     }
   },
   "subscription": {
@@ -830,6 +841,7 @@
         "aiUseProviderTest": "Brug udbydertest-knapperne nedenfor for AI.",
         "testFailed": "Forbindelsestest mislykkedes",
         "testNotSupported": "Forbindelsestest er ikke tilgængelig for denne integrationsgruppe. Konfigurer og gem indstillinger, eller brug udbyderspecifikke testhandlinger hvor det er muligt.",
+        "tabGeneral": "Generelt",
         "tabCrm": "CRM",
         "tabPayment": "Betaling (Stripe)",
         "tabAi": "AI",
@@ -887,6 +899,7 @@
         "defaultTermMonths": "Standardperiode (måneder)",
         "calculatorEnabled": "Vis månedlig betalingsberegner på køretøjssider",
         "trustReportEnabled": "Vis Bilskyen Trust Report på køretøjsdetaljesider",
+        "languageSwitcherEnabled": "Sprogvælger (offentlig side og panel)",
         "disclaimerEn": "Ansvarsfraskrivelse (EN)",
         "disclaimerDa": "Ansvarsfraskrivelse (DA)",
         "enquirySequenceEnabled": "Opfølgningssekvens for forespørgsler",
@@ -900,6 +913,8 @@
         "googlePlacesApiKey": "Google Places API-nøgle",
         "helpAria": "Vis hjælp til denne indstilling",
         "help": {
+          "tabGeneral": "Platformomfattende UI-indstillinger for den offentlige markedsplads og forhandler-, medarbejder- og admin-panelet.",
+          "languageSwitcherEnabled": "Når aktiveret, kan brugere skifte mellem dansk og engelsk på den offentlige Laravel-side og i Vue-panelet. Deaktiver i produktion, hvis kun dansk skal vises.",
           "tabCrm": "CRM-notifikationer og lead-vedligeholdelse. Styrer hvornår forhandlere får e-mail ved nye leads, og hvornår inaktive leads markeres som forældede i pipelinen.",
           "tabPayment": "Stripe håndterer forhandlerabonnementer og betalings-webhooks. Brug testtilstand under opsætning; skift til live først når I er klar til produktion.",
           "tabAi": "Tilslut én eller flere AI-udbydere til forhandlerassistenten. Forhandlere skal have ai_assistant-planfunktionen. Test hver udbyder efter gemte nøgler.",
