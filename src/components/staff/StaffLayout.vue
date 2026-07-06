@@ -34,12 +34,15 @@ import { onMounted, onUnmounted } from 'vue'
 import { useTheme } from 'vuetify'
 import { useSidebarStore } from '@/stores/sidebar'
 import { useThemeStore } from '@/stores/theme'
+import { useLocaleStore } from '@/stores/locale.store'
+import { ensureLocaleLoaded } from '@/plugins/i18n'
 import Sidebar from './Sidebar.vue'
 import Header from './Header.vue'
 import Footer from './Footer.vue'
 
 const sidebarStore = useSidebarStore()
 const themeStore = useThemeStore()
+const localeStore = useLocaleStore()
 const vuetifyTheme = useTheme()
 
 const getTransitionName = (transition: unknown): string => {
@@ -50,13 +53,13 @@ const handleResize = () => {
   sidebarStore.setMobile(window.innerWidth < 768)
 }
 
-onMounted(() => {
-  // Set Vuetify theme instance in the store
+onMounted(async () => {
   if (vuetifyTheme) {
     themeStore.setVuetifyTheme(vuetifyTheme)
   }
 
-  // Handle sidebar resize
+  await ensureLocaleLoaded(localeStore.locale)
+
   handleResize()
   window.addEventListener('resize', handleResize)
 })

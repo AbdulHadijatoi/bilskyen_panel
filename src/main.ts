@@ -4,7 +4,9 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import vuetify from './plugins/vuetify'
 import i18n, { loadLocaleMessages } from './plugins/i18n'
-import { getDefaultLocale } from './utils/defaultLocale'
+import { getInitialLocale } from './utils/defaultLocale'
+import { useLocaleStore } from './stores/locale.store'
+import { usePlatformSettingsStore } from './stores/platformSettings.store'
 
 import App from './App.vue'
 import router from './router'
@@ -17,12 +19,20 @@ async function bootstrap() {
     ;(globalThis as any).__VUE_DEVTOOLS_TOAST__ = () => {}
   }
 
-  app.use(createPinia())
+  const pinia = createPinia()
+  app.use(pinia)
   app.use(router)
   app.use(i18n)
   app.use(vuetify)
 
-  await loadLocaleMessages(getDefaultLocale())
+  const initialLocale = getInitialLocale()
+  await loadLocaleMessages(initialLocale)
+
+  const localeStore = useLocaleStore(pinia)
+  await localeStore.initialize()
+
+  const platformSettingsStore = usePlatformSettingsStore(pinia)
+  await platformSettingsStore.load()
 
   app.mount('#app')
 }

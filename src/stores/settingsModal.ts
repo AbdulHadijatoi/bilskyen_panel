@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-export type SettingsSection = 'profile' | 'password' | 'sessions'
+export type SettingsSection = 'profile' | 'password' | 'sessions' | 'platform'
 
 export const useSettingsModalStore = defineStore('settingsModal', () => {
   const isOpen = ref(false)

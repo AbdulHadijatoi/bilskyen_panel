@@ -7,6 +7,7 @@
 
 import axios, { type InternalAxiosRequestConfig, type AxiosError, type AxiosInstance } from 'axios'
 import { API_CONFIG } from '@/config/api'
+import { getRequestLocale } from '@/utils/defaultLocale'
 import { getAccessToken, clearTokens } from '@/utils/token'
 import { handleError } from './response'
 import router from '@/router'
@@ -35,6 +36,10 @@ httpClient.interceptors.request.use(
     // Add access token to Authorization header if available
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`
+    }
+
+    if (config.headers) {
+      config.headers['Accept-Language'] = getRequestLocale()
     }
     
     // If sending FormData, remove Content-Type header to let browser set it

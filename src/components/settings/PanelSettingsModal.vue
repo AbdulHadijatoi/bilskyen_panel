@@ -34,6 +34,7 @@
           <ProfilePanel v-if="settingsStore.activeSection === 'profile'" />
           <PasswordPanel v-else-if="settingsStore.activeSection === 'password'" />
           <SessionsPanel v-else-if="settingsStore.activeSection === 'sessions'" />
+          <PlatformSettingsPanel v-else-if="settingsStore.activeSection === 'platform'" />
         </div>
       </div>
     </v-card>
@@ -48,20 +49,35 @@ import SettingsNav, { type SettingsNavGroup } from '@/components/settings/Settin
 import ProfilePanel from '@/components/settings/panels/ProfilePanel.vue'
 import PasswordPanel from '@/components/settings/panels/PasswordPanel.vue'
 import SessionsPanel from '@/components/settings/panels/SessionsPanel.vue'
+import PlatformSettingsPanel from '@/components/settings/panels/PlatformSettingsPanel.vue'
+import { isAdmin } from '@/utils/permissions'
 
 const { t } = useI18n()
 const settingsStore = useSettingsModalStore()
 
-const navGroups = computed<SettingsNavGroup[]>(() => [
-  {
-    title: t('settings.nav.account'),
-    items: [
-      { id: 'profile', label: t('settings.nav.profile'), icon: 'mdi-account' },
-      { id: 'password', label: t('nav.changePassword'), icon: 'mdi-lock-reset' },
-      { id: 'sessions', label: t('dealer.views.sessions.title'), icon: 'mdi-devices' },
-    ],
-  },
-])
+const navGroups = computed<SettingsNavGroup[]>(() => {
+  const groups: SettingsNavGroup[] = [
+    {
+      title: t('settings.nav.account'),
+      items: [
+        { id: 'profile', label: t('settings.nav.profile'), icon: 'mdi-account' },
+        { id: 'password', label: t('nav.changePassword'), icon: 'mdi-lock-reset' },
+        { id: 'sessions', label: t('dealer.views.sessions.title'), icon: 'mdi-devices' },
+      ],
+    },
+  ]
+
+  if (isAdmin()) {
+    groups.push({
+      title: t('settings.nav.platform'),
+      items: [
+        { id: 'platform', label: t('settings.nav.localization'), icon: 'mdi-translate' },
+      ],
+    })
+  }
+
+  return groups
+})
 
 const activeItem = computed(() =>
   navGroups.value.flatMap((g) => g.items).find((item) => item.id === settingsStore.activeSection)
