@@ -246,6 +246,7 @@ import SyndicationField from '@/components/dealer/syndication/SyndicationField.v
 import SyndicationSectionHeader from '@/components/dealer/syndication/SyndicationSectionHeader.vue'
 import UpgradePrompt from '@/components/dealer/UpgradePrompt.vue'
 import { FeatureKey, hasFeature, isPlanFeatureError } from '@/utils/subscriptionFeatures'
+import { getIntlLocale } from '@/utils/defaultLocale'
 
 const feedsDeniedByServer = ref(false)
 const syndicationDeniedByServer = ref(false)
@@ -282,7 +283,7 @@ function providerLabel(provider: DealerSyndicationProviderModel) {
 
 function formatDate(value?: string | null) {
   if (!value) return t('common.emDash')
-  return new Date(value).toLocaleString()
+  return new Date(value).toLocaleString(getIntlLocale())
 }
 
 function denyFeatureFromError(error: unknown, feature: FeatureKey) {

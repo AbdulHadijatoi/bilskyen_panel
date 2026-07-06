@@ -1,7 +1,7 @@
 <template>
   <div class="panel-page staff-dashboard">
     <!-- Header -->
-    <PageHeader title="Staff Dashboard" subtitle="Overview of your vehicles, leads, and key metrics">
+    <PageHeader :title="t('staff.views.dashboard.title')" :subtitle="t('staff.views.dashboard.subtitle')">
       <template #actions>
         <button
           type="button"
@@ -10,7 +10,7 @@
           @click="loadDashboard"
         >
           <v-icon size="14">mdi-refresh</v-icon>
-          Refresh
+          {{ t('staff.views.dashboard.refresh') }}
         </button>
       </template>
     </PageHeader>
@@ -18,7 +18,7 @@
     <!-- Loading State -->
     <div v-if="loading && !stats" class="loading-container">
       <v-progress-circular indeterminate color="primary" size="64" />
-      <p class="text-body-1 text-medium-emphasis mt-4">Loading dashboard data...</p>
+      <p class="text-body-1 text-medium-emphasis mt-4">{{ t('staff.views.dashboard.loadingData') }}</p>
     </div>
 
     <!-- Error State -->
@@ -29,7 +29,7 @@
       prominent
       class="mb-4"
     >
-      <v-alert-title>Error Loading Dashboard</v-alert-title>
+      <v-alert-title>{{ t('staff.views.dashboard.errorLoading') }}</v-alert-title>
       {{ error }}
     </v-alert>
 
@@ -60,10 +60,10 @@
               <div class="text-h4 font-weight-bold mb-1">
                 {{ formatNumber(stats.overview.vehicles.total) }}
               </div>
-              <div class="text-caption text-medium-emphasis mb-2">Total Vehicles</div>
+              <div class="text-caption text-medium-emphasis mb-2">{{ t('staff.views.dashboard.totalVehicles') }}</div>
               <div class="text-caption">
                 <v-icon size="12" class="mr-1">mdi-check-circle</v-icon>
-                {{ stats.overview.vehicles.published }} published
+                {{ stats.overview.vehicles.published }} {{ t('staff.views.dashboard.published') }}
               </div>
             </v-card-text>
           </v-card>
@@ -92,10 +92,10 @@
               <div class="text-h4 font-weight-bold mb-1">
                 {{ formatNumber(stats.overview.leads.total) }}
               </div>
-              <div class="text-caption text-medium-emphasis mb-2">Total Leads</div>
+              <div class="text-caption text-medium-emphasis mb-2">{{ t('staff.views.dashboard.totalLeads') }}</div>
               <div class="text-caption">
                 <v-icon size="12" class="mr-1">mdi-calendar-week</v-icon>
-                {{ stats.overview.leads.new_last_7_days }} new this week
+                {{ stats.overview.leads.new_last_7_days }} {{ t('staff.views.dashboard.newThisWeek') }}
               </div>
             </v-card-text>
           </v-card>
@@ -115,13 +115,13 @@
                   size="x-small"
                   variant="flat"
                 >
-                  {{ stats.overview.subscription.is_active ? 'Active' : 'Inactive' }}
+                  {{ stats.overview.subscription.is_active ? t('staff.views.dashboard.active') : t('staff.views.dashboard.inactive') }}
                 </v-chip>
               </div>
               <div class="text-h4 font-weight-bold mb-1">
                 {{ stats.overview.subscription.plan_name }}
               </div>
-              <div class="text-caption text-medium-emphasis mb-2">Subscription Plan</div>
+              <div class="text-caption text-medium-emphasis mb-2">{{ t('staff.views.dashboard.subscriptionPlan') }}</div>
               <div class="text-caption">
                 <v-icon size="12" class="mr-1">mdi-check-circle</v-icon>
                 {{ stats.overview.subscription.status }}
@@ -138,10 +138,10 @@
             <v-card-text class="pa-3">
               <div class="d-flex align-center gap-2 mb-2">
                 <v-icon size="20" color="success">mdi-car-plus</v-icon>
-                <span class="text-caption text-medium-emphasis">New Vehicles</span>
+                <span class="text-caption text-medium-emphasis">{{ t('staff.views.dashboard.newVehicles') }}</span>
               </div>
               <div class="text-h6 font-weight-bold">{{ stats.overview.vehicles.new_last_30_days }}</div>
-              <div class="text-caption text-medium-emphasis">Last 30 days</div>
+              <div class="text-caption text-medium-emphasis">{{ t('staff.views.dashboard.last30Days') }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -151,10 +151,10 @@
             <v-card-text class="pa-3">
               <div class="d-flex align-center gap-2 mb-2">
                 <v-icon size="20" color="primary">mdi-phone-in-talk</v-icon>
-                <span class="text-caption text-medium-emphasis">New Leads</span>
+                <span class="text-caption text-medium-emphasis">{{ t('staff.views.dashboard.newLeads') }}</span>
               </div>
               <div class="text-h6 font-weight-bold">{{ stats.overview.leads.new_last_30_days }}</div>
-              <div class="text-caption text-medium-emphasis">Last 30 days</div>
+              <div class="text-caption text-medium-emphasis">{{ t('staff.views.dashboard.last30Days') }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -164,10 +164,10 @@
             <v-card-text class="pa-3">
               <div class="d-flex align-center gap-2 mb-2">
                 <v-icon size="20" color="warning">mdi-cash</v-icon>
-                <span class="text-caption text-medium-emphasis">Avg Vehicle Price</span>
+                <span class="text-caption text-medium-emphasis">{{ t('staff.views.dashboard.avgVehiclePrice') }}</span>
               </div>
               <div class="text-h6 font-weight-bold">{{ formatPrice(stats.overview.vehicles.average_price) }}</div>
-              <div class="text-caption text-medium-emphasis">Total value: {{ formatPrice(stats.overview.vehicles.total_value) }}</div>
+              <div class="text-caption text-medium-emphasis">{{ t('staff.views.dashboard.totalValue') }}: {{ formatPrice(stats.overview.vehicles.total_value) }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -175,12 +175,12 @@
 
       <!-- Charts and Distributions -->
       <v-row class="mb-6">
-        <!-- Vehicle Status Distribution -->
+        <!-- {{ t('staff.views.dashboard.vehicleStatusDistribution') }} -->
         <v-col cols="12">
           <v-card variant="flat" class="chart-card" elevation="1">
             <v-card-title class="d-flex align-center">
               <v-icon size="20" class="mr-2">mdi-chart-pie</v-icon>
-              <span>Vehicle Status Distribution</span>
+              <span>{{ t('staff.views.dashboard.vehicleStatusDistribution') }}</span>
             </v-card-title>
             <v-card-text>
               <div class="distribution-chart">
@@ -221,17 +221,17 @@
           <v-card variant="flat" class="chart-card" elevation="1">
             <v-card-title class="d-flex align-center">
               <v-icon size="20" class="mr-2">mdi-chart-line</v-icon>
-              <span>Vehicle Creation Trend (30 Days)</span>
+              <span>{{ t('staff.views.dashboard.creationTrendTitle') }}</span>
             </v-card-title>
             <v-card-text>
               <TrendAreaChart
                 :points="stats.trends.vehicles"
                 color="#10b981"
-                value-label="Vehicles"
+                :value-label="t('staff.views.dashboard.vehiclesChartLabel')"
               />
               <div class="trend-area-chart__labels">
-                <span>30 days ago</span>
-                <span>Today</span>
+                <span>{{ t('staff.views.dashboard.thirtyDaysAgo') }}</span>
+                <span>{{ t('staff.views.dashboard.today') }}</span>
               </div>
             </v-card-text>
           </v-card>
@@ -247,19 +247,19 @@
 
       <!-- Recent Activity -->
       <v-row>
-        <!-- Recent Vehicles -->
+        <!-- {{ t('staff.views.dashboard.recentVehicles') }} -->
         <v-col cols="12" md="6" lg="4">
           <v-card variant="flat" class="recent-card" elevation="1">
             <v-card-title class="d-flex align-center">
               <v-icon size="18" class="mr-2">mdi-car</v-icon>
-              <span class="text-subtitle-1">Recent Vehicles</span>
+              <span class="text-subtitle-1">{{ t('staff.views.dashboard.recentVehicles') }}</span>
               <v-spacer />
               <v-btn
                 variant="text"
                 size="x-small"
                 :to="{ name: 'staff.vehicles.overview' }"
               >
-                View All
+                {{ t('staff.views.dashboard.viewAll') }}
               </v-btn>
             </v-card-title>
             <v-card-text class="pa-0">
@@ -274,7 +274,7 @@
                     <v-icon size="16" color="medium-emphasis">mdi-car</v-icon>
                   </template>
                   <v-list-item-title class="text-body-2">
-                    {{ vehicle.title || `Vehicle #${vehicle.id}` }}
+                    {{ vehicle.title || t('staff.views.dashboard.vehicleFallback', { id: vehicle.id }) }}
                   </v-list-item-title>
                   <v-list-item-subtitle class="text-caption">
                     {{ vehicle.registration || t('common.noRegistration') }} • {{ formatPrice(vehicle.price) }}
@@ -290,26 +290,26 @@
                   </template>
                 </v-list-item>
                 <v-list-item v-if="stats.recent.vehicles.length === 0" class="text-center py-4">
-                  <span class="text-caption text-medium-emphasis">No recent vehicles</span>
+                  <span class="text-caption text-medium-emphasis">{{ t('staff.views.dashboard.noRecentVehicles') }}</span>
                 </v-list-item>
               </v-list>
             </v-card-text>
           </v-card>
         </v-col>
 
-        <!-- Recent Leads -->
+        <!-- {{ t('staff.views.dashboard.recentLeads') }} -->
         <v-col cols="12" md="6" lg="4">
           <v-card variant="flat" class="recent-card" elevation="1">
             <v-card-title class="d-flex align-center">
               <v-icon size="18" class="mr-2">mdi-phone-in-talk</v-icon>
-              <span class="text-subtitle-1">Recent Leads</span>
+              <span class="text-subtitle-1">{{ t('staff.views.dashboard.recentLeads') }}</span>
               <v-spacer />
               <v-btn
                 variant="text"
                 size="x-small"
                 :to="{ name: 'staff.leads.overview' }"
               >
-                View All
+                {{ t('staff.views.dashboard.viewAll') }}
               </v-btn>
             </v-card-title>
             <v-card-text class="pa-0">
@@ -324,14 +324,14 @@
                     <v-icon size="16" color="primary">mdi-phone</v-icon>
                   </template>
                   <v-list-item-title class="text-body-2">
-                    {{ lead.vehicle_title || `Lead #${lead.id}` }}
+                    {{ lead.vehicle_title || t('staff.views.dashboard.leadFallback', { id: lead.id }) }}
                   </v-list-item-title>
                   <v-list-item-subtitle class="text-caption">
                     {{ lead.buyer_name }} • {{ formatDate(lead.created_at) }}
                   </v-list-item-subtitle>
                 </v-list-item>
                 <v-list-item v-if="stats.recent.leads.length === 0" class="text-center py-4">
-                  <span class="text-caption text-medium-emphasis">No recent leads</span>
+                  <span class="text-caption text-medium-emphasis">{{ t('staff.views.dashboard.noRecentLeads') }}</span>
                 </v-list-item>
               </v-list>
             </v-card-text>
@@ -365,7 +365,7 @@ const loadDashboard = async () => {
     error.value = null
     stats.value = await getDashboardStats()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || t('dealer.views.dashboard.failedLoadData')
+    error.value = (err as ApiErrorModel).message || t('staff.views.dashboard.failedLoadData')
   } finally {
     loading.value = false
   }
@@ -410,10 +410,10 @@ const getVehicleStatusColor = (statusId?: number) => {
 
 const getVehicleStatusName = (statusId?: number) => {
   const names: Record<number, string> = {
-    1: 'Draft',
-    2: 'Published',
-    3: 'Sold',
-    4: 'Archived',
+    1: t('staff.views.dashboard.statusDraft'),
+    2: t('staff.views.dashboard.statusPublished'),
+    3: t('staff.views.dashboard.statusSold'),
+    4: t('staff.views.dashboard.statusArchived'),
   }
   return names[statusId || 0] || t('common.unknown')
 }

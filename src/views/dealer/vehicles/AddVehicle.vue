@@ -1192,6 +1192,7 @@ import type { VehicleModel } from '@/models/vehicle.model'
 import MonthYearPicker from '@/components/ui/MonthYearPicker.vue'
 import { useErrorMessage } from '@/composables/useErrorMessage'
 import { getFeatureLimit, getSubscriptionFeatures, FeatureKey } from '@/utils/subscriptionFeatures'
+import { getIntlLocale } from '@/utils/defaultLocale'
 import { SALES_TYPE_LEASING_DETAILS } from '@/constants/salesTypes'
 import AiGenerateButton from '@/components/ai/AiGenerateButton.vue'
 import PageHeader from '@/components/panel/PageHeader.vue'
@@ -1718,7 +1719,7 @@ const generateDescription = (): string => {
   
   // Mileage
   if (form.value.odometer) {
-    parts.push(`with ${form.value.odometer.toLocaleString()} km on the odometer`)
+    parts.push(`with ${form.value.odometer.toLocaleString(getIntlLocale())} km on the odometer`)
   }
   
   // Transmission

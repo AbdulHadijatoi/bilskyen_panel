@@ -554,7 +554,7 @@
               <div class="mb-4">{{ t('admin.views.analytics.paymentVolume') }}: {{ formatPrice(integrations.payments.volume_cents / 100) }}</div>
               <h4 class="text-subtitle-2 mb-2">{{ t('admin.views.analytics.aiSection') }}</h4>
               <div class="mb-2">{{ t('admin.views.analytics.aiRequests') }}: {{ integrations.ai.requests_succeeded + integrations.ai.requests_failed }}</div>
-              <div>{{ t('admin.views.analytics.aiTokens') }}: {{ integrations.ai.tokens_used.toLocaleString() }}</div>
+              <div>{{ t('admin.views.analytics.aiTokens') }}: {{ formatNumber(integrations.ai.tokens_used) }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -599,6 +599,7 @@ import BarChart from '@/components/charts/BarChart.vue'
 import PieChart from '@/components/charts/PieChart.vue'
 import { getLeadSourceName } from '@/utils/leadHelpers'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import { getIntlLocale } from '@/utils/defaultLocale'
 
 const { t } = useI18n()
 const dateRange = ref<DateRange>('30d')
@@ -646,13 +647,15 @@ const formatBillingCycle = (cycle: string) => {
 }
 
 const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('da-DK', {
+  return new Intl.NumberFormat(getIntlLocale(), {
     style: 'currency',
     currency: 'DKK',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(price)
 }
+
+const formatNumber = (value: number) => value.toLocaleString(getIntlLocale())
 
 const loadOverview = async () => {
   try {

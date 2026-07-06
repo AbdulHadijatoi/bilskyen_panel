@@ -257,6 +257,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { getAuditLogs, type DealerAuditLogModel } from '@/api/staff.api'
 import type { PaginationModel } from '@/models/pagination.model'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import { getIntlLocale } from '@/utils/defaultLocale'
 
 const { t } = useI18n()
 
@@ -522,7 +523,7 @@ const getFilterLabel = (key: string): string => {
 
 const formatDate = (date?: string): string => {
   if (!date) return 'N/A'
-  return new Date(date).toLocaleString()
+  return new Date(date).toLocaleString(getIntlLocale())
 }
 
 const truncateText = (text: string, maxLength: number): string => {

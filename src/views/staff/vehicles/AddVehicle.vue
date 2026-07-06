@@ -2,8 +2,8 @@
   <v-container class="pa-4" max-width="1400">
     <!-- Header with Actions -->
     <PageHeader
-      title="Add Vehicle"
-      subtitle="Complete all tabs to add a new vehicle to your inventory"
+      :title="t('staff.views.addVehicle.title')"
+      sub:title="t('staff.views.addVehicle.subtitle')"
     >
       <template #actions>
         <v-chip
@@ -12,9 +12,7 @@
           color="success"
           variant="tonal"
           prepend-icon="mdi-content-save"
-        >
-          Draft saved
-        </v-chip>
+        >{{ t('staff.views.addVehicle.draftSavedChip') }}</v-chip>
       </template>
     </PageHeader>
 
@@ -22,17 +20,15 @@
     <v-card variant="flat" elevation="1" class="mb-4">
       <v-card-text class="pa-6">
         <div class="mb-2">
-          <h3 class="text-h6 font-weight-semibold mb-2">Vehicle Lookup</h3>
-          <p class="text-body-2 text-medium-emphasis mb-4">
-            Enter license plate to auto-fill vehicle information
-          </p>
+          <h3 class="text-h6 font-weight-semibold mb-2">{{ t('staff.views.addVehicle.vehicleLookup') }}</h3>
+          <p class="text-body-2 text-medium-emphasis mb-4">{{ t('staff.views.addVehicle.lookupSubtitle') }}</p>
 
           <v-row class="align-center">
             <v-col cols="12" md="8">
               <v-text-field
                 v-model="lookupForm.registrationNumber"
-                label="License Plate"
-                placeholder="e.g., AB 12 345"
+                :label="t('staff.views.addVehicle.licensePlate')"
+                :placeholder="t('staff.views.addVehicle.placeholderLicensePlate')"
                 variant="outlined"
                 :disabled="lookupLoading || showFormFields"
                 hide-details="auto"
@@ -50,9 +46,7 @@
                 class="mr-2"
                 style="height: 56px;"
               >
-                <v-icon start>mdi-magnify</v-icon>
-                Find A Vehicle
-              </v-btn>
+                <v-icon start>mdi-magnify</v-icon>{{ t('staff.views.addVehicle.findVehicle') }}</v-btn>
               <v-btn
                 v-if="!showFormFields"
                 variant="outlined"
@@ -60,9 +54,7 @@
                 @click="manualEntryMode = true"
                 style="height: 56px;"
               >
-                <v-icon start>mdi-pencil</v-icon>
-                Enter Manually
-              </v-btn>
+                <v-icon start>mdi-pencil</v-icon>{{ t('staff.views.addVehicle.enterManually') }}</v-btn>
               <v-btn
                 v-if="showFormFields"
                 variant="outlined"
@@ -70,9 +62,7 @@
                 @click="manualEntryMode = false; lookupSuccess = false; lookupData = null"
                 style="height: 56px;"
               >
-                <v-icon start>mdi-refresh</v-icon>
-                Start Over
-              </v-btn>
+                <v-icon start>mdi-refresh</v-icon>{{ t('staff.views.addVehicle.startOver') }}</v-btn>
             </v-col>
           </v-row>
 
@@ -127,34 +117,28 @@
                   <div v-if="showFormFields">
                     <div class="mb-6">
                       <div class="d-flex justify-space-between align-center flex-wrap mb-2">
-                        <h3 class="text-h6 font-weight-semibold mb-0">Vehicle Information</h3>
+                        <h3 class="text-h6 font-weight-semibold mb-0">{{ t('staff.views.addVehicle.vehicleInformation') }}</h3>
                         <v-btn
                           variant="outlined"
                           color="warning"
                           size="small"
                           @click="clearDraft"
                         >
-                          <v-icon start>mdi-delete-sweep</v-icon>
-                          Clear Draft
-                        </v-btn>
+                          <v-icon start>mdi-delete-sweep</v-icon>{{ t('staff.views.addVehicle.clearDraft') }}</v-btn>
                       </div>
-                      <p class="text-body-2 text-medium-emphasis mb-0">
-                        Complete the vehicle details below
-                      </p>
+                      <p class="text-body-2 text-medium-emphasis mb-0">{{ t('staff.views.addVehicle.completeVehicleDetails') }}</p>
                     </div>
 
                     <v-divider class="my-6" />
                     <div class="mb-4">
                       <h4 class="text-subtitle-1 font-weight-semibold mb-4">
-                        <v-icon size="20" class="mr-2">mdi-car-info</v-icon>
-                        Basic Information
-                      </h4>
+                        <v-icon size="20" class="mr-2">mdi-car-info</v-icon>{{ t('staff.views.addVehicle.basicInformation') }}</h4>
               <v-row dense>
               <v-col cols="12" md="4">
                 <v-autocomplete
                   v-model="form.make"
                   :items="brands.map(b => b.name)"
-                  label="Make"
+                  :label="t('staff.views.addVehicle.make')"
                   density="compact"
                   variant="outlined"
                   :rules="[rules.required]"
@@ -168,7 +152,7 @@
                   :items="models"
                   item-title="name"
                   item-value="id"
-                  label="Model"
+                  :label="t('staff.views.addVehicle.model')"
                   density="compact"
                   variant="outlined"
                   :rules="[rules.required]"
@@ -183,7 +167,7 @@
                   :items="variants"
                   item-title="name"
                   item-value="name"
-                  label="Variant"
+                  :label="t('staff.views.addVehicle.variant')"
                   density="compact"
                   variant="outlined"
                   hint="Required — choose or type"
@@ -198,7 +182,7 @@
                 <v-autocomplete
                   v-model="form.fuelType"
                   :items="fuelTypes.map(f => f.name)"
-                  label="Fuel Type"
+                  :label="t('staff.views.addVehicle.fuelType')"
                   density="compact"
                   variant="outlined"
                   :rules="[rules.required]"
@@ -209,7 +193,7 @@
                 <v-col cols="12" md="4">
                   <v-text-field
                     v-model="form.vin"
-                    label="VIN"
+                    :label="t('staff.views.addVehicle.vin')"
                     density="compact"
                     variant="outlined"
                     maxlength="17"
@@ -221,7 +205,7 @@
                 <v-col cols="12" md="4">
                   <MonthYearPicker
                     v-model="form.registrationDate"
-                    label="Registration"
+                    :label="t('staff.views.addVehicle.registration')"
                     :rules="[rules.required]"
                     :readonly="!!lookupData?.registrationDate"
                     :min-year="MODEL_YEAR_MIN"
@@ -233,18 +217,16 @@
                     <v-divider class="my-6" />
                     <div class="mb-4">
                       <h4 class="text-subtitle-1 font-weight-semibold mb-4">
-                        <v-icon size="20" class="mr-2">mdi-gauge</v-icon>
-                        Performance & Emissions (Optional)
-                      </h4>
+                        <v-icon size="20" class="mr-2">mdi-gauge</v-icon>{{ t('staff.views.addVehicle.performanceEmissions') }}</h4>
                       <v-row dense>
                         <v-col cols="12" md="3">
                           <v-text-field
                             v-model.number="form.powerHp"
-                            label="Power (HP)"
+                            :label="t('staff.views.addVehicle.powerHp')"
                             type="number"
                             density="compact"
                             variant="outlined"
-                            hint="Calculated from kW"
+                            :hint="t('staff.views.addVehicle.powerHpHint')"
                             persistent-hint
                             hide-details="auto"
                             readonly
@@ -253,7 +235,7 @@
                         <v-col cols="12" md="3">
                           <v-text-field
                             v-model.number="form.powerKw"
-                            label="Power (kW)"
+                            :label="t('staff.views.addVehicle.powerKw')"
                             type="number"
                             density="compact"
                             variant="outlined"
@@ -263,7 +245,7 @@
                         <v-col cols="12" md="3">
                           <v-text-field
                             v-model.number="form.co2Emissions"
-                            label="CO2 Emissions (g/km)"
+                            :label="t('staff.views.addVehicle.co2Emissions')"
                             type="number"
                             density="compact"
                             variant="outlined"
@@ -273,7 +255,7 @@
                         <v-col cols="12" md="3">
                           <v-text-field
                             v-model.number="form.fuelConsumptionWltp"
-                            label="Fuel Consumption WLTP (L/100km)"
+                            :label="t('staff.views.addVehicle.fuelConsumptionWltp')"
                             type="number"
                             density="compact"
                             variant="outlined"
@@ -283,7 +265,7 @@
                         <v-col cols="12" md="4">
                           <v-text-field
                             v-model.number="form.fuelConsumptionNedc"
-                            label="Fuel Consumption NEDC (L/100km)"
+                            :label="t('staff.views.addVehicle.fuelConsumptionNedc')"
                             type="number"
                             density="compact"
                             variant="outlined"
@@ -314,23 +296,19 @@
               <template v-if="index === 1">
                 <div>
                 <div class="mb-6">
-                  <h3 class="text-h6 font-weight-semibold mb-2">Vehicle Details</h3>
-                  <p class="text-body-2 text-medium-emphasis mb-0">
-                    Registration, mileage, and usage information
-                  </p>
+                  <h3 class="text-h6 font-weight-semibold mb-2">{{ t('staff.views.addVehicle.tabDetails') }}</h3>
+                  <p class="text-body-2 text-medium-emphasis mb-0">{{ t('staff.views.addVehicle.registrationMileageInfo') }}</p>
             </div>
 
                 <v-divider class="my-6" />
                 <div class="mb-4">
                   <h4 class="text-subtitle-1 font-weight-semibold mb-4">
-                    <v-icon size="20" class="mr-2">mdi-calendar-check</v-icon>
-                    Registration & Identity
-                  </h4>
+                    <v-icon size="20" class="mr-2">mdi-calendar-check</v-icon>{{ t('staff.views.addVehicle.registrationIdentity') }}</h4>
               <v-row dense>
               <v-col cols="12" md="4">
                 <MonthYearPicker
                   v-model="form.firstRegistrationDate"
-                  label="First Registration"
+                  :label="t('staff.views.addVehicle.firstRegistration')"
                   :rules="[rules.required]"
                   :min-year="MODEL_YEAR_MIN"
                 />
@@ -338,8 +316,8 @@
               <v-col cols="12" md="4">
                 <MonthYearPicker
                   v-model="form.productionDate"
-                  label="Production"
-                  hint="Optional"
+                  :label="t('staff.views.addVehicle.production')"
+                  :hint="t('staff.views.addVehicle.optional')"
                   persistent-hint
                   :min-year="MODEL_YEAR_MIN"
                 />
@@ -347,7 +325,7 @@
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model="form.registrationNumber"
-                  label="License Plate"
+                  :label="t('staff.views.addVehicle.licensePlate')"
                   density="compact"
                   variant="outlined"
                   :rules="[rules.required]"
@@ -357,7 +335,7 @@
               <v-col cols="12" md="4">
                 <MonthYearPicker
                   v-model="form.lastInspectionDate"
-                  label="Last Inspection"
+                  :label="t('staff.views.addVehicle.lastInspection')"
                   :min-year="MODEL_YEAR_MIN"
                 />
               </v-col>
@@ -375,7 +353,7 @@
                     class="checkbox-button-field__checkbox"
                     @click.stop
                   />
-                  <span class="checkbox-button-field__label">Import Vehicle</span>
+                  <span class="checkbox-button-field__label">{{ t('staff.views.addVehicle.importVehicle') }}</span>
                 </div>
               </v-col>
               <v-col cols="12" md="4">
@@ -392,7 +370,7 @@
                     class="checkbox-button-field__checkbox"
                     @click.stop
                   />
-                  <span class="checkbox-button-field__label">Factory New</span>
+                  <span class="checkbox-button-field__label">{{ t('staff.views.addVehicle.factoryNew') }}</span>
                 </div>
               </v-col>
             </v-row>
@@ -401,19 +379,17 @@
                 <v-divider class="my-6" />
                 <div class="mb-4">
                   <h4 class="text-subtitle-1 font-weight-semibold mb-4">
-                    <v-icon size="20" class="mr-2">mdi-speedometer</v-icon>
-                    Mileage & Usage
-                  </h4>
+                    <v-icon size="20" class="mr-2">mdi-speedometer</v-icon>{{ t('staff.views.addVehicle.mileageUsage') }}</h4>
               <v-row dense>
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model.number="form.odometer"
-                  label="Current Mileage"
+                  :label="t('staff.views.addVehicle.currentMileage')"
                   type="number"
                   density="compact"
                   variant="outlined"
                   :rules="[rules.odometer]"
-                  hint="Optional"
+                  :hint="t('staff.views.addVehicle.optional')"
                   persistent-hint
                     hide-details="auto"
                 />
@@ -427,10 +403,8 @@
               <template v-if="index === 2">
                 <div>
                 <div class="mb-6">
-                  <h3 class="text-h6 font-weight-semibold mb-2">Technical Specifications</h3>
-                  <p class="text-body-2 text-medium-emphasis mb-0">
-                    Engine, transmission, and environmental data
-                  </p>
+                  <h3 class="text-h6 font-weight-semibold mb-2">{{ t('staff.views.addVehicle.technicalSpecifications') }}</h3>
+                  <p class="text-body-2 text-medium-emphasis mb-0">{{ t('staff.views.addVehicle.engineTransmission') }}</p>
             </div>
 
                 <v-divider class="my-6" />
@@ -443,7 +417,7 @@
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model="form.engineType"
-                  label="Engine Type"
+                  :label="t('staff.views.addVehicle.engineType')"
                   density="compact"
                   variant="outlined"
                     hide-details="auto"
@@ -453,7 +427,7 @@
                 <v-select
                   v-model="form.transmissionType"
                   :items="fuelTypes.map(f => f.name)"
-                  label="Fuel Type"
+                  :label="t('staff.views.addVehicle.fuelType')"
                   density="compact"
                   variant="outlined"
                   :rules="[rules.required]"
@@ -466,7 +440,7 @@
                   :items="gearTypes"
                   item-title="name"
                   item-value="id"
-                  label="Gear Type"
+                  :label="t('staff.views.addVehicle.gearType')"
                   density="compact"
                   variant="outlined"
                   :rules="[rules.required]"
@@ -477,7 +451,7 @@
                 <v-select
                   v-model="form.drivetrain"
                   :items="drivetrainTypes.map(d => d.value)"
-                  label="Drivetrain"
+                  :label="t('staff.views.vehicleDetail.drivetrain')"
                   density="compact"
                   variant="outlined"
                   :rules="[rules.required]"
@@ -490,9 +464,7 @@
                 <v-divider class="my-6" />
                 <div class="mb-4">
                   <h4 class="text-subtitle-1 font-weight-semibold mb-4">
-                    <v-icon size="20" class="mr-2">mdi-leaf</v-icon>
-                    Consumption & Emissions
-                  </h4>
+                    <v-icon size="20" class="mr-2">mdi-leaf</v-icon>{{ t('staff.views.addVehicle.consumptionEmissions') }}</h4>
               <v-row dense>
               <v-col cols="12" md="4">
                 <v-text-field
@@ -510,7 +482,7 @@
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model="form.euroEmissionClass"
-                  label="Euro Emission Class"
+                  :label="t('staff.views.addVehicle.euroEmissionClass')"
                   density="compact"
                   variant="outlined"
                     hide-details="auto"
@@ -525,10 +497,8 @@
               <template v-if="index === 3">
                 <div>
                 <div class="mb-6">
-                  <h3 class="text-h6 font-weight-semibold mb-2">Equipment & Features</h3>
-                  <p class="text-body-2 text-medium-emphasis mb-0">
-                    Select all applicable equipment and features
-                    <span v-if="maxEquipmentPerVehicle > 0" class="text-caption">({{ form.equipment.length }}/{{ maxEquipmentPerVehicle }})</span>
+                  <h3 class="text-h6 font-weight-semibold mb-2">{{ t('staff.views.addVehicle.tabEquipment') }}</h3>
+                  <p class="text-body-2 text-medium-emphasis mb-0">{{ t('staff.views.addVehicle.equipmentSelectHint') }}<span v-if="maxEquipmentPerVehicle > 0" class="text-caption">({{ form.equipment.length }}/{{ maxEquipmentPerVehicle }})</span>
                   </p>
                 </div>
 
@@ -590,7 +560,7 @@
               <template v-if="index === 4">
                 <div>
                 <div class="mb-6">
-                  <h3 class="text-h6 font-weight-semibold mb-2">Pricing & Sales</h3>
+                  <h3 class="text-h6 font-weight-semibold mb-2">{{ t('staff.views.addVehicle.tabPricing') }}</h3>
                   <p class="text-body-2 text-medium-emphasis mb-0">
                     Configure pricing, sales type, and optional leasing options
                   </p>
@@ -599,9 +569,7 @@
                 <v-divider class="my-6" />
                 <div class="mb-4">
               <h4 class="text-subtitle-1 font-weight-semibold mb-4">
-                <v-icon size="20" class="mr-2">mdi-tag-outline</v-icon>
-                Sales Configuration
-              </h4>
+                <v-icon size="20" class="mr-2">mdi-tag-outline</v-icon>{{ t('staff.views.addVehicle.salesConfiguration') }}</h4>
           <v-row dense>
             <v-col cols="12" md="4">
               <v-select
@@ -609,7 +577,7 @@
                 :items="priceTypes"
                 item-title="name"
                 item-value="id"
-                label="Price Type"
+                :label="t('staff.views.addVehicle.priceType')"
                 density="compact"
                 variant="outlined"
                 hide-details="auto"
@@ -621,7 +589,7 @@
                 :items="conditions"
                 item-title="name"
                 item-value="id"
-                label="Condition"
+                :label="t('staff.views.addVehicle.condition')"
                 density="compact"
                 variant="outlined"
                 hide-details="auto"
@@ -633,7 +601,7 @@
                 :items="salesTypes"
                 item-title="name"
                 item-value="id"
-                label="Sales Type"
+                :label="t('staff.views.addVehicle.salesType')"
                 density="compact"
                 variant="outlined"
                 hide-details="auto"
@@ -645,19 +613,17 @@
                 <v-divider class="my-6" />
                 <div class="mb-4">
                   <h4 class="text-subtitle-1 font-weight-semibold mb-4">
-                    <v-icon size="20" class="mr-2">mdi-cash</v-icon>
-                    Pricing
-                  </h4>
+                    <v-icon size="20" class="mr-2">mdi-cash</v-icon>{{ t('staff.views.addVehicle.pricing') }}</h4>
               <v-row dense>
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model.number="form.retailPrice"
-                    label="Retail Price"
+                    :label="t('staff.views.addVehicle.retailPrice')"
                   type="number"
                   density="compact"
                   variant="outlined"
                   prefix="kr"
-                    hint="Including delivery"
+                    :hint="t('staff.views.addVehicle.includingDelivery')"
                     persistent-hint
                   :rules="[rules.price]"
                     hide-details="auto"
@@ -666,7 +632,7 @@
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model.number="form.wholesalePrice"
-                  label="Wholesale Price"
+                  :label="t('staff.views.addVehicle.wholesalePrice')"
                   type="number"
                   density="compact"
                   variant="outlined"
@@ -677,7 +643,7 @@
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model.number="form.priceWithoutTax"
-                  label="Price Without Tax"
+                  :label="t('staff.views.addVehicle.priceWithoutTax')"
                   type="number"
                   density="compact"
                   variant="outlined"
@@ -688,12 +654,12 @@
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model.number="form.internalCostPrice"
-                    label="Internal Cost Price"
+                    :label="t('staff.views.addVehicle.internalCostPrice')"
                   type="number"
                   density="compact"
                   variant="outlined"
                   prefix="kr"
-                    hint="Dealer only"
+                    :hint="t('staff.views.addVehicle.dealerOnly')"
                     persistent-hint
                     hide-details="auto"
                 />
@@ -712,7 +678,7 @@
                     class="checkbox-button-field__checkbox"
                     @click.stop
                   />
-                  <span class="checkbox-button-field__label">Wholesale price includes delivery</span>
+                  <span class="checkbox-button-field__label">{{ t('staff.views.addVehicle.wholesaleIncludesDelivery') }}</span>
                 </div>
               </v-col>
             </v-row>
@@ -721,14 +687,14 @@
             <div class="form-section mt-4">
               <div class="section-title mb-3">
                 <v-icon size="18" class="mr-2">mdi-calendar-clock</v-icon>
-                <span class="text-subtitle-2 font-weight-medium">Leasing Details (Optional)</span>
+                <span class="text-subtitle-2 font-weight-medium">{{ t('staff.views.addVehicle.leasingDetailsOptional') }}</span>
               </div>
                 <v-row dense>
                 <v-col cols="12" md="4">
                   <v-select
                     v-model="form.leasingType"
                     :items="leasingTypes"
-                    label="Leasing Type"
+                    :label="t('staff.views.addVehicle.leasingType')"
                     density="compact"
                     variant="outlined"
                       hide-details="auto"
@@ -738,7 +704,7 @@
                   <v-select
                     v-model="form.leasingCustomerType"
                     :items="leasingCustomerTypes"
-                    label="Customer Type"
+                    :label="t('staff.views.addVehicle.customerType')"
                     density="compact"
                     variant="outlined"
                       hide-details="auto"
@@ -747,7 +713,7 @@
                 <v-col cols="12" md="4">
                   <v-text-field
                     v-model.number="form.leasingFirstPayment"
-                    label="First Payment"
+                    :label="t('staff.views.addVehicle.firstPayment')"
                     type="number"
                     density="compact"
                     variant="outlined"
@@ -758,7 +724,7 @@
                 <v-col cols="12" md="4">
                   <v-text-field
                     v-model.number="form.leasingResidualValue"
-                    label="Residual Value"
+                    :label="t('staff.views.addVehicle.residualValue')"
                     type="number"
                     density="compact"
                     variant="outlined"
@@ -769,7 +735,7 @@
                 <v-col cols="12" md="3">
                   <v-text-field
                     v-model.number="form.leasingDuration"
-                      label="Duration (months)"
+                      :label="t('staff.views.addVehicle.durationMonths')"
                     type="number"
                     density="compact"
                     variant="outlined"
@@ -779,7 +745,7 @@
                 <v-col cols="12" md="3">
                   <v-text-field
                     v-model.number="form.leasingAnnualMileage"
-                    label="Annual Mileage"
+                    :label="t('staff.views.addVehicle.annualMileage')"
                     type="number"
                     density="compact"
                     variant="outlined"
@@ -789,7 +755,7 @@
                 <v-col cols="12" md="6">
                   <v-text-field
                     v-model.number="form.leasingTotalCost"
-                    label="Total Cost Over Term"
+                    :label="t('staff.views.addVehicle.totalCostOverTerm')"
                     type="number"
                     density="compact"
                     variant="outlined"
@@ -806,18 +772,14 @@
               <template v-if="index === 5">
                 <div>
                 <div class="mb-6">
-                  <h3 class="text-h6 font-weight-semibold mb-2">Media & Description</h3>
-                  <p class="text-body-2 text-medium-emphasis mb-0">
-                    Upload images and provide a detailed description
-                  </p>
+                  <h3 class="text-h6 font-weight-semibold mb-2">{{ t('staff.views.addVehicle.mediaDescription') }}</h3>
+                  <p class="text-body-2 text-medium-emphasis mb-0">{{ t('staff.views.addVehicle.uploadImagesHint') }}</p>
                 </div>
 
                 <v-divider class="my-6" />
                 <div class="mb-4">
                   <h4 class="text-subtitle-1 font-weight-semibold mb-4">
-                    <v-icon size="20" class="mr-2">mdi-image-multiple</v-icon>
-                    Vehicle Images
-                    <v-chip size="x-small" class="ml-2" color="primary" variant="tonal">
+                    <v-icon size="20" class="mr-2">mdi-image-multiple</v-icon>{{ t('staff.views.addVehicle.vehicleImages') }}<v-chip size="x-small" class="ml-2" color="primary" variant="tonal">
                       {{ imagePreviews.length }}/{{ maxVehicleImages }}
                     </v-chip>
                   </h4>
@@ -847,8 +809,8 @@
                     >
                       <div class="upload-content">
                         <v-icon class="upload-icon" size="36">mdi-cloud-upload</v-icon>
-                        <p class="upload-text">Click to upload or drag and drop</p>
-                        <p class="upload-hint">PNG, JPG, GIF up to 20MB each</p>
+                        <p class="upload-text">{{ t('staff.views.addVehicle.clickToUpload') }}</p>
+                        <p class="upload-hint">{{ t('staff.views.addVehicle.uploadHintFormats') }}</p>
                       </div>
                     </label>
                     <v-alert
@@ -857,9 +819,7 @@
                       variant="tonal"
                       density="compact"
                       class="mt-2"
-                    >
-                      Please upload at least 1 image
-                    </v-alert>
+                    >{{ t('staff.views.addVehicle.uploadMinOneImage') }}</v-alert>
                   </div>
 
               <v-row v-if="imagePreviews.length > 0" dense class="mt-4">
@@ -937,9 +897,7 @@
                       class="position-absolute"
                       style="bottom: 4px; left: 4px; z-index: 2;"
                     >
-                      <v-icon size="14" start>mdi-star</v-icon>
-                    Cover
-                    </v-chip>
+                      <v-icon size="14" start>mdi-star</v-icon>{{ t('staff.views.addVehicle.cover') }}</v-chip>
                   </v-card>
                 </v-col>
               </v-row>
@@ -950,12 +908,12 @@
                   <div class="d-flex align-center justify-space-between mb-2">
                     <h4 class="text-subtitle-1 font-weight-semibold mb-0">
                       <v-icon size="20" class="mr-2">mdi-text</v-icon>
-                      Description
+                      {{ t('staff.views.addVehicle.vehicleDescription') }}
                     </h4>
                     <AiGenerateButton
                       task="vehicle_description"
                       :context="vehicleAiContext"
-                      label="AI description"
+                      :label="t('staff.views.addVehicle.generateDescription')"
                       auto-generate
                       :show-tone-selector="false"
                       @accept="onAiDescriptionAccept"
@@ -963,11 +921,11 @@
                   </div>
                 <v-textarea
                   v-model="form.description"
-                  label="Vehicle Description"
+                  :label="t('staff.views.addVehicle.vehicleDescription')"
                   density="compact"
                   variant="outlined"
                   rows="6"
-                hint="Description will be auto-generated based on vehicle information. You can edit it manually."
+                :hint="t('staff.views.addVehicle.descriptionHint')"
                   persistent-hint
                   :rules="[rules.required, rules.description]"
                 hide-details="auto"
@@ -1002,7 +960,7 @@
         @click:close="validationErrors = {}"
       >
         <div class="mb-2">
-          <strong>Please fix the following errors:</strong>
+          <strong>{{ t('staff.views.addVehicle.fixErrorsStrong') }}</strong>
         </div>
         <ul class="mb-0 pl-4">
           <li v-for="(errors, field) in validationErrors" :key="field">
@@ -1035,12 +993,8 @@
 
             <!-- Content Section -->
             <div class="success-content pa-6">
-              <h3 class="text-h5 font-weight-bold text-center mb-2">
-                Vehicle Saved Successfully
-              </h3>
-              <p class="text-body-1 text-center text-medium-emphasis mb-6">
-                Your vehicle has been saved and is ready to be published. What would you like to do next?
-              </p>
+              <h3 class="text-h5 font-weight-bold text-center mb-2">{{ t('staff.views.addVehicle.vehicleSavedSuccessfully') }}</h3>
+              <p class="text-body-1 text-center text-medium-emphasis mb-6">{{ t('staff.views.addVehicle.vehicleSavedMessage') }}</p>
 
               <!-- Action Buttons -->
               <div class="d-flex flex-column flex-sm-row gap-3">
@@ -1051,9 +1005,7 @@
                   class="flex-grow-1"
                   @click="goToVehiclesList"
                 >
-                  <v-icon start>mdi-view-list</v-icon>
-                  View Vehicles List
-                </v-btn>
+                  <v-icon start>mdi-view-list</v-icon>{{ t('staff.views.addVehicle.viewVehiclesList') }}</v-btn>
                 <v-btn
                   color="primary"
                   variant="elevated"
@@ -1061,9 +1013,7 @@
                   class="flex-grow-1"
                   @click="addAnotherVehicle"
                 >
-                  <v-icon start>mdi-plus-circle</v-icon>
-                  Add Another Vehicle
-                </v-btn>
+                  <v-icon start>mdi-plus-circle</v-icon>{{ t('staff.views.addVehicle.addAnotherVehicle') }}</v-btn>
               </div>
             </div>
           </v-card-text>
@@ -1079,9 +1029,7 @@
           :disabled="currentStep === 0"
           @click="previousStep"
         >
-          <v-icon start>mdi-chevron-left</v-icon>
-          Previous
-        </v-btn>
+          <v-icon start>mdi-chevron-left</v-icon>{{ t('staff.views.addVehicle.previous') }}</v-btn>
 
         <div class="d-flex">
           <v-btn
@@ -1090,18 +1038,14 @@
             class="mr-2"
             @click="saveAsDraft"
           >
-            <v-icon start>mdi-content-save-outline</v-icon>
-            Save Draft
-          </v-btn>
+            <v-icon start>mdi-content-save-outline</v-icon>{{ t('staff.views.addVehicle.saveDraft') }}</v-btn>
 
           <v-btn
             v-if="currentStep < steps.length - 1"
             color="primary"
             variant="elevated"
             @click="nextStep"
-          >
-            Next
-            <v-icon end>mdi-chevron-right</v-icon>
+          >{{ t('staff.views.addVehicle.next') }}<v-icon end>mdi-chevron-right</v-icon>
           </v-btn>
 
           <v-btn
@@ -1113,7 +1057,7 @@
             @click="submitForm"
           >
             <v-icon start>{{ submitting ? 'mdi-loading' : 'mdi-check-circle' }}</v-icon>
-            {{ submitting ? 'Saving...' : 'Save Vehicle' }}
+            {{ submitting ? t('staff.views.addVehicle.saving') : t('staff.views.addVehicle.saveVehicle') }}
           </v-btn>
         </div>
       </div>
@@ -1132,7 +1076,7 @@
     >
       {{ snackbar.message }}
       <template v-slot:actions>
-        <v-btn variant="text" @click="snackbar.show = false">Close</v-btn>
+        <v-btn variant="text" @click="snackbar.show = false">{{ t('staff.views.addVehicle.close') }}</v-btn>
       </template>
     </v-snackbar>
   </v-container>
@@ -1150,6 +1094,7 @@ import MonthYearPicker from '@/components/ui/MonthYearPicker.vue'
 import { useI18n } from 'vue-i18n'
 import { useErrorMessage } from '@/composables/useErrorMessage'
 import { getFeatureLimit, FeatureKey } from '@/utils/subscriptionFeatures'
+import { getIntlLocale } from '@/utils/defaultLocale'
 import PageHeader from '@/components/panel/PageHeader.vue'
 import AiGenerateButton from '@/components/ai/AiGenerateButton.vue'
 
@@ -1162,14 +1107,14 @@ const MODEL_YEAR_MIN = 1975
 // Wizard state
 const currentStep = ref(0)
 const visitedSteps = ref<Set<number>>(new Set([0])) // Track visited steps
-const steps = [
-  { label: 'Vehicle Lookup', key: 'lookup' },
-  { label: 'Vehicle Details', key: 'details' },
-  { label: 'Technical Data', key: 'technical' },
-  { label: 'Equipment & Features', key: 'equipment' },
-  { label: 'Pricing & Sales', key: 'pricing' },
-  { label: 'Media', key: 'media' },
-]
+const steps = computed(() => [
+  { label: t('staff.views.addVehicle.tabLookup'), key: 'lookup' },
+  { label: t('staff.views.addVehicle.tabDetails'), key: 'details' },
+  { label: t('staff.views.addVehicle.tabTechnical'), key: 'technical' },
+  { label: t('staff.views.addVehicle.tabEquipment'), key: 'equipment' },
+  { label: t('staff.views.addVehicle.tabPricing'), key: 'pricing' },
+  { label: t('staff.views.addVehicle.tabMedia'), key: 'media' },
+])
 
 // Form state
 const formRef = ref()
@@ -1284,11 +1229,11 @@ const fuelConsumptionLabel = computed(() => {
   const hybridFuelTypes = [4, 5]
   
   if (fuelTypeId && electricFuelTypes.includes(fuelTypeId)) {
-    return 'Electric Range (km)'
+    return t('staff.views.addVehicle.electricRangeKm')
   }
   
   if (fuelTypeId && hybridFuelTypes.includes(fuelTypeId)) {
-    return 'Electric Range / KM/L'
+    return t('staff.views.addVehicle.electricRangeKmPerL')
   }
   
   // Default for Petrol, Diesel, etc.
@@ -1305,15 +1250,15 @@ const fuelConsumptionHint = computed(() => {
   const hybridFuelTypes = [4, 5]
   
   if (fuelTypeId && electricFuelTypes.includes(fuelTypeId)) {
-    return 'Electric range in kilometers'
+    return t('staff.views.addVehicle.fuelConsumptionHintElectric')
   }
   
   if (fuelTypeId && hybridFuelTypes.includes(fuelTypeId)) {
-    return 'Electric range in km (for EV mode) or fuel efficiency in km/l'
+    return t('staff.views.addVehicle.fuelConsumptionHintHybrid')
   }
   
   // Default for Petrol, Diesel, etc.
-  return 'Fuel efficiency in kilometers per liter'
+  return t('staff.views.addVehicle.fuelConsumptionHintDefault')
 })
 
 // Helper to calculate power in HP from kW (rounded to nearest whole number, e.g. 149.6 -> 150)
@@ -1511,7 +1456,7 @@ const generateDescription = (): string => {
   
   // Mileage
   if (form.value.odometer) {
-    parts.push(`with ${form.value.odometer.toLocaleString()} km on the odometer`)
+    parts.push(`with ${form.value.odometer.toLocaleString(getIntlLocale())} km on the odometer`)
   }
   
   // Transmission
@@ -1675,21 +1620,21 @@ const loadLookupData = async () => {
 const rules = {
   required: (v: any) => !!v || t('common.required'),
   vin: (v: string) => {
-    if (!v) return 'This field is required'
-    if (v.length !== 17) return 'VIN must be exactly 17 characters'
-    return /^[A-HJ-NPR-Z0-9]+$/i.test(v) || 'VIN can only contain letters (except I, O, Q) and numbers'
+    if (!v) return t('staff.views.addVehicle.fieldRequired')
+    if (v.length !== 17) return t('staff.views.addVehicle.vinExactLength')
+    return /^[A-HJ-NPR-Z0-9]+$/i.test(v) || t('staff.views.addVehicle.vinFormat')
   },
   odometer: (v: number | null | undefined) => {
     if (v === null || v === undefined) return true // Optional field
-    return (v >= 0 && v <= 12000000000000) || 'Odometer must be between 0 and 12,000,000,000,000'
+    return (v >= 0 && v <= 12000000000000) || t('staff.views.addVehicle.odometerRange')
   },
   price: (v: number) => {
     if (v === null || v === undefined) return true
-    return (v >= 0 && v <= 999999999) || 'Price must be between 0 and 999,999,999'
+    return (v >= 0 && v <= 999999999) || t('staff.views.addVehicle.priceRange')
   },
   description: (v: string) => {
-    if (!v) return 'This field is required'
-    return (v.length >= 1 && v.length <= 5000) || 'Description must be between 1 and 5000 characters'
+    if (!v) return t('staff.views.addVehicle.fieldRequired')
+    return (v.length >= 1 && v.length <= 5000) || t('staff.views.addVehicle.descriptionLength')
   },
   requiredImages: (v: File[]) => {
     // This rule is not used anymore - validation is done via computed property
@@ -1700,7 +1645,7 @@ const rules = {
 // Methods
 const performLookup = async () => {
   if (!lookupForm.value.registrationNumber) {
-    lookupError.value = 'Please enter a license plate number'
+    lookupError.value = t('staff.views.addVehicle.licensePlateRequired')
     return
   }
 
@@ -1948,7 +1893,7 @@ const performLookup = async () => {
 }
 
 const nextStep = async () => {
-  if (currentStep.value < steps.length - 1) {
+  if (currentStep.value < steps.value.length - 1) {
       currentStep.value++
     visitedSteps.value.add(currentStep.value)
     // Scroll to top of form
@@ -1966,7 +1911,7 @@ const previousStep = () => {
 }
 
 const goToStep = (index: number) => {
-  if (index >= 0 && index < steps.length) {
+  if (index >= 0 && index < steps.value.length) {
     currentStep.value = index
     visitedSteps.value.add(index)
     // Scroll to top of form
@@ -2439,11 +2384,11 @@ const saveAsDraft = async () => {
     if (draftVehicleId.value) {
       // Update existing draft
       savedVehicle = await updateVehicle(draftVehicleId.value, vehicleData)
-      message = 'Vehicle draft updated successfully'
+      message = t('staff.views.addVehicle.draftUpdated')
     } else {
       // Create new draft
       savedVehicle = await createVehicleDraft(vehicleData)
-      message = (savedVehicle as any).__message || 'Vehicle draft saved successfully'
+      message = (savedVehicle as any).__message || t('staff.views.addVehicle.draftSaved')
       // Store the draft vehicle ID for future updates
       draftVehicleId.value = savedVehicle.id
     }
@@ -2593,7 +2538,7 @@ const submitForm = async () => {
     const max = maxVehicleImages.value
     submitError.value = max > 0
       ? `Please upload at least 1 image (maximum ${max} images)`
-      : 'Please upload at least 1 image'
+      : t('staff.views.addVehicle.uploadMinOneImage')
     // Scroll to media step
     currentStep.value = 5
     return
@@ -2608,7 +2553,7 @@ const submitForm = async () => {
     // Find brand_id from make name
     const brand = brands.value.find(b => b.name === form.value.make)
     if (!brand) {
-      submitError.value = 'Please select a valid make/brand'
+      submitError.value = t('staff.views.addVehicle.selectValidMake')
       currentStep.value = 0
       return
     }
@@ -2616,7 +2561,7 @@ const submitForm = async () => {
     // Find fuel_type_id from fuel type name
     const fuelType = fuelTypes.value.find(f => f.name === form.value.fuelType)
     if (!fuelType) {
-      submitError.value = 'Please select a valid fuel type'
+      submitError.value = t('staff.views.addVehicle.selectValidFuelType')
       currentStep.value = 0
       return
     }
@@ -3470,7 +3415,7 @@ loadDraft()
 onBeforeRouteLeave((to, from, next) => {
   if (checkUnsavedChanges() && !showSuccessDialog.value) {
     const confirmed = window.confirm(
-      'You have unsaved changes. Are you sure you want to leave? Your data will be saved as a draft.'
+      t('staff.views.addVehicle.unsavedChanges')
     )
     if (confirmed) {
       // Auto-save draft before leaving

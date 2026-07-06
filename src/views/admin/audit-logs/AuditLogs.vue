@@ -81,7 +81,7 @@
         <div class="panel-filters-grid__actions">
           <button type="button" class="panel-btn panel-btn--outline" @click="clearFilters">
             <v-icon size="16">mdi-filter-off</v-icon>
-            Clear Filters
+            {{ t('dealer.views.auditLogs.clearFilters') }}
           </button>
         </div>
       </div>
@@ -113,7 +113,7 @@
 
         <div v-else-if="auditLogs.docs.length === 0" class="panel-table-empty">
           <v-icon size="48" color="disabled">mdi-file-document-outline</v-icon>
-          <p>No audit logs found</p>
+          <p>{{ t('dealer.views.auditLogs.noLogsFound') }}</p>
         </div>
 
         <v-data-table
@@ -393,6 +393,7 @@ import { useI18n } from 'vue-i18n'
 import { getAuditLogs, getAuditLog, type AuditLogModel } from '@/api/admin.api'
 import type { PaginationModel } from '@/models/pagination.model'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import { getIntlLocale } from '@/utils/defaultLocale'
 
 const { t } = useI18n()
 
@@ -494,17 +495,17 @@ const timePeriodOptions = [
 ]
 
 // Table Headers
-const headers = [
-  { title: 'ID', key: 'id', sortable: false, width: '80px' },
-  { title: 'Action', key: 'action', sortable: true },
-  { title: 'Target Type', key: 'target_type', sortable: true },
-  { title: 'Description', key: 'description', sortable: false },
-  { title: 'Actor Type', key: 'actor_type', sortable: false },
-  { title: 'Severity', key: 'severity', sortable: true },
-  { title: 'Status', key: 'status', sortable: true },
-  { title: 'Created At', key: 'created_at', sortable: true },
-  { title: 'Actions', key: 'actions', sortable: false, width: '80px', align: 'end' as const },
-]
+const headers = computed(() => [
+  { title: t('common.id'), key: 'id', sortable: false, width: '80px' },
+  { title: t('admin.views.auditLogs.action'), key: 'action', sortable: true },
+  { title: t('admin.views.auditLogs.targetType'), key: 'target_type', sortable: true },
+  { title: t('admin.views.auditLogs.description'), key: 'description', sortable: false },
+  { title: t('admin.views.auditLogs.actorType'), key: 'actor_type', sortable: false },
+  { title: t('admin.views.auditLogs.severity'), key: 'severity', sortable: true },
+  { title: t('common.status'), key: 'status', sortable: true },
+  { title: t('admin.views.auditLogs.createdAt'), key: 'created_at', sortable: true },
+  { title: t('common.actions'), key: 'actions', sortable: false, width: '80px', align: 'end' as const },
+])
 
 // Computed
 const hasActiveFilters = computed(() => {
@@ -552,7 +553,7 @@ const loadAuditLogs = async () => {
   } catch (err: any) {
     console.error('Failed to load audit logs:', err)
     error.value = err.message || t('dealer.views.auditLogs.failedLoadLogs')
-    showSnackbar('Failed to load audit logs', 'error')
+    showSnackbar(t('dealer.views.auditLogs.failedLoadLogs'), 'error')
   } finally {
     loading.value = false
   }
@@ -656,19 +657,19 @@ const removeFilter = (key: string) => {
 
 const getFilterLabel = (key: string): string => {
   const labels: Record<string, string> = {
-    search: 'Search',
-    action: 'Action',
-    target_type: 'Target Type',
-    severity: 'Severity',
-    status: 'Status',
-    time_period: 'Time Period',
+    search: t('admin.views.auditLogs.search'),
+    action: t('admin.views.auditLogs.action'),
+    target_type: t('admin.views.auditLogs.targetType'),
+    severity: t('admin.views.auditLogs.severity'),
+    status: t('common.status'),
+    time_period: t('admin.views.auditLogs.timePeriod'),
   }
   return labels[key] || key
 }
 
 const formatDate = (date?: string): string => {
-  if (!date) return 'N/A'
-  return new Date(date).toLocaleString()
+  if (!date) return t('common.na')
+  return new Date(date).toLocaleString(getIntlLocale())
 }
 
 const truncateText = (text: string, maxLength: number): string => {
@@ -750,7 +751,7 @@ const openDetailDialog = async (id: number) => {
   } catch (err: any) {
     console.error('Failed to load audit log details:', err)
     detailDialog.value.error = err.message || t('dealer.views.auditLogs.failedLoadDetails')
-    showSnackbar('Failed to load audit log details', 'error')
+    showSnackbar(t('dealer.views.auditLogs.failedLoadDetails'), 'error')
   } finally {
     detailDialog.value.loading = false
   }

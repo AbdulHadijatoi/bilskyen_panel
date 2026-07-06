@@ -1,8 +1,8 @@
 <template>
   <div class="panel-page">
     <PageHeader
-      title="Manage Pages"
-      subtitle="View and manage CMS pages."
+      :title="t('admin.views.pages.title')"
+      :subtitle="t('admin.views.pages.subtitle')"
     >
       <template #actions>
         <v-btn
@@ -12,7 +12,7 @@
           size="small"
           @click="showCreateDialog = true"
         >
-          Create Page
+          {{ t('admin.views.pages.createPage') }}
         </v-btn>
       </template>
     </PageHeader>
@@ -22,7 +22,7 @@
         <div class="d-flex justify-space-between align-center">
           <v-text-field
             v-model="search"
-            placeholder="Search pages..."
+            :placeholder="t('admin.views.pages.searchPlaceholder')"
             density="compact"
             variant="plain"
             prepend-inner-icon="mdi-magnify"
@@ -38,7 +38,7 @@
               prepend-icon="mdi-filter-variant"
               class="action-btn"
             >
-              Filter
+              {{ t('common.filter') }}
             </v-btn>
             <v-btn 
               variant="outlined" 
@@ -47,7 +47,7 @@
               prepend-icon="mdi-sort"
               class="action-btn"
             >
-              Sort
+              {{ t('admin.views.pages.sort') }}
             </v-btn>
           </div>
         </div>
@@ -104,13 +104,13 @@
             <v-list density="compact" class="pa-1">
               <v-list-item
                 prepend-icon="mdi-eye"
-                title="View"
+                :title="t('common.view')"
                 class="text-caption"
                 @click="viewPage(item.id)"
               />
               <v-list-item
                 prepend-icon="mdi-delete"
-                title="Delete"
+                :title="t('common.delete')"
                 class="text-caption text-error"
                 @click="deletePage(item.id)"
               />
@@ -127,42 +127,42 @@
           @update:model-value="loadPages"
         />
       </div>
+      </div>
     </div>
 
-    <!-- Create Page Dialog -->
     <v-dialog v-model="showCreateDialog" max-width="600">
       <v-card>
-        <v-card-title>Create Page</v-card-title>
+        <v-card-title>{{ t('admin.views.pages.createPage') }}</v-card-title>
         <v-card-text>
           <v-text-field
             v-model="newPage.title"
-            label="Title"
+            :label="t('admin.views.pages.colTitle')"
             variant="outlined"
             class="mb-2"
           />
           <v-text-field
             v-model="newPage.slug"
-            label="Slug"
+            :label="t('admin.views.pages.colSlug')"
             variant="outlined"
             class="mb-2"
           />
           <v-textarea
             v-model="newPage.content"
-            label="Content (optional)"
+            :label="t('admin.views.pages.contentOptional')"
             variant="outlined"
             rows="5"
           />
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="showCreateDialog = false">Cancel</v-btn>
+          <v-btn variant="text" @click="showCreateDialog = false">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="primary"
             @click="createPage"
             :loading="creating"
             :disabled="!newPage.title || !newPage.slug"
           >
-            Create
+            {{ t('admin.views.pages.createPage') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -172,7 +172,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { hasPermission } from '@/utils/permissions'
 import { getPages, createPage as createPageApi, deletePage as deletePageApi, type CreatePageData, type PageModel } from '@/api/admin.api'
@@ -204,13 +204,13 @@ const newPage = ref<CreatePageData>({
   content: '',
 })
 
-const headers = [
-  { title: 'ID', key: 'id', width: '80px' },
-  { title: 'Title', key: 'title' },
-  { title: 'Slug', key: 'slug' },
-  { title: 'Status', key: 'status', width: '100px' },
+const headers = computed(() => [
+  { title: t('common.id'), key: 'id', width: '80px' },
+  { title: t('admin.views.pages.colTitle'), key: 'title' },
+  { title: t('admin.views.pages.colSlug'), key: 'slug' },
+  { title: t('common.status'), key: 'status', width: '100px' },
   { title: '', key: 'actions', sortable: false, width: '60px', align: 'end' as const },
-]
+])
 
 const loadPages = async () => {
   try {
@@ -219,7 +219,7 @@ const loadPages = async () => {
     const response = await getPages({ page: currentPage.value, limit: 15 })
     pages.value = response
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || t('admin.seoContent.failedLoadPages')
+    error.value = (err as ApiErrorModel).message || t('admin.views.pages.failedLoadPages')
   } finally {
     loading.value = false
   }
@@ -233,7 +233,7 @@ const createPage = async () => {
     newPage.value = { title: '', slug: '', content: '' }
     await loadPages()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || 'Failed to create page'
+    error.value = (err as ApiErrorModel).message || t('admin.views.pages.failedCreatePage')
   } finally {
     creating.value = false
   }
@@ -244,13 +244,13 @@ const viewPage = (id: number) => {
 }
 
 const deletePage = async (id: number | string) => {
-  if (!confirm('Are you sure you want to delete this page?')) return
+  if (!confirm(t('admin.views.pages.confirmDelete'))) return
 
   try {
     await deletePageApi(id)
     await loadPages()
   } catch (err) {
-    error.value = (err as ApiErrorModel).message || t('admin.seoContent.failedDelete')
+    error.value = (err as ApiErrorModel).message || t('admin.views.pages.failedDelete')
   }
 }
 
@@ -373,4 +373,3 @@ onMounted(() => {
   border-bottom: none !important;
 }
 </style>
-

@@ -12,3 +12,8 @@ export function getDefaultLocale(): SupportedLocale {
   }
   return 'da'
 }
+
+/** BCP 47 tag for `Intl` / `toLocaleString` from app locale. */
+export function getIntlLocale(locale?: SupportedLocale): string {
+  return (locale ?? getDefaultLocale()) === 'da' ? 'da-DK' : 'en-US'
+}

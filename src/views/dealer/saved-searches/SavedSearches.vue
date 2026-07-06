@@ -132,6 +132,7 @@ import {
 } from '@/api/dealer.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import { getIntlLocale } from '@/utils/defaultLocale'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -215,7 +216,7 @@ const formatFilters = (filters: Record<string, any>) => {
 
 const formatDate = (date?: string) => {
   if (!date) return t('common.na')
-  return new Date(date).toLocaleDateString()
+  return new Date(date).toLocaleDateString(getIntlLocale())
 }
 
 onMounted(() => {

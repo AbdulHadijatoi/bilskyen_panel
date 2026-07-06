@@ -1,40 +1,39 @@
 <template>
   <div class="panel-page ownership-tax-overview-container">
-    <!-- Header Section -->
     <PageHeader
-      title="Ownership Tax Rules"
-      subtitle="Define tax amounts by registration year range, km/l range, and DMR fuel type."
+      :title="t('admin.views.ownershipTax.title')"
+      :subtitle="t('admin.views.ownershipTax.subtitle')"
     >
       <template #actions>
         <button type="button" class="panel-btn panel-btn--primary" @click="openCreate">
           <v-icon size="16">mdi-plus</v-icon>
-          Add Rule
+          {{ t('admin.views.ownershipTax.addRule') }}
         </button>
       </template>
     </PageHeader>
 
     <v-row class="mb-5">
       <v-col cols="12" sm="6" md="3">
-        <OverviewStatCard label="Rules (this page)" :value="rules.length" icon="mdi-cash-multiple" color="primary" />
+        <OverviewStatCard :label="t('admin.views.ownershipTax.statsRulesThisPage')" :value="rules.length" icon="mdi-cash-multiple" color="primary" />
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <OverviewStatCard label="Fuel types (this page)" :value="uniqueFuelTypesCount" icon="mdi-fuel" color="success" value-tone="success" />
+        <OverviewStatCard :label="t('admin.views.ownershipTax.statsFuelTypesThisPage')" :value="uniqueFuelTypesCount" icon="mdi-fuel" color="success" value-tone="success" />
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <OverviewStatCard label="Filtered" :value="filteredRules.length" icon="mdi-filter" color="info" value-tone="info" />
+        <OverviewStatCard :label="t('admin.views.ownershipTax.statsFiltered')" :value="filteredRules.length" icon="mdi-filter" color="info" value-tone="info" />
       </v-col>
       <v-col cols="12" sm="6" md="3">
-        <OverviewStatCard label="Total rules" :value="totalDocs" icon="mdi-database" color="warning" value-tone="warning" />
+        <OverviewStatCard :label="t('admin.views.ownershipTax.statsTotalRules')" :value="totalDocs" icon="mdi-database" color="warning" value-tone="warning" />
       </v-col>
     </v-row>
 
     <div class="panel-filters-card">
       <div class="panel-filters-grid">
         <div class="panel-filters-grid__search">
-          <span class="panel-filters-card__label">Search</span>
+          <span class="panel-filters-card__label">{{ t('common.search') }}</span>
           <v-text-field
             v-model="search"
-            placeholder="Search fuel type / ranges / amount..."
+            :placeholder="t('admin.views.ownershipTax.searchPlaceholder')"
             density="comfortable"
             variant="outlined"
             prepend-inner-icon="mdi-magnify"
@@ -43,7 +42,7 @@
           />
         </div>
         <div class="panel-filters-grid__field">
-          <span class="panel-filters-card__label">Fuel type</span>
+          <span class="panel-filters-card__label">{{ t('admin.views.ownershipTax.fuelType') }}</span>
           <v-select
             v-model="fuelFilter"
             :items="fuelFilterOptions"
@@ -64,7 +63,7 @@
             @click="loadRules"
           >
             <v-icon size="16">mdi-refresh</v-icon>
-            Refresh
+            {{ t('common.refresh') }}
           </button>
         </div>
       </div>
@@ -74,12 +73,12 @@
       <div class="panel-table-card__body">
         <div v-if="loading" class="loading-container">
           <v-progress-circular indeterminate color="primary" size="48" />
-          <p class="text-body-2 text-medium-emphasis mt-4">Loading rules...</p>
+          <p class="text-body-2 text-medium-emphasis mt-4">{{ t('admin.views.ownershipTax.loadingRules') }}</p>
         </div>
 
         <div v-else-if="listError" class="error-container pa-6">
           <v-alert type="error" variant="tonal" prominent>
-            <v-alert-title>Error</v-alert-title>
+            <v-alert-title>{{ t('common.error') }}</v-alert-title>
             {{ listError }}
           </v-alert>
         </div>
@@ -104,7 +103,7 @@
                 {{ item.driveEnergy?.name || `ID ${item.dmrDriveEnergyId}` }}
               </div>
               <div class="text-caption text-medium-emphasis">
-                DMR energy #{{ item.dmrDriveEnergyId }}
+                {{ t('admin.views.ownershipTax.dmrEnergy', { id: item.dmrDriveEnergyId }) }}
               </div>
             </div>
           </template>
@@ -130,7 +129,7 @@
               <button
                 type="button"
                 class="panel-icon-btn panel-icon-btn--primary"
-                title="Edit"
+                :title="t('common.edit')"
                 @click="openEdit(item)"
               >
                 <v-icon size="16">mdi-pencil-outline</v-icon>
@@ -138,7 +137,7 @@
               <button
                 type="button"
                 class="panel-icon-btn panel-icon-btn--danger"
-                title="Delete"
+                :title="t('common.delete')"
                 @click="confirmDelete(item)"
               >
                 <v-icon size="16">mdi-trash-can-outline</v-icon>
@@ -149,20 +148,19 @@
           <template #no-data>
             <div class="panel-table-empty">
               <v-icon size="48" color="disabled">mdi-inbox-outline</v-icon>
-              <p>No rules found</p>
+              <p>{{ t('admin.views.ownershipTax.noRulesFound') }}</p>
             </div>
           </template>
         </v-data-table>
       </div>
     </div>
 
-    <!-- Create/Edit Dialog -->
     <v-dialog v-model="showDialog" max-width="720" scrollable persistent>
       <v-card>
         <v-card-title class="d-flex align-center">
           <v-icon class="mr-2" size="18" color="primary">mdi-cash-multiple</v-icon>
           <span class="text-subtitle-1 font-weight-medium">
-            {{ editingId ? 'Edit Rule' : 'Create Rule' }}
+            {{ editingId ? t('admin.views.ownershipTax.editRule') : t('admin.views.ownershipTax.createRule') }}
           </span>
           <v-spacer />
           <v-btn icon variant="text" @click="closeDialog" :disabled="saving">
@@ -192,7 +190,7 @@
                 :items="driveEnergies"
                 item-title="name"
                 item-value="id"
-                label="Fuel type (DMR)"
+                :label="t('admin.views.ownershipTax.fuelTypeDmr')"
                 variant="outlined"
                 density="compact"
                 hide-details="auto"
@@ -206,7 +204,7 @@
                 :items="yearOptions"
                 item-title="label"
                 item-value="value"
-                label="Registration year from"
+                :label="t('admin.views.ownershipTax.registrationYearFrom')"
                 variant="outlined"
                 density="compact"
                 hide-details="auto"
@@ -219,7 +217,7 @@
                 :items="yearOptions"
                 item-title="label"
                 item-value="value"
-                label="Registration year to"
+                :label="t('admin.views.ownershipTax.registrationYearTo')"
                 variant="outlined"
                 density="compact"
                 hide-details="auto"
@@ -230,7 +228,7 @@
             <v-col cols="12" sm="6">
               <v-text-field
                 v-model.number="form.km_per_liter_from"
-                label="Km/l from"
+                :label="t('admin.views.ownershipTax.kmPerLiterFrom')"
                 type="number"
                 step="0.001"
                 variant="outlined"
@@ -242,7 +240,7 @@
             <v-col cols="12" sm="6">
               <v-text-field
                 v-model.number="form.km_per_liter_to"
-                label="Km/l to"
+                :label="t('admin.views.ownershipTax.kmPerLiterTo')"
                 type="number"
                 step="0.001"
                 variant="outlined"
@@ -255,7 +253,7 @@
             <v-col cols="12">
               <v-text-field
                 v-model.number="form.tax_amount"
-                label="Tax amount (DKK)"
+                :label="t('admin.views.ownershipTax.taxAmountDkk')"
                 type="number"
                 min="0"
                 step="1"
@@ -268,10 +266,9 @@
             </v-row>
           </v-form>
 
-          <!-- Bulk entry helper -->
           <v-checkbox
             v-model="keepFuelAndYears"
-            label="Keep Fuel type + Year ranges when using Save & Add Another"
+            :label="t('admin.views.ownershipTax.keepFuelAndYears')"
             density="compact"
             hide-details
             class="mt-2"
@@ -283,7 +280,7 @@
         <v-card-actions class="pa-4">
           <v-spacer />
           <v-btn variant="text" size="small" @click="closeDialog" :disabled="saving">
-            Cancel
+            {{ t('common.cancel') }}
           </v-btn>
 
           <v-btn
@@ -294,7 +291,7 @@
             :loading="saving"
             @click="save(false)"
           >
-            Save
+            {{ t('common.save') }}
           </v-btn>
 
           <v-btn
@@ -306,7 +303,7 @@
             :loading="saving"
             @click="save(true)"
           >
-            Save & Add Another
+            {{ t('admin.views.ownershipTax.saveAndAddAnother') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -316,6 +313,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import {
   createOwnershipTaxRule,
   deleteOwnershipTaxRule,
@@ -329,11 +327,11 @@ import type { ApiErrorModel } from '@/models/api-error.model'
 import PageHeader from '@/components/panel/PageHeader.vue'
 import OverviewStatCard from '@/components/panel/OverviewStatCard.vue'
 
+const { t } = useI18n()
+
 const loading = ref(false)
 const saving = ref(false)
-/** Errors for list load / delete only — never used for dialog validation (avoids hiding the table). */
 const listError = ref<string | null>(null)
-/** Errors for create/edit dialog (validation + API). */
 const dialogError = ref<string | null>(null)
 
 const rules = ref<OwnershipTaxRuleModel[]>([])
@@ -344,7 +342,6 @@ const totalPages = ref(1)
 
 const driveEnergies = ref<DmrDriveEnergyModel[]>([])
 
-/** Matches {@see AdminOwnershipTaxRuleController} validation (registration years). */
 const REGISTRATION_YEAR_MIN = 1900
 const REGISTRATION_YEAR_MAX = 2100
 
@@ -375,48 +372,48 @@ const form = ref({
 
 const ruleRequiredFuel = (v: unknown) => {
   if (v !== undefined && v !== null && v !== '') return true
-  return 'Select a fuel type'
+  return t('admin.views.ownershipTax.validationSelectFuel')
 }
 
 const ruleRequiredYearFrom = (v: unknown) => {
   if (v !== undefined && v !== null && v !== '') return true
-  return 'Select year from'
+  return t('admin.views.ownershipTax.validationSelectYearFrom')
 }
 
 const ruleRequiredYearTo = (v: unknown) => {
   if (v !== undefined && v !== null && v !== '') return true
-  return 'Select year to'
+  return t('admin.views.ownershipTax.validationSelectYearTo')
 }
 
 const ruleYearRange = (v: unknown) => {
   const from = form.value.registration_year_from
   const to = typeof v === 'number' ? v : Number(v)
   if (from == null || !Number.isFinite(from) || !Number.isFinite(to)) return true
-  if (to < from) return 'Year to must be greater than or equal to year from'
+  if (to < from) return t('admin.views.ownershipTax.validationYearRange')
   return true
 }
 
 const ruleRequiredKmFrom = (v: unknown) => {
   if (v !== undefined && v !== null && v !== '' && Number.isFinite(Number(v))) return true
-  return 'Enter km/l from'
+  return t('admin.views.ownershipTax.validationKmFrom')
 }
 
 const ruleRequiredKmTo = (v: unknown) => {
   if (v !== undefined && v !== null && v !== '' && Number.isFinite(Number(v))) return true
-  return 'Enter km/l to'
+  return t('admin.views.ownershipTax.validationKmTo')
 }
 
 const ruleKmRange = (v: unknown) => {
   const from = form.value.km_per_liter_from
   const to = Number(v)
   if (from == null || !Number.isFinite(from) || !Number.isFinite(to)) return true
-  if (to < from) return 'Km/l to must be greater than or equal to km/l from'
+  if (to < from) return t('admin.views.ownershipTax.validationKmRange')
   return true
 }
 
 const ruleRequiredTax = (v: unknown) => {
   if (v !== undefined && v !== null && v !== '' && Number.isFinite(Number(v)) && Number(v) >= 0) return true
-  return 'Enter a valid tax amount'
+  return t('admin.views.ownershipTax.validationTax')
 }
 
 const formatPrice = (amount?: number) => {
@@ -431,13 +428,13 @@ const formatPrice = (amount?: number) => {
 
 const formatNumber = (n: number) => new Intl.NumberFormat('da-DK', { maximumFractionDigits: 3 }).format(n)
 
-const headers = [
-  { title: 'Fuel type', key: 'fuelType', sortable: false },
-  { title: 'Year range', key: 'yearRange', sortable: false, width: '160px' },
-  { title: 'Km/l range', key: 'kmRange', sortable: false, width: '180px' },
-  { title: 'Tax (DKK)', key: 'taxAmount', sortable: false, width: '140px', align: 'end' as const },
-  { title: 'Actions', key: 'actions', sortable: false, width: '120px', align: 'center' as const },
-]
+const headers = computed(() => [
+  { title: t('admin.views.ownershipTax.fuelType'), key: 'fuelType', sortable: false },
+  { title: t('admin.views.ownershipTax.colYearRange'), key: 'yearRange', sortable: false, width: '160px' },
+  { title: t('admin.views.ownershipTax.colKmRange'), key: 'kmRange', sortable: false, width: '180px' },
+  { title: t('admin.views.ownershipTax.colTaxAmount'), key: 'taxAmount', sortable: false, width: '140px', align: 'end' as const },
+  { title: t('common.actions'), key: 'actions', sortable: false, width: '120px', align: 'center' as const },
+])
 
 const uniqueFuelTypesCount = computed(() => {
   const ids = new Set<number>()
@@ -446,8 +443,7 @@ const uniqueFuelTypesCount = computed(() => {
 })
 
 const fuelFilterOptions = computed(() => {
-  const opts = driveEnergies.value.map(e => ({ label: e.name, value: e.id }))
-  return opts
+  return driveEnergies.value.map(e => ({ label: e.name, value: e.id }))
 })
 
 const filteredRules = computed(() => {
@@ -483,7 +479,7 @@ const loadRules = async () => {
     totalDocs.value = data.totalDocs ?? data.total ?? data.docs.length
     totalPages.value = data.totalPages ?? Math.max(1, Math.ceil((totalDocs.value || 0) / limit.value))
   } catch (e) {
-    listError.value = (e as ApiErrorModel).message || 'Failed to load rules'
+    listError.value = (e as ApiErrorModel).message || t('admin.views.ownershipTax.failedLoadRules')
   } finally {
     loading.value = false
   }
@@ -547,7 +543,7 @@ const save = async (continueAdding: boolean) => {
 
   const validation = await dialogFormRef.value?.validate()
   if (validation && !validation.valid) {
-    dialogError.value = 'Please fix the highlighted fields.'
+    dialogError.value = t('admin.views.ownershipTax.fixHighlightedFields')
     return
   }
 
@@ -573,17 +569,17 @@ const save = async (continueAdding: boolean) => {
       !Number.isFinite(payload.dmr_drive_energy_id) ||
       !Number.isFinite(payload.tax_amount)
     ) {
-      dialogError.value = 'Please fill all fields with valid numbers.'
+      dialogError.value = t('admin.views.ownershipTax.fillAllFieldsValidNumbers')
       return
     }
 
     if (payload.registration_year_from > payload.registration_year_to) {
-      dialogError.value = 'Registration year from cannot be greater than year to.'
+      dialogError.value = t('admin.views.ownershipTax.yearFromGreaterThanTo')
       return
     }
 
     if (payload.km_per_liter_from > payload.km_per_liter_to) {
-      dialogError.value = 'Km/l from cannot be greater than km/l to.'
+      dialogError.value = t('admin.views.ownershipTax.kmFromGreaterThanTo')
       return
     }
 
@@ -594,7 +590,6 @@ const save = async (continueAdding: boolean) => {
       return
     }
 
-    // Create mode
     const core = keepFuelAndYears.value
       ? {
         dmr_drive_energy_id: form.value.dmr_drive_energy_id,
@@ -616,20 +611,20 @@ const save = async (continueAdding: boolean) => {
       closeDialog()
     }
   } catch (e) {
-    dialogError.value = (e as ApiErrorModel).message || 'Failed to save rule'
+    dialogError.value = (e as ApiErrorModel).message || t('admin.views.ownershipTax.failedSaveRule')
   } finally {
     saving.value = false
   }
 }
 
 const confirmDelete = async (rule: OwnershipTaxRuleModel) => {
-  if (!confirm(`Delete ownership tax rule #${rule.id}?`)) return
+  if (!confirm(t('admin.views.ownershipTax.confirmDelete', { id: rule.id }))) return
   try {
     listError.value = null
     await deleteOwnershipTaxRule(rule.id)
     await loadRules()
   } catch (e) {
-    listError.value = (e as ApiErrorModel).message || 'Failed to delete rule'
+    listError.value = (e as ApiErrorModel).message || t('admin.views.ownershipTax.failedDeleteRule')
   }
 }
 

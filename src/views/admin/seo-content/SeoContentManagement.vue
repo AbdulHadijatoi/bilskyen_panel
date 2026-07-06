@@ -196,6 +196,7 @@ import {
   type SeoPageKeyOption,
 } from '@/api/admin.api'
 import AiGenerateButton from '@/components/ai/AiGenerateButton.vue'
+import { getIntlLocale } from '@/utils/defaultLocale'
 
 const { t: $t } = useI18n()
 
@@ -316,7 +317,7 @@ function formatDate(val: string | undefined): string {
   if (!val) return '—'
   try {
     const d = new Date(val)
-    return d.toLocaleDateString()
+    return d.toLocaleDateString(getIntlLocale())
   } catch {
     return val
   }

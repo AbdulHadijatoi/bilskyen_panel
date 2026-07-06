@@ -132,6 +132,7 @@ import type { PaginationModel } from '@/models/pagination.model'
 import { hasPermission } from '@/utils/permissions'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import { getIntlLocale } from '@/utils/defaultLocale'
 
 const { t } = useI18n()
 
@@ -180,7 +181,7 @@ const headers = computed(() => [
 
 function formatDate(v?: string | null) {
   if (!v) return '—'
-  return new Date(v).toLocaleString()
+  return new Date(v).toLocaleString(getIntlLocale())
 }
 
 function statusLabel(status: string) {

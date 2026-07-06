@@ -1,3 +1,5 @@
+import i18n from '@/plugins/i18n'
+
 /**
  * Vehicle list status IDs — must stay aligned with backend
  * `App\Constants\VehicleListStatus`.
@@ -27,15 +29,36 @@ export function listStatusNameFromId(statusId: number | null | undefined): strin
   return VEHICLE_LIST_STATUS_LABEL_BY_ID[Number(statusId)]
 }
 
+function normalizeListStatusSlug(value: string): string {
+  return value.trim().toLowerCase().replace(/\s+/g, '_')
+}
+
+function listStatusSlug(options: {
+  status?: string
+  vehicleListStatusName?: string
+  vehicleListStatusId?: number | null
+}): string | undefined {
+  const fromText = options.status || options.vehicleListStatusName
+  if (fromText) return normalizeListStatusSlug(fromText)
+  return listStatusNameFromId(options.vehicleListStatusId)
+}
+
+function translateListStatusSlug(slug: string | undefined, fallback?: string): string {
+  if (!slug) return i18n.global.t('common.na')
+  const key = `common.vehicleListStatus.${slug}`
+  const translated = i18n.global.t(key)
+  if (translated !== key) return translated
+  return fallback ?? slug.replace(/_/g, ' ')
+}
+
 export function formatListStatusLabel(options: {
   status?: string
   vehicleListStatusName?: string
   vehicleListStatusId?: number | null
 }): string {
-  const fromText = options.status || options.vehicleListStatusName
-  if (fromText) return fromText
-  const fromId = listStatusNameFromId(options.vehicleListStatusId)
-  return fromId ?? 'N/A'
+  const slug = listStatusSlug(options)
+  const fallback = options.status || options.vehicleListStatusName
+  return translateListStatusSlug(slug, fallback)
 }
 
 /**

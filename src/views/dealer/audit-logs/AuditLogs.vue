@@ -320,6 +320,7 @@ import { useI18n } from 'vue-i18n'
 import { getAuditLogs, getAuditLog, type DealerAuditLogModel } from '@/api/dealer.api'
 import type { PaginationModel } from '@/models/pagination.model'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import { getIntlLocale } from '@/utils/defaultLocale'
 
 const { t } = useI18n()
 
@@ -593,12 +594,12 @@ const getFilterLabel = (key: string): string => {
 
 const formatDate = (date?: string): string => {
   if (!date) return t('common.na')
-  return new Date(date).toLocaleString()
+  return new Date(date).toLocaleString(getIntlLocale())
 }
 
 const formatDetailDate = (date?: string): string => {
   if (!date) return t('common.na')
-  return new Date(date).toLocaleString(undefined, {
+  return new Date(date).toLocaleString(getIntlLocale(), {
     dateStyle: 'medium',
     timeStyle: 'short',
   })

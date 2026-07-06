@@ -130,6 +130,7 @@ import {
 } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import { getIntlLocale } from '@/utils/defaultLocale'
 
 const { t } = useI18n()
 
@@ -163,11 +164,11 @@ const headers = [
 
 function formatDate(value?: string | null): string {
   if (!value) return '-'
-  return new Date(value).toLocaleDateString()
+  return new Date(value).toLocaleDateString(getIntlLocale())
 }
 
 function formatMoney(cents: number, currency = 'DKK'): string {
-  return `${(cents / 100).toLocaleString(undefined, { minimumFractionDigits: 2 })} ${currency}`
+  return `${(cents / 100).toLocaleString(getIntlLocale(), { minimumFractionDigits: 2 })} ${currency}`
 }
 
 function statusColor(status: string): string {

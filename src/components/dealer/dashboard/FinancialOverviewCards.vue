@@ -111,7 +111,7 @@
           </div>
           <h3 class="text-2xl font-bold mb-0">
             <template v-if="overview.type !== 'Profit Margin'">₹</template>
-            {{ overview.type === 'Profit Margin' ? parseFloat(String(overview.value)).toFixed(1) : overview.value.toLocaleString() }}
+            {{ overview.type === 'Profit Margin' ? parseFloat(String(overview.value)).toFixed(1) : overview.value.toLocaleString(getIntlLocale()) }}
             <template v-if="overview.type === 'Profit Margin'">%</template>
           </h3>
           <p
@@ -143,6 +143,7 @@
 import { ref, watch } from 'vue'
 import httpClient from '@/api/http'
 import { DEALER_ACCOUNTING_ENDPOINTS } from '@/api/endpoints'
+import { getIntlLocale } from '@/utils/defaultLocale'
 
 interface FinancialOverview {
   type: string

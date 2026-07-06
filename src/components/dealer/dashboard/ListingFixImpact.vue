@@ -67,6 +67,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import type { ListingHealthFixImpactItem } from '@/api/dealer.api'
+import { getIntlLocale } from '@/utils/defaultLocale'
 
 defineProps<{
   items: ListingHealthFixImpactItem[] | null | undefined
@@ -100,7 +101,7 @@ function liftClass(value?: number | null) {
 }
 
 function formatDate(value: string) {
-  return new Date(value).toLocaleDateString()
+  return new Date(value).toLocaleDateString(getIntlLocale())
 }
 </script>
 

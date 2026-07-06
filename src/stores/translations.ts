@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { getDefaultLocale } from '@/utils/defaultLocale'
 
 export interface Translation {
   key: string
@@ -12,7 +13,7 @@ const CACHE_EXPIRY = 24 * 60 * 60 * 1000 // 24 hours
 export const useTranslationStore = defineStore('translations', () => {
   // State
   const translations = ref<Record<string, string>>({})
-  const locale = ref<string>('en')
+  const locale = ref<string>(getDefaultLocale())
   const loading = ref<boolean>(false)
   const lastFetch = ref<number>(0)
 

@@ -94,6 +94,7 @@ import { useI18n } from 'vue-i18n'
 import { getAiUsageLogs, type AiUsageLogModel } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import { getIntlLocale } from '@/utils/defaultLocale'
 
 const { t } = useI18n()
 
@@ -135,7 +136,7 @@ const headers = computed(() => [
 
 function formatDate(value: string) {
   try {
-    return new Date(value).toLocaleString()
+    return new Date(value).toLocaleString(getIntlLocale())
   } catch {
     return value
   }

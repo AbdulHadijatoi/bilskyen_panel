@@ -2,9 +2,9 @@
   <div class="panel-page flex w-full flex-col gap-4">
     <!-- Header -->
     <div>
-      <h2 class="text-xl font-bold">Profile Settings</h2>
+      <h2 class="text-xl font-bold">{{ t('staff.views.profile.title') }}</h2>
       <p class="text-muted-foreground max-w-2xl">
-        Update your dealer profile information including business details and location.
+        {{ t('staff.views.profile.subtitle') }}
       </p>
     </div>
 
@@ -20,7 +20,7 @@
         <!-- Loading State -->
         <div v-if="loading" class="text-center py-12">
           <v-progress-circular indeterminate color="primary" size="48" />
-          <p class="text-body-2 text-medium-emphasis mt-4">Loading profile information...</p>
+          <p class="text-body-2 text-medium-emphasis mt-4">{{ t('staff.views.profile.loadingProfile') }}</p>
         </div>
 
         <!-- Error State -->
@@ -47,10 +47,10 @@
           <div class="mb-6">
             <h3 class="text-h6 font-weight-semibold mb-1">
               <v-icon size="20" class="mr-2">mdi-account</v-icon>
-              Account Information
+              {{ t('staff.views.profile.accountInformation') }}
             </h3>
             <p class="text-body-2 text-medium-emphasis mb-4">
-              Update your personal account details
+              {{ t('staff.views.profile.accountDetails') }}
             </p>
           </div>
 
@@ -59,8 +59,8 @@
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="form.name"
-                label="Full Name"
-                placeholder="Enter your full name"
+                :label="t('staff.views.profile.fullName')"
+                :placeholder="t('staff.views.profile.placeholderFullName')"
                 density="compact"
                 variant="outlined"
                 :rules="[rules.name]"
@@ -73,8 +73,8 @@
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="form.email"
-                label="Email"
-                placeholder="Enter your email"
+                :label="t('staff.views.profile.email')"
+                :placeholder="t('staff.views.profile.placeholderEmail')"
                 type="email"
                 density="compact"
                 variant="outlined"
@@ -88,8 +88,8 @@
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="form.phone"
-                label="Phone Number"
-                placeholder="Enter your phone number"
+                :label="t('staff.views.profile.phone')"
+                :placeholder="t('staff.views.profile.placeholderPhone')"
                 density="compact"
                 variant="outlined"
                 hide-details="auto"
@@ -103,10 +103,10 @@
           <div class="mb-6">
             <h3 class="text-h6 font-weight-semibold mb-1">
               <v-icon size="20" class="mr-2">mdi-office-building</v-icon>
-              Business Information
+              {{ t('staff.views.profile.businessInformation') }}
             </h3>
             <p class="text-body-2 text-medium-emphasis mb-4">
-              Update your business registration and contact details
+              {{ t('staff.views.profile.businessDetails') }}
             </p>
           </div>
 
@@ -115,12 +115,12 @@
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="form.cvr"
-                label="CVR Number"
-                placeholder="Enter your CVR number"
+                :label="t('staff.views.profile.cvr')"
+                :placeholder="t('staff.views.profile.placeholderCvr')"
                 density="compact"
                 variant="outlined"
                 :rules="[rules.cvr]"
-                hint="Company registration number (max 20 characters)"
+                :hint="t('staff.views.profile.hintCvr')"
                 persistent-hint
                 hide-details="auto"
                 prepend-inner-icon="mdi-identifier"
@@ -133,10 +133,10 @@
           <div class="mb-6">
             <h3 class="text-h6 font-weight-semibold mb-1">
               <v-icon size="20" class="mr-2">mdi-map-marker</v-icon>
-              Address Information
+              {{ t('staff.views.profile.addressInformation') }}
             </h3>
             <p class="text-body-2 text-medium-emphasis mb-4">
-              Update your business address and location details
+              {{ t('staff.views.profile.addressSubtitle') }}
             </p>
           </div>
 
@@ -145,8 +145,8 @@
             <v-col cols="12">
               <v-text-field
                 v-model="form.address"
-                label="Street Address"
-                placeholder="Enter your street address"
+                :label="t('staff.views.profile.streetAddress')"
+                :placeholder="t('staff.views.profile.placeholderStreet')"
                 density="compact"
                 variant="outlined"
                 hide-details="auto"
@@ -158,8 +158,8 @@
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="form.city"
-                label="City"
-                placeholder="Enter your city"
+                :label="t('staff.views.profile.city')"
+                :placeholder="t('staff.views.profile.placeholderCity')"
                 density="compact"
                 variant="outlined"
                 hide-details="auto"
@@ -171,8 +171,8 @@
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="form.postcode"
-                label="Postcode"
-                placeholder="Enter your postcode"
+                :label="t('staff.views.profile.postcode')"
+                :placeholder="t('staff.views.profile.placeholderPostcode')"
                 density="compact"
                 variant="outlined"
                 hide-details="auto"
@@ -185,8 +185,8 @@
               <v-autocomplete
                 v-model="form.country_code"
                 :items="countryCodes"
-                label="Country Code"
-                placeholder="Select country code"
+                :label="t('staff.views.profile.countryCode')"
+                :placeholder="t('staff.views.profile.placeholderCountry')"
                 density="compact"
                 variant="outlined"
                 hide-details="auto"
@@ -237,7 +237,7 @@
             @click:close="validationErrors = {}"
           >
             <div class="mb-2">
-              <strong>Please fix the following errors:</strong>
+              <strong>{{ t('staff.views.profile.fixErrors') }}</strong>
             </div>
             <ul class="mb-0 pl-4">
               <li v-for="(errors, field) in validationErrors" :key="field">
@@ -256,7 +256,7 @@
             closable
             @click:close="showSuccess = false"
           >
-            Profile updated successfully!
+            {{ t('staff.views.profile.profileUpdated') }}
           </v-alert>
 
           <!-- Action Buttons -->
@@ -269,7 +269,7 @@
               :disabled="submitting"
             >
               <v-icon start>mdi-refresh</v-icon>
-              Reset
+              {{ t('staff.views.profile.reset') }}
             </v-btn>
             <v-btn
               color="primary"
@@ -279,7 +279,7 @@
               @click="handleSubmit"
             >
               <v-icon start>{{ submitting ? 'mdi-loading' : 'mdi-content-save' }}</v-icon>
-              {{ submitting ? 'Saving...' : 'Save Changes' }}
+              {{ submitting ? t('staff.views.profile.saving') : t('staff.views.profile.saveChanges') }}
             </v-btn>
           </div>
         </v-form>
@@ -343,19 +343,19 @@ const countryCodes = [
 const rules = {
   name: (value: string) => {
     if (!value) return true
-    if (value.length < 2) return 'Name must be at least 2 characters'
-    if (value.length > 100) return 'Name must be 100 characters or less'
+    if (value.length < 2) return t('staff.views.profile.validationNameMin')
+    if (value.length > 100) return t('staff.views.profile.validationNameMax')
     return true
   },
   email: (value: string) => {
     if (!value) return true
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(value)) return 'Please enter a valid email address'
+    if (!emailRegex.test(value)) return t('staff.views.profile.validationEmail')
     return true
   },
   cvr: (value: string) => {
     if (!value) return true
-    if (value.length > 20) return 'CVR number must be 20 characters or less'
+    if (value.length > 20) return t('staff.views.profile.validationCvrMax')
     return true
   },
 }
@@ -384,13 +384,13 @@ const loadProfile = async () => {
     form.country_code = data.countryCode || ''
   } catch (error: any) {
     console.error('Failed to load profile:', error)
-    loadError.value = error?.message || t('dealer.views.profile.failedLoadProfile')
+    loadError.value = error?.message || t('staff.views.profile.failedLoadProfile')
   } finally {
     loading.value = false
   }
 }
 
-// Reset form to original values
+// {{ t('staff.views.profile.reset') }} form to original values
 const resetForm = () => {
   if (profile.value) {
     if (profile.value.owner) {
@@ -471,7 +471,7 @@ const handleSubmit = async () => {
     if (error?.errors && typeof error.errors === 'object') {
       validationErrors.value = error.errors
     } else {
-      submitError.value = error?.message || t('dealer.views.profile.failedUpdateProfile')
+      submitError.value = error?.message || t('staff.views.profile.failedUpdateProfile')
     }
   } finally {
     submitting.value = false

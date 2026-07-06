@@ -3,6 +3,10 @@ import '@mdi/font/css/materialdesignicons.css'
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
+import { da, en } from 'vuetify/locale'
+import { getDefaultLocale } from '@/utils/defaultLocale'
+
+const appLocale = getDefaultLocale()
 
 export default createVuetify({
   components,
@@ -30,6 +34,11 @@ export default createVuetify({
         },
       },
     },
+  },
+  locale: {
+    locale: appLocale,
+    fallback: 'en',
+    messages: { da, en },
   },
   defaults: {
     VBtn: {

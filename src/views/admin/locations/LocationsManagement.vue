@@ -1,33 +1,33 @@
 <template>
   <div class="panel-page locations-admin-container">
     <PageHeader
-      title="Locations"
-      subtitle="Manage city, postcode, region, and coordinates used in sell-your-car and vehicle forms."
+      :title="t('admin.views.locations.title')"
+      :subtitle="t('admin.views.locations.subtitle')"
     >
       <template #actions>
         <button type="button" class="panel-btn panel-btn--primary" @click="openCreate">
           <v-icon size="16">mdi-plus</v-icon>
-          Add location
+          {{ t('admin.views.locations.addLocation') }}
         </button>
       </template>
     </PageHeader>
 
     <v-row class="mb-5">
       <v-col cols="12" sm="6" md="4">
-        <OverviewStatCard label="This page" :value="locations.length" icon="mdi-map-marker" color="primary" />
+        <OverviewStatCard :label="t('admin.views.locations.statThisPage')" :value="locations.length" icon="mdi-map-marker" color="primary" />
       </v-col>
       <v-col cols="12" sm="6" md="4">
-        <OverviewStatCard label="Total matching" :value="totalDocs" icon="mdi-map-marker-multiple" color="info" value-tone="info" />
+        <OverviewStatCard :label="t('admin.views.locations.statTotalMatching')" :value="totalDocs" icon="mdi-map-marker-multiple" color="info" value-tone="info" />
       </v-col>
     </v-row>
 
     <div class="panel-filters-card">
       <div class="panel-filters-grid">
         <div class="panel-filters-grid__search">
-          <span class="panel-filters-card__label">Search</span>
+          <span class="panel-filters-card__label">{{ t('common.search') }}</span>
           <v-text-field
             v-model="search"
-            placeholder="Search city, postcode, region, country…"
+            :placeholder="t('admin.views.locations.searchPlaceholder')"
             density="comfortable"
             variant="outlined"
             prepend-inner-icon="mdi-magnify"
@@ -43,7 +43,7 @@
             @click="loadLocations"
           >
             <v-icon size="16">mdi-refresh</v-icon>
-            Refresh
+            {{ t('common.refresh') }}
           </button>
         </div>
       </div>
@@ -53,12 +53,12 @@
       <div class="panel-table-card__body">
         <div v-if="loading" class="loading-container">
           <v-progress-circular indeterminate color="primary" size="48" />
-          <p class="text-body-2 text-medium-emphasis mt-4">Loading locations…</p>
+          <p class="text-body-2 text-medium-emphasis mt-4">{{ t('admin.views.locations.loadingLocations') }}</p>
         </div>
 
         <div v-else-if="listError" class="error-container pa-6">
           <v-alert type="error" variant="tonal" prominent>
-            <v-alert-title>Error</v-alert-title>
+            <v-alert-title>{{ t('common.error') }}</v-alert-title>
             {{ listError }}
           </v-alert>
         </div>
@@ -88,7 +88,7 @@
               <button
                 type="button"
                 class="panel-icon-btn panel-icon-btn--primary"
-                title="Edit"
+                :title="t('common.edit')"
                 @click="openEdit(item)"
               >
                 <v-icon size="16">mdi-pencil-outline</v-icon>
@@ -96,7 +96,7 @@
               <button
                 type="button"
                 class="panel-icon-btn panel-icon-btn--danger"
-                title="Delete"
+                :title="t('common.delete')"
                 @click="confirmDelete(item)"
               >
                 <v-icon size="16">mdi-trash-can-outline</v-icon>
@@ -107,7 +107,7 @@
           <template #no-data>
             <div class="panel-table-empty">
               <v-icon size="48" color="disabled">mdi-map-marker-off</v-icon>
-              <p>No locations found</p>
+              <p>{{ t('admin.views.locations.noLocationsFound') }}</p>
             </div>
           </template>
         </v-data-table>
@@ -119,7 +119,7 @@
         <v-card-title class="d-flex align-center">
           <v-icon class="mr-2" size="18" color="primary">mdi-map-marker</v-icon>
           <span class="text-subtitle-1 font-weight-medium">
-            {{ editingId ? 'Edit location' : 'Add location' }}
+            {{ editingId ? t('admin.views.locations.editLocation') : t('admin.views.locations.addLocation') }}
           </span>
           <v-spacer />
           <v-btn icon variant="text" :disabled="saving" @click="closeDialog">
@@ -146,7 +146,7 @@
               <v-col cols="12" sm="6">
                 <v-text-field
                   v-model="form.city"
-                  label="City"
+                  :label="t('admin.views.locations.city')"
                   variant="outlined"
                   density="compact"
                   hide-details="auto"
@@ -157,7 +157,7 @@
               <v-col cols="12" sm="6">
                 <v-text-field
                   v-model="form.postcode"
-                  label="Postcode"
+                  :label="t('admin.views.locations.postcode')"
                   variant="outlined"
                   density="compact"
                   hide-details="auto"
@@ -168,7 +168,7 @@
               <v-col cols="12">
                 <v-text-field
                   v-model="form.region"
-                  label="Region"
+                  :label="t('admin.views.locations.region')"
                   variant="outlined"
                   density="compact"
                   hide-details="auto"
@@ -179,12 +179,12 @@
               <v-col cols="12" sm="4">
                 <v-text-field
                   v-model="form.country_code"
-                  label="Country code"
+                  :label="t('admin.views.locations.countryCode')"
                   variant="outlined"
                   density="compact"
                   hide-details="auto"
                   maxlength="2"
-                  hint="ISO 3166-1 alpha-2 (e.g. DK)"
+                  :hint="t('admin.views.locations.countryCodeHint')"
                   persistent-hint
                   :rules="[ruleCountryCode]"
                   @update:model-value="onCountryInput"
@@ -193,7 +193,7 @@
               <v-col cols="12" sm="4">
                 <v-text-field
                   v-model="form.latitude"
-                  label="Latitude"
+                  :label="t('admin.views.locations.latitude')"
                   type="text"
                   inputmode="decimal"
                   variant="outlined"
@@ -205,7 +205,7 @@
               <v-col cols="12" sm="4">
                 <v-text-field
                   v-model="form.longitude"
-                  label="Longitude"
+                  :label="t('admin.views.locations.longitude')"
                   type="text"
                   inputmode="decimal"
                   variant="outlined"
@@ -222,7 +222,7 @@
         <v-card-actions class="pa-4">
           <v-spacer />
           <v-btn variant="text" size="small" :disabled="saving" @click="closeDialog">
-            Cancel
+            {{ t('common.cancel') }}
           </v-btn>
           <v-btn
             color="primary"
@@ -232,7 +232,7 @@
             :loading="saving"
             @click="save"
           >
-            Save
+            {{ t('common.save') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -242,7 +242,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
 import {
   createAdminLocation,
@@ -286,37 +286,37 @@ const form = ref({
 const ruleRequiredString = (v: unknown) => {
   const s = typeof v === 'string' ? v.trim() : ''
   if (s.length > 0) return true
-  return 'Required'
+  return t('common.required')
 }
 
 const ruleCountryCode = (v: unknown) => {
   const s = typeof v === 'string' ? v.trim().toUpperCase() : ''
-  if (s.length !== 2 || !/^[A-Z]{2}$/.test(s)) return 'Use a 2-letter country code'
+  if (s.length !== 2 || !/^[A-Z]{2}$/.test(s)) return t('admin.views.locations.validationCountryCode')
   return true
 }
 
 const ruleLatitude = (v: unknown) => {
   const n = Number(typeof v === 'string' ? v.trim().replace(',', '.') : v)
-  if (!Number.isFinite(n)) return 'Enter a valid latitude'
-  if (n < -90 || n > 90) return 'Latitude must be between -90 and 90'
+  if (!Number.isFinite(n)) return t('admin.views.locations.validationLatitude')
+  if (n < -90 || n > 90) return t('admin.views.locations.validationLatRange')
   return true
 }
 
 const ruleLongitude = (v: unknown) => {
   const n = Number(typeof v === 'string' ? v.trim().replace(',', '.') : v)
-  if (!Number.isFinite(n)) return 'Enter a valid longitude'
-  if (n < -180 || n > 180) return 'Longitude must be between -180 and 180'
+  if (!Number.isFinite(n)) return t('admin.views.locations.validationLongitude')
+  if (n < -180 || n > 180) return t('admin.views.locations.validationLngRange')
   return true
 }
 
-const headers = [
-  { title: 'City', key: 'city', sortable: false },
-  { title: 'Postcode', key: 'postcode', sortable: false, width: '110px' },
-  { title: 'Region', key: 'region', sortable: false },
-  { title: 'Country', key: 'countryCode', sortable: false, width: '88px' },
-  { title: 'Coordinates', key: 'coords', sortable: false, width: '200px' },
-  { title: 'Actions', key: 'actions', sortable: false, width: '120px', align: 'end' as const },
-]
+const headers = computed(() => [
+  { title: t('admin.views.locations.city'), key: 'city', sortable: false },
+  { title: t('admin.views.locations.postcode'), key: 'postcode', sortable: false, width: '110px' },
+  { title: t('admin.views.locations.region'), key: 'region', sortable: false },
+  { title: t('admin.views.locations.country'), key: 'countryCode', sortable: false, width: '88px' },
+  { title: t('admin.views.locations.coordinates'), key: 'coords', sortable: false, width: '200px' },
+  { title: t('common.actions'), key: 'actions', sortable: false, width: '120px', align: 'end' as const },
+])
 
 function formatCoord(n: number) {
   if (!Number.isFinite(n)) return '—'
@@ -345,7 +345,7 @@ const loadLocations = async () => {
     totalDocs.value = data.totalDocs ?? data.total ?? data.docs.length
     totalPages.value = data.totalPages ?? Math.max(1, Math.ceil((totalDocs.value || 0) / limit.value))
   } catch (e) {
-    listError.value = (e as ApiErrorModel).message || 'Failed to load locations'
+    listError.value = (e as ApiErrorModel).message || t('admin.views.locations.failedLoadLocations')
   } finally {
     loading.value = false
   }
@@ -417,7 +417,7 @@ async function save() {
   dialogError.value = null
   const validation = await dialogFormRef.value?.validate()
   if (validation && !validation.valid) {
-    dialogError.value = 'Please fix the highlighted fields.'
+    dialogError.value = t('admin.views.locations.fixHighlightedFields')
     return
   }
 
@@ -450,7 +450,7 @@ async function save() {
 
 async function confirmDelete(row: AdminLocationModel) {
   const label = `${row.city} (${row.postcode})`
-  if (!confirm(`Delete location “${label}”?`)) return
+  if (!confirm(t('admin.views.locations.confirmDelete', { label }))) return
   try {
     listError.value = null
     await deleteAdminLocation(row.id)

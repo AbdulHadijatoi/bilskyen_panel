@@ -107,6 +107,7 @@ import {
   updateLeadTask,
 } from '@/api/dealer.api'
 import AiGenerateButton from '@/components/ai/AiGenerateButton.vue'
+import { getIntlLocale } from '@/utils/defaultLocale'
 
 const props = defineProps<{
   leadId: number
@@ -126,7 +127,7 @@ const savingTask = ref(false)
 
 function formatDate(value?: string) {
   if (!value) return ''
-  return new Date(value).toLocaleString()
+  return new Date(value).toLocaleString(getIntlLocale())
 }
 
 function onAiSummaryAccept(text: string) {
