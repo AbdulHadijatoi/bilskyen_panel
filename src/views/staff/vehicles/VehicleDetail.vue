@@ -47,7 +47,7 @@
       <!-- Vehicle Profile Header Card -->
       <v-card
         variant="flat"
-        class="profile-header-card mb-4"
+        class="profile-header-card panel-card mb-4"
         elevation="0"
       >
         <v-card-text class="pa-4">
@@ -147,7 +147,7 @@
           <!-- Basic Information Card -->
           <v-card
             variant="flat"
-            class="info-card mb-3"
+            class="info-card panel-card mb-3"
             elevation="0"
           >
             <v-card-title class="card-title">
@@ -354,7 +354,7 @@
           <!-- Vehicle Specifications Card -->
           <v-card
             variant="flat"
-            class="info-card mb-3"
+            class="info-card panel-card mb-3"
             elevation="0"
           >
             <v-card-title class="card-title">
@@ -620,7 +620,7 @@
           <v-card
             v-if="vehicle.details"
             variant="flat"
-            class="info-card mb-3"
+            class="info-card panel-card mb-3"
             elevation="0"
           >
             <v-card-title class="card-title">
@@ -821,7 +821,7 @@
           <!-- Pricing Information Card -->
           <v-card
             variant="flat"
-            class="info-card mb-3"
+            class="info-card panel-card mb-3"
             elevation="0"
           >
             <v-card-title class="card-title">
@@ -904,7 +904,7 @@
           <v-card
             v-if="showLeasingBlockStaff"
             variant="flat"
-            class="info-card mb-3"
+            class="info-card panel-card mb-3"
             elevation="0"
           >
             <v-card-title class="card-title">
@@ -1026,7 +1026,7 @@
           <!-- Images Management Card -->
           <v-card
             variant="flat"
-            class="info-card mb-3"
+            class="info-card panel-card mb-3"
             elevation="0"
           >
             <v-card-title class="card-title">
@@ -1079,7 +1079,7 @@
           <!-- Equipment Management Card -->
           <v-card
             variant="flat"
-            class="info-card mb-3"
+            class="info-card panel-card mb-3"
             elevation="0"
           >
             <v-card-title class="card-title">
@@ -1122,7 +1122,7 @@
           <!-- Vehicle Information Sidebar -->
           <v-card
             variant="flat"
-            class="info-card mb-3"
+            class="info-card panel-card mb-3"
             elevation="0"
           >
             <v-card-title class="card-title">
@@ -1159,218 +1159,164 @@
     </div>
 
     <!-- Image Upload Dialog -->
-    <v-dialog v-model="showImageUploadDialog" max-width="500">
-      <v-card>
-        <v-card-title class="d-flex align-center text-subtitle-1">
-          <v-icon color="primary" size="18" class="mr-2">mdi-upload</v-icon>
-          Upload Vehicle Images
+    <PanelDialog v-model="showImageUploadDialog" :max-width="500">
+      <template #header>
+        <div class="panel-dialog__title-row">
+          <v-icon color="primary" size="20" class="panel-dialog__icon">mdi-upload</v-icon>
+          <h2 class="panel-dialog__title">Upload Vehicle Images</h2>
           <v-chip v-if="maxVehicleImages > 0" size="x-small" class="ml-2" color="primary" variant="tonal">
             {{ vehicleImages.length }}/{{ maxVehicleImages }}
           </v-chip>
-        </v-card-title>
-        <v-card-text class="pa-3">
-          <v-file-input
-            v-model="imageFiles"
-            label="Select Images"
-            multiple
-            accept="image/*"
-            variant="outlined"
-            density="compact"
-            prepend-icon="mdi-image"
-            hide-details="auto"
-            :hint="maxVehicleImages > 0 ? `You can add up to ${remainingImageSlots} more image(s).` : undefined"
-          />
-        </v-card-text>
-        <v-card-actions class="pa-3">
-          <v-spacer />
-          <v-btn variant="text" size="small" @click="cancelImageUpload">Cancel</v-btn>
-          <v-btn
-            color="primary"
-            size="small"
-            @click="uploadImages"
-            :loading="uploadingImages"
-            :disabled="!imageFiles || imageFiles.length === 0 || (maxVehicleImages > 0 && vehicleImages.length + (imageFiles?.length || 0) > maxVehicleImages)"
-          >
-            Upload
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+        </div>
+      </template>
+      <v-file-input
+        v-model="imageFiles"
+        label="Select Images"
+        multiple
+        accept="image/*"
+        variant="outlined"
+        density="compact"
+        prepend-icon="mdi-image"
+        hide-details="auto"
+        :hint="maxVehicleImages > 0 ? `You can add up to ${remainingImageSlots} more image(s).` : undefined"
+      />
+      <template #footer>
+        <PanelButton variant="ghost" @click="cancelImageUpload">Cancel</PanelButton>
+        <PanelButton
+          variant="primary"
+          :loading="uploadingImages"
+          :disabled="!imageFiles || imageFiles.length === 0 || (maxVehicleImages > 0 && vehicleImages.length + (imageFiles?.length || 0) > maxVehicleImages)"
+          @click="uploadImages"
+        >
+          Upload
+        </PanelButton>
+      </template>
+    </PanelDialog>
 
     <!-- Delete Image Confirmation Dialog -->
-    <v-dialog v-model="showDeleteImageDialog" max-width="400">
-      <v-card>
-        <v-card-title class="d-flex align-center text-subtitle-1">
-          <v-icon color="error" size="18" class="mr-2">mdi-delete</v-icon>
-          Delete Image
-        </v-card-title>
-        <v-card-text class="pa-3">
-          <p class="text-body-2">
-            Are you sure you want to delete this image?
-          </p>
-        </v-card-text>
-        <v-card-actions class="pa-3">
-          <v-spacer />
-          <v-btn variant="text" size="small" @click="showDeleteImageDialog = false">Cancel</v-btn>
-          <v-btn
-            color="error"
-            size="small"
-            @click="deleteImage"
-            :loading="deletingImage"
-          >
-            Delete
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <PanelDialog v-model="showDeleteImageDialog" title="Delete Image" icon="mdi-delete" :max-width="400">
+      <p class="text-body-2 mb-0">
+        Are you sure you want to delete this image?
+      </p>
+      <template #footer>
+        <PanelButton variant="ghost" @click="showDeleteImageDialog = false">Cancel</PanelButton>
+        <PanelButton variant="danger" :loading="deletingImage" @click="deleteImage">
+          Delete
+        </PanelButton>
+      </template>
+    </PanelDialog>
 
     <!-- Equipment Management Dialog -->
-    <v-dialog v-model="showEquipmentDialog" max-width="700">
-      <v-card>
-        <v-card-title class="d-flex align-center text-subtitle-1">
-          <v-icon color="primary" size="18" class="mr-2">mdi-cog</v-icon>
-          Edit Equipment
+    <PanelDialog v-model="showEquipmentDialog" :max-width="700">
+      <template #header>
+        <div class="panel-dialog__title-row">
+          <v-icon color="primary" size="20" class="panel-dialog__icon">mdi-cog</v-icon>
+          <h2 class="panel-dialog__title">Edit Equipment</h2>
           <v-chip v-if="maxEquipmentPerVehicle > 0" size="x-small" class="ml-2" color="primary" variant="tonal">
             {{ selectedEquipment.length }}/{{ maxEquipmentPerVehicle }}
           </v-chip>
-        </v-card-title>
-        <v-card-text class="pa-3">
-          <div v-if="loadingEquipment" class="text-center py-4">
-            <v-progress-circular indeterminate color="primary" size="32" />
-          </div>
-          <div v-else>
-            <div
-              v-for="equipmentType in equipmentTypes"
-              :key="equipmentType.id"
-              class="mb-3"
-            >
-              <div class="text-caption font-weight-medium mb-2">{{ equipmentType.name }}</div>
-              <v-checkbox
-                v-for="equipment in equipmentType.equipments || []"
-                :key="equipment.id"
-                v-model="selectedEquipment"
-                :value="equipment.id"
-                :label="equipment.name"
-                density="compact"
-                hide-details
-                class="ml-4"
-                :disabled="maxEquipmentPerVehicle > 0 && selectedEquipment.length >= maxEquipmentPerVehicle && !selectedEquipment.includes(equipment.id)"
-              />
-            </div>
-          </div>
-        </v-card-text>
-        <v-card-actions class="pa-3">
-          <v-spacer />
-          <v-btn variant="text" size="small" @click="cancelEquipmentEdit">Cancel</v-btn>
-          <v-btn
-            color="primary"
-            size="small"
-            @click="saveEquipment"
-            :loading="savingEquipment"
-          >
-            Save
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+        </div>
+      </template>
+      <div v-if="loadingEquipment" class="text-center py-4">
+        <v-progress-circular indeterminate color="primary" size="32" />
+      </div>
+      <div v-else>
+        <div
+          v-for="equipmentType in equipmentTypes"
+          :key="equipmentType.id"
+          class="mb-3"
+        >
+          <div class="text-caption font-weight-medium mb-2">{{ equipmentType.name }}</div>
+          <v-checkbox
+            v-for="equipment in equipmentType.equipments || []"
+            :key="equipment.id"
+            v-model="selectedEquipment"
+            :value="equipment.id"
+            :label="equipment.name"
+            density="compact"
+            hide-details
+            class="ml-4"
+            :disabled="maxEquipmentPerVehicle > 0 && selectedEquipment.length >= maxEquipmentPerVehicle && !selectedEquipment.includes(equipment.id)"
+          />
+        </div>
+      </div>
+      <template #footer>
+        <PanelButton variant="ghost" @click="cancelEquipmentEdit">Cancel</PanelButton>
+        <PanelButton variant="primary" :loading="savingEquipment" @click="saveEquipment">
+          Save
+        </PanelButton>
+      </template>
+    </PanelDialog>
 
     <!-- Update Status Dialog -->
-    <v-dialog v-model="showStatusDialog" max-width="500">
-      <v-card>
-        <v-card-title class="d-flex align-center text-subtitle-1">
-          <v-icon color="primary" size="18" class="mr-2">mdi-update</v-icon>
-          Update Vehicle Status
-        </v-card-title>
-        <v-card-text class="pa-3">
-          <p class="text-body-2 mb-3">
-            Current status: <strong>{{ vehicle?.status || vehicle?.vehicleListStatusName || '-' }}</strong>
-          </p>
-          <v-select
-            v-model="selectedStatus"
-            :items="statusOptions"
-            item-title="label"
-            item-value="value"
-            :label="t('dealer.views.vehicleDetail.newStatus')"
-            variant="outlined"
-            density="compact"
-            hide-details="auto"
-          />
-        </v-card-text>
-        <v-card-actions class="pa-3">
-          <v-spacer />
-          <v-btn variant="text" size="small" @click="cancelStatusUpdate">Cancel</v-btn>
-          <v-btn
-            color="primary"
-            size="small"
-            @click="updateStatus"
-            :loading="updatingStatus"
-            :disabled="!selectedStatus || selectedStatus === (vehicle?.status || vehicle?.vehicleListStatusName)"
-          >
-            Update Status
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <PanelDialog v-model="showStatusDialog" title="Update Vehicle Status" icon="mdi-update" :max-width="500">
+      <p class="text-body-2 mb-3">
+        Current status: <strong>{{ vehicle?.status || vehicle?.vehicleListStatusName || '-' }}</strong>
+      </p>
+      <v-select
+        v-model="selectedStatus"
+        :items="statusOptions"
+        item-title="label"
+        item-value="value"
+        :label="t('dealer.views.vehicleDetail.newStatus')"
+        variant="outlined"
+        density="compact"
+        hide-details="auto"
+      />
+      <template #footer>
+        <PanelButton variant="ghost" @click="cancelStatusUpdate">Cancel</PanelButton>
+        <PanelButton
+          variant="primary"
+          :loading="updatingStatus"
+          :disabled="!selectedStatus || selectedStatus === (vehicle?.status || vehicle?.vehicleListStatusName)"
+          @click="updateStatus"
+        >
+          Update Status
+        </PanelButton>
+      </template>
+    </PanelDialog>
 
     <!-- Mark as Sold Confirmation Dialog -->
-    <v-dialog v-model="showMarkAsSoldDialog" max-width="400">
-      <v-card>
-        <v-card-title class="d-flex align-center text-subtitle-1">
-          <v-icon color="success" size="18" class="mr-2">mdi-check-circle</v-icon>
+    <PanelDialog
+      v-model="showMarkAsSoldDialog"
+      :title="t('dealer.views.vehicleDetail.markAsSold')"
+      icon="mdi-check-circle"
+      :max-width="400"
+    >
+      <p class="text-body-2 mb-0">
+        {{ t('dealer.views.vehicleDetail.markAsSoldConfirm', { name: vehicleDisplayTitle }) }}
+      </p>
+      <p class="text-caption text-medium-emphasis mt-1 mb-0">
+        {{ t('dealer.views.vehicleDetail.markAsSoldDescription') }}
+      </p>
+      <template #footer>
+        <PanelButton variant="ghost" @click="showMarkAsSoldDialog = false">{{ t('common.cancel') }}</PanelButton>
+        <PanelButton variant="primary" :loading="markingAsSold" @click="markAsSold">
           {{ t('dealer.views.vehicleDetail.markAsSold') }}
-        </v-card-title>
-        <v-card-text class="pa-3">
-          <p class="text-body-2">
-            {{ t('dealer.views.vehicleDetail.markAsSoldConfirm', { name: vehicleDisplayTitle }) }}
-          </p>
-          <p class="text-caption text-medium-emphasis mt-1">
-            {{ t('dealer.views.vehicleDetail.markAsSoldDescription') }}
-          </p>
-        </v-card-text>
-        <v-card-actions class="pa-3">
-          <v-spacer />
-          <v-btn variant="text" size="small" @click="showMarkAsSoldDialog = false">{{ t('common.cancel') }}</v-btn>
-          <v-btn
-            color="success"
-            size="small"
-            @click="markAsSold"
-            :loading="markingAsSold"
-          >
-            {{ t('dealer.views.vehicleDetail.markAsSold') }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+        </PanelButton>
+      </template>
+    </PanelDialog>
 
     <!-- Delete Vehicle Confirmation Dialog -->
-    <v-dialog v-model="showDeleteDialog" max-width="400">
-      <v-card>
-        <v-card-title class="d-flex align-center text-subtitle-1">
-          <v-icon color="error" size="18" class="mr-2">mdi-delete</v-icon>
-          {{ t('dealer.views.vehicles.deleteVehicle') }}
-        </v-card-title>
-        <v-card-text class="pa-3">
-          <p class="text-body-2">
-            {{ t('common.confirmDeleteLead') }}<strong>{{ vehicle?.title || t('common.vehicleTitleFallback', { id: vehicle?.id }) }}</strong>{{ t('common.confirmDeleteTrail') }}
-          </p>
-          <p class="text-caption text-medium-emphasis mt-1">
-            {{ t('common.softDeleteVehicleWarning') }}
-          </p>
-        </v-card-text>
-        <v-card-actions class="pa-3">
-          <v-spacer />
-          <v-btn variant="text" size="small" @click="showDeleteDialog = false">{{ t('common.cancel') }}</v-btn>
-          <v-btn
-            color="error"
-            size="small"
-            @click="deleteVehicle"
-            :loading="deleting"
-          >
-            {{ t('dealer.views.vehicleDetail.delete') }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <PanelDialog
+      v-model="showDeleteDialog"
+      :title="t('dealer.views.vehicles.deleteVehicle')"
+      icon="mdi-delete"
+      :max-width="400"
+    >
+      <p class="text-body-2 mb-0">
+        {{ t('common.confirmDeleteLead') }}<strong>{{ vehicle?.title || t('common.vehicleTitleFallback', { id: vehicle?.id }) }}</strong>{{ t('common.confirmDeleteTrail') }}
+      </p>
+      <p class="text-caption text-medium-emphasis mt-1 mb-0">
+        {{ t('common.softDeleteVehicleWarning') }}
+      </p>
+      <template #footer>
+        <PanelButton variant="ghost" @click="showDeleteDialog = false">{{ t('common.cancel') }}</PanelButton>
+        <PanelButton variant="danger" :loading="deleting" @click="deleteVehicle">
+          {{ t('dealer.views.vehicleDetail.delete') }}
+        </PanelButton>
+      </template>
+    </PanelDialog>
   </div>
 </template>
 
@@ -1400,6 +1346,8 @@ import type { ApiErrorModel } from '@/models/api-error.model'
 import { getFeatureLimit, FeatureKey } from '@/utils/subscriptionFeatures'
 import { SALES_TYPE_LEASING_DETAILS } from '@/constants/salesTypes'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import PanelDialog from '@/components/ui/PanelDialog.vue'
+import PanelButton from '@/components/ui/PanelButton.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -2029,13 +1977,9 @@ onMounted(async () => {
 
 .profile-header-card {
   background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.05) 0%, rgba(var(--v-theme-primary), 0.02) 100%);
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 8px;
 }
 
 .info-card {
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 8px;
   transition: all 0.2s ease;
 }
 

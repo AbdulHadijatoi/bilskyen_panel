@@ -1,17 +1,13 @@
 <template>
   <div class="panel-page home-page-content-container">
-    <div class="page-header">
-      <div class="header-content">
-        <h2 class="page-title">{{ t('admin.views.homePageContent.title') }}</h2>
-        <p class="page-description">
-          {{ t('admin.views.homePageContent.description') }}
-        </p>
-      </div>
-      <div class="header-actions">
+    <PageHeader
+      :title="t('admin.views.homePageContent.title')"
+      :subtitle="t('admin.views.homePageContent.description')"
+    >
+      <template #actions>
         <v-btn
           color="default"
           prepend-icon="mdi-chevron-up"
-
           variant="flat"
           @click="collapseAllPanels"
           class="collapse-button bg-success"
@@ -30,8 +26,8 @@
         >
           {{ t('admin.views.pageContentCommon.saveAllChanges') }}
         </v-btn>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
     <!-- Loading State -->
     <div v-if="loading && !sections.length" class="text-center py-8">
@@ -867,6 +863,7 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive, nextTick, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import PageHeader from '@/components/panel/PageHeader.vue'
 import {
   getHomePageContent,
   bulkUpdateHomePageContent,
@@ -1208,41 +1205,6 @@ onMounted(async () => {
   min-height: 100vh;
 }
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.header-content {
-  flex: 1;
-}
-
-.page-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: rgba(0, 0, 0, 0.9);
-  margin: 0 0 4px 0;
-  letter-spacing: -0.01em;
-}
-
-.page-description {
-  font-size: 12px;
-  color: rgba(0, 0, 0, 0.6);
-  margin: 0;
-  line-height: 1.4;
-}
-
-.header-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-shrink: 0;
-}
-
 .collapse-button {
   flex-shrink: 0;
 }
@@ -1505,11 +1467,6 @@ onMounted(async () => {
   
   .testimonial-fields .editable-field.rating-field {
     grid-column: 1 / -1;
-  }
-  
-  .page-header {
-    flex-direction: column;
-    gap: 12px;
   }
   
   .save-button {

@@ -14,12 +14,7 @@
     <v-card
       variant="flat"
       elevation="0"
-      :style="{
-        backgroundColor: 'var(--card)',
-        color: 'var(--card-foreground)',
-        border: '1px solid rgba(0, 0, 0, 0.12)',
-        borderRadius: '8px',
-      }"
+      class="panel-card"
     >
       <v-card-text class="pa-6">
         <!-- Loading State -->

@@ -1,37 +1,34 @@
 <template>
   <div class="panel-page seo-content-container">
-    <div class="page-header">
-      <div class="header-content">
-        <h2 class="page-title">{{ $t('admin.seoContent.title') }}</h2>
-        <p class="page-description">
-          {{ $t('admin.seoContent.description') }}
-        </p>
-      </div>
-    </div>
-    <div class="header-actions">
-      <v-select
-        v-model="filterPageType"
-        :items="pageTypeOptions"
-        item-title="label"
-        item-value="value"
-        variant="outlined"
-        density="compact"
-        clearable
-        :label="$t('admin.seoContent.pageType')"
-        :placeholder="$t('admin.seoContent.filterByPageType')"
-        class="filter-select"
-        style="max-width: 220px;"
-      />
-      <v-btn
-        color="primary"
-        prepend-icon="mdi-plus"
-        variant="flat"
-        class="mt-[2px]"
-        @click="openCreate"
-      >
-        {{ $t('admin.seoContent.addSeoPage') }}
-      </v-btn>
-    </div>
+    <PageHeader
+      :title="$t('admin.seoContent.title')"
+      :subtitle="$t('admin.seoContent.description')"
+    >
+      <template #actions>
+        <v-select
+          v-model="filterPageType"
+          :items="pageTypeOptions"
+          item-title="label"
+          item-value="value"
+          variant="outlined"
+          density="compact"
+          clearable
+          :label="$t('admin.seoContent.pageType')"
+          :placeholder="$t('admin.seoContent.filterByPageType')"
+          class="filter-select"
+          style="max-width: 220px;"
+        />
+        <v-btn
+          color="primary"
+          prepend-icon="mdi-plus"
+          variant="flat"
+          class="mt-[2px]"
+          @click="openCreate"
+        >
+          {{ $t('admin.seoContent.addSeoPage') }}
+        </v-btn>
+      </template>
+    </PageHeader>
 
     <div v-if="loading" class="text-center py-8">
       <v-progress-circular indeterminate color="primary" />
@@ -185,6 +182,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import PageHeader from '@/components/panel/PageHeader.vue'
 import {
   getSeoPages,
   getSeoPage,
@@ -504,23 +502,9 @@ onMounted(() => {
   background-color: #fafafa;
   min-height: 100vh;
 }
-.page-header {
-  margin-bottom: 8px;
-  padding-bottom: 12px;
-}
-.header-content { flex: 1; }
-.page-title { font-size: 18px; font-weight: 600; color: rgba(0, 0, 0, 0.9); margin: 0 0 4px 0; }
-.page-description { font-size: 12px; color: rgba(0, 0, 0, 0.6); margin: 0; line-height: 1.4; }
-.header-actions {
-  display: flex;
-  gap: 12px;
-  /* align-items: center; */
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-}
 .filter-select { flex-shrink: 0; }
 .font-monospace { font-family: ui-monospace, monospace; }
 @media (max-width: 768px) {
-  .header-actions .filter-select { max-width: 100% !important; }
+  .filter-select { max-width: 100% !important; }
 }
 </style>

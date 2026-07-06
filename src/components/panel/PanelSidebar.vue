@@ -89,7 +89,17 @@
           <v-list-item
             density="compact"
             class="sidebar-user-menu__item"
-            @click="showChangePasswordDialog = true"
+            @click="openSettings('profile')"
+          >
+            <template #prepend>
+              <v-icon size="16" class="sidebar-user-menu__icon">mdi-cog</v-icon>
+            </template>
+            <v-list-item-title>{{ t('nav.settings') }}</v-list-item-title>
+          </v-list-item>
+          <v-list-item
+            density="compact"
+            class="sidebar-user-menu__item"
+            @click="openSettings('password')"
           >
             <template #prepend>
               <v-icon size="16" class="sidebar-user-menu__icon">mdi-lock-reset</v-icon>
@@ -111,7 +121,6 @@
     </div>
   </v-navigation-drawer>
 
-  <ChangePasswordDialog v-model="showChangePasswordDialog" />
   <PanelSnackbar :snackbar="snackbar" />
 </template>
 
@@ -123,9 +132,9 @@ import { useSnackbar } from '@/composables/useSnackbar'
 import PanelSnackbar from '@/components/panel/PanelSnackbar.vue'
 import { useSidebarStore } from '@/stores/sidebar'
 import { useAuthStore } from '@/stores/auth.store'
+import { useSettingsModalStore } from '@/stores/settingsModal'
 import SidebarSearch from '@/components/panel/SidebarSearch.vue'
 import PanelSidebarItem, { type PanelNavItem } from '@/components/panel/PanelSidebarItem.vue'
-import ChangePasswordDialog from '@/components/dealer/ChangePasswordDialog.vue'
 
 export interface PanelSidebarSection {
   title?: string
@@ -150,9 +159,9 @@ const { t } = useI18n()
 const { snackbar, showError } = useSnackbar()
 const sidebarStore = useSidebarStore()
 const authStore = useAuthStore()
+const settingsStore = useSettingsModalStore()
 const router = useRouter()
 const route = useRoute()
-const showChangePasswordDialog = ref(false)
 const searchQuery = ref('')
 const sidebarContentRef = ref<HTMLElement | null>(null)
 
@@ -262,6 +271,10 @@ const handleLogout = async () => {
     authStore.logout()
     router.push('/auth/login')
   }
+}
+
+function openSettings(section: 'profile' | 'password' | 'sessions') {
+  settingsStore.open(section)
 }
 
 onMounted(async () => {

@@ -34,7 +34,7 @@
       <v-col cols="12" sm="6" md="3">
         <v-card
           variant="flat"
-          class="stat-card"
+          class="stat-card panel-card"
           elevation="0"
         >
           <v-card-text class="pa-4">
@@ -51,7 +51,7 @@
       <v-col cols="12" sm="6" md="3">
         <v-card
           variant="flat"
-          class="stat-card"
+          class="stat-card panel-card"
           elevation="0"
         >
           <v-card-text class="pa-4">
@@ -68,7 +68,7 @@
       <v-col cols="12" sm="6" md="3">
         <v-card
           variant="flat"
-          class="stat-card"
+          class="stat-card panel-card"
           elevation="0"
         >
           <v-card-text class="pa-4">
@@ -85,7 +85,7 @@
       <v-col cols="12" sm="6" md="3">
         <v-card
           variant="flat"
-          class="stat-card"
+          class="stat-card panel-card"
           elevation="0"
         >
           <v-card-text class="pa-4">
@@ -101,14 +101,9 @@
       </v-col>
     </v-row>
 
-    <!-- Filters and Search Card -->
-    <v-card
-      variant="flat"
-      class="filters-card mb-4"
-      elevation="0"
-    >
-      <v-card-text class="pa-4">
-        <div class="d-flex align-center gap-4 flex-wrap">
+    <div class="panel-filters-card mb-4">
+      <div class="panel-filters-card__body">
+        <div class="panel-filters-grid">
           <v-text-field
             v-model="search"
             :placeholder="t('staff.views.vehicles.searchPlaceholder')"
@@ -146,16 +141,11 @@
             Refresh
             </v-btn>
         </div>
-      </v-card-text>
-    </v-card>
+      </div>
+    </div>
 
-    <!-- Vehicles Table Card -->
-    <v-card
-      variant="flat"
-      class="table-card"
-      elevation="0"
-    >
-      <v-card-text class="pa-0">
+    <div class="panel-table-card">
+      <div class="panel-table-card__body">
         <div v-if="loading" class="loading-container">
           <v-progress-circular indeterminate color="primary" size="48" />
           <p class="text-body-2 text-medium-emphasis mt-4">{{ t('staff.views.vehicles.loadingVehicles') }}</p>
@@ -175,8 +165,7 @@
           :items-per-page="vehicles.limit"
           :page="vehicles.page"
           density="comfortable"
-        class="vehicles-table"
-        :class="$style.dataTable"
+          class="panel-data-table"
         elevation="0"
           @update:page="handlePageChange"
       >
@@ -255,8 +244,8 @@
             @update:model-value="handlePageChange"
           />
         </div>
-      </v-card-text>
-    </v-card>
+      </div>
+    </div>
 
     <!-- Delete Confirmation Dialog -->
     <v-dialog
@@ -493,8 +482,6 @@ onMounted(async () => {
 }
 
 .stat-card {
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 8px;
   transition: all 0.2s ease;
 }
 
@@ -518,23 +505,6 @@ onMounted(async () => {
 
 .stat-icon {
   opacity: 0.8;
-}
-
-.filters-card {
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 8px;
-}
-
-.table-card {
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 8px;
-}
-
-.card-title {
-  padding: 16px 20px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-  font-size: 1rem;
-  font-weight: 600;
 }
 
 .loading-container,

@@ -1,26 +1,16 @@
 <template>
-  <div class="billing-cycle-toggle">
-    <button
-      type="button"
-      class="billing-cycle-toggle__option"
-      :class="{ 'billing-cycle-toggle__option--active': modelValue === 'monthly' }"
-      @click="$emit('update:modelValue', 'monthly')"
-    >
-      {{ t('admin.views.plans.monthly') }}
-    </button>
-    <button
-      type="button"
-      class="billing-cycle-toggle__option"
-      :class="{ 'billing-cycle-toggle__option--active': modelValue === 'yearly' }"
-      @click="$emit('update:modelValue', 'yearly')"
-    >
-      {{ t('admin.views.plans.yearly') }}
-    </button>
-  </div>
+  <PanelToggle
+    :model-value="modelValue"
+    :options="toggleOptions"
+    :aria-label="t('subscription.pricing.billingCycle')"
+    @update:model-value="$emit('update:modelValue', $event)"
+  />
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import PanelToggle from '@/components/ui/PanelToggle.vue'
 import type { BillingCycle } from '@/composables/usePlanDisplay'
 
 defineProps<{
@@ -32,4 +22,13 @@ defineEmits<{
 }>()
 
 const { t } = useI18n()
+
+const toggleOptions = computed(() => [
+  { label: t('admin.views.plans.monthly'), value: 'monthly' as BillingCycle },
+  {
+    label: t('admin.views.plans.yearly'),
+    value: 'yearly' as BillingCycle,
+    badge: t('subscription.pricing.yearlyDiscount'),
+  },
+])
 </script>

@@ -300,7 +300,7 @@ const onAfterLeave = (el: Element) => {
   gap: 0.5rem;
   width: 100%;
   box-sizing: border-box;
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   line-height: 1.25rem;
 }
 
@@ -310,6 +310,7 @@ const onAfterLeave = (el: Element) => {
   background-color: var(--sidebar-active-bg);
   color: var(--sidebar-foreground);
   font-weight: 500;
+  border-radius: var(--radius-sm);
   box-shadow: var(--shadow-sidebar-active);
 }
 

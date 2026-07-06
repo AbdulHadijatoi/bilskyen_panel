@@ -1,33 +1,39 @@
 <template>
-  <v-dialog :model-value="modelValue" max-width="640" @update:model-value="$emit('update:modelValue', $event)">
-    <v-card>
-      <v-card-title>{{ t('dealer.views.bulkPrice.title') }}</v-card-title>
-      <v-card-text>
-        <p class="text-body-2 text-medium-emphasis mb-4">{{ t('dealer.views.bulkPrice.hint') }}</p>
-        <v-textarea
-          v-model="csvInput"
-          :label="t('dealer.views.bulkPrice.csvLabel')"
-          :placeholder="t('dealer.views.bulkPrice.csvPlaceholder')"
-          rows="8"
-          variant="outlined"
-        />
-        <v-alert v-if="resultMessage" :type="resultType" variant="tonal" density="compact" class="mt-2">
-          {{ resultMessage }}
-        </v-alert>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn variant="text" @click="$emit('update:modelValue', false)">{{ t('common.cancel') }}</v-btn>
-        <v-btn color="primary" :loading="loading" @click="submit">{{ t('dealer.views.bulkPrice.apply') }}</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+  <PanelDialog
+    :model-value="modelValue"
+    :title="t('dealer.views.bulkPrice.title')"
+    icon="mdi-currency-usd"
+    :max-width="640"
+    @update:model-value="$emit('update:modelValue', $event)"
+  >
+    <p class="text-body-2 text-medium-emphasis mb-4">{{ t('dealer.views.bulkPrice.hint') }}</p>
+    <v-textarea
+      v-model="csvInput"
+      :label="t('dealer.views.bulkPrice.csvLabel')"
+      :placeholder="t('dealer.views.bulkPrice.csvPlaceholder')"
+      rows="8"
+    />
+    <v-alert v-if="resultMessage" :type="resultType" variant="tonal" density="compact" class="mt-2">
+      {{ resultMessage }}
+    </v-alert>
+
+    <template #footer>
+      <PanelButton variant="ghost" @click="$emit('update:modelValue', false)">
+        {{ t('common.cancel') }}
+      </PanelButton>
+      <PanelButton variant="primary" :loading="loading" @click="submit">
+        {{ t('dealer.views.bulkPrice.apply') }}
+      </PanelButton>
+    </template>
+  </PanelDialog>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { bulkUpdateVehiclePrices } from '@/api/dealer.api'
+import PanelDialog from '@/components/ui/PanelDialog.vue'
+import PanelButton from '@/components/ui/PanelButton.vue'
 
 defineProps<{ modelValue: boolean }>()
 const emit = defineEmits<{ 'update:modelValue': [value: boolean]; completed: [] }>()
@@ -72,8 +78,9 @@ async function submit() {
     }) + (errorCount ? ` ${t('dealer.views.bulkPrice.rowErrors', { count: errorCount })}` : '')
     resultType.value = 'success'
     emit('completed')
-  } catch (err: any) {
-    resultMessage.value = err?.message || t('dealer.views.bulkPrice.failed')
+  } catch (err: unknown) {
+    const error = err as { message?: string }
+    resultMessage.value = error?.message || t('dealer.views.bulkPrice.failed')
     resultType.value = 'error'
   } finally {
     loading.value = false

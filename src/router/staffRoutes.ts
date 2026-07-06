@@ -71,7 +71,8 @@ export const staffRoutes: RouteRecordRaw = {
     {
       path: 'profile',
       name: 'staff.profile',
-      component: () => import('@/views/staff/settings/ProfileSettings.vue'),
+      component: () => import('@/views/settings/SettingsRouteRedirect.vue'),
+      meta: { settingsFallback: 'staff.dashboard', openSettings: 'profile' },
     },
   ],
 }

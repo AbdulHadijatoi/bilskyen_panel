@@ -7,7 +7,15 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Sora', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
+      fontSize: {
+        xs: ['var(--text-xs)', { lineHeight: '1.5' }],
+        sm: ['var(--text-sm)', { lineHeight: '1.5' }],
+        base: ['var(--text-base)', { lineHeight: '1.5' }],
+        md: ['var(--text-md)', { lineHeight: '1.5' }],
+        lg: ['var(--text-lg)', { lineHeight: '1.4' }],
+        xl: ['var(--text-xl)', { lineHeight: '1.3' }],
       },
       colors: {
         border: "var(--border)",
@@ -73,9 +81,11 @@ export default {
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "var(--radius)",
-        sm: "var(--radius)",
+        sm: "var(--radius-sm)",
+        md: "var(--radius-md)",
+        lg: "var(--radius-lg)",
+        xl: "var(--radius-xl)",
+        full: "var(--radius-full)",
       },
     },
   },

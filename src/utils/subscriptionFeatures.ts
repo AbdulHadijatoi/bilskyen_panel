@@ -127,6 +127,15 @@ export enum FeatureKey {
   BRANDED_INVENTORY_AUDIT = 'branded_inventory_audit',
 }
 
+const PLAN_FEATURE_ERROR_PATTERN =
+  /subscription plan does not include|abonnement inkluderer ikke/i
+
+/** True when the API rejected the call because the dealer plan lacks a feature. */
+export function isPlanFeatureError(error: unknown): boolean {
+  const message = (error as { message?: string })?.message ?? ''
+  return PLAN_FEATURE_ERROR_PATTERN.test(message)
+}
+
 /** Human-readable plan tier order for subscription page sorting */
 export const PLAN_SORT_ORDER: Record<string, number> = {
   basic: 1,

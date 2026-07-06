@@ -1,5 +1,5 @@
 <template>
-  <div class="panel-page-header" :class="{ 'panel-page-header--with-back': showBack }">
+  <div class="panel-page-header" :class="headerClasses">
     <div class="panel-page-header__main">
       <button
         v-if="showBack"
@@ -23,18 +23,21 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRouter, type RouteLocationRaw } from 'vue-router'
 
 interface Props {
   title: string
   subtitle?: string
   showBack?: boolean
+  centered?: boolean
   backLabel?: string
   backTo?: RouteLocationRaw
 }
 
 const props = withDefaults(defineProps<Props>(), {
   showBack: false,
+  centered: false,
   backLabel: 'Go back',
 })
 
@@ -43,6 +46,11 @@ const emit = defineEmits<{
 }>()
 
 const router = useRouter()
+
+const headerClasses = computed(() => ({
+  'panel-page-header--with-back': props.showBack,
+  'panel-page-header--centered': props.centered,
+}))
 
 function handleBack() {
   emit('back')
@@ -70,7 +78,7 @@ function handleBack() {
   height: 2rem;
   margin-top: 0.125rem;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   background: var(--card);
   color: var(--foreground);
   cursor: pointer;

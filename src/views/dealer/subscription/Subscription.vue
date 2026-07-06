@@ -4,6 +4,7 @@
     <PageHeader
       :title="t('dealer.views.subscription.selectYourPlan')"
       :subtitle="t('dealer.views.subscription.pickPlanSubtitle')"
+      centered
     />
 
     <v-alert

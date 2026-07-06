@@ -1,13 +1,10 @@
 <template>
   <div class="panel-page terms-page-content-container">
-    <div class="page-header">
-      <div class="header-content">
-        <h2 class="page-title">{{ t('admin.views.termsPageContent.title') }}</h2>
-        <p class="page-description">
-          {{ t('admin.views.termsPageContent.description') }}
-        </p>
-      </div>
-      <div class="header-actions">
+    <PageHeader
+      :title="t('admin.views.termsPageContent.title')"
+      :subtitle="t('admin.views.termsPageContent.description')"
+    >
+      <template #actions>
         <v-btn
           color="primary"
           prepend-icon="mdi-content-save"
@@ -19,8 +16,8 @@
         >
           {{ t('admin.views.termsPageContent.saveChanges') }}
         </v-btn>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
     <!-- Loading State -->
     <div v-if="loading" class="text-center py-8">
@@ -79,6 +76,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import PageHeader from '@/components/panel/PageHeader.vue'
 import {
   getTermsPageContent,
   bulkUpdateTermsPageContent,
@@ -139,41 +137,6 @@ onMounted(() => {
   min-height: 100vh;
 }
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.header-content {
-  flex: 1;
-}
-
-.page-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: rgba(0, 0, 0, 0.9);
-  margin: 0 0 4px 0;
-  letter-spacing: -0.01em;
-}
-
-.page-description {
-  font-size: 12px;
-  color: rgba(0, 0, 0, 0.6);
-  margin: 0;
-  line-height: 1.4;
-}
-
-.header-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-shrink: 0;
-}
-
 .save-button {
   flex-shrink: 0;
 }
@@ -184,11 +147,6 @@ onMounted(() => {
 }
 
 @media (max-width: 768px) {
-  .page-header {
-    flex-direction: column;
-    gap: 12px;
-  }
-
   .save-button {
     width: 100%;
   }

@@ -19,7 +19,7 @@
     </PageHeader>
 
     <!-- License Plate Lookup Section (Outside Tabs) -->
-    <v-card elevation="0" class="mb-4 border border-gray-200">
+    <v-card elevation="0" class="mb-4 panel-card">
       <v-card-text class="pa-6">
         <div class="mb-2">
           <h3 class="text-h6 font-weight-semibold mb-2">{{ t('dealer.views.addVehicle.vehicleLookup') }}</h3>

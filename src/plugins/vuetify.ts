@@ -14,7 +14,7 @@ export default createVuetify({
         colors: {
           primary: '#03418b',
           secondary: '#f0f1f4',
-          background: '#f4f5f7',
+          background: '#f5f5f5',
           surface: '#ffffff',
           error: '#ef4444',
           info: '#03418b',
@@ -33,15 +33,42 @@ export default createVuetify({
   },
   defaults: {
     VBtn: {
-      style: 'text-transform: none; font-family: "Sora", sans-serif;',
+      style: 'text-transform: none; font-family: "Inter", sans-serif; font-size: 0.875rem; letter-spacing: 0;',
+      height: 36,
+      rounded: 'sm',
     },
     VCard: {
       elevation: 0,
       rounded: 'lg',
-      style: 'font-family: "Sora", sans-serif; border: 1px solid #e5e7eb;',
+      style: 'font-family: "Inter", sans-serif; border: 1px solid #e5e7eb; border-radius: 12px;',
     },
     VDataTable: {
-      style: 'font-family: "Sora", sans-serif;',
+      style: 'font-family: "Inter", sans-serif; font-size: 0.875rem;',
+    },
+    VTextField: {
+      variant: 'outlined',
+      density: 'compact',
+      hideDetails: 'auto',
+    },
+    VSelect: {
+      variant: 'outlined',
+      density: 'compact',
+      hideDetails: 'auto',
+    },
+    VTextarea: {
+      variant: 'outlined',
+      density: 'compact',
+      hideDetails: 'auto',
+    },
+    VAutocomplete: {
+      variant: 'outlined',
+      density: 'compact',
+      hideDetails: 'auto',
+    },
+    VCombobox: {
+      variant: 'outlined',
+      density: 'compact',
+      hideDetails: 'auto',
     },
   },
 })

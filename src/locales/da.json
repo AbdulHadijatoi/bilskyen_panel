@@ -16,12 +16,19 @@
     "brandingDms": "Branding og DMS",
     "marketing": "Marketing",
     "viewProfile": "Se profil",
+    "settings": "Indstillinger",
     "changePassword": "Skift adgangskode",
     "logout": "Log ud"
   },
   "navSection": {
     "coreOperations": "Kernefunktioner",
     "management": "Administration"
+  },
+  "settings": {
+    "nav": {
+      "account": "Konto",
+      "profile": "Profil"
+    }
   },
   "subscription": {
     "pricing": {
@@ -32,7 +39,10 @@
       "orPerMonth": "eller {price} / Måned",
       "viewDetails": "Se detaljer",
       "active": "Aktiv",
-      "inactive": "Inaktiv"
+      "inactive": "Inaktiv",
+      "billingCycle": "Faktureringsperiode",
+      "yearlyDiscount": "Op til 10% rabat",
+      "currentPlan": "Din nuværende plan"
     },
     "comparison": {
       "title": "Sammenlign alle funktioner",
@@ -61,6 +71,7 @@
     "danish": "Dansk",
     "save": "Gem",
     "cancel": "Annuller",
+    "close": "Luk",
     "delete": "Slet",
     "edit": "Rediger",
     "add": "Tilføj",
@@ -1660,7 +1671,26 @@
       "syndication": {
         "title": "Feeds og syndikering",
         "subtitle": "Administrer eksportfeeds og syndiker dit lager til eksterne kanaler",
+        "helpAria": "Vis hjælp til dette afsnit",
+        "help": {
+          "page": "Denne side eksporterer dit live køretøjslager til andre systemer. Feed-tokens giver sikre JSON/XML-URL'er til jeres website eller partnere. Syndikering sender automatisk lager til eksterne markedspladser, når I publicerer eller opdaterer køretøjer. Hold musen over eller tryk på ! for detaljeret vejledning. Inventory Feeds og Syndication kræver de tilsvarende funktioner på jeres abonnement.",
+          "feedTokensSection": "Feed-tokens er hemmelige nøgler, der låser skrivebeskyttede eksport-URL'er op for jeres publicerede lager. Hver token genererer unikke JSON- og XML-links, I kan dele med webudvikler, prissammenligningssider eller DMS — uden at give panel-login.",
+          "addToken": "Opretter et nyt feed-token og genererer nye JSON/XML-URL'er. I kan oprette flere tokens (f.eks. ét pr. website eller partner) og tilbagekalde adgang ved at slette et token. Behandl feed-URL'er som adgangskoder — alle med linket kan læse jeres publicerede lager.",
+          "feedUrls": "Brug Kopi ved JSON eller XML for at hente feed-URL'en for det token. JSON passer til moderne websites og apps; XML passer til ældre DMS-værktøjer og nogle aggregatorer. URL'erne afspejler altid jeres aktuelle publicerede køretøjer.",
+          "formatJson": "JSON-format — strukturerede data, der er nemme for websites, apps og scripts at bruge. Giv denne URL til jeres udvikler eller CMS-integration.",
+          "formatXml": "XML-format — bredt brugt af ældre DMS-systemer og feed-aggregatorer. Vælg XML, hvis jeres integrationsdokumentation specifikt beder om det.",
+          "providersSection": "Syndikeringsudbydere sender jeres lager til eksterne salgskanaler (f.eks. Facebook Marketplace), når køretøjer publiceres eller opdateres. Aktivér kun de kanaler, I bruger, gem indstillingerne, og brug Synkroniser nu for at tvinge en øjeblikkelig opdatering.",
+          "providerToggle": "Slå en udbyder til for at sende annoncer til den kanal; slå fra for at stoppe opdateringer. Ændringer træder i kraft, når I klikker Gem. Seneste synk viser, hvornår kanalen sidst blev opdateret.",
+          "saveProviders": "Gemmer hvilke syndikeringskanaler der er aktiveret for jeres forhandler. Det publicerer ikke køretøjer i sig selv — det styrer kun, hvilke eksterne feeds der modtager opdateringer, når lageret ændres.",
+          "syncNow": "Tvinger en øjeblikkelig synkronisering for alle aktiverede syndikeringsudbydere. Brug efter masseimport eller hvis en partner melder manglende køretøjer. Normal publicering og opdatering synkroniserer automatisk i baggrunden.",
+          "recentLogs": "Viser de seneste syndikeringsforsøg pr. udbyder: succes eller fejl, tidspunkt og en kort besked. Brug det til fejlsøgning — gentagne fejl betyder ofte fejlkonfiguration hos modtageren.",
+          "logTable": "Hver række er ét synkforsøg. Succes betyder, at feedet blev genereret og leveret; Fejl betyder, at noget mislykkedes (læs beskedkolonnen). Prøv Synkroniser nu én gang, og kontakt support, hvis fejlene fortsætter."
+        },
         "feedTokens": "Feed-tokens",
+        "feedUrlsLabel": "Dine feed-URL'er",
+        "providersTitle": "Syndikeringsudbydere",
+        "providerToggleLabel": "Aktiverede kanaler",
+        "logTableLabel": "Sådan læser du logtabellen",
         "addToken": "Tilføj token",
         "noTokens": "Ingen feed-tokens endnu. Opret en for at få JSON/XML feed-URL'er.",
         "providers": {
@@ -1711,6 +1741,40 @@
       },
       "branding": {
         "title": "Branding og DMS",
+        "subtitle": "Tilpas din forhandlers butiksfacade, anmeldelser, API-adgang og lager-audit-links.",
+        "helpAria": "Vis hjælp til dette afsnit",
+        "help": {
+          "page": "Denne side styrer, hvordan din forretning ser ud for købere online, og hvordan dit lagersystem forbindes til Bilskyen. Brug fanerne til farver, domæner, Google-anmeldelser, API-nøgler, webhooks og et delbart lager-audit-link. Hold musen over eller tryk på ! ved hvert felt for detaljeret vejledning.",
+          "tabTheme": "Fanen Branding dækker dit offentlige udtryk: farver på køretøjssider, valgfri månedlig betalingsberegner, finanspartner-link og egne webdomæner (f.eks. biler.dinfirma.dk).",
+          "tabReviews": "Fanen Anmeldelser forbinder din Google Business-profil, så du kan sende købere til at anmelde efter et salg. Kræver funktionen Anmeldelsesstyring på dit abonnement.",
+          "tabDms": "Fanen DMS og API er til tekniske forbindelser: API-nøgler lader anden software læse eller opdatere dine data sikkert; webhooks underretter dit DMS, når et køretøj publiceres eller opdateres.",
+          "tabAudit": "Fanen Lager-audit giver et delbart link, der viser dit live lager med dit logo og dine farver — nyttigt til e-mail til prospects eller salgsmøder.",
+          "saveBranding": "Gemmer temafarver, finansberegner, finanspartner-URL og Google-anmeldelsesfelter på din forhandlerprofil. Ændringer vises på din offentlige butik efter gem.",
+          "themeSection": "Indstillinger for branding og omdømme styrer det visuelle udtryk og finansværktøjer på dine offentlige køretøjssider, som købere ser på markedspladsen eller dit eget domæne.",
+          "financeCalculatorEnabled": "Når aktiveret, kan hver køretøjsside vise et estimeret månedligt afdrag (baseret på pris, rente og løbetid). Vælg Arv for at følge platformens standard, Aktiveret for altid at vise den, eller Deaktiveret for at skjule den. Hvis admin har slået beregneren fra globalt, er feltet låst.",
+          "financePartnerUrl": "Valgfrit link til din finanspartner eller banks ansøgningsside (fuld https-URL). Købere, der ønsker finansiering, kan sendes hertil fra dine annoncer. Lad feltet stå tomt, hvis I kun håndterer finans telefonisk eller personligt.",
+          "primaryColor": "Din primære brandfarve i hex (f.eks. #03418b). Bruges til knapper, links og fremhævninger på dine offentlige sider og branded audit. Vælg en farve, der matcher dit logo.",
+          "secondaryColor": "En supplerende brandfarve i hex. Bruges til accenter og sekundære elementer på dine offentlige sider. Bør harmonere med den primære farve.",
+          "domainsSection": "Brugerdefinerede domæner lader købere åbne dit lager på jeres egen webadresse (f.eks. lager.bilforhandler.dk) i stedet for kun standard-Bilskyen-URL'en. I skal eje domænet og tilføje en DNS-post hos jeres udbyder.",
+          "cnameSetup": "Hos jeres domæneudbyder (f.eks. One.com, GoDaddy) opretter I en CNAME-post, der peger jeres subdomæne mod målet vist her. DNS kan tage 24–48 timer. Indtil verificering forbliver domænet Afventer.",
+          "addDomain": "Indtast det fulde domæne eller subdomæne (f.eks. biler.eksempel.dk), og klik Tilføj. Domænet vises på listen. Fuldfør DNS-opsætning og klik Verificér, før det går live.",
+          "domainVerification": "Klik Verificér, når CNAME-posten er tilføjet hos DNS-udbyderen. Vi tjekker, at posten peger på vores platform. Verificeret betyder klar; Afventer betyder forkert DNS eller stadig udrulning.",
+          "googleReviewUrl": "Det offentlige Google-anmeldelseslink for jeres forretning. Find det i Google Business Profile → Bed om anmeldelser, eller kopier ‘Skriv en anmeldelse’-URL'en. Købere bruger det efter køb til feedback på Google.",
+          "googlePlaceId": "Jeres Google Place ID identificerer jeres forretningslokation for Google API'er (valgfrit, men hjælper kort- og anmeldelsesfunktioner). Find det i Googles Place ID-finder eller Business-indstillinger.",
+          "apiAccessSection": "API-adgang lader godkendt software (DMS, website eller egne værktøjer) forbinde til Bilskyen programmatisk. Hver integration bruger en API-nøgle — behandl nøgler som adgangskoder og del dem aldrig offentligt.",
+          "apiEndpoint": "Dette er basis-URL'en, som jeres udviklere eller DMS-leverandør bruger ved kald til Bilskyen API på vegne af jeres forhandler. Del endpoint sammen med en nyoprettet API-nøgle.",
+          "createApiKey": "Opretter en ny hemmelig API-nøgle. Den fulde nøgle vises kun én gang lige efter oprettelse — kopier og gem den sikkert. Ved tab: slet den gamle og opret en ny. Navngiv nøgler efter formål (f.eks. ‘DMS produktion’).",
+          "apiKeySecurity": "Listed nøgler viser kun et præfiks til identifikation. Slet nøgler, I ikke længere bruger. Enhver med en gyldig nøgle kan tilgå jeres API-omfang — tilbagekald kompromitterede nøgler med det samme.",
+          "webhookSection": "Webhooks sender automatiske HTTP-underretninger til jeres DMS eller middleware, når noget sker i Bilskyen (f.eks. et køretøj publiceres). Jeres system modtager et POST-kald med hændelsesdata, så lageret holdes synkroniseret uden manuelle eksport.",
+          "webhookUrl": "HTTPS-URL'en på jeres server, der skal modtage webhook POST-anmodninger. Skal være offentligt tilgængelig og returnere 2xx. Brug DMS-leverandørens dokumenterede webhook-endpoint, hvis de leverer et.",
+          "addWebhook": "Registrerer URL'en ovenfor til vehicle.published og vehicle.updated. Efter tilføjelse: publicer eller opdater et testkøretøj for at bekræfte modtagelse. Fjern webhooks, der ikke længere bruges.",
+          "webhookEvents": "vehicle.published udløses, når en annonce går live; vehicle.updated ved væsentlige dataændringer. Integrationen bør håndtere begge for at holde eksternt lager korrekt.",
+          "recentDeliveries": "Viser seneste webhook-forsøg: status (succes/fejl), hændelsesnavn og HTTP-svarkode fra jeres server. Brug det til fejlsøgning — gentagne fejl skyldes ofte forkert URL, firewall eller serverfejl.",
+          "exportPiiAudit": "Downloader en CSV-revisionslog over, hvornår persondata (PII) om leads blev tilgået eller eksporteret på jeres konto. Nyttigt til GDPR-dokumentation og intern sikkerhed.",
+          "auditSection": "Den branded lager-audit er en skrivebeskyttet offentlig side med jeres publicerede køretøjer, logo og farver. Del linket med prospects, der vil have overblik uden login.",
+          "auditShareUrl": "Kopier linket og send via e-mail, SMS eller i tilbud. Siden opdateres med jeres live lager. Kræver et slug på forhandlerprofilen — kontakt support, hvis linket ikke kan genereres.",
+          "previewAudit": "Åbner audit-siden i en ny fane, som en prospect ser den. Tjek logo, farver og køretøjsliste, før I deler linket eksternt."
+        },
         "theme": "Branding og omdømme",
         "financeUrl": "Finanspartner-URL",
         "financeCalculatorEnabled": "Vis månedlig betalingsberegner",
@@ -1742,6 +1806,8 @@
         "reviewsHint": "Tilføj din Google-anmeldelses-URL, så købere kan give feedback efter et salg.",
         "openReviews": "Åbn anmeldelsesside",
         "apiAccessTitle": "API-adgang",
+        "apiKeysList": "Dine API-nøgler",
+        "webhookEventsLabel": "Webhook-hændelser",
         "apiEndpointHint": "Indgående endpoint: {endpoint}",
         "recentDeliveries": "Seneste webhook-leverancer",
         "event": "Hændelse",

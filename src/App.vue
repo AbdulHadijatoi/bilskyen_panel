@@ -16,6 +16,7 @@
       </transition>
     </router-view>
     <LoadingOverlay />
+    <PanelSettingsModal />
   </div>
 </template>
 
@@ -25,6 +26,7 @@ import { useTheme } from 'vuetify'
 import { useThemeStore } from '@/stores/theme'
 import LoadingOverlay from '@/components/LoadingOverlay.vue'
 import LoadingBar from '@/components/LoadingBar.vue'
+import PanelSettingsModal from '@/components/settings/PanelSettingsModal.vue'
 
 const themeStore = useThemeStore()
 const vuetifyTheme = useTheme()

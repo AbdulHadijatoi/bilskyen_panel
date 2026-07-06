@@ -4,6 +4,7 @@
     <PageHeader
       :title="t('admin.views.plans.title')"
       :subtitle="t('admin.views.plans.subtitle')"
+      centered
     >
       <template #actions>
         <v-btn
@@ -90,14 +91,13 @@
     </template>
 
     <!-- Create Plan Dialog -->
-    <v-dialog v-model="showCreateDialog" max-width="600" scrollable persistent>
-      <v-card>
-        <v-card-title class="pa-3 text-subtitle-1">
-          {{ t('admin.views.plans.createPlan') }}
-        </v-card-title>
-        <v-divider />
-        <v-card-text class="pa-4">
-          <v-form ref="createFormRef" v-model="createFormValid">
+    <PanelDialog
+      v-model="showCreateDialog"
+      :title="t('admin.views.plans.createPlan')"
+      :max-width="600"
+      persistent
+    >
+      <v-form ref="createFormRef" v-model="createFormValid">
             <v-text-field
               v-model="newPlan.name"
               :label="t('admin.views.plans.planName')"
@@ -209,25 +209,22 @@
                 />
               </v-col>
             </v-row>
-          </v-form>
-        </v-card-text>
-        <v-divider />
-        <v-card-actions class="pa-3">
-          <v-spacer />
-          <v-btn variant="text" size="small" @click="closeCreateDialog">{{ t('common.cancel') }}</v-btn>
-          <v-btn
-            color="primary"
-            variant="flat"
-            size="small"
-            @click="createPlan"
-            :loading="creating"
-            :disabled="!canCreatePlan"
-          >
-            Create
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+      </v-form>
+
+      <template #footer>
+        <PanelButton variant="ghost" @click="closeCreateDialog">
+          {{ t('common.cancel') }}
+        </PanelButton>
+        <PanelButton
+          variant="primary"
+          :loading="creating"
+          :disabled="!canCreatePlan"
+          @click="createPlan"
+        >
+          Create
+        </PanelButton>
+      </template>
+    </PanelDialog>
   </div>
 </template>
 
@@ -252,6 +249,8 @@ import PlanFeatureComparison from '@/components/subscription/PlanFeatureComparis
 import { splitPlansByBillingModel } from '@/utils/planFeatureGroups'
 import { usePlanDisplay, type BillingCycle, type PlanLike } from '@/composables/usePlanDisplay'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import PanelDialog from '@/components/ui/PanelDialog.vue'
+import PanelButton from '@/components/ui/PanelButton.vue'
 
 const router = useRouter()
 const { t } = useI18n()

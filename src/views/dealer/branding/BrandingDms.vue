@@ -1,8 +1,17 @@
 <template>
-  <div class="panel-page">
-    <h1 class="text-h5 font-weight-medium mb-4">{{ t('dealer.views.branding.title') }}</h1>
+  <div class="panel-page branding-page">
+    <PageHeader :title="t('dealer.views.branding.title')" :subtitle="t('dealer.views.branding.subtitle')">
+      <template #actions>
+        <PanelHelpHint
+          :text="help('page')"
+          location="bottom end"
+          :max-width="400"
+          :ariaLabel="t('dealer.views.branding.helpAria')"
+        />
+      </template>
+    </PageHeader>
 
-    <v-tabs v-model="tab" class="mb-4">
+    <v-tabs v-model="tab" class="branding-tabs mb-4">
       <v-tab value="theme">{{ t('dealer.views.branding.tabTheme') }}</v-tab>
       <v-tab value="reviews">{{ t('dealer.views.branding.tabReviews') }}</v-tab>
       <v-tab value="dms">{{ t('dealer.views.branding.tabDms') }}</v-tab>
@@ -10,58 +19,195 @@
     </v-tabs>
 
     <v-window v-model="tab">
+      <!-- ── Branding tab ── -->
       <v-window-item value="theme">
+        <BrandingTabIntro
+          :title="t('dealer.views.branding.tabTheme')"
+          :help="help('tabTheme')"
+          :ariaLabel="t('dealer.views.branding.helpAria')"
+        />
         <v-row>
           <v-col cols="12" md="6">
-            <v-card variant="outlined" class="pa-4 mb-4">
-              <h2 class="text-subtitle-1 mb-3">{{ t('dealer.views.branding.theme') }}</h2>
-              <v-select
-                v-model="form.finance_calculator_enabled"
-                :items="financeCalculatorOptions"
-                item-title="title"
-                item-value="value"
-                :label="t('dealer.views.branding.financeCalculatorEnabled')"
-                :disabled="!platformFinanceCalculatorEnabled"
-                :hint="financeCalculatorHint"
-                persistent-hint
-                class="mb-2"
+            <v-card variant="outlined" class="pa-4 mb-4 panel-card">
+              <BrandingSectionHeader
+                :title="t('dealer.views.branding.theme')"
+                help-key="themeSection"
               />
-              <v-text-field v-model="form.finance_partner_url" :label="t('dealer.views.branding.financeUrl')" class="mb-2" />
-              <v-text-field v-model="form.theme_primary_color" :label="t('dealer.views.branding.primaryColor')" class="mb-2" />
-              <v-text-field v-model="form.theme_secondary_color" :label="t('dealer.views.branding.secondaryColor')" class="mb-2" />
-              <v-btn color="primary" :loading="saving" @click="saveBranding">{{ t('common.save') }}</v-btn>
+
+              <BrandingField
+                :label="t('dealer.views.branding.financeCalculatorEnabled')"
+                help-key="financeCalculatorEnabled"
+              >
+                <v-select
+                  v-model="form.finance_calculator_enabled"
+                  :items="financeCalculatorOptions"
+                  item-title="title"
+                  item-value="value"
+                  :disabled="!platformFinanceCalculatorEnabled"
+                  :hint="financeCalculatorHint"
+                  persistent-hint
+                  hide-details="auto"
+                  variant="outlined"
+                  density="compact"
+                />
+              </BrandingField>
+
+              <BrandingField
+                :label="t('dealer.views.branding.financeUrl')"
+                help-key="financePartnerUrl"
+              >
+                <v-text-field
+                  v-model="form.finance_partner_url"
+                  :placeholder="t('dealer.views.branding.financeUrl')"
+                  hide-details="auto"
+                  variant="outlined"
+                  density="compact"
+                />
+              </BrandingField>
+
+              <BrandingField
+                :label="t('dealer.views.branding.primaryColor')"
+                help-key="primaryColor"
+              >
+                <v-text-field
+                  v-model="form.theme_primary_color"
+                  placeholder="#03418b"
+                  hide-details="auto"
+                  variant="outlined"
+                  density="compact"
+                />
+              </BrandingField>
+
+              <BrandingField
+                :label="t('dealer.views.branding.secondaryColor')"
+                help-key="secondaryColor"
+              >
+                <v-text-field
+                  v-model="form.theme_secondary_color"
+                  placeholder="#f0f0f0"
+                  hide-details="auto"
+                  variant="outlined"
+                  density="compact"
+                />
+              </BrandingField>
+
+              <span class="branding-action-with-help">
+                <v-btn color="primary" :loading="saving" @click="saveBranding">{{ t('common.save') }}</v-btn>
+                <PanelHelpHint
+                  :text="help('saveBranding')"
+                  size="sm"
+                  :max-width="360"
+                  :ariaLabel="t('dealer.views.branding.helpAria')"
+                />
+              </span>
             </v-card>
           </v-col>
+
           <v-col cols="12" md="6">
-            <v-card variant="outlined" class="pa-4">
-              <h2 class="text-subtitle-1 mb-3">{{ t('dealer.views.branding.domains') }}</h2>
-              <p class="text-caption text-medium-emphasis mb-2">{{ t('dealer.views.branding.cnameHint', { target: cnameTarget }) }}</p>
-              <v-text-field v-model="newDomain" :label="t('dealer.views.branding.addDomain')" class="mb-2" />
-              <v-btn class="mb-4" @click="addDomain">{{ t('common.add') }}</v-btn>
-              <v-list density="compact">
-                <v-list-item
-                  v-for="d in domains"
-                  :key="d.id"
-                  :title="d.domain"
-                  :subtitle="d.verified_at ? t('common.verified') : t('common.pending')"
-                >
-                  <template #append>
-                    <v-btn v-if="!d.verified_at" size="x-small" @click="verify(d.id)">{{ t('dealer.views.branding.verify') }}</v-btn>
-                  </template>
-                </v-list-item>
-              </v-list>
+            <v-card variant="outlined" class="pa-4 panel-card">
+              <BrandingSectionHeader
+                :title="t('dealer.views.branding.domains')"
+                help-key="domainsSection"
+              />
+
+              <BrandingField
+                :label="t('dealer.views.branding.cnameHint', { target: cnameTarget })"
+                help-key="cnameSetup"
+                flush
+              />
+
+              <BrandingField
+                :label="t('dealer.views.branding.addDomain')"
+                help-key="addDomain"
+              >
+                <v-text-field
+                  v-model="newDomain"
+                  :placeholder="t('dealer.views.branding.addDomain')"
+                  hide-details="auto"
+                  variant="outlined"
+                  density="compact"
+                />
+              </BrandingField>
+
+              <span class="branding-action-with-help mb-4">
+                <v-btn @click="addDomain">{{ t('common.add') }}</v-btn>
+              </span>
+
+              <BrandingField
+                v-if="domains.length"
+                :label="t('dealer.views.branding.domains')"
+                help-key="domainVerification"
+                flush
+              >
+                <v-list density="compact" class="branding-domain-list">
+                  <v-list-item
+                    v-for="d in domains"
+                    :key="d.id"
+                    :title="d.domain"
+                    :subtitle="d.verified_at ? t('common.verified') : t('common.pending')"
+                  >
+                    <template #append>
+                      <v-btn v-if="!d.verified_at" size="x-small" @click="verify(d.id)">
+                        {{ t('dealer.views.branding.verify') }}
+                      </v-btn>
+                    </template>
+                  </v-list-item>
+                </v-list>
+              </BrandingField>
             </v-card>
           </v-col>
         </v-row>
       </v-window-item>
 
+      <!-- ── Reviews tab ── -->
       <v-window-item value="reviews">
+        <BrandingTabIntro
+          :title="t('dealer.views.branding.tabReviews')"
+          :help="help('tabReviews')"
+          :ariaLabel="t('dealer.views.branding.helpAria')"
+        />
         <UpgradePrompt v-if="!canManageReviews" :feature-key="FeatureKey.REVIEW_MANAGEMENT" class="mb-4" />
-        <v-card v-else variant="outlined" class="pa-4">
-          <h2 class="text-subtitle-1 mb-3">{{ t('dealer.views.branding.reviewsTitle') }}</h2>
-          <v-text-field v-model="form.google_review_url" :label="t('dealer.views.branding.googleReviewUrl')" class="mb-2" />
-          <v-text-field v-model="form.google_place_id" :label="t('dealer.views.branding.googlePlaceId')" class="mb-2" />
-          <v-btn color="primary" :loading="saving" class="mb-4" @click="saveBranding">{{ t('common.save') }}</v-btn>
+        <v-card v-else variant="outlined" class="pa-4 panel-card">
+          <BrandingSectionHeader
+            :title="t('dealer.views.branding.reviewsTitle')"
+            help-key="tabReviews"
+          />
+
+          <BrandingField
+            :label="t('dealer.views.branding.googleReviewUrl')"
+            help-key="googleReviewUrl"
+          >
+            <v-text-field
+              v-model="form.google_review_url"
+              placeholder="https://g.page/..."
+              hide-details="auto"
+              variant="outlined"
+              density="compact"
+            />
+          </BrandingField>
+
+          <BrandingField
+            :label="t('dealer.views.branding.googlePlaceId')"
+            help-key="googlePlaceId"
+          >
+            <v-text-field
+              v-model="form.google_place_id"
+              hide-details="auto"
+              variant="outlined"
+              density="compact"
+            />
+          </BrandingField>
+
+          <span class="branding-action-with-help mb-4">
+            <v-btn color="primary" :loading="saving" @click="saveBranding">{{ t('common.save') }}</v-btn>
+            <PanelHelpHint
+              :text="help('saveBranding')"
+              size="sm"
+              :max-width="360"
+              :ariaLabel="t('dealer.views.branding.helpAria')"
+            />
+          </span>
+
           <v-alert v-if="reviewSummary?.configured" type="success" variant="tonal" density="compact">
             {{ t('dealer.views.branding.reviewsConfigured') }}
             <template v-if="reviewSummary?.widget_url">
@@ -74,35 +220,100 @@
         </v-card>
       </v-window-item>
 
+      <!-- ── DMS & API tab ── -->
       <v-window-item value="dms">
+        <BrandingTabIntro
+          :title="t('dealer.views.branding.tabDms')"
+          :help="help('tabDms')"
+          :ariaLabel="t('dealer.views.branding.helpAria')"
+        />
         <v-row>
           <v-col cols="12" md="6">
-            <v-card variant="outlined" class="pa-4 mb-4">
-              <h2 class="text-subtitle-1 mb-3">{{ t('dealer.views.branding.apiAccessTitle') }}</h2>
+            <v-card variant="outlined" class="pa-4 mb-4 panel-card">
+              <BrandingSectionHeader
+                :title="t('dealer.views.branding.apiAccessTitle')"
+                help-key="apiAccessSection"
+              />
               <UpgradePrompt v-if="!canUseApiAccess" :feature-key="FeatureKey.API_ACCESS" class="mb-3" />
               <template v-else>
-                <p class="text-caption text-medium-emphasis mb-2">{{ t('dealer.views.branding.apiEndpointHint', { endpoint: dmsData?.api_endpoint || '—' }) }}</p>
-                <v-btn class="mb-2" @click="createKey">{{ t('dealer.views.branding.createApiKey') }}</v-btn>
-                <v-alert v-if="plainKey" type="info" class="mb-2">{{ t('dealer.views.branding.apiKeyLabel', { key: plainKey }) }}</v-alert>
-                <v-list v-if="apiKeys.length" density="compact">
-                  <v-list-item v-for="key in apiKeys" :key="key.id" :title="key.name" :subtitle="key.key_prefix">
-                    <template #append>
-                      <v-btn icon size="x-small" variant="text" color="error" @click="removeKey(key.id)">
-                        <v-icon>mdi-delete</v-icon>
-                      </v-btn>
-                    </template>
-                  </v-list-item>
-                </v-list>
+                <BrandingField
+                  :label="t('dealer.views.branding.apiEndpointHint', { endpoint: dmsData?.api_endpoint || '—' })"
+                  help-key="apiEndpoint"
+                  flush
+                />
+
+                <span class="branding-action-with-help mb-3">
+                  <v-btn @click="createKey">{{ t('dealer.views.branding.createApiKey') }}</v-btn>
+                  <PanelHelpHint
+                    :text="help('createApiKey')"
+                    size="sm"
+                    :max-width="400"
+                    :ariaLabel="t('dealer.views.branding.helpAria')"
+                  />
+                </span>
+
+                <v-alert v-if="plainKey" type="info" class="mb-3" variant="tonal" density="compact">
+                  {{ t('dealer.views.branding.apiKeyLabel', { key: plainKey }) }}
+                </v-alert>
+
+                <BrandingField
+                  v-if="apiKeys.length"
+                  :label="t('dealer.views.branding.apiKeysList')"
+                  help-key="apiKeySecurity"
+                  flush
+                >
+                  <v-list density="compact">
+                    <v-list-item v-for="key in apiKeys" :key="key.id" :title="key.name" :subtitle="key.key_prefix">
+                      <template #append>
+                        <v-btn icon size="x-small" variant="text" color="error" @click="removeKey(key.id)">
+                          <v-icon>mdi-delete</v-icon>
+                        </v-btn>
+                      </template>
+                    </v-list-item>
+                  </v-list>
+                </BrandingField>
               </template>
             </v-card>
           </v-col>
+
           <v-col cols="12" md="6">
-            <v-card variant="outlined" class="pa-4 mb-4">
-              <h2 class="text-subtitle-1 mb-3">{{ t('dealer.views.branding.dmsTitle') }}</h2>
+            <v-card variant="outlined" class="pa-4 mb-4 panel-card">
+              <BrandingSectionHeader
+                :title="t('dealer.views.branding.dmsTitle')"
+                help-key="webhookSection"
+              />
               <UpgradePrompt v-if="!canUseDmsSync" :feature-key="FeatureKey.DMS_SYNC" class="mb-3" />
               <template v-else>
-                <v-text-field v-model="webhookUrl" :label="t('dealer.views.branding.webhookUrl')" class="mb-2" />
-                <v-btn class="mb-4" @click="createHook">{{ t('dealer.views.branding.addWebhook') }}</v-btn>
+                <BrandingField
+                  :label="t('dealer.views.branding.webhookUrl')"
+                  help-key="webhookUrl"
+                >
+                  <v-text-field
+                    v-model="webhookUrl"
+                    placeholder="https://your-server.com/webhooks/bilskyen"
+                    hide-details="auto"
+                    variant="outlined"
+                    density="compact"
+                  />
+                </BrandingField>
+
+                <span class="branding-action-with-help mb-2">
+                  <v-btn @click="createHook">{{ t('dealer.views.branding.addWebhook') }}</v-btn>
+                  <PanelHelpHint
+                    :text="help('addWebhook')"
+                    size="sm"
+                    :max-width="400"
+                    :ariaLabel="t('dealer.views.branding.helpAria')"
+                  />
+                </span>
+
+                <BrandingField
+                  help-key="webhookEvents"
+                  :label="t('dealer.views.branding.webhookEventsLabel')"
+                  flush
+                  class="mb-4"
+                />
+
                 <v-list v-if="webhooks.length" density="compact" class="mb-4">
                   <v-list-item v-for="hook in webhooks" :key="hook.id" :title="hook.url" :subtitle="(hook.events || []).join(', ')">
                     <template #append>
@@ -112,7 +323,11 @@
                     </template>
                   </v-list-item>
                 </v-list>
-                <h3 class="text-body-2 font-weight-medium mb-2">{{ t('dealer.views.branding.recentDeliveries') }}</h3>
+
+                <BrandingSectionHeader
+                  :title="t('dealer.views.branding.recentDeliveries')"
+                  help-key="recentDeliveries"
+                />
                 <v-table v-if="deliveries.length" density="compact">
                   <thead>
                     <tr>
@@ -132,29 +347,64 @@
                 <p v-else class="text-caption text-medium-emphasis">{{ t('dealer.views.branding.noDeliveries') }}</p>
               </template>
             </v-card>
-            <v-btn variant="outlined" @click="exportLeadPiiAudit">{{ t('dealer.views.branding.exportPiiAudit') }}</v-btn>
+
+            <span class="branding-action-with-help">
+              <v-btn variant="outlined" @click="exportLeadPiiAudit">{{ t('dealer.views.branding.exportPiiAudit') }}</v-btn>
+              <PanelHelpHint
+                :text="help('exportPiiAudit')"
+                size="sm"
+                :max-width="400"
+                :ariaLabel="t('dealer.views.branding.helpAria')"
+              />
+            </span>
           </v-col>
         </v-row>
       </v-window-item>
 
+      <!-- ── Inventory audit tab ── -->
       <v-window-item value="audit">
+        <BrandingTabIntro
+          :title="t('dealer.views.branding.tabAudit')"
+          :help="help('tabAudit')"
+          :ariaLabel="t('dealer.views.branding.helpAria')"
+        />
         <UpgradePrompt v-if="!canUseBrandedAudit" :feature-key="FeatureKey.BRANDED_INVENTORY_AUDIT" class="mb-4" />
-        <v-card v-else variant="outlined" class="pa-4">
-          <h2 class="text-subtitle-1 mb-3">{{ t('dealer.views.branding.auditTitle') }}</h2>
+        <v-card v-else variant="outlined" class="pa-4 panel-card">
+          <BrandingSectionHeader
+            :title="t('dealer.views.branding.auditTitle')"
+            help-key="auditSection"
+          />
           <p class="text-body-2 text-medium-emphasis mb-4">{{ t('dealer.views.branding.auditHint') }}</p>
           <v-alert v-if="auditLinkError" type="warning" variant="tonal" density="compact" class="mb-3">
             {{ auditLinkError }}
           </v-alert>
-          <v-text-field
-            :model-value="auditLink?.share_url || ''"
+
+          <BrandingField
             :label="t('dealer.views.branding.auditShareUrl')"
-            readonly
-            append-inner-icon="mdi-content-copy"
-            @click:append-inner="copyAuditLink"
-          />
-          <v-btn v-if="auditLink?.share_url" variant="outlined" class="mt-2" :href="auditLink.share_url" target="_blank">
-            {{ t('dealer.views.branding.previewAudit') }}
-          </v-btn>
+            help-key="auditShareUrl"
+          >
+            <v-text-field
+              :model-value="auditLink?.share_url || ''"
+              readonly
+              hide-details="auto"
+              variant="outlined"
+              density="compact"
+              append-inner-icon="mdi-content-copy"
+              @click:append-inner="copyAuditLink"
+            />
+          </BrandingField>
+
+          <span v-if="auditLink?.share_url" class="branding-action-with-help mt-2">
+            <v-btn variant="outlined" :href="auditLink.share_url" target="_blank">
+              {{ t('dealer.views.branding.previewAudit') }}
+            </v-btn>
+            <PanelHelpHint
+              :text="help('previewAudit')"
+              size="sm"
+              :max-width="400"
+              :ariaLabel="t('dealer.views.branding.helpAria')"
+            />
+          </span>
         </v-card>
       </v-window-item>
     </v-window>
@@ -165,6 +415,11 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import UpgradePrompt from '@/components/dealer/UpgradePrompt.vue'
+import BrandingField from '@/components/dealer/branding/BrandingField.vue'
+import BrandingSectionHeader from '@/components/dealer/branding/BrandingSectionHeader.vue'
+import BrandingTabIntro from '@/components/dealer/branding/BrandingTabIntro.vue'
+import PageHeader from '@/components/panel/PageHeader.vue'
+import PanelHelpHint from '@/components/panel/PanelHelpHint.vue'
 import { FeatureKey, hasFeature } from '@/utils/subscriptionFeatures'
 import {
   addDealerDomain,
@@ -182,6 +437,11 @@ import {
 } from '@/api/dealer.api'
 
 const { t } = useI18n()
+
+function help(key: string) {
+  return t(`dealer.views.branding.help.${key}`)
+}
+
 const tab = ref('theme')
 const saving = ref(false)
 const platformFinanceCalculatorEnabled = ref(true)
@@ -332,3 +592,16 @@ watch(tab, (value) => {
 
 onMounted(load)
 </script>
+
+<style scoped>
+.branding-action-with-help {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.branding-domain-list {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+</style>

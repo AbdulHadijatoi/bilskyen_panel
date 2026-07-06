@@ -2,8 +2,9 @@
   <div class="panel-page subscription-page">
     <!-- Header -->
     <PageHeader
-      :title="t('dealer.views.subscription.title')"
-      :subtitle="t('dealer.views.subscription.subtitle')"
+      :title="t('dealer.views.subscription.selectYourPlan')"
+      :subtitle="t('dealer.views.subscription.pickPlanSubtitle')"
+      centered
     />
 
     <v-alert

@@ -16,12 +16,19 @@
     "brandingDms": "Branding & DMS",
     "marketing": "Marketing",
     "viewProfile": "View Profile",
+    "settings": "Settings",
     "changePassword": "Change Password",
     "logout": "Logout"
   },
   "navSection": {
     "coreOperations": "Core Operations",
     "management": "Management"
+  },
+  "settings": {
+    "nav": {
+      "account": "Account",
+      "profile": "Profile"
+    }
   },
   "subscription": {
     "pricing": {
@@ -32,7 +39,10 @@
       "orPerMonth": "or {price} / Month",
       "viewDetails": "View details",
       "active": "Active",
-      "inactive": "Inactive"
+      "inactive": "Inactive",
+      "billingCycle": "Billing cycle",
+      "yearlyDiscount": "Up to 10% off",
+      "currentPlan": "Your current plan"
     },
     "comparison": {
       "title": "Compare all features",
@@ -61,6 +71,7 @@
     "danish": "Danish",
     "save": "Save",
     "cancel": "Cancel",
+    "close": "Close",
     "delete": "Delete",
     "edit": "Edit",
     "add": "Add",
@@ -1683,7 +1694,26 @@
       "syndication": {
         "title": "Feeds & Syndication",
         "subtitle": "Manage export feeds and syndicate your inventory to external channels",
+        "helpAria": "Show help for this section",
+        "help": {
+          "page": "This page exports your live vehicle inventory to other systems. Feed tokens provide secure JSON/XML URLs for your website or partners. Syndication automatically pushes stock to external marketplaces when you publish or update vehicles. Hover or tap the ! buttons for detailed guidance. Inventory Feeds and Syndication require the matching features on your subscription plan.",
+          "feedTokensSection": "Feed tokens are secret keys that unlock read-only export URLs for your published stock. Each token generates unique JSON and XML links you can share with your web developer, price-comparison sites, or DMS — without giving them panel login access.",
+          "addToken": "Creates a new feed token and generates fresh JSON/XML URLs. You can create multiple tokens (e.g. one per website or partner) and revoke access anytime by deleting a token. Treat feed URLs like passwords — anyone with the link can read your published inventory.",
+          "feedUrls": "Use Copy next to JSON or XML to grab the feed URL for that token. JSON suits modern websites and apps; XML suits older DMS tools and some aggregators. URLs always reflect your current published vehicles.",
+          "formatJson": "JSON format — structured data that is easy for websites, apps, and scripts to consume. Give this URL to your developer or CMS integration.",
+          "formatXml": "XML format — widely used by legacy DMS systems and feed aggregators. Choose XML if your integration documentation specifically requests it.",
+          "providersSection": "Syndication providers send your inventory to external sales channels (e.g. Facebook Marketplace) when vehicles are published or updated. Enable only the channels you use, save your settings, and use Sync now to force an immediate refresh.",
+          "providerToggle": "Turn a provider on to start sending listings to that channel; turn it off to stop updates. Changes apply after you click Save. The last sync timestamp shows when that channel was last refreshed.",
+          "saveProviders": "Saves which syndication channels are enabled for your dealership. This does not publish vehicles by itself — it only controls which external feeds receive updates when your stock changes.",
+          "syncNow": "Forces an immediate sync for all enabled syndication providers. Use after bulk imports or if a partner reports missing vehicles. Normal publish and update actions sync automatically in the background.",
+          "recentLogs": "Shows the latest syndication attempts per provider: success or error, time, and a short message. Use this to troubleshoot partner feed issues — repeated errors often mean a misconfiguration on the receiving side.",
+          "logTable": "Each row is one sync attempt. Success means the feed was generated and delivered; Error means something failed (read the message column). Try Sync now once, then contact support if errors continue."
+        },
         "feedTokens": "Feed tokens",
+        "feedUrlsLabel": "Your feed URLs",
+        "providersTitle": "Syndication providers",
+        "providerToggleLabel": "Enabled channels",
+        "logTableLabel": "Reading the log table",
         "addToken": "Add token",
         "noTokens": "No feed tokens yet. Create one to get JSON/XML feed URLs.",
         "providers": {
@@ -1734,6 +1764,40 @@
       },
       "branding": {
         "title": "Branding & DMS",
+        "subtitle": "Customize your dealer storefront, reviews, API access, and inventory audit links.",
+        "helpAria": "Show help for this section",
+        "help": {
+          "page": "This page controls how your dealership looks to buyers online and how your stock system connects to Bilskyen. Use the tabs to set colors, domains, Google reviews, API keys, webhooks, and a shareable inventory audit link. Hover or tap the ! buttons on each field for detailed guidance.",
+          "tabTheme": "The Branding tab covers your public look: colors buyers see on vehicle pages, optional monthly payment calculator, finance partner link, and custom website domains (e.g. cars.yourcompany.dk).",
+          "tabReviews": "The Reviews tab links your Google Business profile so you can send buyers to leave a review after a sale. Requires the Review Management feature on your subscription plan.",
+          "tabDms": "The DMS & API tab is for technical connections: API keys let other software read or update your data securely; webhooks notify your DMS when a vehicle is published or updated.",
+          "tabAudit": "The Inventory audit tab gives you a shareable link that shows your live stock on a page styled with your logo and colors — useful to email prospects or use in sales meetings.",
+          "saveBranding": "Saves your theme colors, finance calculator setting, finance partner URL, and Google review fields to your dealer profile. Changes apply to your public storefront after saving.",
+          "themeSection": "Branding & reputation settings control the visual identity and finance tools shown on your public vehicle listing pages that buyers see on the marketplace or your custom domain.",
+          "financeCalculatorEnabled": "When enabled, each vehicle page can show an estimated monthly payment (based on price, rate, and term). Choose Inherit to follow the platform default, Enabled to always show it for your dealership, or Disabled to hide it. If the platform admin has turned the calculator off globally, this field is locked.",
+          "financePartnerUrl": "Optional link to your finance partner or bank application page (full https URL). Buyers who want financing can be directed here from your listings. Leave blank if you handle finance enquiries only by phone or in person.",
+          "primaryColor": "Your main brand color in hex format (e.g. #03418b). Used for buttons, links, and highlights on your public dealer pages and branded audit. Pick a color that matches your logo for a consistent look.",
+          "secondaryColor": "A supporting brand color in hex format. Used for accents, backgrounds, or secondary UI elements on your public pages. Should complement your primary color.",
+          "domainsSection": "Custom domains let buyers open your inventory on your own website address (e.g. stock.yourdealership.dk) instead of only the default Bilskyen URL. You must own the domain and add a DNS record at your domain provider.",
+          "cnameSetup": "At your domain registrar (e.g. One.com, GoDaddy), create a CNAME record pointing your subdomain to the target shown here. DNS changes can take up to 24–48 hours. Until verified, the domain stays in Pending status.",
+          "addDomain": "Enter the full domain or subdomain you want to use (e.g. cars.example.dk), then click Add. The domain appears in the list below. You must complete DNS setup and click Verify before it goes live.",
+          "domainVerification": "Click Verify after you have added the CNAME record at your DNS provider. We check that the record points to our platform. Verified means the domain is ready; Pending means DNS is not correct yet or still propagating.",
+          "googleReviewUrl": "The public Google review link for your dealership. Find it in Google Business Profile → Ask for reviews, or copy the ‘Write a review’ URL for your business. Buyers use this after a purchase to leave feedback on Google.",
+          "googlePlaceId": "Your Google Place ID uniquely identifies your business location for Google APIs (optional but helps map widgets and review features). You can find it in Google’s Place ID finder or your Google Business settings.",
+          "apiAccessSection": "API access lets approved software (your DMS, website, or custom tools) connect to Bilskyen programmatically. Each integration uses an API key — treat keys like passwords and never share them in email or public code.",
+          "apiEndpoint": "This is the base URL your developers or DMS vendor use when calling the Bilskyen API on behalf of your dealership. Share this endpoint together with a newly created API key.",
+          "createApiKey": "Generates a new secret API key. The full key is shown only once immediately after creation — copy and store it securely. If you lose it, delete the old key and create a new one. Name keys by purpose (e.g. ‘DMS production’).",
+          "apiKeySecurity": "Listed keys show only a prefix (first characters) for identification. Delete keys you no longer use. Anyone with a valid key can access your API scope — revoke compromised keys immediately.",
+          "webhookSection": "Webhooks send automatic HTTP notifications to your DMS or middleware when events happen in Bilskyen (e.g. a vehicle is published). Your system receives a POST request with event details so stock stays in sync without manual exports.",
+          "webhookUrl": "The HTTPS URL on your server that should receive webhook POST requests. Must be publicly reachable and return a 2xx response. Use your DMS vendor’s documented webhook endpoint if they provide one.",
+          "addWebhook": "Registers the URL above to receive vehicle.published and vehicle.updated events. After adding, publish or update a test vehicle to confirm your endpoint receives the payload. Remove webhooks that are no longer needed.",
+          "webhookEvents": "vehicle.published fires when a listing goes live; vehicle.updated fires when key vehicle data changes. Your integration should handle both to keep external stock accurate.",
+          "recentDeliveries": "Shows the last webhook delivery attempts: status (success/failed), event name, and HTTP response code from your server. Use this to debug connection issues — repeated failures often mean a wrong URL, firewall block, or server error.",
+          "exportPiiAudit": "Downloads a CSV audit log of when lead personal data (PII) was accessed or exported in your account. Useful for GDPR compliance records and internal security reviews.",
+          "auditSection": "The branded inventory audit is a read-only public page listing your current published vehicles with your dealership logo and colors. Share the link with prospects who want an overview without logging in.",
+          "auditShareUrl": "Copy this link and send it by email, SMS, or embed in proposals. The page updates as your live inventory changes. Requires a dealer profile slug — contact support if link generation fails.",
+          "previewAudit": "Opens the audit page in a new browser tab exactly as a prospect would see it. Check logo, colors, and vehicle list before sharing the link externally."
+        },
         "theme": "Branding & reputation",
         "financeUrl": "Finance partner URL",
         "financeCalculatorEnabled": "Show monthly payment calculator on vehicle pages",
@@ -1765,6 +1829,8 @@
         "reviewsHint": "Add your Google review URL so buyers can leave feedback after a sale.",
         "openReviews": "Open review page",
         "apiAccessTitle": "API access",
+        "apiKeysList": "Your API keys",
+        "webhookEventsLabel": "Webhook events",
         "apiEndpointHint": "Inbound endpoint: {endpoint}",
         "recentDeliveries": "Recent webhook deliveries",
         "event": "Event",

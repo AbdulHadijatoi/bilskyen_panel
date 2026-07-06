@@ -1,36 +1,24 @@
 <template>
   <div class="panel-page">
-    <div class="d-flex justify-space-between align-center mb-3">
-      <div>
-        <h2 class="text-h6 font-weight-bold mb-1">Manage Pages</h2>
-        <p class="text-caption text-medium-emphasis">
-          View and manage CMS pages.
-        </p>
-      </div>
-      <v-btn
-        v-if="hasPermission('admin.pages.create')"
-        color="primary"
-        prepend-icon="mdi-plus"
-        size="small"
-        @click="showCreateDialog = true"
-      >
-        Create Page
-      </v-btn>
-    </div>
-
-    <!-- Filters Card -->
-    <v-card
-      variant="flat"
-      class="filters-card mb-3"
-      elevation="0"
-      :style="{
-        backgroundColor: 'var(--card)',
-        color: 'var(--card-foreground)',
-        border: '1px solid rgba(0, 0, 0, 0.12)',
-        borderRadius: '8px',
-      }"
+    <PageHeader
+      title="Manage Pages"
+      subtitle="View and manage CMS pages."
     >
-      <v-card-text class="pa-3">
+      <template #actions>
+        <v-btn
+          v-if="hasPermission('admin.pages.create')"
+          color="primary"
+          prepend-icon="mdi-plus"
+          size="small"
+          @click="showCreateDialog = true"
+        >
+          Create Page
+        </v-btn>
+      </template>
+    </PageHeader>
+
+    <div class="panel-filters-card mb-3">
+      <div class="panel-filters-card__body">
         <div class="d-flex justify-space-between align-center">
           <v-text-field
             v-model="search"
@@ -63,21 +51,11 @@
             </v-btn>
           </div>
         </div>
-      </v-card-text>
-    </v-card>
+      </div>
+    </div>
 
-    <!-- Table Card -->
-    <v-card
-      variant="flat"
-      class="table-card"
-      elevation="0"
-      :style="{
-        backgroundColor: 'var(--card)',
-        color: 'var(--card-foreground)',
-        border: '1px solid rgba(0, 0, 0, 0.12)',
-        borderRadius: '8px',
-      }"
-    >
+    <div class="panel-table-card">
+      <div class="panel-table-card__body">
       <div v-if="loading" class="text-center py-8">
         <v-progress-circular indeterminate color="primary" />
       </div>
@@ -96,8 +74,7 @@
         :items-per-page="pages.limit"
         :page="pages.page"
         density="compact"
-        class="data-table"
-        :class="$style.dataTable"
+        class="panel-data-table"
         elevation="0"
         @update:page="() => loadPages()"
       >
@@ -150,7 +127,7 @@
           @update:model-value="loadPages"
         />
       </div>
-    </v-card>
+    </div>
 
     <!-- Create Page Dialog -->
     <v-dialog v-model="showCreateDialog" max-width="600">
@@ -201,6 +178,7 @@ import { hasPermission } from '@/utils/permissions'
 import { getPages, createPage as createPageApi, deletePage as deletePageApi, type CreatePageData, type PageModel } from '@/api/admin.api'
 import type { PaginationModel } from '@/models/pagination.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
+import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 const router = useRouter()

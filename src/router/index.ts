@@ -164,7 +164,8 @@ const router = createRouter({
         {
           path: 'profile',
           name: 'dealer.profile',
-          component: () => import('@/views/dealer/settings/ProfileSettings.vue'),
+          component: () => import('@/views/settings/SettingsRouteRedirect.vue'),
+          meta: { settingsFallback: 'dealer.dashboard', openSettings: 'profile' },
         },
       ],
     },

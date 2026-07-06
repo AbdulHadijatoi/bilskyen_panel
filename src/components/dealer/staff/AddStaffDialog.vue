@@ -1,144 +1,126 @@
 <template>
-  <v-dialog v-model="dialog" max-width="600" persistent>
-    <v-card
-      variant="flat"
-      elevation="0"
-      :style="{ border: '1px solid rgba(0, 0, 0, 0.12)' }"
-    >
-      <v-card-title class="d-flex align-center pa-4">
-        <v-icon class="mr-2">mdi-account-plus</v-icon>
-        {{ t('dealerComponents.staff.addStaffMember') }}
-      </v-card-title>
+  <PanelDialog
+    v-model="dialog"
+    :title="t('dealerComponents.staff.addStaffMember')"
+    icon="mdi-account-plus"
+    :max-width="600"
+    persistent
+  >
+    <v-form ref="formRef" v-model="formValid" @submit.prevent="handleSubmit">
+      <v-text-field
+        v-model="form.name"
+        :label="t('dealerComponents.staff.fullName')"
+        density="compact"
+        variant="outlined"
+        :rules="rules.name"
+        hide-details="auto"
+        prepend-inner-icon="mdi-account"
+        class="mb-4"
+        required
+      />
 
-      <v-divider />
+      <v-text-field
+        v-model="form.email"
+        :label="t('dealerComponents.staff.emailOptional')"
+        type="email"
+        density="compact"
+        variant="outlined"
+        :rules="rules.email"
+        hide-details="auto"
+        prepend-inner-icon="mdi-email"
+        class="mb-4"
+      />
 
-      <v-card-text class="pa-4">
-        <v-form ref="formRef" v-model="formValid" @submit.prevent="handleSubmit">
-          <v-text-field
-            v-model="form.name"
-            :label="t('dealerComponents.staff.fullName')"
-            density="compact"
-            variant="outlined"
-            :rules="rules.name"
-            hide-details="auto"
-            prepend-inner-icon="mdi-account"
-            class="mb-4"
-            required
-          />
+      <v-text-field
+        v-model="form.phone"
+        :label="t('dealerComponents.staff.phoneOptional')"
+        density="compact"
+        variant="outlined"
+        :rules="rules.phone"
+        hide-details="auto"
+        prepend-inner-icon="mdi-phone"
+        class="mb-4"
+      />
 
-          <v-text-field
-            v-model="form.email"
-            :label="t('dealerComponents.staff.emailOptional')"
-            type="email"
-            density="compact"
-            variant="outlined"
-            :rules="rules.email"
-            hide-details="auto"
-            prepend-inner-icon="mdi-email"
-            class="mb-4"
-          />
+      <v-text-field
+        v-model="form.password"
+        :label="t('dealerComponents.staff.password')"
+        type="password"
+        density="compact"
+        variant="outlined"
+        :rules="rules.password"
+        hide-details="auto"
+        prepend-inner-icon="mdi-lock"
+        class="mb-4"
+        required
+      />
 
-          <v-text-field
-            v-model="form.phone"
-            :label="t('dealerComponents.staff.phoneOptional')"
-            density="compact"
-            variant="outlined"
-            :rules="rules.phone"
-            hide-details="auto"
-            prepend-inner-icon="mdi-phone"
-            class="mb-4"
-          />
+      <v-alert
+        v-if="successMessage"
+        type="success"
+        variant="tonal"
+        density="compact"
+        class="mt-4"
+        closable
+        @click:close="successMessage = null"
+      >
+        {{ successMessage }}
+      </v-alert>
 
-          <v-text-field
-            v-model="form.password"
-            :label="t('dealerComponents.staff.password')"
-            type="password"
-            density="compact"
-            variant="outlined"
-            :rules="rules.password"
-            hide-details="auto"
-            prepend-inner-icon="mdi-lock"
-            class="mb-4"
-            required
-          />
+      <v-alert
+        v-if="error"
+        type="error"
+        variant="tonal"
+        density="compact"
+        class="mt-4"
+        closable
+        @click:close="error = null"
+      >
+        {{ error }}
+      </v-alert>
 
-          <!-- Success Message (when username is generated) -->
-          <v-alert
-            v-if="successMessage"
-            type="success"
-            variant="tonal"
-            density="compact"
-            class="mt-4"
-            closable
-            @click:close="successMessage = null"
-          >
-            {{ successMessage }}
-          </v-alert>
+      <v-alert
+        v-if="Object.keys(validationErrors).length > 0"
+        type="error"
+        variant="tonal"
+        density="compact"
+        class="mt-4"
+        closable
+        @click:close="validationErrors = {}"
+      >
+        <div class="mb-2">
+          <strong>{{ t('dealerComponents.staff.fixErrors') }}</strong>
+        </div>
+        <ul class="mb-0 pl-4">
+          <li v-for="(errors, field) in validationErrors" :key="field">
+            <strong>{{ field }}:</strong> {{ errors.join(', ') }}
+          </li>
+        </ul>
+      </v-alert>
+    </v-form>
 
-          <!-- Error Message -->
-          <v-alert
-            v-if="error"
-            type="error"
-            variant="tonal"
-            density="compact"
-            class="mt-4"
-            closable
-            @click:close="error = null"
-          >
-            {{ error }}
-          </v-alert>
-
-          <!-- Validation Errors -->
-          <v-alert
-            v-if="Object.keys(validationErrors).length > 0"
-            type="error"
-            variant="tonal"
-            density="compact"
-            class="mt-4"
-            closable
-            @click:close="validationErrors = {}"
-          >
-            <div class="mb-2">
-              <strong>{{ t('dealerComponents.staff.fixErrors') }}</strong>
-            </div>
-            <ul class="mb-0 pl-4">
-              <li v-for="(errors, field) in validationErrors" :key="field">
-                <strong>{{ field }}:</strong> {{ errors.join(', ') }}
-              </li>
-            </ul>
-          </v-alert>
-        </v-form>
-      </v-card-text>
-
-      <v-divider />
-
-      <v-card-actions class="pa-4">
-        <v-spacer />
-        <v-btn
-          variant="outlined"
-          @click="close"
-          :disabled="submitting"
-        >
-          {{ t('dealerComponents.staff.cancel') }}
-        </v-btn>
-        <v-btn
-          color="primary"
-          variant="outlined"
-          :loading="submitting"
-          :disabled="!formValid || submitting"
-          @click="handleSubmit"
-        >
-          {{ submitting ? t('dealerComponents.staff.creating') : t('dealerComponents.staff.createStaff') }}
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+    <template #footer>
+      <PanelButton variant="ghost" :disabled="submitting" @click="close">
+        {{ t('dealerComponents.staff.cancel') }}
+      </PanelButton>
+      <PanelButton
+        variant="primary"
+        :loading="submitting"
+        :disabled="!formValid || submitting"
+        @click="handleSubmit"
+      >
+        {{ submitting ? t('dealerComponents.staff.creating') : t('dealerComponents.staff.createStaff') }}
+      </PanelButton>
+    </template>
+  </PanelDialog>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { addStaff, type AddStaffData } from '@/api/dealer.api'
+import PanelDialog from '@/components/ui/PanelDialog.vue'
+import PanelButton from '@/components/ui/PanelButton.vue'
 
 const { t } = useI18n()
 
@@ -171,7 +153,6 @@ const form = reactive<{
   password: '',
 })
 
-// Validation rules
 const rules = {
   required: (value: any) => {
     if (value === undefined || value === null || value === '') {
@@ -193,7 +174,7 @@ const rules = {
   email: [
     (value: string) => {
       if (!value || value.trim().length === 0) {
-        return true // Optional field
+        return true
       }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
         return t('dealerComponents.staff.emailInvalid')
@@ -204,7 +185,7 @@ const rules = {
   phone: [
     (value: string) => {
       if (!value || value.trim().length === 0) {
-        return true // Optional field
+        return true
       }
       return true
     },
@@ -222,7 +203,6 @@ const rules = {
   ],
 }
 
-// Watch for prop changes
 watch(() => props.modelValue, (newVal) => {
   dialog.value = newVal
   if (!newVal) {
@@ -237,7 +217,6 @@ watch(dialog, (newVal) => {
   }
 })
 
-// Reset form
 const resetForm = () => {
   form.name = ''
   form.email = undefined
@@ -249,12 +228,10 @@ const resetForm = () => {
   formRef.value?.resetValidation()
 }
 
-// Close dialog
 const close = () => {
   dialog.value = false
 }
 
-// Handle form submission
 const handleSubmit = async () => {
   if (!formValid.value) {
     return
@@ -274,15 +251,13 @@ const handleSubmit = async () => {
     }
 
     const result = await addStaff(data)
-    
-    // Show success message with username
+
     if (result.username) {
       successMessage.value = t('dealerComponents.staff.staffCreatedWithUsername', { username: result.username })
     } else {
       successMessage.value = t('dealerComponents.staff.staffCreatedSuccess')
     }
 
-    // Wait a bit before closing to show the success message
     setTimeout(() => {
       emit('success')
       close()
@@ -290,7 +265,6 @@ const handleSubmit = async () => {
   } catch (err: any) {
     console.error('Failed to add staff:', err)
 
-    // Handle validation errors
     if (err?.errors && typeof err.errors === 'object') {
       validationErrors.value = err.errors
     } else {

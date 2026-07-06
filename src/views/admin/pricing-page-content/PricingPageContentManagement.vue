@@ -1,11 +1,10 @@
 <template>
   <div class="panel-page pricing-page-content-container">
-    <div class="page-header">
-      <div class="header-content">
-        <h2 class="page-title">{{ t('admin.views.pricingPageContent.title') }}</h2>
-        <p class="page-description">{{ t('admin.views.pricingPageContent.description') }}</p>
-      </div>
-      <div class="header-actions">
+    <PageHeader
+      :title="t('admin.views.pricingPageContent.title')"
+      :subtitle="t('admin.views.pricingPageContent.description')"
+    >
+      <template #actions>
         <v-btn
           color="primary"
           prepend-icon="mdi-content-save"
@@ -16,8 +15,8 @@
         >
           {{ t('admin.views.pricingPageContent.saveChanges') }}
         </v-btn>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
     <div v-if="loading" class="text-center py-8">
       <v-progress-circular indeterminate color="primary" />
@@ -59,6 +58,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import PageHeader from '@/components/panel/PageHeader.vue'
 import { bulkUpdatePricingPageContent, getPricingPageContent } from '@/api/admin.api'
 
 type FaqItem = { question: string; answer: string }
@@ -145,15 +145,6 @@ onMounted(loadContent)
 .pricing-page-content-container {
   padding: 16px;
   min-height: 100vh;
-}
-
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .form-wrapper {

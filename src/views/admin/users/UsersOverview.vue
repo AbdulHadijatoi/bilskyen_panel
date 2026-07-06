@@ -132,8 +132,7 @@
           :items-per-page="users.limit"
           :page="users.page"
           density="comfortable"
-          class="users-table"
-          :class="$style.dataTable"
+          class="panel-data-table"
           elevation="0"
           @update:page="handlePageChange"
         >

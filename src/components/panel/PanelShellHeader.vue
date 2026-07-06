@@ -25,7 +25,7 @@
 import { LayoutPanelLeft } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { useSidebarStore } from '@/stores/sidebar'
-import Breadcrumb from '@/components/dealer/Breadcrumb.vue'
+import Breadcrumb from '@/components/panel/Breadcrumb.vue'
 
 const { t } = useI18n()
 const sidebarStore = useSidebarStore()
