@@ -95,6 +95,39 @@
     <!-- Main Tabs Container -->
     <v-expand-transition>
       <v-card v-if="showFormFields" variant="flat" elevation="1">
+        <!-- Validation errors at top so they stay visible after scroll-to-top -->
+        <v-alert
+          v-if="submitError"
+          type="error"
+          variant="tonal"
+          density="compact"
+          class="ma-4 mb-0"
+          closable
+          @click:close="submitError = null"
+        >
+          {{ submitError }}
+        </v-alert>
+
+        <v-alert
+          v-if="Object.keys(validationErrors).length > 0"
+          type="error"
+          variant="tonal"
+          density="compact"
+          class="ma-4"
+          closable
+          @click:close="validationErrors = {}"
+        >
+          <div class="mb-2">
+            <strong>{{ t('dealer.views.addVehicle.formErrorsStrong') }}</strong>
+          </div>
+          <ul class="mb-0 pl-4">
+            <li v-for="(errors, field) in validationErrors" :key="field">
+              <strong>{{ validationFieldLabel(String(field)) }}:</strong>
+              {{ Array.isArray(errors) ? errors.join(', ') : errors }}
+            </li>
+          </ul>
+        </v-alert>
+
         <v-tabs
           v-model="currentStep"
           color="primary"
@@ -116,6 +149,7 @@
           v-for="(step, index) in steps"
           :key="index"
           :value="index"
+          eager
         >
           <v-card-text class="pa-6">
         <v-form ref="formRef" v-model="formValid">
@@ -157,7 +191,7 @@
                   :label="t('dealer.views.addVehicle.make')"
                   density="compact"
                   variant="outlined"
-                  :rules="[rules.required]"
+                  :rules="[rules.requiredNamed(t('dealer.views.addVehicle.make'))]"
                   :readonly="!!lookupData?.make"
                     hide-details="auto"
                 />
@@ -171,7 +205,7 @@
                   :label="t('dealer.views.addVehicle.model')"
                   density="compact"
                   variant="outlined"
-                  :rules="[rules.required]"
+                  :rules="[rules.requiredNamed(t('dealer.views.addVehicle.model'))]"
                   :loading="modelsLoading"
                   :disabled="!selectedBrandId"
                   hide-details="auto"
@@ -188,7 +222,7 @@
                   variant="outlined"
                   :hint="t('dealer.views.addVehicle.variantHint')"
                   persistent-hint
-                  :rules="[rules.required]"
+                  :rules="[rules.requiredNamed(t('dealer.views.addVehicle.variant'))]"
                   :loading="variantsLoading"
                   :disabled="!form.modelId"
                   hide-details="auto"
@@ -201,7 +235,7 @@
                   :label="t('dealer.views.addVehicle.fuelType')"
                   density="compact"
                   variant="outlined"
-                  :rules="[rules.required]"
+                  :rules="[rules.requiredNamed(t('dealer.views.addVehicle.fuelType'))]"
                   :readonly="!!lookupData?.fuelType"
                     hide-details="auto"
                 />
@@ -210,7 +244,7 @@
                   <MonthYearPicker
                     v-model="form.registrationDate"
                     :label="t('dealer.views.addVehicle.registration')"
-                    :rules="[rules.required]"
+                    :rules="[rules.requiredNamed(t('dealer.views.addVehicle.registration'))]"
                     :readonly="!!lookupData?.registrationDate"
                     :min-year="MODEL_YEAR_MIN"
                   />
@@ -311,7 +345,7 @@
                 <MonthYearPicker
                   v-model="form.firstRegistrationDate"
                   :label="t('dealer.views.addVehicle.firstRegistration')"
-                  :rules="[rules.required]"
+                  :rules="[rules.requiredNamed(t('dealer.views.addVehicle.firstRegistration'))]"
                   :min-year="MODEL_YEAR_MIN"
                 />
               </v-col>
@@ -435,7 +469,7 @@
                   :label="t('dealer.views.addVehicle.fuelType')"
                   density="compact"
                   variant="outlined"
-                  :rules="[rules.required]"
+                  :rules="[rules.requiredNamed(t('dealer.views.addVehicle.fuelType'))]"
                     hide-details="auto"
                 />
               </v-col>
@@ -448,7 +482,7 @@
                   :label="t('dealer.views.addVehicle.gearType')"
                   density="compact"
                   variant="outlined"
-                  :rules="[rules.required]"
+                  :rules="[rules.requiredNamed(t('dealer.views.addVehicle.gearType'))]"
                   hide-details="auto"
                 />
               </v-col>
@@ -563,7 +597,7 @@
                         density="compact"
                         variant="outlined"
                         hide-details="auto"
-                        :rules="[rules.requiredSelect]"
+                        :rules="[rules.requiredNamedSelect(t('dealer.views.addVehicle.salesType'))]"
                       />
                     </v-col>
                     <v-col cols="12" md="4">
@@ -612,7 +646,7 @@
                         prefix="kr"
                         :hint="isLeasingSalesTypeSelected ? t('dealer.views.addVehicle.priceMonthlyLeasingHint') : t('dealer.views.addVehicle.includingDelivery')"
                         persistent-hint
-                        :rules="[rules.requiredPrice, rules.priceRange]"
+                        :rules="[rules.requiredNamedPrice(t('dealer.views.addVehicle.price')), rules.priceRange]"
                         hide-details="auto"
                       />
                     </v-col>
@@ -1011,7 +1045,7 @@
                   rows="6"
                 :hint="t('dealer.views.addVehicle.descriptionHint')"
                   persistent-hint
-                  :rules="[rules.required, rules.description]"
+                  :rules="[rules.requiredNamed(t('dealer.views.addVehicle.vehicleDescription')), rules.description]"
                 hide-details="auto"
                 @input="isDescriptionManuallyEdited = true"
                 />
@@ -1019,39 +1053,6 @@
               </div>
               </template>
         </v-form>
-
-      <!-- Error Display -->
-      <v-alert
-        v-if="submitError"
-        type="error"
-        variant="tonal"
-        density="compact"
-        class="ma-4"
-        closable
-        @click:close="submitError = null"
-      >
-        {{ submitError }}
-      </v-alert>
-
-      <!-- Validation Errors Display -->
-      <v-alert
-        v-if="Object.keys(validationErrors).length > 0"
-        type="error"
-        variant="tonal"
-        density="compact"
-        class="ma-4"
-        closable
-        @click:close="validationErrors = {}"
-      >
-        <div class="mb-2">
-          <strong>{{ t('dealer.views.addVehicle.fixErrorsStrong') }}</strong>
-        </div>
-        <ul class="mb-0 pl-4">
-          <li v-for="(errors, field) in validationErrors" :key="field">
-            <strong>{{ field }}:</strong> {{ errors.join(', ') }}
-          </li>
-        </ul>
-      </v-alert>
 
       <!-- Success Dialog -->
       <v-dialog
@@ -1908,14 +1909,27 @@ const loadDealerProfileForContact = async () => {
 // Validation rules
 const rules = {
   required: (v: any) => !!v || t('dealer.views.addVehicle.fieldRequired'),
+  requiredNamed: (fieldLabel: string) => (v: any) =>
+    !!v || t('dealer.views.addVehicle.fieldNamedRequired', { field: fieldLabel }),
   requiredSelect: (v: unknown) =>
     (v !== null && v !== undefined && v !== '') || t('dealer.views.addVehicle.fieldRequired'),
+  requiredNamedSelect: (fieldLabel: string) => (v: unknown) =>
+    (v !== null && v !== undefined && v !== '') ||
+    t('dealer.views.addVehicle.fieldNamedRequired', { field: fieldLabel }),
   requiredPrice: (v: number | null | undefined) => {
     if (v === null || v === undefined || (typeof v === 'string' && String(v).trim() === '')) {
       return t('dealer.views.addVehicle.fieldRequired')
     }
     const n = Number(v)
     if (Number.isNaN(n)) return t('dealer.views.addVehicle.fieldRequired')
+    return true
+  },
+  requiredNamedPrice: (fieldLabel: string) => (v: number | null | undefined) => {
+    if (v === null || v === undefined || (typeof v === 'string' && String(v).trim() === '')) {
+      return t('dealer.views.addVehicle.fieldNamedRequired', { field: fieldLabel })
+    }
+    const n = Number(v)
+    if (Number.isNaN(n)) return t('dealer.views.addVehicle.fieldNamedRequired', { field: fieldLabel })
     return true
   },
   priceRange: (v: number | null | undefined) => {
@@ -1929,7 +1943,7 @@ const rules = {
     return (v >= 0 && v <= 12000000000000) || t('dealer.views.addVehicle.odometerRange')
   },
   description: (v: string) => {
-    if (!v) return t('dealer.views.addVehicle.fieldRequired')
+    if (!v) return true // named required rule handles empty
     return (v.length >= 1 && v.length <= 5000) || t('dealer.views.addVehicle.descriptionLength')
   },
   requiredImages: (v: File[]) => {
@@ -1938,52 +1952,219 @@ const rules = {
   },
 }
 
-/** Returns step indices and labels that have missing or invalid required fields (for validation feedback). */
-function getInvalidSteps(): { stepIndex: number; stepLabel: string }[] {
-  const invalid: { stepIndex: number; stepLabel: string }[] = []
+/** Map API / form field keys to translated labels for error summaries. */
+const VALIDATION_FIELD_LABEL_KEYS: Record<string, string> = {
+  make: 'make',
+  brand_id: 'make',
+  brand: 'make',
+  model: 'model',
+  model_id: 'model',
+  variant: 'variant',
+  fuel_type: 'fuelType',
+  fuel_type_id: 'fuelType',
+  fueltype: 'fuelType',
+  registration: 'registration',
+  registration_date: 'registration',
+  registrationdate: 'registration',
+  dmr_fact_vehicle_id: 'dmrVehicleRequired',
+  first_registration_date: 'firstRegistration',
+  firstregistrationdate: 'firstRegistration',
+  registration_number: 'licensePlate',
+  odometer: 'currentMileage',
+  km_driven: 'currentMileage',
+  gear_type_id: 'gearType',
+  geartypeid: 'gearType',
+  transmission_type: 'gearType',
+  sales_type_id: 'salesType',
+  salestypeid: 'salesType',
+  price: 'price',
+  retail_price: 'retailPrice',
+  listing_price: 'price',
+  description: 'vehicleDescription',
+  images: 'vehicleImages',
+  equipment: 'tabEquipment',
+  equipment_ids: 'tabEquipment',
+  vin: 'vin',
+}
+
+function validationFieldLabel(fieldKey: string): string {
+  const normalized = fieldKey.toLowerCase().replace(/\.\d+$/, '')
+  const labelKey = VALIDATION_FIELD_LABEL_KEYS[normalized] ?? VALIDATION_FIELD_LABEL_KEYS[fieldKey]
+  if (labelKey === 'dmrVehicleRequired') {
+    return t('dealer.views.addVehicle.dmrVehicleRequired')
+  }
+  if (labelKey) {
+    const translated = t(`dealer.views.addVehicle.${labelKey}`)
+    if (translated && !translated.startsWith('dealer.views.addVehicle.')) {
+      return translated
+    }
+  }
+  // Fallback: humanize snake_case / camelCase keys
+  return fieldKey
+    .replace(/_/g, ' ')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/\bid\b/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/^\w/, (c) => c.toUpperCase())
+}
+
+type InvalidField = { stepIndex: number; fieldKey: string; fieldLabel: string }
+
+/** Returns specific invalid required fields (for precise validation feedback). */
+function getInvalidFields(): InvalidField[] {
+  const invalid: InvalidField[] = []
   const f = form.value
+  const label = (key: string) => validationFieldLabel(key)
 
   // Step 0: Vehicle Lookup
-  if (!f.make || !f.modelId || !f.variant || !f.fuelType || !f.registrationDate || f.dmr_fact_vehicle_id == null) {
-    invalid.push({ stepIndex: 0, stepLabel: steps.value[0]?.label ?? t('dealer.views.addVehicle.tabLookup') })
+  if (!f.make) invalid.push({ stepIndex: 0, fieldKey: 'make', fieldLabel: label('make') })
+  if (!f.modelId) invalid.push({ stepIndex: 0, fieldKey: 'model_id', fieldLabel: label('model_id') })
+  if (!f.variant) invalid.push({ stepIndex: 0, fieldKey: 'variant', fieldLabel: label('variant') })
+  if (!f.fuelType) invalid.push({ stepIndex: 0, fieldKey: 'fuel_type', fieldLabel: label('fuel_type') })
+  if (!f.registrationDate) {
+    invalid.push({ stepIndex: 0, fieldKey: 'registration_date', fieldLabel: label('registration_date') })
+  }
+  if (f.dmr_fact_vehicle_id == null) {
+    invalid.push({ stepIndex: 0, fieldKey: 'dmr_fact_vehicle_id', fieldLabel: label('dmr_fact_vehicle_id') })
   }
 
-  // Step 1: Vehicle Details (registration number is optional)
+  // Step 1: Vehicle Details
+  if (!f.firstRegistrationDate) {
+    invalid.push({
+      stepIndex: 1,
+      fieldKey: 'first_registration_date',
+      fieldLabel: label('first_registration_date'),
+    })
+  }
   const odometerValid = f.odometer == null || (f.odometer >= 0 && f.odometer <= 12000000000000)
-  if (!f.firstRegistrationDate || !odometerValid) {
-    invalid.push({ stepIndex: 1, stepLabel: steps.value[1]?.label ?? t('dealer.views.addVehicle.tabDetails') })
+  if (!odometerValid) {
+    invalid.push({ stepIndex: 1, fieldKey: 'odometer', fieldLabel: label('odometer') })
   }
 
-  // Step 2: Technical Data - gear type is required (defaults to Automatic when gear types load)
+  // Step 2: Technical Data
   if (!f.gearTypeId) {
-    invalid.push({ stepIndex: 2, stepLabel: steps.value[2]?.label ?? t('dealer.views.addVehicle.tabTechnical') })
+    invalid.push({ stepIndex: 2, fieldKey: 'gear_type_id', fieldLabel: label('gear_type_id') })
   }
 
   // Step 3: Equipment - check plan limit
   const maxEquip = maxEquipmentPerVehicle.value
   if (maxEquip > 0 && f.equipment && f.equipment.length > maxEquip) {
-    invalid.push({ stepIndex: 3, stepLabel: steps.value[3]?.label ?? t('dealer.views.addVehicle.tabEquipment') })
+    invalid.push({
+      stepIndex: 3,
+      fieldKey: 'equipment',
+      fieldLabel: t('dealer.views.addVehicle.equipmentLimitExceeded', { max: maxEquip }),
+    })
   }
 
   // Step 4: Pricing & Sales
   if (f.salesTypeId == null || f.salesTypeId === undefined) {
-    invalid.push({ stepIndex: 4, stepLabel: steps.value[4]?.label ?? t('dealer.views.addVehicle.tabPricing') })
+    invalid.push({ stepIndex: 4, fieldKey: 'sales_type_id', fieldLabel: label('sales_type_id') })
   }
   const p = f.price
   const priceNum = p === null || p === undefined || p === ('' as unknown as number) ? NaN : Number(p)
   if (Number.isNaN(priceNum) || priceNum < 0 || priceNum > 999999999) {
-    invalid.push({ stepIndex: 4, stepLabel: steps.value[4]?.label ?? t('dealer.views.addVehicle.tabPricing') })
+    invalid.push({ stepIndex: 4, fieldKey: 'price', fieldLabel: label('price') })
   }
 
-  // Step 5: Media (images optional; description required)
+  // Step 5: Media
   const descValid = f.description && f.description.length >= 1 && f.description.length <= 5000
+  if (!descValid) {
+    invalid.push({ stepIndex: 5, fieldKey: 'description', fieldLabel: label('description') })
+  }
   const maxImg = maxVehicleImages.value
   const imagesCountOk = maxImg <= 0 || imagePreviews.value.length <= maxImg
-  if (!descValid || !imagesCountOk) {
-    invalid.push({ stepIndex: 5, stepLabel: steps.value[5]?.label ?? t('dealer.views.addVehicle.tabMedia') })
+  if (!imagesCountOk) {
+    invalid.push({
+      stepIndex: 5,
+      fieldKey: 'images',
+      fieldLabel: t('dealer.views.addVehicle.imagesLimitExceeded', { max: maxImg }),
+    })
   }
 
   return invalid
+}
+
+function messageForInvalidField(field: InvalidField): string {
+  // Limit messages are already full sentences stored in fieldLabel
+  if (field.fieldKey === 'equipment' || field.fieldKey === 'images') {
+    const tab = steps.value[field.stepIndex]?.label
+    return tab
+      ? `${field.fieldLabel} (${tab})`
+      : field.fieldLabel
+  }
+
+  const tab = steps.value[field.stepIndex]?.label
+  if (tab) {
+    return t('dealer.views.addVehicle.fieldNamedRequiredInTab', {
+      field: field.fieldLabel,
+      tab,
+    })
+  }
+  return t('dealer.views.addVehicle.fieldNamedRequired', { field: field.fieldLabel })
+}
+
+/** Show named field errors (banner + list + snackbar) and jump to the first one. */
+async function applyClientValidationFeedback(invalidFields: InvalidField[]) {
+  if (invalidFields.length === 0) return
+
+  validationErrors.value = Object.fromEntries(
+    invalidFields.map((f) => [f.fieldKey, [messageForInvalidField(f)]]),
+  )
+
+  const fieldNames = [...new Set(invalidFields.map((f) => f.fieldLabel))].join(', ')
+  submitError.value = t('dealer.views.addVehicle.completeRequiredFields', { fields: fieldNames })
+  showSnackbar(submitError.value, 'error')
+  await focusFirstInvalidField(invalidFields)
+}
+
+/** Turn Laravel "The X field is required" into clear "{Label} is required". */
+function normalizeApiValidationErrors(errors: Record<string, string[]>): Record<string, string[]> {
+  const out: Record<string, string[]> = {}
+  for (const [key, msgs] of Object.entries(errors)) {
+    const label = validationFieldLabel(key)
+    out[key] = (Array.isArray(msgs) ? msgs : [String(msgs)]).map((msg) => {
+      const lower = String(msg).toLowerCase()
+      if (
+        lower.includes('required') ||
+        lower.includes('påkrævet') ||
+        lower.includes('must be present') ||
+        lower.includes('cannot be null')
+      ) {
+        return t('dealer.views.addVehicle.fieldNamedRequired', { field: label })
+      }
+      return msg
+    })
+  }
+  return out
+}
+
+/** @deprecated Prefer getInvalidFields — kept for any remaining callers. */
+function getInvalidSteps(): { stepIndex: number; stepLabel: string }[] {
+  const seen = new Set<number>()
+  return getInvalidFields()
+    .filter((f) => {
+      if (seen.has(f.stepIndex)) return false
+      seen.add(f.stepIndex)
+      return true
+    })
+    .map((f) => ({
+      stepIndex: f.stepIndex,
+      stepLabel: steps.value[f.stepIndex]?.label ?? String(f.stepIndex),
+    }))
+}
+
+async function focusFirstInvalidField(invalidFields: InvalidField[]) {
+  const first = invalidFields[0]
+  if (!first) return
+  currentStep.value = first.stepIndex
+  await nextTick()
+  const forms = Array.isArray(formRef.value) ? formRef.value : [formRef.value]
+  const activeForm = forms[currentStep.value] ?? forms[0]
+  if (activeForm && typeof activeForm.validate === 'function') {
+    await activeForm.validate()
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 // Methods
@@ -2553,8 +2734,14 @@ const saveAsDraft = async () => {
 
     // DMR identity required by dealer create/update contract
     if (form.value.dmr_fact_vehicle_id == null) {
-      submitError.value = t('dealer.views.addVehicle.fieldRequired')
-      currentStep.value = 0
+      const invalidFields = getInvalidFields().filter((f) => f.fieldKey === 'dmr_fact_vehicle_id')
+      if (invalidFields.length > 0) {
+        await applyClientValidationFeedback(invalidFields)
+      } else {
+        submitError.value = t('dealer.views.addVehicle.dmrVehicleRequired')
+        showSnackbar(submitError.value, 'error')
+        currentStep.value = 0
+      }
       return
     }
 
@@ -2892,9 +3079,33 @@ const saveAsDraft = async () => {
   } catch (error: any) {
     console.error('Failed to save draft:', error)
     const apiError = error as ApiErrorModel
-    const errorMessage = getDisplayMessage(apiError)
-    submitError.value = errorMessage
-    showSnackbar(errorMessage, 'error')
+    if (apiError.errors) {
+      validationErrors.value = normalizeApiValidationErrors(apiError.errors)
+      const fieldNames = Object.keys(apiError.errors)
+        .map((key) => validationFieldLabel(key))
+        .join(', ')
+      const errorMessage = t('dealer.views.addVehicle.completeRequiredFields', { fields: fieldNames })
+      submitError.value = errorMessage
+      showSnackbar(errorMessage, 'error')
+      const firstErrorField = Object.keys(apiError.errors)[0]
+      if (firstErrorField) {
+        const fieldToStepMap: Record<string, number> = {
+          brand_id: 0,
+          model_id: 0,
+          make: 0,
+          model: 0,
+          price: 4,
+          sales_type_id: 4,
+          description: 5,
+        }
+        currentStep.value = fieldToStepMap[firstErrorField.toLowerCase()] ?? 0
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } else {
+      const errorMessage = getDisplayMessage(apiError)
+      submitError.value = errorMessage
+      showSnackbar(errorMessage, 'error')
+    }
     draftSaved.value = false
   }
 }
@@ -3006,35 +3217,22 @@ const clearDraft = () => {
 const submitForm = async () => {
   if (!formRef.value) return
 
-  // Handle form ref - it's an array when multiple forms share the same ref
+  submitError.value = null
+  validationErrors.value = {}
+
+  // Programmatic checks are the source of truth (covers unmounted tabs).
+  const invalidFields = getInvalidFields()
+
+  // Still run Vuetify validate so inline messages appear under each input.
   const forms = Array.isArray(formRef.value) ? formRef.value : [formRef.value]
-  
-  // Validate all forms (all steps)
-  let allValid = true
-  for (const form of forms) {
-    if (form && typeof form.validate === 'function') {
-      const { valid } = await form.validate()
-      if (!valid) {
-        allValid = false
-        break
-      }
+  for (const formInstance of forms) {
+    if (formInstance && typeof formInstance.validate === 'function') {
+      await formInstance.validate()
     }
   }
-  
-  if (!allValid) {
-    const invalidSteps = getInvalidSteps()
-    const tabNames = invalidSteps.map(s => s.stepLabel).join(', ')
-    submitError.value = t('dealer.views.addVehicle.completeRequiredFieldsIn', { tabs: tabNames })
-    currentStep.value = invalidSteps[0]?.stepIndex ?? 0
-    return
-  }
 
-  // DMR identity required by dealer create/update contract
-  if (form.value.dmr_fact_vehicle_id == null) {
-    const invalidSteps = getInvalidSteps()
-    const tabNames = invalidSteps.map(s => s.stepLabel).join(', ')
-    submitError.value = t('dealer.views.addVehicle.completeRequiredFieldsIn', { tabs: tabNames })
-    currentStep.value = invalidSteps[0]?.stepIndex ?? 0
+  if (invalidFields.length > 0) {
+    await applyClientValidationFeedback(invalidFields)
     return
   }
 
@@ -3048,6 +3246,7 @@ const submitForm = async () => {
     const brand = brands.value.find(b => b.name === form.value.make)
     if (!brand) {
       submitError.value = t('dealer.views.addVehicle.selectValidMake')
+      showSnackbar(submitError.value, 'error')
       currentStep.value = 0
       return
     }
@@ -3056,6 +3255,7 @@ const submitForm = async () => {
     const fuelType = fuelTypes.value.find(f => f.name === form.value.fuelType)
     if (!fuelType) {
       submitError.value = t('dealer.views.addVehicle.selectValidFuelType')
+      showSnackbar(submitError.value, 'error')
       currentStep.value = 0
       return
     }
@@ -3337,48 +3537,66 @@ const submitForm = async () => {
     const apiError = error as ApiErrorModel
     
     if (apiError.errors) {
-      // Validation errors - map to form fields
-      validationErrors.value = apiError.errors
-      
-      // Try to navigate to the first step with errors
-      // Map common field names to step indices
+      // Validation errors - map to form fields with human-readable labels
+      validationErrors.value = normalizeApiValidationErrors(apiError.errors)
+      submitError.value = t('dealer.views.addVehicle.completeRequiredFields', {
+        fields: Object.keys(apiError.errors)
+          .map((key) => validationFieldLabel(key))
+          .join(', '),
+      })
+      showSnackbar(submitError.value, 'error')
+
+      // Map backend field names to wizard step indices
       const fieldToStepMap: Record<string, number> = {
-        'make': 0,
-        'model': 0,
-        'variant': 0,
-        'fuel_type': 0,
-        'vin': 0,
-        'registration_date': 0,
-        'first_registration_date': 1,
-        'registration_number': 1,
-        'odometer': 1,
-        'previous_usage': 1,
-        'transmission_type': 2,
-        'drivetrain': 2,
-        'equipment': 3,
-        'retail_price': 4,
-        'listing_price': 4,
-        'price': 4,
-        'sales_type_id': 4,
-        'images': 5,
-        'description': 5,
+        make: 0,
+        brand_id: 0,
+        brand: 0,
+        model: 0,
+        model_id: 0,
+        variant: 0,
+        fuel_type: 0,
+        fuel_type_id: 0,
+        vin: 0,
+        registration: 0,
+        registration_date: 0,
+        dmr_fact_vehicle_id: 0,
+        first_registration_date: 1,
+        registration_number: 1,
+        odometer: 1,
+        km_driven: 1,
+        previous_usage: 1,
+        gear_type_id: 2,
+        transmission_type: 2,
+        drivetrain: 2,
+        equipment: 3,
+        equipment_ids: 3,
+        retail_price: 4,
+        listing_price: 4,
+        price: 4,
+        sales_type_id: 4,
+        images: 5,
+        description: 5,
       }
-      
-      // Find the first error field and navigate to its step
+
       const firstErrorField = Object.keys(apiError.errors)[0]
       if (firstErrorField) {
         const stepIndex = fieldToStepMap[firstErrorField.toLowerCase()] ?? 0
         currentStep.value = stepIndex
+        await nextTick()
+        const forms = Array.isArray(formRef.value) ? formRef.value : [formRef.value]
+        const activeForm = forms[currentStep.value] ?? forms[0]
+        if (activeForm && typeof activeForm.validate === 'function') {
+          await activeForm.validate()
+        }
       } else {
         currentStep.value = 0
       }
-      
-      // Scroll to top to show error
+
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } else {
       // General error
       submitError.value = getDisplayMessage(apiError)
-      
+
       // Scroll to top to show error
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }

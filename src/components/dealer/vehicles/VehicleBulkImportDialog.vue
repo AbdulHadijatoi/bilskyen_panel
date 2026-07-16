@@ -16,7 +16,7 @@
           type="button"
           class="panel-icon-btn"
           :aria-label="t('common.close')"
-          :disabled="importing || polling"
+          :disabled="importing"
           @click="close"
         >
           <v-icon size="18">mdi-close</v-icon>
@@ -53,6 +53,16 @@
             {{ t('dealer.views.vehicles.import.description') }}
           </p>
         </div>
+
+        <v-alert
+          type="info"
+          variant="tonal"
+          density="compact"
+          icon="mdi-email-outline"
+          class="import-dialog__alert"
+        >
+          {{ t('dealer.views.vehicles.import.backgroundEmailNote') }}
+        </v-alert>
 
         <v-alert
           v-if="usageNotice"
@@ -345,14 +355,17 @@
       </div>
 
       <div class="panel-detail-dialog__footer">
+        <p class="text-caption text-medium-emphasis mb-3 text-center">
+          {{ t('dealer.views.vehicles.import.importFooterHint') }}
+        </p>
         <div class="panel-inline-actions">
           <button
             type="button"
             class="panel-btn panel-btn--ghost"
-            :disabled="importing || polling"
+            :disabled="importing"
             @click="close"
           >
-            {{ t('common.cancel') }}
+            {{ polling ? t('common.close') : t('common.cancel') }}
           </button>
           <button
             type="button"
@@ -510,12 +523,18 @@ function openFilePicker() {
 function onNativeFileChange(event: Event) {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0] ?? null
-  if (file && isAcceptedFile(file)) {
-    setSelectedFile(file)
+  if (!file) return
+
+  if (!isAcceptedFile(file)) {
+    importError.value = t('dealer.views.vehicles.import.invalidFileType')
     clearFileInput()
-    result.value = null
-    importError.value = null
+    return
   }
+
+  setSelectedFile(file)
+  clearFileInput()
+  result.value = null
+  importError.value = null
 }
 
 function onDragEnter() {
@@ -543,11 +562,16 @@ function onDrop(event: DragEvent) {
   if (polling.value || importing.value) return
 
   const file = event.dataTransfer?.files?.[0] ?? null
-  if (file && isAcceptedFile(file)) {
-    setSelectedFile(file)
-    result.value = null
-    importError.value = null
+  if (!file) return
+
+  if (!isAcceptedFile(file)) {
+    importError.value = t('dealer.views.vehicles.import.invalidFileType')
+    return
   }
+
+  setSelectedFile(file)
+  result.value = null
+  importError.value = null
 }
 
 function isAcceptedFile(file: File) {
@@ -571,10 +595,23 @@ async function pollBatch(batchId: number) {
   stopPolling()
   polling.value = true
 
+  const MAX_POLLS = 200 // ~10 minutes at 3s interval
+  const MAX_CONSECUTIVE_ERRORS = 5
+  let pollCount = 0
+  let consecutiveErrors = 0
+
   const fetchBatch = async () => {
     try {
+      pollCount += 1
       const batch = await getVehicleImportBatch(batchId)
+      consecutiveErrors = 0
+
       if (batch.status === 'pending' || batch.status === 'processing') {
+        if (pollCount >= MAX_POLLS) {
+          stopPolling()
+          queuedMessage.value = t('dealer.views.vehicles.import.pollTimedOut')
+          showSnackbar(queuedMessage.value, 'info')
+        }
         return
       }
 
@@ -591,13 +628,20 @@ async function pollBatch(batchId: number) {
         importError.value = batch.error_message || t('dealer.views.vehicles.import.importFailed')
       }
     } catch {
-      stopPolling()
-      importError.value = t('dealer.views.vehicles.import.importFailed')
+      consecutiveErrors += 1
+      if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+        stopPolling()
+        // Import may still finish — don't scare the user; email will notify.
+        queuedMessage.value = t('dealer.views.vehicles.import.pollTimedOut')
+        showSnackbar(queuedMessage.value, 'info')
+      }
     }
   }
 
   await fetchBatch()
-  pollTimer = setInterval(fetchBatch, 3000)
+  if (polling.value) {
+    pollTimer = setInterval(fetchBatch, 3000)
+  }
 }
 
 async function loadSample() {
@@ -663,6 +707,10 @@ watch(
 onBeforeUnmount(stopPolling)
 
 function close() {
+  if (polling.value) {
+    showSnackbar(t('dealer.views.vehicles.import.closedWhileProcessing'), 'info')
+  }
+  stopPolling()
   emit('update:modelValue', false)
 }
 
