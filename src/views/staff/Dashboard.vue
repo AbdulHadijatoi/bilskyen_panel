@@ -183,9 +183,21 @@
               <span>{{ t('staff.views.dashboard.vehicleStatusDistribution') }}</span>
             </v-card-title>
             <v-card-text>
+              <v-alert
+                v-if="statusDistribution.archivedDominates"
+                type="warning"
+                variant="tonal"
+                density="compact"
+                class="mb-3"
+              >
+                {{ t('staff.views.dashboard.archivedDominatesWarning', {
+                  count: statusDistribution.archivedCount,
+                  total: statusDistribution.total,
+                }) }}
+              </v-alert>
               <div class="distribution-chart">
                 <div
-                  v-for="item in stats.distributions.vehicle_status"
+                  v-for="item in statusDistribution.items"
                   :key="item.status"
                   class="distribution-item mb-3"
                 >
@@ -196,13 +208,14 @@
                         size="x-small"
                         variant="flat"
                       >
-                        {{ item.status }}
+                        {{ translateStatusLabel(item.status) }}
                       </v-chip>
                     </div>
                     <span class="text-body-2 font-weight-bold">{{ formatNumber(item.count) }}</span>
                   </div>
                   <v-progress-linear
-                    :model-value="(item.count / stats.overview.vehicles.total) * 100"
+                    v-if="statusDistribution.denominator > 0 && item.count > 0"
+                    :model-value="(item.count / statusDistribution.denominator) * 100"
                     :color="item.color"
                     height="8"
                     rounded
@@ -344,13 +357,15 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { getDashboardStats, type DashboardStats } from '@/api/staff.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import FinancialOverviewChart from '@/components/staff/dashboard/FinancialOverviewChart.vue'
 import TrendAreaChart from '@/components/panel/TrendAreaChart.vue'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import { translateStatus } from '@/utils/vehicleLabels'
+import { buildVehicleStatusDistribution } from '@/utils/dashboardDistribution'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -358,6 +373,17 @@ const router = useRouter()
 const loading = ref(false)
 const error = ref<string | null>(null)
 const stats = ref<DashboardStats | null>(null)
+
+const statusDistribution = computed(() =>
+  buildVehicleStatusDistribution(
+    stats.value?.distributions.vehicle_status ?? [],
+    stats.value?.overview.vehicles.total ?? 0,
+  ),
+)
+
+function translateStatusLabel(status: string): string {
+  return translateStatus(status, t)
+}
 
 const loadDashboard = async () => {
   try {

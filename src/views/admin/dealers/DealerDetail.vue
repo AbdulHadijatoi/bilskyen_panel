@@ -6,17 +6,31 @@
 
     <template v-else-if="dealer">
       <PageHeader
-        :title="dealer.owner?.name || dealer.slug"
-        :subtitle="`${dealer.cvr} · ${dealer.city}`"
+        :title="displayName"
+        :subtitle="`${cvrLabel} · ${dealer.city || '—'}`"
         show-back
         :back-to="{ name: 'admin.dealers' }"
-      />
+      >
+        <template #actions>
+          <v-chip v-if="!isValidCvr(dealer.cvr)" size="small" color="warning" variant="tonal">
+            {{ t('admin.views.dealers.pendingCvr') }}
+          </v-chip>
+          <v-chip v-if="pendingChangeRequest" size="small" color="info" variant="tonal" class="ml-2">
+            {{ t('admin.views.dealers.pendingChangeRequest') }}
+          </v-chip>
+        </template>
+      </PageHeader>
 
       <v-row>
         <v-col cols="12" md="4">
           <v-card variant="outlined">
             <v-card-title>{{ t('admin.views.dealers.vehicles') }}</v-card-title>
-            <v-card-text class="text-h5">{{ dealer.vehicles?.length ?? 0 }}</v-card-text>
+            <v-card-text class="text-h5">
+              {{ t('admin.views.dealers.publishedOfTotal', {
+                published: dealer.published_vehicles_count ?? 0,
+                total: dealer.vehicles?.length ?? 0,
+              }) }}
+            </v-card-text>
           </v-card>
         </v-col>
         <v-col cols="12" md="4">
@@ -37,16 +51,38 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { getDealerDetailRaw } from '@/api/admin.api'
+import { getDealerDisplayName, isValidCvr } from '@/utils/dealerDisplay'
 import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 const route = useRoute()
 const dealer = ref<any>(null)
 const loading = ref(true)
+
+const displayName = computed(() =>
+  getDealerDisplayName(
+    {
+      id: dealer.value?.id ?? 0,
+      name: dealer.value?.owner?.name ?? dealer.value?.slug,
+      email: dealer.value?.owner?.email,
+    },
+    t('admin.views.dealers.unnamedDealer'),
+  ),
+)
+
+const cvrLabel = computed(() =>
+  isValidCvr(dealer.value?.cvr)
+    ? dealer.value.cvr
+    : t('admin.views.dealers.pendingCvr'),
+)
+
+const pendingChangeRequest = computed(
+  () => (dealer.value?.subscription_change_requests?.length ?? 0) > 0,
+)
 
 onMounted(async () => {
   try {

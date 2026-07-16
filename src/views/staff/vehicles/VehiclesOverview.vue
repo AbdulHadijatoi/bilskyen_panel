@@ -202,11 +202,11 @@
           
           <template #item.status="{ item }">
             <v-chip
-              :color="getStatusColor(item.status || item.vehicleListStatusName)"
+              :color="getStatusColor(item.status || item.vehicleListStatusName, item.vehicleListStatusId)"
               size="small"
               variant="flat"
             >
-              {{ item.status || item.vehicleListStatusName || t('common.na') }}
+              {{ translateStatus(item.status || item.vehicleListStatusName, t, item.vehicleListStatusId) }}
             </v-chip>
           </template>
           
@@ -301,6 +301,7 @@ import type { VehicleModel } from '@/models/vehicle.model'
 import type { VehicleStatus } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import { translateStatus, statusSlugForColor } from '@/utils/vehicleLabels'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -447,14 +448,17 @@ const deleteVehicle = async () => {
   }
 }
 
-const getStatusColor = (status?: string) => {
+const getStatusColor = (status?: string, statusId?: number | null) => {
   const colors: Record<string, string> = {
     draft: 'grey',
     published: 'success',
     sold: 'info',
     archived: 'warning',
+    pending: 'orange',
+    pending_review: 'orange',
   }
-  return colors[status?.toLowerCase() || ''] || 'grey'
+  const slug = statusSlugForColor(status, statusId)
+  return colors[slug] || 'grey'
 }
 
 const formatPrice = (price?: number) => {

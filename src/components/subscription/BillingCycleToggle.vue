@@ -13,8 +13,9 @@ import { useI18n } from 'vue-i18n'
 import PanelToggle from '@/components/ui/PanelToggle.vue'
 import type { BillingCycle } from '@/composables/usePlanDisplay'
 
-defineProps<{
+const props = defineProps<{
   modelValue: BillingCycle
+  yearlyDiscountLabel?: string
 }>()
 
 defineEmits<{
@@ -28,7 +29,7 @@ const toggleOptions = computed(() => [
   {
     label: t('admin.views.plans.yearly'),
     value: 'yearly' as BillingCycle,
-    badge: t('subscription.pricing.yearlyDiscount'),
+    badge: props.yearlyDiscountLabel || t('subscription.pricing.yearlyDiscount'),
   },
 ])
 </script>

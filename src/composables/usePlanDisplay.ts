@@ -26,26 +26,59 @@ export function getFeatureValue(feature: any): string | number | boolean | undef
 }
 
 export function isTruthyFeatureValue(value: unknown): boolean {
+  if (value === 0 || value === '0') return false
   return value === 'true' || value === '1' || value === true || value === 1
+}
+
+export function isMeaningfulFeatureValue(value: unknown, valueTypeId?: number): boolean {
+  if (value === undefined || value === null || value === '') return false
+  if (valueTypeId === 1) return isTruthyFeatureValue(value)
+  if (valueTypeId === 2 || valueTypeId === 3) {
+    const numeric = Number(value)
+    if (!Number.isNaN(numeric) && numeric === 0) return false
+    return true
+  }
+  return true
+}
+
+export function getCurrentPricing(plan: PlanLike) {
+  const priceHistory = plan.priceHistory || plan.price_history || []
+  if (priceHistory.length === 0) return null
+
+  const activePricing = priceHistory.filter(
+    (p: any) => !p.ends_at || new Date(p.ends_at) > new Date()
+  )
+  if (activePricing.length === 0) return null
+
+  const monthly = activePricing.find((p: any) => p.billing_cycle === 'monthly')
+  const yearly = activePricing.find((p: any) => p.billing_cycle === 'yearly')
+
+  return { monthly, yearly }
+}
+
+/** Largest yearly-vs-monthly savings % across subscription plans (for billing toggle badge). */
+export function computeMaxYearlyDiscountPercent(plans: PlanLike[]): number | null {
+  let max = 0
+  let found = false
+  for (const plan of plans) {
+    if (plan.billing_model === 'usage_daily') continue
+    const pricing = getCurrentPricing(plan)
+    const monthlyPrice = pricing?.monthly?.price
+    const yearlyPrice = pricing?.yearly?.price
+    if (!monthlyPrice || !yearlyPrice) continue
+    const monthlyAnnual = monthlyPrice * 12
+    if (monthlyAnnual <= 0) continue
+    const savings = monthlyAnnual - yearlyPrice
+    if (savings <= 0) continue
+    const pct = Math.round((savings / monthlyAnnual) * 100)
+    max = Math.max(max, pct)
+    found = true
+  }
+  return found ? max : null
 }
 
 export function usePlanDisplay() {
   const { locale } = useI18n()
-
-  const getCurrentPricing = (plan: PlanLike) => {
-    const priceHistory = plan.priceHistory || plan.price_history || []
-    if (priceHistory.length === 0) return null
-
-    const activePricing = priceHistory.filter(
-      (p: any) => !p.ends_at || new Date(p.ends_at) > new Date()
-    )
-    if (activePricing.length === 0) return null
-
-    const monthly = activePricing.find((p: any) => p.billing_cycle === 'monthly')
-    const yearly = activePricing.find((p: any) => p.billing_cycle === 'yearly')
-
-    return { monthly, yearly }
-  }
 
   const formatPrice = (priceInCents: number, currency: string) => {
     const price = priceInCents / 100
@@ -58,12 +91,7 @@ export function usePlanDisplay() {
     return plan.features.filter((feature: any) => {
       const valueTypeId = getFeatureValueTypeId(feature)
       const value = getFeatureValue(feature)
-
-      if (valueTypeId === 1) {
-        return isTruthyFeatureValue(value)
-      }
-
-      return true
+      return isMeaningfulFeatureValue(value, valueTypeId)
     })
   }
 
@@ -96,7 +124,10 @@ export function usePlanDisplay() {
     }
 
     if (valueTypeId === 2 || valueTypeId === 3) {
-      return { type: 'value' as const, display: String(value ?? '') }
+      if (!isMeaningfulFeatureValue(value, valueTypeId)) {
+        return { type: 'missing' as const }
+      }
+      return { type: 'value' as const, display: String(value) }
     }
 
     return { type: 'missing' as const }

@@ -35,7 +35,7 @@ export function buildAreaLineChartOption(
   const dates = points.map((p) => p.date)
 
   return {
-    grid: { left: 8, right: 8, top: 16, bottom: 8, containLabel: false },
+    grid: { left: 4, right: 12, top: 16, bottom: 8, containLabel: true },
     xAxis: {
       type: 'category',
       data: dates,
@@ -46,10 +46,23 @@ export function buildAreaLineChartOption(
     },
     yAxis: {
       type: 'value',
-      show: false,
+      show: true,
       min: 0,
+      axisLine: { show: false },
+      axisTick: { show: false },
+      splitLine: {
+        show: true,
+        lineStyle: { color: 'var(--border)', type: 'dashed', opacity: 0.6 },
+      },
+      axisLabel: {
+        show: true,
+        color: 'var(--muted-foreground)',
+        fontSize: 11,
+        formatter: (value: number) => formatValue(value),
+      },
     },
     tooltip: {
+      show: true,
       trigger: 'axis',
       backgroundColor: 'var(--card)',
       borderColor: 'var(--border)',

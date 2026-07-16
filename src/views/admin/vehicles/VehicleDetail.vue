@@ -116,12 +116,12 @@
                 </div>
                 <div>
                   <v-chip
-                    :color="getStatusColor(vehicle.status || vehicle.vehicleListStatusName)"
+                    :color="getStatusColor(vehicle.status || vehicle.vehicleListStatusName, vehicle.vehicleListStatusId)"
                     size="x-small"
                     variant="flat"
                     prepend-icon="mdi-circle"
                   >
-                    {{ vehicle.status || vehicle.vehicleListStatusName || '-' }}
+                    {{ translateStatus(vehicle.status || vehicle.vehicleListStatusName, t, vehicle.vehicleListStatusId) }}
                   </v-chip>
                 </div>
               </div>
@@ -366,7 +366,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">{{ t('dealer.views.vehicleDetail.transmission') }}</div>
-                    <div class="field-value">{{ displayValue(vehicle.gearTypeName || (vehicle.details as any)?.transmission_name) }}</div>
+                    <div class="field-value">{{ translateTransmission(vehicle.gearTypeName || (vehicle.details as any)?.transmission_name, t) }}</div>
                   </div>
                   <v-select
                     v-else
@@ -402,19 +402,19 @@
                     <div class="field-label">{{ t('dealer.views.vehicleDetail.status') }}</div>
                     <v-chip
                       v-if="vehicle.status || vehicle.vehicleListStatusName"
-                      :color="getStatusColor(vehicle.status || vehicle.vehicleListStatusName)"
+                      :color="getStatusColor(vehicle.status || vehicle.vehicleListStatusName, vehicle.vehicleListStatusId)"
                       size="x-small"
                       variant="flat"
                       class="mt-1"
                     >
-                      {{ vehicle.status || vehicle.vehicleListStatusName }}
+                      {{ translateStatus(vehicle.status || vehicle.vehicleListStatusName, t, vehicle.vehicleListStatusId) }}
                     </v-chip>
                     <div v-else class="field-value"></div>
                   </div>
                   <v-select
                     v-else
                     v-model="vehicleData.list_status_id"
-                    :items="vehicleListStatuses"
+                    :items="localizedVehicleListStatuses"
                     item-title="name"
                     item-value="id"
                     :label="t('dealer.views.vehicleDetail.status')"
@@ -561,7 +561,7 @@
                     hide-details="auto"
                   />
                 </v-col>
-                <v-col cols="12" sm="6" md="4">
+                <v-col v-if="showChargingTypeField" cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">{{ t('dealer.views.vehicleDetail.chargingType') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.chargingType) }}</div>
@@ -1350,12 +1350,21 @@
               <div v-if="loadingImages" class="text-center py-2">
                 <v-progress-circular indeterminate color="primary" size="24" />
               </div>
-              <div v-else-if="vehicleImages.length === 0" class="text-center text-medium-emphasis text-caption py-2">
+              <v-alert
+                v-else-if="vehicleImages.length === 0"
+                type="info"
+                variant="tonal"
+                density="compact"
+                class="mb-2"
+              >
+                {{ t('vehicleGallery.noFeaturedImage') }}
+              </v-alert>
+              <div v-if="!loadingImages && vehicleImages.length === 0" class="text-center text-medium-emphasis text-caption py-2">
                 No images available
               </div>
-              <div v-else class="images-grid">
+              <div v-else-if="!loadingImages" class="images-grid">
                 <div
-                  v-for="image in vehicleImages"
+                  v-for="(image, imgIndex) in vehicleImages"
                   :key="image.id"
                   class="image-item"
                 >
@@ -1367,6 +1376,16 @@
                     height="120"
                     style="border-radius: 4px;"
                   />
+                  <v-chip
+                    v-if="imgIndex === 0"
+                    size="x-small"
+                    color="primary"
+                    variant="flat"
+                    class="featured-image-badge"
+                  >
+                    <v-icon start size="12">mdi-star</v-icon>
+                    {{ t('vehicleGallery.setAsFeatured') }}
+                  </v-chip>
                   <v-btn
                     icon
                     variant="text"
@@ -1437,11 +1456,11 @@
                   <div class="info-item-label">{{ t('admin.views.vehicleDetail.listingStatus') }}</div>
                   <div class="info-item-value">
                     <v-chip
-                      :color="getStatusColor(vehicle.status || vehicle.vehicleListStatusName)"
+                      :color="getStatusColor(vehicle.status || vehicle.vehicleListStatusName, vehicle.vehicleListStatusId)"
                       size="x-small"
                       variant="flat"
                     >
-                      {{ vehicle.status || vehicle.vehicleListStatusName || '-' }}
+                      {{ translateStatus(vehicle.status || vehicle.vehicleListStatusName, t, vehicle.vehicleListStatusId) }}
                     </v-chip>
                   </div>
                 </div>
@@ -1680,7 +1699,7 @@
           :key="equipmentType.id"
           class="mb-3"
         >
-          <div class="text-caption font-weight-medium mb-2">{{ equipmentType.name }}</div>
+          <div class="text-caption font-weight-medium mb-2">{{ translateEquipmentCategory(equipmentType.name, t) }}</div>
           <v-checkbox
             v-for="equipment in equipmentType.equipments || []"
             :key="equipment.id"
@@ -1734,13 +1753,22 @@
         density="compact"
         hide-details="auto"
       />
+      <v-alert
+        v-if="isCriticalStatusSelection"
+        type="warning"
+        variant="tonal"
+        density="compact"
+        class="mt-3"
+      >
+        {{ criticalStatusWarning }}
+      </v-alert>
       <template #footer>
         <PanelButton variant="ghost" @click="cancelStatusUpdate">{{ t('common.cancel') }}</PanelButton>
         <PanelButton
           variant="primary"
           :loading="updatingStatus"
           :disabled="!selectedStatusId || selectedStatusId === vehicle?.vehicleListStatusId"
-          @click="updateStatus"
+          @click="confirmStatusUpdate"
         >
           {{ t('admin.views.vehicleDetail.updateListingStatus') }}
         </PanelButton>
@@ -1761,6 +1789,7 @@
         density="compact"
         class="mb-3"
         hide-details="auto"
+        :error-messages="lifecycleExpiresAtError"
       />
       <v-text-field
         v-model="lifecyclePublishedAt"
@@ -1774,7 +1803,7 @@
         <PanelButton variant="outline" :loading="updatingLifecycle" @click="handleRecalculateExpiry">
           {{ t('admin.views.vehicleDetail.recalculateExpiry') }}
         </PanelButton>
-        <PanelButton variant="outline" :loading="updatingLifecycle" @click="handleClearExpiry">
+        <PanelButton variant="outline" :loading="updatingLifecycle" @click="requestClearExpiry">
           {{ t('admin.views.vehicleDetail.clearExpiry') }}
         </PanelButton>
         <div class="flex-grow-1" />
@@ -1845,6 +1874,14 @@ import { VEHICLE_LIST_STATUS_ID } from '@/constants/vehicle-list-status'
 import PageHeader from '@/components/panel/PageHeader.vue'
 import PanelDialog from '@/components/ui/PanelDialog.vue'
 import PanelButton from '@/components/ui/PanelButton.vue'
+import {
+  translateStatus,
+  translateTransmission,
+  translateEquipmentCategory,
+  isElectricOrHybridFuel,
+  mapVehicleListStatusOptions,
+  statusSlugForColor,
+} from '@/utils/vehicleLabels'
 
 const route = useRoute()
 const router = useRouter()
@@ -1998,6 +2035,18 @@ const euronorms = computed(() => constants.value?.euronorms || [])
 const vehicleModels = ref<VehicleModelConstant[]>([])
 const vehicleUses = computed(() => constants.value?.vehicle_uses || [])
 const vehicleListStatuses = computed(() => constants.value?.vehicle_list_statuses || [])
+
+const localizedVehicleListStatuses = computed(() =>
+  mapVehicleListStatusOptions(vehicleListStatuses.value, t),
+)
+
+const showChargingTypeField = computed(() => {
+  const fuelTypeId = editMode.value ? vehicleData.value.fuel_type_id : vehicle.value?.fuelTypeId
+  const fuelTypeName = editMode.value
+    ? fuelTypes.value.find((f) => f.id === vehicleData.value.fuel_type_id)?.name
+    : vehicle.value?.fuelTypeName
+  return isElectricOrHybridFuel(fuelTypeId, fuelTypeName)
+})
 const equipmentTypes = computed(() => constants.value?.equipment_types || [])
 const equipments = computed(() => constants.value?.equipments || [])
 
@@ -2007,9 +2056,9 @@ const filteredModels = computed(() => vehicleModels.value)
 // Status options for status update dialog
 const statusOptions = computed(() =>
   vehicleListStatuses.value.map((status) => ({
-    label: status.name,
+    label: translateStatus(status.name, t, status.id),
     value: status.id,
-  }))
+  })),
 )
 
 const isPendingReview = computed(
@@ -2295,6 +2344,42 @@ const cancelStatusUpdate = () => {
   selectedStatusId.value = null
 }
 
+const isCriticalStatusSelection = computed(() => {
+  const id = selectedStatusId.value
+  return id === VEHICLE_LIST_STATUS_ID.SOLD || id === VEHICLE_LIST_STATUS_ID.ARCHIVED
+})
+
+const criticalStatusWarning = computed(() => {
+  if (selectedStatusId.value === VEHICLE_LIST_STATUS_ID.SOLD) {
+    return t('admin.views.vehicleDetail.statusWarningSold')
+  }
+  if (selectedStatusId.value === VEHICLE_LIST_STATUS_ID.ARCHIVED) {
+    return t('admin.views.vehicleDetail.statusWarningArchived')
+  }
+  return ''
+})
+
+const confirmStatusUpdate = () => {
+  if (isCriticalStatusSelection.value) {
+    const msg =
+      selectedStatusId.value === VEHICLE_LIST_STATUS_ID.SOLD
+        ? t('admin.views.vehicleDetail.confirmStatusSold')
+        : t('admin.views.vehicleDetail.confirmStatusArchived')
+    if (!window.confirm(msg)) return
+  }
+  updateStatus()
+}
+
+const lifecycleExpiresAtError = computed(() => {
+  if (!lifecycleExpiresAt.value) return []
+  const parsed = fromDatetimeLocalValue(lifecycleExpiresAt.value)
+  if (!parsed) return []
+  if (new Date(parsed).getTime() < Date.now()) {
+    return [t('admin.views.vehicleDetail.expiryMustBeFuture')]
+  }
+  return []
+})
+
 const updateStatus = async () => {
   if (!vehicle.value || selectedStatusId.value == null) return
 
@@ -2376,6 +2461,7 @@ const runLifecycleUpdate = async (data: UpdateVehicleListingLifecycleData) => {
 }
 
 const handleSaveLifecycle = async () => {
+  if (lifecycleExpiresAtError.value.length > 0) return
   await runLifecycleUpdate({
     expires_at: fromDatetimeLocalValue(lifecycleExpiresAt.value),
     published_at: fromDatetimeLocalValue(lifecyclePublishedAt.value),
@@ -2384,6 +2470,11 @@ const handleSaveLifecycle = async () => {
 
 const handleRecalculateExpiry = async () => {
   await runLifecycleUpdate({ recalculate_expiry: true })
+}
+
+const requestClearExpiry = () => {
+  if (!window.confirm(t('admin.views.vehicleDetail.confirmClearExpiry'))) return
+  handleClearExpiry()
 }
 
 const handleClearExpiry = async () => {
@@ -2435,14 +2526,17 @@ const deleteVehicle = async () => {
   }
 }
 
-const getStatusColor = (status?: string) => {
+const getStatusColor = (status?: string, statusId?: number | null) => {
   const colors: Record<string, string> = {
     draft: 'grey',
     published: 'success',
     sold: 'info',
     archived: 'warning',
+    pending: 'orange',
+    pending_review: 'orange',
   }
-  return colors[status?.toLowerCase() || ''] || 'grey'
+  const slug = statusSlugForColor(status, statusId)
+  return colors[slug] || 'grey'
 }
 
 const formatPrice = (price?: number) => {
@@ -2615,6 +2709,12 @@ onMounted(async () => {
 
 .image-item {
   position: relative;
+}
+
+.featured-image-badge {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
 }
 
 .delete-image-btn {

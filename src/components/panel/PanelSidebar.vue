@@ -252,14 +252,27 @@ const displayedSections = computed(() => {
   if (!query) return props.sections
 
   return props.sections
-    .map((section) => ({
-      ...section,
-      items: section.items.filter((item) => {
-        const title = getItemSearchLabel(item.title).toLowerCase()
-        if (title.includes(query)) return true
-        return item.items?.some((sub) => getItemSearchLabel(sub.title).toLowerCase().includes(query))
-      }),
-    }))
+    .map((section) => {
+      const items = section.items
+        .map((item) => {
+          const title = getItemSearchLabel(item.title).toLowerCase()
+          const parentMatches = title.includes(query)
+
+          if (item.items?.length) {
+            const matchingSubs = item.items.filter((sub) =>
+              getItemSearchLabel(sub.title).toLowerCase().includes(query),
+            )
+            if (parentMatches) return item
+            if (matchingSubs.length > 0) return { ...item, items: matchingSubs }
+            return null
+          }
+
+          return parentMatches ? item : null
+        })
+        .filter((item): item is NonNullable<typeof item> => item !== null)
+
+      return { ...section, items }
+    })
     .filter((section) => section.items.length > 0)
 })
 

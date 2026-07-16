@@ -24,13 +24,82 @@
         :items="dealers"
         :loading="loading"
         item-value="id"
-        @click:row="(_: unknown, row: { item: { id: number } }) => openDealer(row.item.id)"
       >
         <template #item.owner="{ item }">
-          {{ item.owner?.name || item.slug || '-' }}
+          <div class="dealer-cell">
+            <div class="dealer-cell__name">{{ getDealerDisplayName(item, t('admin.views.dealers.unnamedDealer')) }}</div>
+            <div v-if="item.email" class="dealer-cell__email">{{ item.email }}</div>
+          </div>
         </template>
+
+        <template #item.cvr="{ item }">
+          <v-chip v-if="!isValidCvr(item.cvr)" size="small" color="warning" variant="tonal">
+            {{ t('admin.views.dealers.pendingCvr') }}
+          </v-chip>
+          <span v-else>{{ item.cvr }}</span>
+        </template>
+
+        <template #item.city="{ item }">
+          {{ item.city || '—' }}
+        </template>
+
         <template #item.vehicles_count="{ item }">
-          {{ item.vehicles?.length ?? item.vehicles_count ?? 0 }}
+          <span>
+            {{ t('admin.views.dealers.publishedOfTotal', {
+              published: item.publishedVehiclesCount ?? 0,
+              total: item.vehiclesCount ?? 0,
+            }) }}
+          </span>
+        </template>
+
+        <template #item.status="{ item }">
+          <div class="d-flex flex-column gap-1">
+            <v-chip
+              size="small"
+              :color="getSubscriptionStatusColor(item)"
+              variant="tonal"
+            >
+              {{ getSubscriptionStatusLabel(item) }}
+            </v-chip>
+            <v-chip
+              v-if="item.hasPendingChangeRequest"
+              size="x-small"
+              color="info"
+              variant="outlined"
+              prepend-icon="mdi-clock-outline"
+            >
+              {{ t('admin.views.dealers.pendingChangeRequest') }}
+            </v-chip>
+          </div>
+        </template>
+
+        <template #item.actions="{ item }">
+          <div class="d-flex gap-1">
+            <v-btn
+              variant="tonal"
+              size="small"
+              color="primary"
+              prepend-icon="mdi-eye"
+              @click.stop="openDealer(item.id)"
+            >
+              {{ t('common.view') }}
+            </v-btn>
+            <v-btn
+              variant="outlined"
+              size="small"
+              color="secondary"
+              prepend-icon="mdi-pencil"
+              @click.stop="openDealer(item.id)"
+            >
+              {{ t('common.edit') }}
+            </v-btn>
+          </div>
+        </template>
+
+        <template #no-data>
+          <div class="py-8 text-center text-medium-emphasis">
+            {{ t('admin.views.dealers.noDealersFound') }}
+          </div>
         </template>
       </v-data-table>
     </div>
@@ -42,21 +111,44 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { getDealers } from '@/api/admin.api'
+import type { DealerModel } from '@/models/dealer.model'
+import { getDealerDisplayName, isValidCvr } from '@/utils/dealerDisplay'
 import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
 const router = useRouter()
-const dealers = ref<any[]>([])
+const dealers = ref<DealerModel[]>([])
 const loading = ref(false)
 const search = ref('')
 
 const headers = [
-  { title: 'ID', key: 'id' },
-  { title: 'Owner', key: 'owner' },
-  { title: 'CVR', key: 'cvr' },
-  { title: 'City', key: 'city' },
-  { title: 'Vehicles', key: 'vehicles_count' },
+  { title: 'ID', key: 'id', width: '64px' },
+  { title: t('admin.views.dealers.dealer'), key: 'owner' },
+  { title: t('admin.views.dealers.cvr'), key: 'cvr' },
+  { title: t('admin.views.dealers.city'), key: 'city' },
+  { title: t('admin.views.dealers.vehicles'), key: 'vehicles_count' },
+  { title: t('admin.views.dealers.status'), key: 'status', sortable: false },
+  { title: t('common.actions'), key: 'actions', sortable: false, width: '180px', align: 'center' as const },
 ]
+
+const SUBSCRIPTION_STATUS_META: Record<number, { key: string; color: string }> = {
+  1: { key: 'admin.views.subscriptions.trial', color: 'info' },
+  2: { key: 'admin.views.subscriptions.active', color: 'success' },
+  3: { key: 'admin.views.subscriptions.expired', color: 'error' },
+  4: { key: 'admin.views.subscriptions.canceled', color: 'warning' },
+  5: { key: 'admin.views.subscriptions.scheduled', color: 'primary' },
+}
+
+function getSubscriptionStatusLabel(item: DealerModel): string {
+  if (!item.subscriptionStatusId) return t('admin.views.dealers.noSubscription')
+  const meta = SUBSCRIPTION_STATUS_META[item.subscriptionStatusId]
+  return meta ? t(meta.key) : t('common.unknown')
+}
+
+function getSubscriptionStatusColor(item: DealerModel): string {
+  if (!item.subscriptionStatusId) return 'grey'
+  return SUBSCRIPTION_STATUS_META[item.subscriptionStatusId]?.color || 'grey'
+}
 
 async function loadDealers() {
   loading.value = true
@@ -74,3 +166,14 @@ function openDealer(id: number) {
 
 onMounted(loadDealers)
 </script>
+
+<style scoped>
+.dealer-cell__name {
+  font-weight: 500;
+}
+
+.dealer-cell__email {
+  font-size: 0.75rem;
+  color: var(--muted-foreground, rgba(0, 0, 0, 0.6));
+}
+</style>

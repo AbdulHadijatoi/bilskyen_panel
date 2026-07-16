@@ -1067,6 +1067,7 @@ export interface CreatePlanData {
   slug: string
   description?: string
   is_active?: boolean
+  billing_model?: 'subscription' | 'usage_daily'
   trial_days?: number | null
   role_ids?: number[]
   dealer_ids?: number[]

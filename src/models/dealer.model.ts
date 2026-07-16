@@ -47,6 +47,12 @@ export interface DealerModel {
   createdAt?: string
   updatedAt?: string
   deletedAt?: string
+  vehiclesCount?: number
+  publishedVehiclesCount?: number
+  hasPendingChangeRequest?: boolean
+  /** Raw numeric subscription_status_id of the dealer's latest subscription (1=trial, 2=active, 3=expired, 4=canceled, 5=scheduled) */
+  subscriptionStatusId?: number
+  planName?: string
   
   // Relations (if included in response)
   subscription?: SubscriptionModel
@@ -117,6 +123,7 @@ export interface DealerStaffModel {
  */
 export function mapDealerFromApi(data: any): DealerModel {
   const owner = data.owner ?? data.user
+  const latestSubscription = data.subscription ?? data.subscriptions?.[0]
   return {
     id: data.id,
     userId: data.user_id,
@@ -131,12 +138,19 @@ export function mapDealerFromApi(data: any): DealerModel {
     website: data.website,
     logo: data.logo_url ?? data.logo,
     description: data.description,
-    subscriptionId: data.subscription_id,
+    subscriptionId: data.subscription_id ?? latestSubscription?.id,
     subscriptionStatus: data.subscription_status,
     createdAt: data.created_at,
     updatedAt: data.updated_at,
     deletedAt: data.deleted_at,
-    subscription: data.subscription ? mapSubscriptionFromApi(data.subscription) : undefined,
+    vehiclesCount: data.vehicles_count ?? (Array.isArray(data.vehicles) ? data.vehicles.length : undefined),
+    publishedVehiclesCount: data.published_vehicles_count,
+    hasPendingChangeRequest: Array.isArray(data.subscription_change_requests)
+      ? data.subscription_change_requests.length > 0
+      : Boolean(data.pending_subscription_change_request),
+    subscriptionStatusId: latestSubscription?.subscription_status_id,
+    planName: latestSubscription?.plan?.name,
+    subscription: latestSubscription ? mapSubscriptionFromApi(latestSubscription) : undefined,
     staff: data.staff?.map(mapDealerStaffFromApi),
     owner: owner ? {
       id: owner.id,

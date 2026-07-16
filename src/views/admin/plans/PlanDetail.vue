@@ -86,7 +86,6 @@
                     label="Status"
                     variant="outlined"
                     density="compact"
-                    :readonly="!editMode"
                     :disabled="!editMode"
                   />
                 </v-col>
@@ -110,7 +109,6 @@
                     label="Billing model"
                     variant="outlined"
                     density="compact"
-                    :readonly="!editMode"
                     :disabled="!editMode"
                   />
                 </v-col>
@@ -148,20 +146,26 @@
             <v-divider class="section-divider" />
             <v-card-text class="pa-3 section-content">
               <!-- Current Pricing Display -->
-              <div v-if="currentPricing && (currentPricing.monthly || currentPricing.yearly)" class="mb-3 pricing-display">
+              <div v-if="hasActivePricing && (currentPricing?.monthly || currentPricing?.yearly)" class="mb-3 pricing-display">
                 <div class="text-caption text-medium-emphasis mb-2">Current Pricing</div>
                 <div class="d-flex gap-4">
-                  <div v-if="currentPricing.monthly" class="pricing-item">
+                  <div v-if="currentPricing?.monthly" class="pricing-item">
                     <div class="text-h6 font-weight-bold">{{ formatPrice(currentPricing.monthly.price, currentPricing.monthly.currency) }}</div>
                     <div class="text-caption text-medium-emphasis">/ Month</div>
                   </div>
-                  <div v-if="currentPricing.yearly" class="pricing-item">
+                  <div v-if="currentPricing?.yearly" class="pricing-item">
                     <div class="text-h6 font-weight-bold">{{ formatPrice(currentPricing.yearly.price, currentPricing.yearly.currency) }}</div>
                     <div class="text-caption text-medium-emphasis">/ Year</div>
                   </div>
                 </div>
               </div>
-              <v-alert v-else type="info" variant="tonal" density="compact" class="mb-3 compact-alert">
+              <v-alert
+                v-else-if="!hasActivePricing && !editMode"
+                type="info"
+                variant="tonal"
+                density="compact"
+                class="mb-3 compact-alert"
+              >
                 No active pricing set
               </v-alert>
 
@@ -321,7 +325,30 @@
                   class="feature-item d-flex align-center justify-space-between mb-2 pa-3"
                 >
                   <div class="d-flex align-center flex-grow-1">
-                    <v-icon size="16" class="mr-2 feature-icon">mdi-check</v-icon>
+                    <v-icon
+                      v-if="isBooleanFeatureEnabled(feature)"
+                      size="16"
+                      class="mr-2 feature-icon"
+                      color="success"
+                    >
+                      mdi-check
+                    </v-icon>
+                    <v-icon
+                      v-else-if="isNumericOrTextFeature(feature)"
+                      size="16"
+                      class="mr-2 feature-icon"
+                      color="medium-emphasis"
+                    >
+                      mdi-numeric
+                    </v-icon>
+                    <v-icon
+                      v-else
+                      size="16"
+                      class="mr-2 feature-icon"
+                      color="medium-emphasis"
+                    >
+                      mdi-close
+                    </v-icon>
                     <div class="flex-grow-1">
                       <div class="text-body-2 font-weight-medium">{{ featureDisplayName(feature) }}</div>
                       <div class="text-caption text-medium-emphasis font-mono">{{ feature.key }}</div>
@@ -679,6 +706,7 @@ import {
 } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import { featureDisplayName as featureDisplayNameUtil } from '@/utils/featureDisplay'
+import { getFeatureValue, getFeatureValueTypeId as resolveFeatureValueTypeId, isTruthyFeatureValue } from '@/composables/usePlanDisplay'
 import PageHeader from '@/components/panel/PageHeader.vue'
 
 const { t } = useI18n()
@@ -820,6 +848,23 @@ const featureDisplayName = (feature: any) =>
     },
     locale.value
   )
+
+const isBooleanFeatureEnabled = (feature: any) => {
+  const valueTypeId = resolveFeatureValueTypeId(feature)
+  if (valueTypeId !== 1) return false
+  return isTruthyFeatureValue(getFeatureValue(feature))
+}
+
+const isNumericOrTextFeature = (feature: any) => {
+  const valueTypeId = resolveFeatureValueTypeId(feature)
+  return valueTypeId === 2 || valueTypeId === 3
+}
+
+const hasActivePricing = computed(() => {
+  if (currentPricing.value?.monthly || currentPricing.value?.yearly) return true
+  if (pricingData.value.monthly_price || pricingData.value.yearly_price) return true
+  return false
+})
 
 const openEditFeatureLabelsDialog = (feature: any) => {
   labelingFeature.value = feature

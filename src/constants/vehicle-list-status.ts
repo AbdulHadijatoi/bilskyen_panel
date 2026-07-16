@@ -45,9 +45,12 @@ function listStatusSlug(options: {
 
 function translateListStatusSlug(slug: string | undefined, fallback?: string): string {
   if (!slug) return i18n.global.t('common.na')
-  const key = `common.vehicleListStatus.${slug}`
-  const translated = i18n.global.t(key)
-  if (translated !== key) return translated
+  const primaryKey = `vehicleStatus.${slug}`
+  const primary = i18n.global.t(primaryKey)
+  if (primary !== primaryKey) return primary
+  const legacyKey = `common.vehicleListStatus.${slug}`
+  const legacy = i18n.global.t(legacyKey)
+  if (legacy !== legacyKey) return legacy
   return fallback ?? slug.replace(/_/g, ' ')
 }
 

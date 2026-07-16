@@ -158,9 +158,21 @@
               <span>{{ t('dealer.views.dashboard.vehicleStatusDistribution') }}</span>
             </v-card-title>
             <v-card-text>
+              <v-alert
+                v-if="statusDistribution.archivedDominates"
+                type="warning"
+                variant="tonal"
+                density="compact"
+                class="mb-3"
+              >
+                {{ t('dealer.views.dashboard.archivedDominatesWarning', {
+                  count: statusDistribution.archivedCount,
+                  total: statusDistribution.total,
+                }) }}
+              </v-alert>
               <div class="distribution-chart">
                 <div
-                  v-for="item in stats.distributions.vehicle_status"
+                  v-for="item in statusDistribution.items"
                   :key="item.status"
                   class="distribution-item mb-3"
                 >
@@ -171,13 +183,14 @@
                         size="x-small"
                         variant="flat"
                       >
-                        {{ item.status }}
+                        {{ translateStatusLabel(item.status) }}
                       </v-chip>
                     </div>
                     <span class="text-body-2 font-weight-bold">{{ formatNumber(item.count) }}</span>
                   </div>
                   <v-progress-linear
-                    :model-value="(item.count / stats.overview.vehicles.total) * 100"
+                    v-if="statusDistribution.denominator > 0 && item.count > 0"
+                    :model-value="(item.count / statusDistribution.denominator) * 100"
                     :color="item.color"
                     height="8"
                     rounded
@@ -318,7 +331,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { getDashboardStats, getMarketPulseWidget, getListingHealthAttention, type DashboardStats, type MarketPulseComparison, type ListingHealthAttention } from '@/api/dealer.api'
@@ -332,6 +345,8 @@ import ListingAttentionInbox from '@/components/dealer/dashboard/ListingAttentio
 import ListingFixImpact from '@/components/dealer/dashboard/ListingFixImpact.vue'
 import UpgradePrompt from '@/components/dealer/UpgradePrompt.vue'
 import { FeatureKey, hasFeature } from '@/utils/subscriptionFeatures'
+import { translateStatus } from '@/utils/vehicleLabels'
+import { buildVehicleStatusDistribution } from '@/utils/dashboardDistribution'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -346,6 +361,17 @@ const loadingListingHealth = ref(false)
 const canSeeFixImpact = hasFeature(FeatureKey.LISTING_HEALTH_BEFORE_AFTER)
 const canSeeMarketPulse = hasFeature(FeatureKey.MARKET_PULSE)
 const canSeeListingHealthInbox = hasFeature(FeatureKey.LISTING_HEALTH_INBOX)
+
+const statusDistribution = computed(() =>
+  buildVehicleStatusDistribution(
+    stats.value?.distributions.vehicle_status ?? [],
+    stats.value?.overview.vehicles.total ?? 0,
+  ),
+)
+
+function translateStatusLabel(status: string): string {
+  return translateStatus(status, t)
+}
 
 const loadDashboard = async () => {
   try {

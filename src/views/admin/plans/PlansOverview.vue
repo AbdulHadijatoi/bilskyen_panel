@@ -62,7 +62,7 @@
     <!-- Plans Grid -->
     <template v-else>
       <div v-if="showBillingToggle" class="subscription-pricing-toolbar">
-        <BillingCycleToggle v-model="billingCycle" />
+        <BillingCycleToggle v-model="billingCycle" :yearly-discount-label="yearlyDiscountBadge" />
       </div>
 
       <PlanPricingGrid
@@ -131,6 +131,16 @@
               color="primary"
               class="mb-2"
             />
+            <v-select
+              v-model="newPlan.billing_model"
+              :items="createBillingModelOptions"
+              item-title="title"
+              item-value="value"
+              :label="t('admin.views.plans.billingModel')"
+              variant="outlined"
+              density="compact"
+              class="mb-2"
+            />
             <v-text-field
               v-model.number="newPlan.trial_days"
               :label="t('admin.views.plans.trialDays')"
@@ -156,6 +166,41 @@
               :loading="loadingRoles"
               class="mb-2"
             />
+            <v-row dense class="mb-2">
+              <v-col cols="12" md="4">
+                <v-text-field
+                  v-model.number="newPlan.pricing!.monthly_price"
+                  :label="t('admin.views.plans.monthly')"
+                  type="number"
+                  variant="outlined"
+                  density="compact"
+                  :min="0"
+                  hint="Price in cents (optional)"
+                  persistent-hint
+                />
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-text-field
+                  v-model.number="newPlan.pricing!.yearly_price"
+                  :label="t('admin.views.plans.yearly')"
+                  type="number"
+                  variant="outlined"
+                  density="compact"
+                  :min="0"
+                  hint="Price in cents (optional)"
+                  persistent-hint
+                />
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-text-field
+                  v-model="newPlan.pricing!.currency"
+                  :label="t('admin.views.plans.currency')"
+                  variant="outlined"
+                  density="compact"
+                  maxlength="3"
+                />
+              </v-col>
+            </v-row>
             <v-autocomplete
               v-model="newPlan.dealer_ids"
               :items="dealersList"
@@ -172,43 +217,13 @@
             />
             <v-alert
               v-if="!newPlan.role_ids?.length && !newPlan.dealer_ids?.length"
-              type="warning"
+              type="info"
               variant="tonal"
               density="compact"
               class="mb-2"
             >
-              At least one role or dealer must be selected
+              {{ t('admin.views.plans.rolesOptionalHint') }}
             </v-alert>
-            <div class="text-caption text-medium-emphasis mb-2">{{ t('admin.views.plans.pricingOptional') }}</div>
-            <v-row dense>
-              <v-col cols="12" md="4">
-                <v-text-field
-                  v-model.number="newPlan.pricing!.monthly_price"
-                  :label="t('admin.views.plans.monthly')"
-                  type="number"
-                  variant="outlined"
-                  density="compact"
-                />
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-text-field
-                  v-model.number="newPlan.pricing!.yearly_price"
-                  :label="t('admin.views.plans.yearly')"
-                  type="number"
-                  variant="outlined"
-                  density="compact"
-                />
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-text-field
-                  v-model="newPlan.pricing!.currency"
-                  :label="t('admin.views.plans.currency')"
-                  variant="outlined"
-                  density="compact"
-                  maxlength="3"
-                />
-              </v-col>
-            </v-row>
       </v-form>
 
       <template #footer>
@@ -247,7 +262,7 @@ import BillingCycleToggle from '@/components/subscription/BillingCycleToggle.vue
 import PlanPricingGrid from '@/components/subscription/PlanPricingGrid.vue'
 import PlanFeatureComparison from '@/components/subscription/PlanFeatureComparison.vue'
 import { splitPlansByBillingModel } from '@/utils/planFeatureGroups'
-import { usePlanDisplay, type BillingCycle, type PlanLike } from '@/composables/usePlanDisplay'
+import { usePlanDisplay, type BillingCycle, type PlanLike, computeMaxYearlyDiscountPercent } from '@/composables/usePlanDisplay'
 import PageHeader from '@/components/panel/PageHeader.vue'
 import PanelDialog from '@/components/ui/PanelDialog.vue'
 import PanelButton from '@/components/ui/PanelButton.vue'
@@ -275,6 +290,11 @@ const createFormValid = ref(false)
 const createFormRef = ref()
 const billingCycle = ref<BillingCycle>('monthly')
 
+const createBillingModelOptions = [
+  { title: t('admin.views.plans.billingSubscription'), value: 'subscription' as const },
+  { title: t('admin.views.plans.billingUsageDaily'), value: 'usage_daily' as const },
+]
+
 const showBillingToggle = computed(() => plansHaveBothCycles(plans.value))
 
 const subscriptionPlansForComparison = computed(
@@ -297,6 +317,7 @@ const newPlan = ref<CreatePlanData>({
   slug: '',
   description: '',
   is_active: true,
+  billing_model: 'subscription',
   trial_days: null,
   role_ids: [],
   dealer_ids: [],
@@ -308,13 +329,13 @@ const newPlan = ref<CreatePlanData>({
 })
 
 const canCreatePlan = computed(() => {
-  return !!(
-    newPlan.value.name &&
-    newPlan.value.slug &&
-    ((newPlan.value.role_ids && newPlan.value.role_ids.length > 0) ||
-      (newPlan.value.dealer_ids && newPlan.value.dealer_ids.length > 0)) &&
-    createFormValid.value
-  )
+  return !!(newPlan.value.name && newPlan.value.slug && createFormValid.value)
+})
+
+const yearlyDiscountBadge = computed(() => {
+  const pct = computeMaxYearlyDiscountPercent(plans.value)
+  if (pct == null || pct <= 0) return undefined
+  return t('subscription.pricing.yearlyDiscountPercent', { percent: pct })
 })
 
 const loadPlans = async () => {
@@ -372,6 +393,7 @@ const openCreateDialog = () => {
     slug: '',
     description: '',
     is_active: true,
+    billing_model: 'subscription',
     trial_days: null,
     role_ids: [],
     dealer_ids: [],

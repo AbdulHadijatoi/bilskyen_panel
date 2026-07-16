@@ -1,5 +1,5 @@
 import type { PlanLike } from '@/composables/usePlanDisplay'
-import { getFeatureValueTypeId, getFeatureValue, isTruthyFeatureValue } from '@/composables/usePlanDisplay'
+import { getFeatureValueTypeId, getFeatureValue, isTruthyFeatureValue, isMeaningfulFeatureValue } from '@/composables/usePlanDisplay'
 import { featureDisplayName } from '@/utils/featureDisplay'
 
 export type FeatureCategory =
@@ -101,12 +101,7 @@ export { getFeatureCategory }
 function shouldIncludeFeatureInComparison(feature: any): boolean {
   const valueTypeId = getFeatureValueTypeId(feature)
   const value = getFeatureValue(feature)
-
-  if (valueTypeId === 1) {
-    return isTruthyFeatureValue(value)
-  }
-
-  return value !== undefined && value !== null && value !== ''
+  return isMeaningfulFeatureValue(value, valueTypeId)
 }
 
 function collectUniqueFeatures(plans: PlanLike[]): any[] {
@@ -142,7 +137,7 @@ function buildCellForPlan(plan: PlanLike, featureKey: string): ComparisonCellVal
   }
 
   if (valueTypeId === 2 || valueTypeId === 3) {
-    if (value === undefined || value === null || value === '') {
+    if (!isMeaningfulFeatureValue(value, valueTypeId)) {
       return { type: 'missing' }
     }
     return { type: 'value', display: String(value) }

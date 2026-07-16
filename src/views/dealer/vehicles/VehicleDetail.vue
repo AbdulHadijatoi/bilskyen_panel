@@ -131,12 +131,12 @@
                 </div>
                 <div>
                   <v-chip
-                    :color="getStatusColor(vehicle.status || vehicle.vehicleListStatusName)"
+                    :color="getStatusColor(vehicle.status || vehicle.vehicleListStatusName, vehicle.vehicleListStatusId)"
                     size="x-small"
                     variant="flat"
                     prepend-icon="mdi-circle"
                   >
-                    {{ vehicle.status || vehicle.vehicleListStatusName || '-' }}
+                    {{ translateStatus(vehicle.status || vehicle.vehicleListStatusName, t, vehicle.vehicleListStatusId) }}
                   </v-chip>
                 </div>
               </div>
@@ -371,19 +371,19 @@
                     <div class="field-label">{{ t('dealer.views.vehicleDetail.status') }}</div>
                     <v-chip
                       v-if="vehicle.status || vehicle.vehicleListStatusName"
-                      :color="getStatusColor(vehicle.status || vehicle.vehicleListStatusName)"
+                      :color="getStatusColor(vehicle.status || vehicle.vehicleListStatusName, vehicle.vehicleListStatusId)"
                       size="x-small"
                       variant="flat"
                       class="mt-1"
                     >
-                      {{ vehicle.status || vehicle.vehicleListStatusName }}
+                      {{ translateStatus(vehicle.status || vehicle.vehicleListStatusName, t, vehicle.vehicleListStatusId) }}
                     </v-chip>
                     <div v-else class="field-value"></div>
                   </div>
                   <v-select
                     v-else
                     v-model="vehicleData.list_status_id"
-                    :items="vehicleListStatuses"
+                    :items="localizedVehicleListStatuses"
                     item-title="name"
                     item-value="id"
                     :label="t('dealer.views.vehicleDetail.status')"
@@ -474,7 +474,7 @@
                     hide-details="auto"
                   />
                 </v-col>
-                <v-col cols="12" sm="6" md="4">
+                <v-col v-if="showChargingTypeField" cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">{{ t('dealer.views.vehicleDetail.chargingType') }}</div>
                     <div class="field-value">{{ displayValue(vehicle.chargingType) }}</div>
@@ -577,7 +577,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">{{ t('dealer.views.vehicleDetail.gearType') }}</div>
-                    <div class="field-value">{{ displayValue(vehicle.gearTypeName) }}</div>
+                    <div class="field-value">{{ translateTransmission(vehicle.gearTypeName, t) }}</div>
                   </div>
                   <v-select
                     v-else
@@ -1012,6 +1012,15 @@
               </v-btn>
             </v-card-title>
             <v-card-text class="pa-3">
+              <v-alert
+                v-if="sortedVehicleImages.length === 0"
+                type="info"
+                variant="tonal"
+                density="compact"
+                class="mb-2"
+              >
+                {{ t('vehicleGallery.noFeaturedImage') }}
+              </v-alert>
               <div v-if="vehicleImages.length === 0" class="text-center text-medium-emphasis text-caption py-2">
                 No images available
               </div>
@@ -1040,6 +1049,16 @@
                     height="120"
                     style="border-radius: 4px;"
                   />
+                  <v-chip
+                    v-if="imgIndex === 0"
+                    size="x-small"
+                    color="primary"
+                    variant="flat"
+                    class="featured-image-badge"
+                  >
+                    <v-icon start size="12">mdi-star</v-icon>
+                    {{ t('vehicleGallery.setAsFeatured') }}
+                  </v-chip>
                   <v-btn
                     icon
                     variant="text"
@@ -1367,7 +1386,7 @@
           :key="equipmentType.id"
           class="mb-3"
         >
-          <div class="text-caption font-weight-medium mb-2">{{ equipmentType.name }}</div>
+          <div class="text-caption font-weight-medium mb-2">{{ translateEquipmentCategory(equipmentType.name, t) }}</div>
           <v-checkbox
             v-for="equipment in equipmentType.equipments || []"
             :key="equipment.id"
@@ -1397,7 +1416,7 @@
       :max-width="500"
     >
       <p class="text-body-2 mb-3">
-        {{ t('dealer.views.vehicleDetail.currentStatus') }} <strong>{{ vehicle?.status || vehicle?.vehicleListStatusName || '-' }}</strong>
+        {{ t('dealer.views.vehicleDetail.currentStatus') }} <strong>{{ translateStatus(vehicle?.status || vehicle?.vehicleListStatusName, t, vehicle?.vehicleListStatusId) }}</strong>
       </p>
       <v-select
         v-model="selectedStatus"
@@ -1409,13 +1428,22 @@
         density="compact"
         hide-details="auto"
       />
+      <v-alert
+        v-if="isCriticalStatusSelection"
+        type="warning"
+        variant="tonal"
+        density="compact"
+        class="mt-3"
+      >
+        {{ criticalStatusWarning }}
+      </v-alert>
       <template #footer>
         <PanelButton variant="ghost" @click="cancelStatusUpdate">{{ t('common.cancel') }}</PanelButton>
         <PanelButton
           variant="primary"
           :loading="updatingStatus"
           :disabled="selectedStatus == null || selectedStatus === vehicle?.vehicleListStatusId"
-          @click="updateStatus"
+          @click="confirmStatusUpdate"
         >
           {{ t('dealer.views.vehicleDetail.updateStatus') }}
         </PanelButton>
@@ -1504,6 +1532,15 @@ import PricingIntelligencePanel from '@/components/dealer/vehicles/PricingIntell
 import ListingBoostPanel, { type ListingBoostMeta } from '@/components/dealer/vehicles/ListingBoostPanel.vue'
 import ModelViewerDialog from '@/components/shared/ModelViewerDialog.vue'
 import { useErrorMessage } from '@/composables/useErrorMessage'
+import {
+  translateStatus,
+  translateTransmission,
+  translateEquipmentCategory,
+  isElectricOrHybridFuel,
+  mapVehicleListStatusOptions,
+  statusSlugForColor,
+} from '@/utils/vehicleLabels'
+import { VEHICLE_LIST_STATUS_ID } from '@/constants/vehicle-list-status'
 
 const route = useRoute()
 const router = useRouter()
@@ -1736,8 +1773,18 @@ const sortedVehicleImages = computed(() => {
 })
 
 // Get vehicle list statuses from constants
-const vehicleListStatuses = computed(() => {
-  return vehicleListStatusesFromConstants.value
+const vehicleListStatuses = computed(() => vehicleListStatusesFromConstants.value)
+
+const localizedVehicleListStatuses = computed(() =>
+  mapVehicleListStatusOptions(vehicleListStatusesFromConstants.value, t),
+)
+
+const showChargingTypeField = computed(() => {
+  const fuelTypeId = editMode.value ? vehicleData.value.fuel_type_id : vehicle.value?.fuelTypeId
+  const fuelTypeName = editMode.value
+    ? fuelTypes.value.find((f) => f.id === vehicleData.value.fuel_type_id)?.name
+    : vehicle.value?.fuelTypeName
+  return isElectricOrHybridFuel(fuelTypeId, fuelTypeName)
 })
 
 const fairPriceLabel = computed(() => {
@@ -2172,14 +2219,40 @@ const deleteVehicle = async () => {
 // Status options: use DB ids + localized names from lookup constants (names are not English slugs).
 const statusOptions = computed(() =>
   vehicleListStatusesFromConstants.value.map((status) => ({
-    label: status.name,
+    label: translateStatus(status.name, t, status.id),
     value: status.id,
-  }))
+  })),
 )
 
 const cancelStatusUpdate = () => {
   showStatusDialog.value = false
   selectedStatus.value = null
+}
+
+const isCriticalStatusSelection = computed(() => {
+  const id = selectedStatus.value
+  return id === VEHICLE_LIST_STATUS_ID.SOLD || id === VEHICLE_LIST_STATUS_ID.ARCHIVED
+})
+
+const criticalStatusWarning = computed(() => {
+  if (selectedStatus.value === VEHICLE_LIST_STATUS_ID.SOLD) {
+    return t('dealer.views.vehicleDetail.statusWarningSold')
+  }
+  if (selectedStatus.value === VEHICLE_LIST_STATUS_ID.ARCHIVED) {
+    return t('dealer.views.vehicleDetail.statusWarningArchived')
+  }
+  return ''
+})
+
+const confirmStatusUpdate = () => {
+  if (isCriticalStatusSelection.value) {
+    const msg =
+      selectedStatus.value === VEHICLE_LIST_STATUS_ID.SOLD
+        ? t('dealer.views.vehicleDetail.confirmStatusSold')
+        : t('dealer.views.vehicleDetail.confirmStatusArchived')
+    if (!window.confirm(msg)) return
+  }
+  updateStatus()
 }
 
 const updateStatus = async () => {
@@ -2233,14 +2306,17 @@ const markAsSold = async () => {
   }
 }
 
-const getStatusColor = (status?: string) => {
+const getStatusColor = (status?: string, statusId?: number | null) => {
   const colors: Record<string, string> = {
     draft: 'grey',
     published: 'success',
     sold: 'info',
     archived: 'warning',
+    pending: 'orange',
+    pending_review: 'orange',
   }
-  return colors[status?.toLowerCase() || ''] || 'grey'
+  const slug = statusSlugForColor(status, statusId)
+  return colors[slug] || 'grey'
 }
 
 const formatPrice = (price?: number) => {
@@ -2440,6 +2516,12 @@ onMounted(async () => {
   top: 4px;
   right: 4px;
   background: rgba(255, 255, 255, 0.9);
+}
+
+.featured-image-badge {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
 }
 
 .quick-actions {

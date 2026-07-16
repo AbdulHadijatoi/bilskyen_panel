@@ -53,6 +53,7 @@
       "inactive": "Inaktiv",
       "billingCycle": "Faktureringsperiode",
       "yearlyDiscount": "Op til 10% rabat",
+      "yearlyDiscountPercent": "Spar {percent}%",
       "currentPlan": "Din nuværende plan"
     },
     "comparison": {
@@ -621,6 +622,7 @@
         "totalValue": "Totalværdi",
         "last30Days": "Sidste 30 dage",
         "vehicleStatusDistribution": "Fordeling af køretøjsstatus",
+        "archivedDominatesWarning": "Arkiverede køretøjer ({count} af {total}) dominerer dit lager og er udelukket fra diagrammet. Udgiv eller fjern forældede annoncer for et klarere billede.",
         "recentVehicles": "Seneste køretøjer",
         "recentUsers": "Seneste brugere",
         "recentDealers": "Seneste forhandlere",
@@ -995,6 +997,12 @@
         "manageExpiry": "Administrer udløb",
         "recalculateExpiry": "Genberegn fra plan",
         "clearExpiry": "Fjern udløb",
+        "confirmClearExpiry": "Fjern annoncens udløbsdato? Køretøjet vil ikke længere have en planlagt udløbsdato.",
+        "expiryMustBeFuture": "Udløbsdato skal ligge i fremtiden",
+        "statusWarningSold": "Markering som Solgt fjerner køretøjet fra aktive annoncer. Dette påvirker rapportering og synlighed.",
+        "statusWarningArchived": "Arkivering skjuler køretøjet fra alle aktive visninger. Arkiverede annoncer tæller ikke med i lagerstatistik.",
+        "confirmStatusSold": "Er du sikker på, at du vil markere dette køretøj som solgt?",
+        "confirmStatusArchived": "Er du sikker på, at du vil arkivere dette køretøj?",
         "updateListingStatus": "Opdater annonceststatus",
         "pendingReviewBanner": "Denne annonce afventer godkendelse, før den kan publiceres.",
         "rejectListing": "Afvis",
@@ -1018,6 +1026,10 @@
         "yearly": "Årlig",
         "currency": "Valuta",
         "pricingOptional": "Pris (valgfrit - i øre)",
+        "rolesOptionalHint": "Roller og forhandlere er valgfrie. Lad begge være tomme for at gøre planen tilgængelig for alle forhandlere.",
+        "billingModel": "Faktureringsmodel",
+        "billingSubscription": "Abonnement (måned/år)",
+        "billingUsageDaily": "Betal efter forbrug (pr. annonce pr. dag)",
         "failedLoadPlans": "Kunne ikke indlæse planer",
         "planDetails": "Plandetaljer",
         "planDetailsSubtitle": "Se og administrer planoplysninger",
@@ -1566,7 +1578,19 @@
         "subtitle": "Administrer forhandlerkonti, personale og abonnementer",
         "vehicles": "Køretøjer",
         "staff": "Personale",
-        "subscriptions": "Abonnementer"
+        "subscriptions": "Abonnementer",
+        "dealer": "Forhandler",
+        "cvr": "CVR",
+        "city": "By",
+        "status": "Status",
+        "unnamedDealer": "Unavngiven forhandler",
+        "pendingCvr": "CVR afventer",
+        "pendingOnboarding": "Afventer onboarding",
+        "pendingChangeRequest": "Planændring afventer",
+        "noSubscription": "Intet abonnement",
+        "publishedOfTotal": "{published} af {total} udgivet",
+        "viewDetails": "Se detaljer",
+        "noDealersFound": "Ingen forhandlere fundet"
       },
       "ownershipTax": {
         "title": "Ejerafgiftsregler",
@@ -2101,6 +2125,7 @@
         "newLeads": "Nye leads",
         "avgVehiclePrice": "Gns. køretøjspris",
         "vehicleStatusDistribution": "Køretøjsstatusfordeling",
+        "archivedDominatesWarning": "Arkiverede køretøjer ({count} af {total}) dominerer dit lager og er udelukket fra diagrammet. Udgiv eller fjern forældede annoncer for et klarere billede.",
         "today": "I dag",
         "recentVehicles": "Seneste køretøjer",
         "noRecentVehicles": "Ingen seneste køretøjer",
@@ -2462,6 +2487,10 @@
         "editEquipment": "Rediger udstyr",
         "updateVehicleStatus": "Opdater køretøjsstatus",
         "markAsSoldDescription": "Dette opdaterer køretøjsstatus til \"Solgt\". Køretøjet markeres som solgt i systemet.",
+        "statusWarningSold": "Markering som Solgt fjerner køretøjet fra aktive annoncer. Dette påvirker rapportering og synlighed.",
+        "statusWarningArchived": "Arkivering skjuler køretøjet fra alle aktive visninger. Arkiverede annoncer tæller ikke med i lagerstatistik.",
+        "confirmStatusSold": "Er du sikker på, at du vil markere dette køretøj som solgt?",
+        "confirmStatusArchived": "Er du sikker på, at du vil arkivere dette køretøj?",
         "deleteVehicleConfirm": "Er du sikker på, at du vil slette dette køretøj?",
         "deleteVehicleDescription": "Handlingen vil soft-slette køretøjet. Køretøjet vil ikke længere være synligt i systemet.",
         "viewsCount": "Antal visninger",
@@ -3195,6 +3224,7 @@
         "newLeads": "Nye leads",
         "avgVehiclePrice": "Gns. køretøjspris",
         "vehicleStatusDistribution": "Køretøjsstatusfordeling",
+        "archivedDominatesWarning": "Arkiverede køretøjer ({count} af {total}) dominerer dit lager og er udelukket fra diagrammet. Udgiv eller fjern forældede annoncer for et klarere billede.",
         "today": "I dag",
         "recentVehicles": "Seneste køretøjer",
         "noRecentVehicles": "Ingen seneste køretøjer",
@@ -3340,6 +3370,10 @@
         "editEquipment": "Rediger udstyr",
         "updateVehicleStatus": "Opdater køretøjsstatus",
         "markAsSoldDescription": "Dette opdaterer køretøjsstatus til \"Solgt\". Køretøjet markeres som solgt i systemet.",
+        "statusWarningSold": "Markering som Solgt fjerner køretøjet fra aktive annoncer. Dette påvirker rapportering og synlighed.",
+        "statusWarningArchived": "Arkivering skjuler køretøjet fra alle aktive visninger. Arkiverede annoncer tæller ikke med i lagerstatistik.",
+        "confirmStatusSold": "Er du sikker på, at du vil markere dette køretøj som solgt?",
+        "confirmStatusArchived": "Er du sikker på, at du vil arkivere dette køretøj?",
         "deleteVehicleConfirm": "Er du sikker på, at du vil slette dette køretøj?",
         "deleteVehicleDescription": "Handlingen vil soft-slette køretøjet. Køretøjet vil ikke længere være synligt i systemet.",
         "viewsCount": "Antal visninger",
@@ -3531,5 +3565,29 @@
         "noVehicleData": "Ingen køretøjsdata"
       }
     }
+  },
+  "vehicleStatus": {
+    "published": "Udgivet",
+    "sold": "Solgt",
+    "draft": "Kladde",
+    "archived": "Arkiveret",
+    "pending": "Afventer",
+    "pending_review": "Afventer gennemgang"
+  },
+  "vehicleTransmission": {
+    "automatic": "Automatisk",
+    "manual": "Manuel"
+  },
+  "vehicleEquipmentCategories": {
+    "interior": "Interiør",
+    "exterior": "Eksteriør",
+    "safety_assistance": "Sikkerhed & førerassistance",
+    "climate_comfort": "Klima & komfort",
+    "infotainment_navigation": "Infotainment & navigation"
+  },
+  "vehicleGallery": {
+    "featuredImage": "Fremhævet billede",
+    "noFeaturedImage": "Intet fremhævet billede — det første billede bruges som cover",
+    "setAsFeatured": "Fremhævet"
   }
 }
