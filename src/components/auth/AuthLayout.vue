@@ -22,9 +22,6 @@
             <p class="auth-testimonial-text">
               &ldquo;{{ APP.NAME }} {{ t('auth.testimonial.quote') }}&rdquo;
             </p>
-            <footer class="auth-testimonial-author">
-              {{ t('auth.testimonial.author') }}
-            </footer>
           </blockquote>
         </div>
       </div>
