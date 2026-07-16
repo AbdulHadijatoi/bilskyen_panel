@@ -62,6 +62,7 @@ export const DEALER_VEHICLE_ENDPOINTS = {
   DRAFT: '/dealer/vehicles/draft',
   UPDATE: (id: number | string) => `/dealer/vehicles/update/${id}`,
   DELETE: (id: number | string) => `/dealer/vehicles/delete/${id}`,
+  BULK_DELETE: '/dealer/vehicles/bulk-delete',
   UPLOAD_IMAGES: (id: number | string) => `/dealer/vehicles/${id}/images`,
   DELETE_IMAGE: (vehicleId: number | string, imageId: number | string) =>
     `/dealer/vehicles/${vehicleId}/images/${imageId}`,
@@ -379,6 +380,7 @@ export const ADMIN_VEHICLE_ENDPOINTS = {
   DELETE_IMAGE: (id: number | string) => `/admin/vehicles/delete-image/${id}`,
   UPDATE_EQUIPMENT: (id: number | string) => `/admin/vehicles/update-equipment/${id}`,
   DELETE: (id: number | string) => `/admin/vehicles/delete/${id}`,
+  BULK_DELETE: '/admin/vehicles/bulk-delete',
 } as const
 
 /**

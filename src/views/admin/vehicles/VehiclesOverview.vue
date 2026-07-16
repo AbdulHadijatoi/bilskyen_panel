@@ -100,6 +100,31 @@
     </div>
 
     <div class="panel-table-card">
+      <div
+        v-if="selectedVehicleIds.length > 0"
+        class="bulk-actions-bar d-flex align-center flex-wrap ga-3 px-4 py-3"
+      >
+        <span class="text-body-2 font-weight-medium">
+          {{ t('common.selectedCount', { count: selectedVehicleIds.length }) }}
+        </span>
+        <button
+          type="button"
+          class="panel-btn panel-btn--danger"
+          :disabled="deleting"
+          @click="confirmBulkDelete"
+        >
+          <v-icon size="16">mdi-trash-can-outline</v-icon>
+          {{ t('common.deleteSelected') }}
+        </button>
+        <button
+          type="button"
+          class="panel-btn panel-btn--outline"
+          :disabled="deleting"
+          @click="selectedVehicleIds = []"
+        >
+          {{ t('common.clearSelection') }}
+        </button>
+      </div>
       <div class="panel-table-card__body">
         <div v-if="loading" class="loading-container">
           <v-progress-circular indeterminate color="primary" size="48" />
@@ -115,6 +140,9 @@
 
         <v-data-table
           v-else
+          v-model="selectedVehicleIds"
+          show-select
+          item-value="id"
           :headers="headers"
           :items="vehicles.docs"
           :items-per-page="vehicles.limit"
@@ -234,10 +262,13 @@
     >
       <v-card>
         <v-card-title class="text-h6 font-weight-bold">
-          {{ t('admin.views.vehicles.deleteVehicle') }}
+          {{ isBulkDelete ? t('common.bulkDeleteVehicles') : t('admin.views.vehicles.deleteVehicle') }}
         </v-card-title>
         <v-card-text>
-          <p class="text-body-1">
+          <p v-if="isBulkDelete" class="text-body-1">
+            {{ t('common.confirmBulkDeleteVehicles', { count: selectedVehicleIds.length }) }}
+          </p>
+          <p v-else class="text-body-1">
             {{ t('common.confirmDeleteLead') }}<strong>{{ vehicleToDelete?.title || t('common.vehicleTitleFallback', { id: vehicleToDelete?.id }) }}</strong>{{ t('common.confirmDeleteTrail') }}
           </p>
           <p class="text-body-2 text-medium-emphasis mt-2">
@@ -246,13 +277,13 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="showDeleteDialog = false">{{ t('common.cancel') }}</v-btn>
+          <v-btn variant="text" @click="closeDeleteDialog">{{ t('common.cancel') }}</v-btn>
           <v-btn
             color="error"
-            @click="deleteVehicle"
+            @click="confirmDeleteAction"
             :loading="deleting"
           >
-            {{ t('admin.views.vehicles.deleteVehicle') }}
+            {{ isBulkDelete ? t('common.deleteSelected') : t('admin.views.vehicles.deleteVehicle') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -267,7 +298,7 @@ import PanelSnackbar from '@/components/panel/PanelSnackbar.vue'
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { getVehicles, deleteVehicle as deleteVehicleApi, getConstantsData, approvePendingVehicle } from '@/api/admin.api'
+import { getVehicles, deleteVehicle as deleteVehicleApi, bulkDeleteVehicles, getConstantsData, approvePendingVehicle } from '@/api/admin.api'
 import type { PaginationModel } from '@/models/pagination.model'
 import type { VehicleModel } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
@@ -306,6 +337,8 @@ const showDeleteDialog = ref(false)
 const vehicleToDelete = ref<VehicleModel | null>(null)
 const deleting = ref(false)
 const approvingId = ref<number | null>(null)
+const selectedVehicleIds = ref<number[]>([])
+const isBulkDelete = ref(false)
 
 const statusFilterOptions = computed(() => {
   const options: Array<{ label: string; value: number | null }> = [
@@ -420,22 +453,62 @@ const approveListing = async (id: number) => {
 }
 
 const confirmDelete = (vehicle: VehicleModel) => {
+  isBulkDelete.value = false
   vehicleToDelete.value = vehicle
   showDeleteDialog.value = true
 }
 
+const confirmBulkDelete = () => {
+  if (selectedVehicleIds.value.length === 0) return
+  isBulkDelete.value = true
+  vehicleToDelete.value = null
+  showDeleteDialog.value = true
+}
+
+const closeDeleteDialog = () => {
+  showDeleteDialog.value = false
+  isBulkDelete.value = false
+  vehicleToDelete.value = null
+}
+
+const confirmDeleteAction = async () => {
+  if (isBulkDelete.value) {
+    await bulkDeleteSelected()
+    return
+  }
+  await deleteVehicle()
+}
+
 const deleteVehicle = async () => {
   if (!vehicleToDelete.value) return
+  const deletedId = vehicleToDelete.value.id
 
   try {
     deleting.value = true
     error.value = null
-    await deleteVehicleApi(vehicleToDelete.value.id)
-    showDeleteDialog.value = false
-    vehicleToDelete.value = null
+    await deleteVehicleApi(deletedId)
+    closeDeleteDialog()
+    selectedVehicleIds.value = selectedVehicleIds.value.filter((id) => id !== deletedId)
     await loadVehicles()
   } catch (err) {
     error.value = (err as ApiErrorModel).message || t('dealer.views.vehicles.failedDeleteVehicle')
+  } finally {
+    deleting.value = false
+  }
+}
+
+const bulkDeleteSelected = async () => {
+  if (selectedVehicleIds.value.length === 0) return
+
+  try {
+    deleting.value = true
+    error.value = null
+    await bulkDeleteVehicles(selectedVehicleIds.value)
+    closeDeleteDialog()
+    selectedVehicleIds.value = []
+    await loadVehicles()
+  } catch (err) {
+    error.value = (err as ApiErrorModel).message || t('common.failedBulkDeleteVehicles')
   } finally {
     deleting.value = false
   }
@@ -478,6 +551,11 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.bulk-actions-bar {
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in oklch, var(--destructive, #dc2626) 6%, var(--card));
+}
+
 .loading-container,
 .error-container {
   display: flex;

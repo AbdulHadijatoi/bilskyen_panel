@@ -827,6 +827,23 @@ export async function deleteVehicle(id: number | string): Promise<void> {
 }
 
 /**
+ * Soft-delete multiple vehicles at once
+ */
+export async function bulkDeleteVehicles(
+  ids: Array<number | string>
+): Promise<{ deleted: number; requested: number }> {
+  try {
+    const response = await httpClient.post<{ data: { deleted: number; requested: number } }>(
+      ADMIN_VEHICLE_ENDPOINTS.BULK_DELETE,
+      { ids }
+    )
+    return handleSuccess<{ deleted: number; requested: number }>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
  * Get vehicle history
  */
 export async function getVehicleHistory(id: number | string): Promise<{
