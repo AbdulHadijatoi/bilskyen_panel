@@ -19,6 +19,9 @@
         <OverviewStatCard :label="t('admin.views.vehicles.sold')" :value="soldCount" icon="mdi-check-all" color="info" value-tone="info" />
       </v-col>
       <v-col cols="12" sm="6" md="3">
+        <OverviewStatCard :label="t('admin.views.vehicles.archived')" :value="archivedCount" icon="mdi-archive" color="warning" />
+      </v-col>
+      <v-col cols="12" sm="6" md="3">
         <div style="cursor: pointer" @click="filterPendingReview">
           <OverviewStatCard :label="t('admin.views.vehicles.pendingReview')" :value="pendingReviewCount" icon="mdi-shield-check" color="warning" value-tone="warning" />
         </div>
@@ -152,8 +155,28 @@
 
           <template #item.dealer="{ item }">
             <div v-if="item.dealer">
-              <div class="panel-vehicle-cell__title">{{ item.dealer.cvr || t('common.na') }}</div>
-              <div class="panel-vehicle-cell__subtitle">{{ item.dealer.city || t('common.noLocation') }}</div>
+              <div class="panel-vehicle-cell__title">
+                {{ getDealerDisplayName(
+                  {
+                    id: item.dealer.id,
+                    name: item.dealer.name || item.dealer.owner?.name,
+                    email: item.dealer.email || item.dealer.owner?.email,
+                  },
+                  t('admin.views.dealers.unnamedDealer'),
+                ) }}
+              </div>
+              <div class="panel-vehicle-cell__subtitle d-flex align-center flex-wrap ga-1">
+                <v-chip
+                  v-if="!isValidCvr(item.dealer.cvr)"
+                  size="x-small"
+                  color="warning"
+                  variant="tonal"
+                >
+                  {{ t('admin.views.dealers.pendingCvr') }}
+                </v-chip>
+                <span v-else>{{ item.dealer.cvr }}</span>
+                <span>· {{ item.dealer.city || t('common.noLocation') }}</span>
+              </div>
             </div>
             <span v-else class="panel-id-cell">{{ t('common.na') }}</span>
           </template>
@@ -164,7 +187,7 @@
 
           <template #item.status="{ item }">
             <span class="panel-status-chip" :class="getListStatusChipClass(item)">
-              {{ formatListStatusLabel(item) }}
+              {{ translateStatus(item.status || item.vehicleListStatusName, t, item.vehicleListStatusId) }}
             </span>
           </template>
 
@@ -252,9 +275,10 @@ import PageHeader from '@/components/panel/PageHeader.vue'
 import OverviewStatCard from '@/components/panel/OverviewStatCard.vue'
 import {
   VEHICLE_LIST_STATUS_ID,
-  formatListStatusLabel,
   listStatusCountFromPayload,
 } from '@/constants/vehicle-list-status'
+import { translateStatus } from '@/utils/vehicleLabels'
+import { getDealerDisplayName, isValidCvr } from '@/utils/dealerDisplay'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -296,7 +320,7 @@ const statusFilterOptions = computed(() => {
   pushIfFound('draft', t('admin.views.vehicles.draft'))
   pushIfFound('published', t('admin.views.vehicles.published'))
   pushIfFound('sold', t('admin.views.vehicles.sold'))
-  pushIfFound('archived', 'Archived')
+  pushIfFound('archived', t('admin.views.vehicles.archived'))
   pushIfFound('pending_review', t('admin.views.vehicles.pendingReview'))
   if (!options.some((o) => o.value === VEHICLE_LIST_STATUS_ID.PENDING_REVIEW)) {
     options.push({ label: t('admin.views.vehicles.pendingReview'), value: VEHICLE_LIST_STATUS_ID.PENDING_REVIEW })
@@ -324,6 +348,10 @@ const draftCount = computed(() =>
 
 const soldCount = computed(() =>
   listStatusCountFromPayload(vehicles.value.list_status_counts, VEHICLE_LIST_STATUS_ID.SOLD)
+)
+
+const archivedCount = computed(() =>
+  listStatusCountFromPayload(vehicles.value.list_status_counts, VEHICLE_LIST_STATUS_ID.ARCHIVED)
 )
 
 const pendingReviewCount = computed(() =>

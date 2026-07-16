@@ -223,7 +223,29 @@
                 <v-col v-if="!editMode" cols="12" sm="6" md="4">
                   <div class="info-field">
                     <div class="field-label">Dealer</div>
-                    <div class="field-value">{{ displayValue(vehicle.dealer?.name || vehicle.dealer?.cvr) }}</div>
+                    <div class="field-value">
+                      <template v-if="vehicle.dealer">
+                        {{ getDealerDisplayName(
+                          {
+                            id: vehicle.dealer.id,
+                            name: vehicle.dealer.name || vehicle.dealer.owner?.name,
+                            email: vehicle.dealer.email || vehicle.dealer.owner?.email,
+                          },
+                          t('admin.views.dealers.unnamedDealer'),
+                        ) }}
+                        <span v-if="isValidCvr(vehicle.dealer.cvr)" class="text-medium-emphasis"> · {{ vehicle.dealer.cvr }}</span>
+                        <v-chip
+                          v-else
+                          size="x-small"
+                          color="warning"
+                          variant="tonal"
+                          class="ml-1"
+                        >
+                          {{ t('admin.views.dealers.pendingCvr') }}
+                        </v-chip>
+                      </template>
+                      <template v-else>-</template>
+                    </div>
                   </div>
                 </v-col>
                 <v-col v-if="!editMode" cols="12" sm="6" md="4">
@@ -383,7 +405,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">{{ t('dealer.views.vehicleDetail.salesType') }}</div>
-                    <div class="field-value">{{ displayValue(vehicle.listingTypeName) }}</div>
+                    <div class="field-value">{{ translateListingType(vehicle.listingTypeName, t) }}</div>
                   </div>
                   <v-select
                     v-else
@@ -502,7 +524,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">{{ t('dealer.views.vehicleDetail.previousUsage') }}</div>
-                    <div class="field-value">{{ displayValue(vehicle.details?.use_name) }}</div>
+                    <div class="field-value">{{ translateVehicleUse(vehicle.details?.use_name, t) }}</div>
                   </div>
                   <v-select
                     v-else
@@ -1153,7 +1175,7 @@
                 <v-col cols="12" sm="6" md="4">
                   <div v-if="!editMode" class="info-field">
                     <div class="field-label">{{ t('dealer.views.vehicleDetail.salesType') }}</div>
-                    <div class="field-value">{{ displayValue(vehicle.details?.sales_type_name) }}</div>
+                    <div class="field-value">{{ translateListingType(vehicle.details?.sales_type_name, t) }}</div>
                   </div>
                   <v-select
                     v-else
@@ -1877,15 +1899,18 @@ import PanelButton from '@/components/ui/PanelButton.vue'
 import {
   translateStatus,
   translateTransmission,
+  translateListingType,
+  translateVehicleUse,
   translateEquipmentCategory,
   isElectricOrHybridFuel,
   mapVehicleListStatusOptions,
   statusSlugForColor,
 } from '@/utils/vehicleLabels'
+import { getDealerDisplayName, isValidCvr } from '@/utils/dealerDisplay'
 
 const route = useRoute()
 const router = useRouter()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -2556,7 +2581,8 @@ const formatNumber = (num: number) => {
 const formatDate = (date?: string) => {
   if (!date) return '-'
   try {
-    return new Date(date).toLocaleDateString('da-DK', {
+    const dateLocale = locale.value === 'en' ? 'en-GB' : 'da-DK'
+    return new Date(date).toLocaleDateString(dateLocale, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',

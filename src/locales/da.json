@@ -761,6 +761,7 @@
         "published": "Offentliggjort",
         "draft": "Kladde",
         "sold": "Solgt",
+        "archived": "Arkiveret",
         "loadingVehicles": "Indlæser køretøjer...",
         "searchPlaceholder": "Søg efter titel, registrering, VIN...",
         "filterByStatus": "Filter efter status",
@@ -1034,6 +1035,12 @@
         "planDetails": "Plandetaljer",
         "planDetailsSubtitle": "Se og administrer planoplysninger",
         "failedCreateSubscription": "Kunne ikke oprette abonnement",
+        "pricing": "Priser",
+        "currentPricing": "Aktuel pris",
+        "perMonth": "/ måned",
+        "perYear": "/ år",
+        "perListingPerDay": "pr. annonce pr. dag",
+        "noActivePricing": "Ingen aktiv pris sat",
         "featureInfo": {
           "buttonLabel": "Om {feature}",
           "description": "Hvad den gør",
@@ -3596,6 +3603,20 @@
   "vehicleTransmission": {
     "automatic": "Automatisk",
     "manual": "Manuel"
+  },
+  "vehicleListingType": {
+    "buy": "Køb",
+    "leasing": "Leasing",
+    "wholesale": "Engros / CVR",
+    "brokerage": "Formidlingssalg",
+    "duty_free": "Uden afgift"
+  },
+  "vehicleUse": {
+    "private_passenger": "Privat personkørsel",
+    "commercial": "Erhverv",
+    "taxi": "Taxa",
+    "rental": "Leje",
+    "driving_school": "Undervisning"
   },
   "vehicleEquipmentCategories": {
     "interior": "Interiør",

@@ -761,6 +761,7 @@
         "published": "Published",
         "draft": "Draft",
         "sold": "Sold",
+        "archived": "Archived",
         "loadingVehicles": "Loading vehicles...",
         "searchPlaceholder": "Search by title, registration, VIN...",
         "filterByStatus": "Filter by Status",
@@ -1053,6 +1054,12 @@
         "planDetails": "Plan Details",
         "planDetailsSubtitle": "View and manage plan information",
         "failedCreateSubscription": "Failed to create subscription",
+        "pricing": "Pricing",
+        "currentPricing": "Current Pricing",
+        "perMonth": "/ Month",
+        "perYear": "/ Year",
+        "perListingPerDay": "per listing per day",
+        "noActivePricing": "No active pricing set",
         "featureInfo": {
           "buttonLabel": "About {feature}",
           "description": "What it does",
@@ -3596,6 +3603,20 @@
   "vehicleTransmission": {
     "automatic": "Automatic",
     "manual": "Manual"
+  },
+  "vehicleListingType": {
+    "buy": "Buy",
+    "leasing": "Leasing",
+    "wholesale": "Wholesale / CVR",
+    "brokerage": "Brokerage sale",
+    "duty_free": "Duty free"
+  },
+  "vehicleUse": {
+    "private_passenger": "Private passenger use",
+    "commercial": "Commercial",
+    "taxi": "Taxi",
+    "rental": "Rental",
+    "driving_school": "Driving school"
   },
   "vehicleEquipmentCategories": {
     "interior": "Interior",

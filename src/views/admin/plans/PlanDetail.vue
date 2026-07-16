@@ -141,22 +141,34 @@
           <!-- Pricing -->
           <v-card variant="flat" class="mb-3 plan-section-card">
             <v-card-title class="text-subtitle-2 font-weight-medium pa-3 section-header">
-              Pricing
+              {{ t('admin.views.plans.pricing') }}
             </v-card-title>
             <v-divider class="section-divider" />
             <v-card-text class="pa-3 section-content">
               <!-- Current Pricing Display -->
               <div v-if="hasActivePricing && (currentPricing?.monthly || currentPricing?.yearly)" class="mb-3 pricing-display">
-                <div class="text-caption text-medium-emphasis mb-2">Current Pricing</div>
+                <div class="text-caption text-medium-emphasis mb-2">{{ t('admin.views.plans.currentPricing') }}</div>
                 <div class="d-flex gap-4">
                   <div v-if="currentPricing?.monthly" class="pricing-item">
                     <div class="text-h6 font-weight-bold">{{ formatPrice(currentPricing.monthly.price, currentPricing.monthly.currency) }}</div>
-                    <div class="text-caption text-medium-emphasis">/ Month</div>
+                    <div class="text-caption text-medium-emphasis">{{ t('admin.views.plans.perMonth') }}</div>
                   </div>
                   <div v-if="currentPricing?.yearly" class="pricing-item">
                     <div class="text-h6 font-weight-bold">{{ formatPrice(currentPricing.yearly.price, currentPricing.yearly.currency) }}</div>
-                    <div class="text-caption text-medium-emphasis">/ Year</div>
+                    <div class="text-caption text-medium-emphasis">{{ t('admin.views.plans.perYear') }}</div>
                   </div>
+                </div>
+              </div>
+              <div
+                v-else-if="hasActivePricing && planData.billing_model === 'usage_daily' && planData.price_per_listing_per_day"
+                class="mb-3 pricing-display"
+              >
+                <div class="text-caption text-medium-emphasis mb-2">{{ t('admin.views.plans.currentPricing') }}</div>
+                <div class="pricing-item">
+                  <div class="text-h6 font-weight-bold">
+                    {{ Number(planData.price_per_listing_per_day).toFixed(2) }} DKK
+                  </div>
+                  <div class="text-caption text-medium-emphasis">{{ t('admin.views.plans.perListingPerDay') }}</div>
                 </div>
               </div>
               <v-alert
@@ -166,7 +178,7 @@
                 density="compact"
                 class="mb-3 compact-alert"
               >
-                No active pricing set
+                {{ t('admin.views.plans.noActivePricing') }}
               </v-alert>
 
               <!-- Pricing Form -->
@@ -863,6 +875,14 @@ const isNumericOrTextFeature = (feature: any) => {
 const hasActivePricing = computed(() => {
   if (currentPricing.value?.monthly || currentPricing.value?.yearly) return true
   if (pricingData.value.monthly_price || pricingData.value.yearly_price) return true
+  // Pay-as-you-go plans store price on the plan itself, not monthly/yearly history rows.
+  if (
+    planData.value.billing_model === 'usage_daily' &&
+    planData.value.price_per_listing_per_day != null &&
+    Number(planData.value.price_per_listing_per_day) > 0
+  ) {
+    return true
+  }
   return false
 })
 

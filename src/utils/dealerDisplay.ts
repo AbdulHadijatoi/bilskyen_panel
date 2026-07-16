@@ -7,7 +7,12 @@ export function isValidCvr(cvr?: string | null): boolean {
   if (!cvr) return false
   const trimmed = cvr.trim()
   if (/^PENDING/i.test(trimmed)) return false
-  return /^\d{8}$/.test(trimmed)
+  if (!/^\d{8}$/.test(trimmed)) return false
+  // Reject obviously fake / test sequences used in QA data
+  if (/^0+$/.test(trimmed) || /^(12345678|12312312|11111111|87654321)$/.test(trimmed)) {
+    return false
+  }
+  return true
 }
 
 export function isNonsenseName(name?: string | null): boolean {

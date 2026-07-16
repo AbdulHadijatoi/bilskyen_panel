@@ -36,6 +36,38 @@ const TRANSMISSION_ALIASES: Record<string, string> = {
   manuel: 'manual',
 }
 
+const LISTING_TYPE_ALIASES: Record<string, string> = {
+  køb: 'buy',
+  kob: 'buy',
+  buy: 'buy',
+  purchase: 'buy',
+  leasing: 'leasing',
+  lease: 'leasing',
+  engros: 'wholesale',
+  wholesale: 'wholesale',
+  'engros/cvr': 'wholesale',
+  'engros/cvr-nummer': 'wholesale',
+  formidlingssalg: 'brokerage',
+  brokerage: 'brokerage',
+  'uden afgift': 'duty_free',
+  duty_free: 'duty_free',
+}
+
+const VEHICLE_USE_ALIASES: Record<string, string> = {
+  'privat personkørsel': 'private_passenger',
+  'privat personkorsel': 'private_passenger',
+  private_passenger: 'private_passenger',
+  'private passenger': 'private_passenger',
+  erhverv: 'commercial',
+  commercial: 'commercial',
+  taxa: 'taxi',
+  taxi: 'taxi',
+  leje: 'rental',
+  rental: 'rental',
+  undervisning: 'driving_school',
+  driving_school: 'driving_school',
+}
+
 const ELECTRIC_FUEL_TYPE_IDS = new Set([3, 7])
 const HYBRID_FUEL_TYPE_IDS = new Set([4, 5])
 
@@ -94,6 +126,30 @@ export function translateTransmission(raw: string | undefined | null, t: Transla
   const slug = TRANSMISSION_ALIASES[normalized] ?? TRANSMISSION_ALIASES[normalizeSlug(raw)]
   if (slug) {
     const i18nKey = `vehicleTransmission.${slug}`
+    const translated = t(i18nKey)
+    if (translated !== i18nKey) return translated
+  }
+  return raw.trim()
+}
+
+export function translateListingType(raw: string | undefined | null, t: TranslateFn): string {
+  if (!raw?.trim()) return t('common.na')
+  const normalized = normalizeToken(raw)
+  const slug = LISTING_TYPE_ALIASES[normalized] ?? LISTING_TYPE_ALIASES[normalizeSlug(raw)]
+  if (slug) {
+    const i18nKey = `vehicleListingType.${slug}`
+    const translated = t(i18nKey)
+    if (translated !== i18nKey) return translated
+  }
+  return raw.trim()
+}
+
+export function translateVehicleUse(raw: string | undefined | null, t: TranslateFn): string {
+  if (!raw?.trim()) return t('common.na')
+  const normalized = normalizeToken(raw)
+  const slug = VEHICLE_USE_ALIASES[normalized] ?? VEHICLE_USE_ALIASES[normalizeSlug(raw)]
+  if (slug) {
+    const i18nKey = `vehicleUse.${slug}`
     const translated = t(i18nKey)
     if (translated !== i18nKey) return translated
   }

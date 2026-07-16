@@ -33,14 +33,36 @@ function normalizeListStatusSlug(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, '_')
 }
 
+/** Map Danish/API status labels onto canonical slugs used by i18n. */
+const LIST_STATUS_ALIASES: Record<string, string> = {
+  udgivet: 'published',
+  offentliggjort: 'published',
+  published: 'published',
+  solgt: 'sold',
+  sold: 'sold',
+  kladde: 'draft',
+  draft: 'draft',
+  arkiveret: 'archived',
+  archived: 'archived',
+  afventer: 'pending_review',
+  'afventer_gennemgang': 'pending_review',
+  pending: 'pending_review',
+  pending_review: 'pending_review',
+}
+
 function listStatusSlug(options: {
   status?: string
   vehicleListStatusName?: string
   vehicleListStatusId?: number | null
 }): string | undefined {
+  // Prefer numeric ID — API often returns Danish names that break EN locale labels.
+  const fromId = listStatusNameFromId(options.vehicleListStatusId)
+  if (fromId) return fromId
+
   const fromText = options.status || options.vehicleListStatusName
-  if (fromText) return normalizeListStatusSlug(fromText)
-  return listStatusNameFromId(options.vehicleListStatusId)
+  if (!fromText) return undefined
+  const normalized = normalizeListStatusSlug(fromText)
+  return LIST_STATUS_ALIASES[normalized] ?? LIST_STATUS_ALIASES[fromText.trim().toLowerCase()] ?? normalized
 }
 
 function translateListStatusSlug(slug: string | undefined, fallback?: string): string {

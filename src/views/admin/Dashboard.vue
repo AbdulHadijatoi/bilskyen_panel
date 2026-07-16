@@ -370,10 +370,13 @@
                     <v-icon size="16" color="info">mdi-store</v-icon>
                   </template>
                   <v-list-item-title class="text-body-2">
-                    {{ dealer.cvr || `Dealer #${dealer.id}` }}
+                    {{ dealer.name || dealer.cvr || t('admin.views.dealers.unnamedDealer') + ` #${dealer.id}` }}
                   </v-list-item-title>
                   <v-list-item-subtitle class="text-caption">
-                    {{ dealer.city || dealer.address || t('common.noLocation') }}
+                    <template v-if="dealer.cvr_pending">{{ t('admin.views.dealers.pendingCvr') }}</template>
+                    <template v-else-if="dealer.cvr">{{ dealer.cvr }}</template>
+                    <template v-if="dealer.city || dealer.address"> · {{ dealer.city || dealer.address }}</template>
+                    <template v-else-if="!dealer.cvr_pending"> · {{ t('common.noLocation') }}</template>
                   </v-list-item-subtitle>
                 </v-list-item>
                 <v-list-item v-if="stats.recent.dealers.length === 0" class="text-center py-4">
