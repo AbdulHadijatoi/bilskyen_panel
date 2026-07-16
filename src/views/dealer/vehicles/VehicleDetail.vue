@@ -290,7 +290,7 @@
                   <v-select
                     v-else
                     v-model="vehicleData.model_id"
-                    :items="filteredModels"
+                    :items="models"
                     item-title="name"
                     item-value="id"
                     :label="t('dealer.views.vehicleDetail.model')"
@@ -298,6 +298,8 @@
                     density="compact"
                     hide-details="auto"
                     :disabled="!vehicleData.brand_id"
+                    :loading="modelsLoading"
+                    @update:model-value="onModelChange"
                   />
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
@@ -315,6 +317,8 @@
                     variant="outlined"
                     density="compact"
                     hide-details="auto"
+                    :disabled="!vehicleData.model_id"
+                    :loading="variantsLoading"
                   />
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
@@ -1519,6 +1523,12 @@ import {
   type UpdateVehicleStatusData,
   type LookupConstantsResponse,
 } from '@/api/dealer.api'
+import {
+  searchLookupModels,
+  searchLookupVariants,
+  type LookupModelRow,
+  type LookupVariantRow,
+} from '@/api/lookup-search.api'
 import { VehicleStatus as VehicleStatusEnum } from '@/models/vehicle.model'
 import type { VehicleModel } from '@/models/vehicle.model'
 import type { VehicleImageModel } from '@/models/vehicle.model'
@@ -1726,11 +1736,14 @@ const constants = ref<LookupConstantsResponse | null>(null)
 const brands = computed(() => constants.value?.brands || [])
 const fuelTypes = computed(() => constants.value?.fuel_types || [])
 const gearTypes = computed(() => constants.value?.gear_types || [])
-const vehicleModels = computed(() => constants.value?.models || [])
 const equipmentTypes = computed(() => constants.value?.equipment_types || [])
 const colors = computed(() => constants.value?.colors || [])
 const bodyTypes = computed(() => constants.value?.body_types || [])
-const variants = computed(() => constants.value?.variants || [])
+/** Loaded via /api/v1/models|variants (not lookup-constants). */
+const models = ref<LookupModelRow[]>([])
+const variants = ref<LookupVariantRow[]>([])
+const modelsLoading = ref(false)
+const variantsLoading = ref(false)
 const priceTypes = computed(() => constants.value?.price_types || [])
 const conditions = computed(() => constants.value?.conditions || [])
 const salesTypes = computed(() => constants.value?.sales_types || [])
@@ -1755,12 +1768,6 @@ const remainingImageSlots = computed(() => {
   const max = maxVehicleImages.value
   if (max <= 0) return 999
   return Math.max(0, max - vehicleImages.value.length)
-})
-
-// Filter vehicle models by selected brand
-const filteredModels = computed(() => {
-  if (!vehicleData.value.brand_id) return []
-  return vehicleModels.value.filter(model => model.brand_id === vehicleData.value.brand_id)
 })
 
 const imageSortKey = (img: VehicleImageModel) => img.sortOrder ?? img.order ?? 0
@@ -1926,15 +1933,81 @@ const loadConstants = async () => {
   }
 }
 
-const onBrandChange = () => {
-  // Reset model_id when brand changes
-  vehicleData.value.model_id = undefined
+async function loadModelsForBrand(brandId: number | null | undefined) {
+  models.value = []
+  if (brandId == null) return
+  modelsLoading.value = true
+  try {
+    models.value = await searchLookupModels([brandId])
+    // Keep current model selectable if API omits it for any reason
+    const currentId = vehicleData.value.model_id
+    const currentName = vehicle.value?.modelName
+    if (
+      currentId != null &&
+      currentName &&
+      !models.value.some((m) => m.id === currentId)
+    ) {
+      models.value = [
+        ...models.value,
+        { id: currentId, name: currentName, brand_id: brandId },
+      ]
+    }
+  } catch (e) {
+    console.error('Failed to load models for brand', e)
+    models.value = []
+  } finally {
+    modelsLoading.value = false
+  }
 }
 
-const startEdit = () => {
+async function loadVariantsForModel(modelId: number | null | undefined) {
+  variants.value = []
+  if (modelId == null) return
+  variantsLoading.value = true
+  try {
+    variants.value = await searchLookupVariants([modelId])
+    const currentId = vehicleData.value.variant_id
+    const currentName = vehicle.value?.details?.variant_name
+    if (
+      currentId != null &&
+      currentName &&
+      !variants.value.some((v) => v.id === currentId)
+    ) {
+      variants.value = [
+        ...variants.value,
+        { id: currentId, name: String(currentName), model_id: modelId },
+      ]
+    }
+  } catch (e) {
+    console.error('Failed to load variants for model', e)
+    variants.value = []
+  } finally {
+    variantsLoading.value = false
+  }
+}
+
+async function refreshEditLookups() {
+  await loadModelsForBrand(vehicleData.value.brand_id as number | undefined)
+  await loadVariantsForModel(vehicleData.value.model_id as number | undefined)
+}
+
+const onBrandChange = () => {
+  vehicleData.value.model_id = undefined
+  vehicleData.value.variant_id = undefined
+  variants.value = []
+  void loadModelsForBrand(vehicleData.value.brand_id as number | undefined)
+}
+
+const onModelChange = () => {
+  vehicleData.value.variant_id = undefined
+  void loadVariantsForModel(vehicleData.value.model_id as number | undefined)
+}
+
+const startEdit = async () => {
   if (!vehicle.value) return
   cancelEdit()
   editMode.value = true
+  await refreshEditLookups()
 }
 
 const cancelEdit = () => {
