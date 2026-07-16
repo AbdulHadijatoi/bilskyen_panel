@@ -1,32 +1,50 @@
 <template>
   <AuthLayout>
-    <AuthCard title="Create an account" subtitle="Enter your information to create your account.">
+    <AuthCard :title="t('auth.register.title')" :subtitle="t('auth.register.subtitle')">
       <div v-if="error" class="auth-error">
         <div>
-          <strong>Validation Error</strong>
+          <strong>{{ t('auth.register.errorTitle') }}</strong>
           <p style="margin: 0.25rem 0 0">{{ error }}</p>
         </div>
       </div>
 
       <form class="auth-form" @submit.prevent="handleSubmit">
         <div class="auth-field">
-          <label for="name">Full Name</label>
-          <input id="name" v-model="name" type="text" placeholder="John Doe" autocomplete="name" required :disabled="loading" class="auth-input" />
+          <label for="name">{{ t('auth.register.fullName') }}</label>
+          <input
+            id="name"
+            v-model="name"
+            type="text"
+            :placeholder="t('auth.register.fullNamePlaceholder')"
+            autocomplete="name"
+            required
+            :disabled="loading"
+            class="auth-input"
+          />
         </div>
 
         <div class="auth-field">
-          <label for="email">Email</label>
-          <input id="email" v-model="email" type="email" placeholder="johndoe@mail.com" autocomplete="email" required :disabled="loading" class="auth-input" />
+          <label for="email">{{ t('auth.register.email') }}</label>
+          <input
+            id="email"
+            v-model="email"
+            type="email"
+            :placeholder="t('auth.register.emailPlaceholder')"
+            autocomplete="email"
+            required
+            :disabled="loading"
+            class="auth-input"
+          />
         </div>
 
         <div class="auth-field">
-          <label for="password">Password</label>
+          <label for="password">{{ t('auth.register.password') }}</label>
           <div class="auth-input-wrap">
             <input
               id="password"
               v-model="password"
               :type="showPassword ? 'text' : 'password'"
-              placeholder="Your Password"
+              :placeholder="t('auth.register.passwordPlaceholder')"
               autocomplete="new-password"
               required
               :disabled="loading"
@@ -39,13 +57,13 @@
         </div>
 
         <div class="auth-field">
-          <label for="confirmPassword">Confirm Password</label>
+          <label for="confirmPassword">{{ t('auth.register.confirmPassword') }}</label>
           <div class="auth-input-wrap">
             <input
               id="confirmPassword"
               v-model="confirmPassword"
               :type="showConfirmPassword ? 'text' : 'password'"
-              placeholder="Confirm Your Password"
+              :placeholder="t('auth.register.confirmPasswordPlaceholder')"
               autocomplete="new-password"
               required
               :disabled="loading"
@@ -58,13 +76,13 @@
         </div>
 
         <button type="submit" class="auth-submit" :disabled="loading">
-          {{ loading ? 'Creating account...' : 'Sign Up' }}
+          {{ loading ? t('auth.register.creating') : t('auth.register.signUp') }}
         </button>
       </form>
 
       <div class="auth-footer">
-        Already have an account?
-        <router-link to="/auth/login">Login</router-link>
+        {{ t('auth.register.alreadyHaveAccount') }}
+        <router-link to="/auth/login">{{ t('auth.register.login') }}</router-link>
       </div>
     </AuthCard>
   </AuthLayout>
@@ -100,22 +118,22 @@ const toggleConfirmPassword = () => {
 
 const handleSubmit = async () => {
   if (!name.value || !email.value || !password.value || !confirmPassword.value) {
-    error.value = 'Please fill in all fields.'
+    error.value = t('auth.register.fillAllFields')
     return
   }
 
   if (!/.+@.+\..+/.test(email.value)) {
-    error.value = 'Please enter a valid email address.'
+    error.value = t('auth.register.validEmail')
     return
   }
 
   if (password.value !== confirmPassword.value) {
-    error.value = 'Passwords do not match.'
+    error.value = t('auth.register.passwordsDoNotMatch')
     return
   }
 
   if (password.value.length < 8) {
-    error.value = 'Password must be at least 8 characters long.'
+    error.value = t('auth.register.passwordMinLength')
     return
   }
 

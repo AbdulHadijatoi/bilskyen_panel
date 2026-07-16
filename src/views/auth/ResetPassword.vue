@@ -1,32 +1,32 @@
 <template>
   <AuthLayout>
     <AuthCard
-      title="Reset Password"
-      subtitle="Create a new, secure password for your account. This link can only be used once."
+      :title="t('auth.resetPassword.title')"
+      :subtitle="t('auth.resetPassword.subtitle')"
     >
       <div v-if="error" class="auth-error">
         <div>
-          <strong>{{ tokenError ? 'Token Error' : 'Validation Error' }}</strong>
+          <strong>{{ tokenError ? t('auth.resetPassword.tokenErrorTitle') : t('auth.resetPassword.errorTitle') }}</strong>
           <p style="margin: 0.25rem 0 0">{{ error }}</p>
         </div>
       </div>
 
       <div v-if="!token" class="auth-error">
         <div>
-          <strong>Token Error</strong>
-          <p style="margin: 0.25rem 0 0">No token provided. Please check your link.</p>
+          <strong>{{ t('auth.resetPassword.tokenErrorTitle') }}</strong>
+          <p style="margin: 0.25rem 0 0">{{ t('auth.resetPassword.noToken') }}</p>
         </div>
       </div>
 
       <form v-else class="auth-form" @submit.prevent="handleSubmit">
         <div class="auth-field">
-          <label for="password">New Password</label>
+          <label for="password">{{ t('auth.resetPassword.newPassword') }}</label>
           <div class="auth-input-wrap">
             <input
               id="password"
               v-model="password"
               :type="showPassword ? 'text' : 'password'"
-              placeholder="New Password"
+              :placeholder="t('auth.resetPassword.newPasswordPlaceholder')"
               autocomplete="new-password"
               required
               :disabled="loading"
@@ -39,13 +39,13 @@
         </div>
 
         <div class="auth-field">
-          <label for="confirmPassword">Confirm Password</label>
+          <label for="confirmPassword">{{ t('auth.resetPassword.confirmPassword') }}</label>
           <div class="auth-input-wrap">
             <input
               id="confirmPassword"
               v-model="confirmPassword"
               :type="showConfirmPassword ? 'text' : 'password'"
-              placeholder="Confirm New Password"
+              :placeholder="t('auth.resetPassword.confirmPasswordPlaceholder')"
               autocomplete="new-password"
               required
               :disabled="loading"
@@ -58,7 +58,7 @@
         </div>
 
         <button type="submit" class="auth-submit" :disabled="loading">
-          {{ loading ? 'Resetting password...' : 'Reset Password' }}
+          {{ loading ? t('auth.resetPassword.resetting') : t('auth.resetPassword.resetPassword') }}
         </button>
       </form>
     </AuthCard>
@@ -68,10 +68,12 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { resetPassword, type ApiError } from '@/services/auth'
 import AuthLayout from '@/components/auth/AuthLayout.vue'
 import AuthCard from '@/components/auth/AuthCard.vue'
 
+const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 
@@ -96,22 +98,22 @@ const toggleConfirmPassword = () => {
 
 const handleSubmit = async () => {
   if (!token.value) {
-    error.value = 'No token provided. Please check your link.'
+    error.value = t('auth.resetPassword.noToken')
     return
   }
 
   if (!password.value || !confirmPassword.value) {
-    error.value = 'Please fill in all fields.'
+    error.value = t('auth.resetPassword.fillAllFields')
     return
   }
 
   if (password.value !== confirmPassword.value) {
-    error.value = 'Passwords do not match.'
+    error.value = t('auth.resetPassword.passwordsDoNotMatch')
     return
   }
 
   if (password.value.length < 8) {
-    error.value = 'Password must be at least 8 characters long.'
+    error.value = t('auth.resetPassword.passwordMinLength')
     return
   }
 
@@ -131,9 +133,9 @@ const handleSubmit = async () => {
     const apiError = err as ApiError
     if (apiError.errors) {
       const errorMessages = Object.values(apiError.errors).flat()
-      error.value = errorMessages.join(', ') || apiError.message || 'Failed to reset password.'
+      error.value = errorMessages.join(', ') || apiError.message || t('auth.resetPassword.failed')
     } else {
-      error.value = apiError.message || 'Failed to reset password.'
+      error.value = apiError.message || t('auth.resetPassword.failed')
     }
   } finally {
     loading.value = false

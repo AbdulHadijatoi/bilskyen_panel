@@ -1,27 +1,36 @@
 <template>
   <AuthLayout>
-    <AuthCard title="Forgot Password" subtitle="Enter your email address to receive a password reset link.">
+    <AuthCard :title="t('auth.forgotPassword.title')" :subtitle="t('auth.forgotPassword.subtitle')">
       <div v-if="success" class="auth-success">{{ success }}</div>
       <div v-if="error" class="auth-error">
         <div>
-          <strong>Error</strong>
+          <strong>{{ t('auth.forgotPassword.errorTitle') }}</strong>
           <p style="margin: 0.25rem 0 0">{{ error }}</p>
         </div>
       </div>
 
       <form class="auth-form" @submit.prevent="handleSubmit">
         <div class="auth-field">
-          <label for="email">Email</label>
-          <input id="email" v-model="email" type="email" placeholder="johndoe@mail.com" autocomplete="email" required :disabled="loading" class="auth-input" />
+          <label for="email">{{ t('auth.forgotPassword.email') }}</label>
+          <input
+            id="email"
+            v-model="email"
+            type="email"
+            :placeholder="t('auth.forgotPassword.emailPlaceholder')"
+            autocomplete="email"
+            required
+            :disabled="loading"
+            class="auth-input"
+          />
         </div>
         <button type="submit" class="auth-submit" :disabled="loading">
-          {{ loading ? 'Sending...' : 'Send Password Reset Email' }}
+          {{ loading ? t('auth.forgotPassword.sending') : t('auth.forgotPassword.sendResetEmail') }}
         </button>
       </form>
 
       <div class="auth-footer">
-        Remember your password?
-        <router-link to="/auth/login">Login</router-link>
+        {{ t('auth.forgotPassword.rememberPassword') }}
+        <router-link to="/auth/login">{{ t('auth.forgotPassword.login') }}</router-link>
       </div>
     </AuthCard>
   </AuthLayout>
@@ -43,12 +52,12 @@ const success = ref<string | null>(null)
 
 const handleSubmit = async () => {
   if (!email.value) {
-    error.value = 'Please enter your email address.'
+    error.value = t('auth.forgotPassword.enterEmail')
     return
   }
 
   if (!/.+@.+\..+/.test(email.value)) {
-    error.value = 'Please enter a valid email address.'
+    error.value = t('auth.forgotPassword.validEmail')
     return
   }
 
@@ -58,7 +67,7 @@ const handleSubmit = async () => {
 
   try {
     await forgotPassword(email.value)
-    success.value = 'If an account exists with that email, we have sent a password reset link.'
+    success.value = t('auth.forgotPassword.resetLinkSent')
   } catch (err: unknown) {
     const apiError = err as ApiError
     if (apiError.errors) {

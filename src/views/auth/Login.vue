@@ -16,7 +16,7 @@
             id="email"
             v-model="email"
             type="email"
-            placeholder="johndoe@mail.com"
+            :placeholder="t('auth.login.emailPlaceholder')"
             autocomplete="email"
             required
             :disabled="loading"
