@@ -58,10 +58,22 @@
           type="info"
           variant="tonal"
           density="compact"
-          icon="mdi-email-outline"
+          icon="mdi-progress-clock"
           class="import-dialog__alert"
         >
-          {{ t('dealer.views.vehicles.import.backgroundEmailNote') }}
+          {{ t('dealer.views.vehicles.import.syncProcessingNote') }}
+        </v-alert>
+
+        <v-alert
+          v-if="importing"
+          type="info"
+          variant="tonal"
+          density="compact"
+          icon="mdi-progress-clock"
+          class="import-dialog__alert"
+        >
+          <v-progress-linear indeterminate color="primary" class="mb-2" rounded />
+          {{ importingDryRun ? t('dealer.views.vehicles.import.validating') : t('dealer.views.vehicles.import.processing') }}
         </v-alert>
 
         <v-alert
@@ -73,29 +85,6 @@
           class="import-dialog__alert"
         >
           {{ usageNotice.message }}
-        </v-alert>
-
-        <v-alert
-          v-if="queuedMessage"
-          type="info"
-          variant="tonal"
-          density="compact"
-          icon="mdi-email-outline"
-          class="import-dialog__alert"
-        >
-          {{ queuedMessage }}
-        </v-alert>
-
-        <v-alert
-          v-if="polling"
-          type="info"
-          variant="tonal"
-          density="compact"
-          icon="mdi-progress-clock"
-          class="import-dialog__alert"
-        >
-          <v-progress-linear indeterminate color="primary" class="mb-2" rounded />
-          {{ t('dealer.views.vehicles.import.processing') }}
         </v-alert>
 
         <v-alert
@@ -120,7 +109,7 @@
               <button
                 type="button"
                 class="panel-btn panel-btn--outline"
-                :disabled="downloadingTemplate || polling"
+                :disabled="downloadingTemplate || importing"
                 @click="handleDownloadTemplate"
               >
                 <v-progress-circular
@@ -184,7 +173,7 @@
             :class="{
               'import-dialog__dropzone--active': dragOver,
               'import-dialog__dropzone--filled': !!importFile,
-              'import-dialog__dropzone--disabled': polling,
+              'import-dialog__dropzone--disabled': importing,
             }"
             @click="openFilePicker"
             @dragenter.prevent="onDragEnter"
@@ -197,7 +186,7 @@
               type="file"
               class="import-dialog__file-input"
               accept=".xlsx,.xls,.csv"
-              :disabled="polling"
+              :disabled="importing"
               @change="onNativeFileChange"
             />
 
@@ -210,7 +199,7 @@
               <button
                 type="button"
                 class="panel-btn panel-btn--ghost panel-btn--sm"
-                :disabled="polling || importing"
+                :disabled="importing"
                 @click.stop="clearFile"
               >
                 {{ t('dealer.views.vehicles.import.removeFile') }}
@@ -365,12 +354,12 @@
             :disabled="importing"
             @click="close"
           >
-            {{ polling ? t('common.close') : t('common.cancel') }}
+            {{ t('common.cancel') }}
           </button>
           <button
             type="button"
             class="panel-btn panel-btn--outline"
-            :disabled="!importFile || importing || polling"
+            :disabled="!importFile || importing"
             @click="runImport(true)"
           >
             <v-progress-circular
@@ -385,7 +374,7 @@
           <button
             type="button"
             class="panel-btn panel-btn--primary"
-            :disabled="!importFile || importing || polling"
+            :disabled="!importFile || importing"
             @click="runImport(false)"
           >
             <v-progress-circular
@@ -419,14 +408,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
   downloadVehicleImportTemplate,
-  getVehicleImportBatch,
   getVehicleImportSample,
   importVehicles,
-  type VehicleImportQueuedResult,
   type VehicleImportResult,
   type VehicleImportSample,
 } from '@/api/dealer.api'
@@ -448,13 +435,11 @@ const fileInputRef = ref<HTMLInputElement | null>(null)
 const dragOver = ref(false)
 const downloadingTemplate = ref(false)
 const importing = ref(false)
-const polling = ref(false)
+const importingDryRun = ref(false)
 const importError = ref<string | null>(null)
-const queuedMessage = ref<string | null>(null)
 const result = ref<VehicleImportResult | null>(null)
 const dryRunLast = ref(false)
 const resultsFilter = ref<'issues' | 'all'>('issues')
-let pollTimer: ReturnType<typeof setInterval> | null = null
 let dragDepth = 0
 
 const snackbar = ref({
@@ -493,18 +478,6 @@ const displayedRows = computed(() => {
   )
 })
 
-function isQueuedResult(data: unknown): data is VehicleImportQueuedResult {
-  return typeof data === 'object' && data !== null && 'batch_id' in data
-}
-
-function stopPolling() {
-  if (pollTimer !== null) {
-    clearInterval(pollTimer)
-    pollTimer = null
-  }
-  polling.value = false
-}
-
 function setSelectedFile(file: File | null) {
   selectedFiles.value = file
 }
@@ -516,7 +489,7 @@ function clearFileInput() {
 }
 
 function openFilePicker() {
-  if (polling.value || importing.value) return
+  if (importing.value) return
   fileInputRef.value?.click()
 }
 
@@ -538,13 +511,13 @@ function onNativeFileChange(event: Event) {
 }
 
 function onDragEnter() {
-  if (polling.value) return
+  if (importing.value) return
   dragDepth += 1
   dragOver.value = true
 }
 
 function onDragOver() {
-  if (polling.value) return
+  if (importing.value) return
   dragOver.value = true
 }
 
@@ -559,7 +532,7 @@ function onDragLeave() {
 function onDrop(event: DragEvent) {
   dragDepth = 0
   dragOver.value = false
-  if (polling.value || importing.value) return
+  if (importing.value) return
 
   const file = event.dataTransfer?.files?.[0] ?? null
   if (!file) return
@@ -589,59 +562,6 @@ function formatFileSize(bytes: number) {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
-
-async function pollBatch(batchId: number) {
-  stopPolling()
-  polling.value = true
-
-  const MAX_POLLS = 200 // ~10 minutes at 3s interval
-  const MAX_CONSECUTIVE_ERRORS = 5
-  let pollCount = 0
-  let consecutiveErrors = 0
-
-  const fetchBatch = async () => {
-    try {
-      pollCount += 1
-      const batch = await getVehicleImportBatch(batchId)
-      consecutiveErrors = 0
-
-      if (batch.status === 'pending' || batch.status === 'processing') {
-        if (pollCount >= MAX_POLLS) {
-          stopPolling()
-          queuedMessage.value = t('dealer.views.vehicles.import.pollTimedOut')
-          showSnackbar(queuedMessage.value, 'info')
-        }
-        return
-      }
-
-      stopPolling()
-
-      if (batch.status === 'completed' && batch.summary && batch.rows) {
-        result.value = { summary: batch.summary, rows: batch.rows }
-        syncResultsFilter()
-        showImportCompleteSnackbar(result.value, false)
-        if ((batch.summary.created ?? 0) > 0) {
-          emit('imported')
-        }
-      } else if (batch.status === 'failed') {
-        importError.value = batch.error_message || t('dealer.views.vehicles.import.importFailed')
-      }
-    } catch {
-      consecutiveErrors += 1
-      if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
-        stopPolling()
-        // Import may still finish — don't scare the user; email will notify.
-        queuedMessage.value = t('dealer.views.vehicles.import.pollTimedOut')
-        showSnackbar(queuedMessage.value, 'info')
-      }
-    }
-  }
-
-  await fetchBatch()
-  if (polling.value) {
-    pollTimer = setInterval(fetchBatch, 3000)
-  }
 }
 
 async function loadSample() {
@@ -691,26 +611,16 @@ watch(
       loadSample()
       result.value = null
       importError.value = null
-      queuedMessage.value = null
       setSelectedFile(null)
       clearFileInput()
       resultsFilter.value = 'issues'
       dragOver.value = false
       dragDepth = 0
-      stopPolling()
-    } else {
-      stopPolling()
     }
   }
 )
 
-onBeforeUnmount(stopPolling)
-
 function close() {
-  if (polling.value) {
-    showSnackbar(t('dealer.views.vehicles.import.closedWhileProcessing'), 'info')
-  }
-  stopPolling()
   emit('update:modelValue', false)
 }
 
@@ -771,21 +681,14 @@ async function runImport(dryRun: boolean) {
 
   try {
     importing.value = true
+    importingDryRun.value = dryRun
     dryRunLast.value = dryRun
     importError.value = null
-    queuedMessage.value = null
     result.value = null
 
     const data = await importVehicles(file, { dryRun })
 
-    if (!dryRun && isQueuedResult(data)) {
-      queuedMessage.value = data.message || t('dealer.views.vehicles.import.queued')
-      showSnackbar(queuedMessage.value, 'info')
-      await pollBatch(data.batch_id)
-      return
-    }
-
-    result.value = data as VehicleImportResult
+    result.value = data
     syncResultsFilter()
     showImportCompleteSnackbar(result.value, dryRun)
     if (!dryRun && (result.value.summary.created ?? 0) > 0) {

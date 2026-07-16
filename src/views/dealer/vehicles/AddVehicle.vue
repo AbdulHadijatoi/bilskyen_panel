@@ -122,7 +122,6 @@
           </div>
           <ul class="mb-0 pl-4">
             <li v-for="(errors, field) in validationErrors" :key="field">
-              <strong>{{ validationFieldLabel(String(field)) }}:</strong>
               {{ Array.isArray(errors) ? errors.join(', ') : errors }}
             </li>
           </ul>
@@ -941,30 +940,6 @@
                 <div class="mb-4">
                   <div class="d-flex align-center justify-space-between mb-2">
                     <h4 class="text-subtitle-1 font-weight-semibold mb-0">
-                      <v-icon size="20" class="mr-2">mdi-format-title</v-icon>
-                      {{ t('dealer.views.addVehicle.listingTitle') }}
-                    </h4>
-                    <AiGenerateButton
-                      task="vehicle_title"
-                      :context="vehicleAiContext"
-                      :label="t('dealer.views.ai.generateTitle')"
-                      auto-generate
-                      :show-tone-selector="false"
-                      @accept="onAiTitleAccept"
-                    />
-                  </div>
-                  <v-text-field
-                    v-model="form.title"
-                    :label="t('dealer.views.addVehicle.listingTitle')"
-                    density="compact"
-                    variant="outlined"
-                    hide-details="auto"
-                  />
-                </div>
-
-                <div class="mb-4">
-                  <div class="d-flex align-center justify-space-between mb-2">
-                    <h4 class="text-subtitle-1 font-weight-semibold mb-0">
                       <v-icon size="20" class="mr-2">mdi-format-list-bulleted</v-icon>
                       {{ t('dealer.views.addVehicle.listingHighlights') }}
                     </h4>
@@ -1450,8 +1425,15 @@ function parseSeoMeta(text: string): Record<string, string> {
   return result
 }
 
-function onAiTitleAccept(text: string) {
-  form.value.title = text.trim()
+function formatListingTitle(title: string): string {
+  const trimmed = title.trim()
+  if (!trimmed) return ''
+  return trimmed.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase())
+}
+
+function buildVehicleListingTitle(): string {
+  const parts = [form.value.make, form.value.model].filter(Boolean)
+  return formatListingTitle(parts.join(' '))
 }
 
 function onAiHighlightsAccept(text: string) {
@@ -1819,7 +1801,6 @@ const form = ref({
   // Step 6 (Media)
   images: [] as File[],
   coverImageIndex: 0,
-  title: null as string | null,
   highlights: null as string | null,
   metaTitle: null as string | null,
   metaDescription: null as string | null,
@@ -1966,7 +1947,7 @@ const VALIDATION_FIELD_LABEL_KEYS: Record<string, string> = {
   registration: 'registration',
   registration_date: 'registration',
   registrationdate: 'registration',
-  dmr_fact_vehicle_id: 'dmrVehicleRequired',
+  dmr_fact_vehicle_id: 'tabLookup',
   first_registration_date: 'firstRegistration',
   firstregistrationdate: 'firstRegistration',
   registration_number: 'licensePlate',
@@ -1990,9 +1971,6 @@ const VALIDATION_FIELD_LABEL_KEYS: Record<string, string> = {
 function validationFieldLabel(fieldKey: string): string {
   const normalized = fieldKey.toLowerCase().replace(/\.\d+$/, '')
   const labelKey = VALIDATION_FIELD_LABEL_KEYS[normalized] ?? VALIDATION_FIELD_LABEL_KEYS[fieldKey]
-  if (labelKey === 'dmrVehicleRequired') {
-    return t('dealer.views.addVehicle.dmrVehicleRequired')
-  }
   if (labelKey) {
     const translated = t(`dealer.views.addVehicle.${labelKey}`)
     if (translated && !translated.startsWith('dealer.views.addVehicle.')) {
@@ -2011,6 +1989,11 @@ function validationFieldLabel(fieldKey: string): string {
 
 type InvalidField = { stepIndex: number; fieldKey: string; fieldLabel: string }
 
+function hasManualVehicleIdentity(): boolean {
+  const f = form.value
+  return Boolean(f.make && f.modelId && f.fuelType)
+}
+
 /** Returns specific invalid required fields (for precise validation feedback). */
 function getInvalidFields(): InvalidField[] {
   const invalid: InvalidField[] = []
@@ -2025,7 +2008,7 @@ function getInvalidFields(): InvalidField[] {
   if (!f.registrationDate) {
     invalid.push({ stepIndex: 0, fieldKey: 'registration_date', fieldLabel: label('registration_date') })
   }
-  if (f.dmr_fact_vehicle_id == null) {
+  if (f.dmr_fact_vehicle_id == null && !hasManualVehicleIdentity()) {
     invalid.push({ stepIndex: 0, fieldKey: 'dmr_fact_vehicle_id', fieldLabel: label('dmr_fact_vehicle_id') })
   }
 
@@ -2088,19 +2071,13 @@ function getInvalidFields(): InvalidField[] {
 function messageForInvalidField(field: InvalidField): string {
   // Limit messages are already full sentences stored in fieldLabel
   if (field.fieldKey === 'equipment' || field.fieldKey === 'images') {
-    const tab = steps.value[field.stepIndex]?.label
-    return tab
-      ? `${field.fieldLabel} (${tab})`
-      : field.fieldLabel
+    return field.fieldLabel
   }
 
-  const tab = steps.value[field.stepIndex]?.label
-  if (tab) {
-    return t('dealer.views.addVehicle.fieldNamedRequiredInTab', {
-      field: field.fieldLabel,
-      tab,
-    })
+  if (field.fieldKey === 'dmr_fact_vehicle_id') {
+    return t('dealer.views.addVehicle.vehicleLookupRequired')
   }
+
   return t('dealer.views.addVehicle.fieldNamedRequired', { field: field.fieldLabel })
 }
 
@@ -2732,13 +2709,16 @@ const saveAsDraft = async () => {
     submitError.value = null
     validationErrors.value = {}
 
-    // DMR identity required by dealer create/update contract
-    if (form.value.dmr_fact_vehicle_id == null) {
-      const invalidFields = getInvalidFields().filter((f) => f.fieldKey === 'dmr_fact_vehicle_id')
+    if (!form.value.make || !form.value.modelId) {
+      const invalidFields = getInvalidFields().filter((f) =>
+        ['make', 'model_id', 'dmr_fact_vehicle_id'].includes(f.fieldKey),
+      )
       if (invalidFields.length > 0) {
         await applyClientValidationFeedback(invalidFields)
       } else {
-        submitError.value = t('dealer.views.addVehicle.dmrVehicleRequired')
+        submitError.value = t('dealer.views.addVehicle.completeRequiredFields', {
+          fields: [t('dealer.views.addVehicle.make'), t('dealer.views.addVehicle.model')].join(', '),
+        })
         showSnackbar(submitError.value, 'error')
         currentStep.value = 0
       }
@@ -2749,12 +2729,10 @@ const saveAsDraft = async () => {
     const nummerpladeData = lookupData.value || {}
     const vehicleData: any = {}
 
-    // Title: use manual entry or generate from make/model/variant
-    if (form.value.title?.trim()) {
-      vehicleData.title = form.value.title.trim()
-    } else if (form.value.make || form.value.model) {
-      const titleParts = [form.value.make, form.value.model, form.value.variant].filter(Boolean)
-      vehicleData.title = titleParts.join(' ') || `${form.value.make || ''} ${form.value.model || ''}`.trim() || undefined
+    // Title is generated from brand and model
+    const generatedTitle = buildVehicleListingTitle()
+    if (generatedTitle) {
+      vehicleData.title = generatedTitle
     }
 
     // Optional fields - only include if they have values
@@ -3181,7 +3159,6 @@ const clearDraft = () => {
     // Step 6 (Media)
     images: [],
     coverImageIndex: 0,
-    title: null,
     highlights: null,
     metaTitle: null,
     metaDescription: null,
@@ -3260,8 +3237,7 @@ const submitForm = async () => {
       return
     }
 
-    const titleParts = [form.value.make, form.value.model, form.value.variant].filter(Boolean)
-    const title = form.value.title?.trim() || titleParts.join(' ') || `${form.value.make} ${form.value.model}`
+    const title = buildVehicleListingTitle()
 
     // Define nummerpladeData from lookupData (API response)
     const nummerpladeData = lookupData.value || {}

@@ -725,19 +725,22 @@ export async function getVehicleImportSample(): Promise<VehicleImportSample> {
 }
 
 /**
- * Bulk import vehicles from Excel/CSV (validate sync; import queues background job).
+ * Bulk import vehicles from Excel/CSV (processed synchronously on the server).
  */
 export async function importVehicles(
   file: File,
   options?: { dryRun?: boolean }
-): Promise<VehicleImportResult | VehicleImportQueuedResult> {
+): Promise<VehicleImportResult> {
   const formData = new FormData()
   formData.append('file', file)
 
-  const response = await httpClient.post<{ data: VehicleImportResult | VehicleImportQueuedResult }>(
+  const response = await httpClient.post<{ data: VehicleImportResult }>(
     DEALER_VEHICLE_ENDPOINTS.IMPORT,
     formData,
-    { params: options?.dryRun ? { dry_run: 1 } : undefined }
+    {
+      params: options?.dryRun ? { dry_run: 1 } : undefined,
+      timeout: 600000,
+    }
   )
   return handleSuccess(response)
 }
