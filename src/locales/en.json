@@ -2283,35 +2283,6 @@
             "validated": "Valid",
             "validated_with_warnings": "Valid (warnings)"
           }
-        },
-        "urlImport": {
-          "importFromUrl": "Import from URL",
-          "importFromBilbasen": "Import from Bilbasen",
-          "prefillTitle": "Prefill from Bilbasen URL",
-          "prefillDescription": "Paste a Bilbasen listing link to fill the form. You review and save yourself.",
-          "publishTitle": "Import and publish from Bilbasen",
-          "publishDescription": "Paste a Bilbasen listing link to create and publish the vehicle immediately.",
-          "urlLabel": "Bilbasen URL",
-          "urlPlaceholder": "https://www.bilbasen.dk/brugt/bil/...",
-          "urlRequired": "Enter a Bilbasen URL.",
-          "preview": "Preview",
-          "previewReady": "Listing loaded",
-          "previewFailed": "Could not fetch the Bilbasen listing.",
-          "applyToForm": "Apply to form",
-          "appliedToForm": "Form filled from Bilbasen.",
-          "applyFailed": "Could not apply listing data to the form.",
-          "importAndPublish": "Import and publish",
-          "publishFailed": "Could not import and publish the vehicle.",
-          "publishSuccess": "Vehicle imported and published from Bilbasen.",
-          "publishSuccessWithWarnings": "Vehicle imported and published, with warnings: {warnings}",
-          "salesType": "Sales type",
-          "salesTypeRequired": "Select a sales type.",
-          "salesTypesLoadFailed": "Could not load sales types. Refresh and try again.",
-          "registration": "Registration",
-          "price": "Price",
-          "mileage": "Mileage",
-          "imagesCount": "{count} images",
-          "remoteImagesTitle": "Images from Bilbasen"
         }
       },
       "analytics": {

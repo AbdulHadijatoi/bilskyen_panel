@@ -787,67 +787,6 @@ export async function getVehicleImportBatch(id: number): Promise<VehicleImportBa
   return handleSuccess<VehicleImportBatchDetail>(response)
 }
 
-export interface BilbasenUrlImportPreview {
-  source_url: string
-  external_listing_id: string
-  registration: string | null
-  vin: string | null
-  price: number | null
-  mileage: number | null
-  description: string | null
-  title: string | null
-  brand: string | null
-  model: string | null
-  variant: string | null
-  fuel_type: string | null
-  year: number | null
-  image_urls: string[]
-  dmr: Record<string, any> | null
-  mapped: {
-    brand_id: number | null
-    model_id: number | null
-    variant_id: number | null
-    fuel_type_id: number | null
-    dmr_fact_vehicle_id: number | null
-    brand_name?: string | null
-    model_name?: string | null
-  }
-  warnings: string[]
-  blocked: boolean
-}
-
-export interface BilbasenUrlImportResult {
-  vehicle_id: number
-  warnings: Array<{ field: string; value: string; message: string }>
-}
-
-export async function previewVehicleFromUrl(url: string): Promise<BilbasenUrlImportPreview> {
-  const response = await httpClient.post<{ data: BilbasenUrlImportPreview }>(
-    DEALER_VEHICLE_ENDPOINTS.IMPORT_FROM_URL_PREVIEW,
-    { url },
-    { timeout: 60000 }
-  )
-  return handleSuccess<BilbasenUrlImportPreview>(response)
-}
-
-export async function importVehicleFromUrl(
-  payload: {
-    url: string
-    sales_type_id: number
-  },
-  idempotencyKey?: string
-): Promise<BilbasenUrlImportResult> {
-  const headers: Record<string, string> = {
-    'Idempotency-Key': idempotencyKey || getIdempotencyKey(),
-  }
-  const response = await httpClient.post<{ data: BilbasenUrlImportResult }>(
-    DEALER_VEHICLE_ENDPOINTS.IMPORT_FROM_URL,
-    payload,
-    { timeout: 120000, headers }
-  )
-  return handleSuccess<BilbasenUrlImportResult>(response)
-}
-
 export async function lookupDealerVehicleByIdentity(
   data: DealerVehicleLookupPayload
 ): Promise<any> {

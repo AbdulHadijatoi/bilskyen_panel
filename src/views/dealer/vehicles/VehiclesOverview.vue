@@ -28,15 +28,6 @@
             {{ t('dealer.views.vehicles.import.bulkImport') }}
           </button>
           <button
-            v-if="hasPermission('dealer.vehicles.create')"
-            type="button"
-            class="panel-btn panel-btn--outline"
-            @click="showUrlImportDialog = true"
-          >
-            <v-icon size="16">mdi-link-variant</v-icon>
-            {{ t('dealer.views.vehicles.urlImport.importFromUrl') }}
-          </button>
-          <button
             v-if="canBulkPriceUpdate"
             type="button"
             class="panel-btn panel-btn--outline"
@@ -272,19 +263,11 @@
       v-model="showImportDialog"
       @imported="onImportCompleted"
     />
-    <VehicleUrlImportDialog
-      v-model="showUrlImportDialog"
-      @imported="onUrlImportCompleted"
-    />
 
     <BulkPriceUpdateDialog
       v-model="showBulkPriceDialog"
       @completed="loadVehicles"
     />
-
-    <v-snackbar v-model="snackbar.show" :color="snackbar.color" :timeout="6000">
-      {{ snackbar.message }}
-    </v-snackbar>
   </div>
 </template>
 
@@ -294,11 +277,9 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { getVehicles, deleteVehicle as deleteVehicleApi, bulkDeleteVehicles, exportVehicleStock } from '@/api/dealer.api'
 import VehicleBulkImportDialog from '@/components/dealer/vehicles/VehicleBulkImportDialog.vue'
-import VehicleUrlImportDialog from '@/components/dealer/vehicles/VehicleUrlImportDialog.vue'
 import BulkPriceUpdateDialog from '@/components/dealer/vehicles/BulkPriceUpdateDialog.vue'
 import { hasPermission } from '@/utils/permissions'
 import { FeatureKey, hasFeature } from '@/utils/subscriptionFeatures'
-import { useSnackbar } from '@/composables/useSnackbar'
 import type { PaginationModel } from '@/models/pagination.model'
 import type { VehicleModel } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
@@ -312,7 +293,6 @@ import {
 
 const router = useRouter()
 const { t } = useI18n()
-const { snackbar, showSnackbar } = useSnackbar()
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -330,7 +310,6 @@ const vehicles = ref<PaginationModel<VehicleModel>>({
 })
 const currentPage = ref(1)
 const showImportDialog = ref(false)
-const showUrlImportDialog = ref(false)
 const showBulkPriceDialog = ref(false)
 const showDeleteDialog = ref(false)
 const vehicleToDelete = ref<VehicleModel | null>(null)
@@ -434,20 +413,6 @@ const confirmDeleteAction = async () => {
 
 const onImportCompleted = async () => {
   await loadVehicles()
-}
-
-const onUrlImportCompleted = async (_vehicleId: number, warnings: string[] = []) => {
-  await loadVehicles()
-  if (warnings.length > 0) {
-    showSnackbar(
-      t('dealer.views.vehicles.urlImport.publishSuccessWithWarnings', {
-        warnings: warnings.slice(0, 3).join(' '),
-      }),
-      'warning',
-    )
-  } else {
-    showSnackbar(t('dealer.views.vehicles.urlImport.publishSuccess'), 'success')
-  }
 }
 
 const deleteVehicle = async () => {

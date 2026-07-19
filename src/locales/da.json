@@ -2307,35 +2307,6 @@
             "validated": "Gyldig",
             "validated_with_warnings": "Gyldig (advarsler)"
           }
-        },
-        "urlImport": {
-          "importFromUrl": "Import fra URL",
-          "importFromBilbasen": "Import fra Bilbasen",
-          "prefillTitle": "Udfyld fra Bilbasen-URL",
-          "prefillDescription": "Indsæt et Bilbasen-annoncelink for at udfylde formularen. Du gennemgår og gemmer selv.",
-          "publishTitle": "Importér og offentliggør fra Bilbasen",
-          "publishDescription": "Indsæt et Bilbasen-annoncelink for at oprette og offentliggøre køretøjet med det samme.",
-          "urlLabel": "Bilbasen-URL",
-          "urlPlaceholder": "https://www.bilbasen.dk/brugt/bil/...",
-          "urlRequired": "Indtast en Bilbasen-URL.",
-          "preview": "Forhåndsvis",
-          "previewReady": "Annonce indlæst",
-          "previewFailed": "Kunne ikke hente annoncen fra Bilbasen.",
-          "applyToForm": "Udfyld formular",
-          "appliedToForm": "Formulardata er udfyldt fra Bilbasen.",
-          "applyFailed": "Kunne ikke udfylde formularen.",
-          "importAndPublish": "Importér og offentliggør",
-          "publishFailed": "Kunne ikke importere og offentliggøre køretøjet.",
-          "publishSuccess": "Køretøjet er importeret og offentliggjort fra Bilbasen.",
-          "publishSuccessWithWarnings": "Køretøjet er importeret og offentliggjort, med advarsler: {warnings}",
-          "salesType": "Salgstype",
-          "salesTypeRequired": "Vælg en salgstype.",
-          "salesTypesLoadFailed": "Kunne ikke indlæse salgstyper. Genindlæs siden og prøv igen.",
-          "registration": "Registrering",
-          "price": "Pris",
-          "mileage": "Kilometerstand",
-          "imagesCount": "{count} billeder",
-          "remoteImagesTitle": "Billeder fra Bilbasen"
         }
       },
       "analytics": {
