@@ -80,6 +80,8 @@ export const DEALER_VEHICLE_ENDPOINTS = {
   IMPORT: '/dealer/vehicles/import',
   IMPORT_BATCHES: '/dealer/vehicles/import/batches',
   IMPORT_BATCH: (id: number | string) => `/dealer/vehicles/import/batches/${id}`,
+  IMPORT_FROM_URL_PREVIEW: '/dealer/vehicles/import-from-url/preview',
+  IMPORT_FROM_URL: '/dealer/vehicles/import-from-url',
   EXPORT: '/dealer/vehicles/export',
   REORDER_IMAGES: (id: number | string) => `/dealer/vehicles/${id}/images/reorder`,
   UPDATE_VIDEO: (id: number | string) => `/dealer/vehicles/${id}/video`,

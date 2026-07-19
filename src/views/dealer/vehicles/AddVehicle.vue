@@ -39,7 +39,7 @@
                 @keyup.enter="performLookup"
               />
             </v-col>
-            <v-col cols="12" md="4" class="d-flex align-center" style="height: 56px;">
+            <v-col cols="12" md="4" class="d-flex align-center flex-wrap ga-2" style="min-height: 56px;">
               <v-btn
                 v-if="!showFormFields"
                 color="primary"
@@ -47,7 +47,6 @@
                 :loading="lookupLoading"
                 :disabled="!lookupForm.registrationNumber"
                 @click="performLookup"
-                class="mr-2"
                 style="height: 56px;"
               >
                 <v-icon start>mdi-magnify</v-icon>
@@ -64,10 +63,20 @@
                 {{ t('dealer.views.addVehicle.enterManually') }}
               </v-btn>
               <v-btn
+                v-if="!showFormFields"
+                variant="outlined"
+                color="primary"
+                @click="showBilbasenDialog = true"
+                style="height: 56px;"
+              >
+                <v-icon start>mdi-link-variant</v-icon>
+                {{ t('dealer.views.vehicles.urlImport.importFromBilbasen') }}
+              </v-btn>
+              <v-btn
                 v-if="showFormFields"
                 variant="outlined"
                 color="grey-darken-1"
-                @click="manualEntryMode = false; lookupSuccess = false; lookupData = null"
+                @click="resetLookupSection"
                 style="height: 56px;"
               >
                 <v-icon start>mdi-refresh</v-icon>
@@ -804,6 +813,42 @@
                 </div>
 
                 <v-divider class="my-6" />
+
+                <div v-if="remoteImageUrls.length > 0" class="mb-6">
+                  <h4 class="text-subtitle-1 font-weight-semibold mb-4">
+                    <v-icon size="20" class="mr-2">mdi-web</v-icon>
+                    {{ t('dealer.views.vehicles.urlImport.remoteImagesTitle') }}
+                    <v-chip size="x-small" class="ml-2" color="primary" variant="tonal">
+                      {{ remoteImageUrls.length }}
+                    </v-chip>
+                  </h4>
+                  <v-row dense>
+                    <v-col
+                      v-for="(url, remoteIndex) in remoteImageUrls"
+                      :key="`remote-${remoteIndex}-${url}`"
+                      cols="6"
+                      sm="4"
+                      md="3"
+                      lg="2"
+                    >
+                      <v-card variant="flat" class="position-relative">
+                        <v-img :src="url" height="120" cover />
+                        <v-btn
+                          icon
+                          size="x-small"
+                          color="error"
+                          variant="flat"
+                          class="position-absolute"
+                          style="top: 4px; right: 4px;"
+                          @click="remoteImageUrls.splice(remoteIndex, 1)"
+                        >
+                          <v-icon size="16">mdi-close</v-icon>
+                        </v-btn>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+                </div>
+
                 <div class="mb-4">
                   <h4 class="text-subtitle-1 font-weight-semibold mb-4">
                     <v-icon size="20" class="mr-2">mdi-image-multiple</v-icon>
@@ -843,7 +888,7 @@
                       </div>
                     </label>
                     <v-alert
-                      v-if="form.images.length === 0"
+                      v-if="form.images.length === 0 && remoteImageUrls.length === 0"
                       type="info"
                       variant="tonal"
                       density="compact"
@@ -1153,6 +1198,103 @@
         <v-btn variant="text" @click="snackbar.show = false">{{ t('dealer.views.addVehicle.close') }}</v-btn>
       </template>
     </v-snackbar>
+
+    <v-dialog v-model="showBilbasenDialog" max-width="640" persistent>
+      <v-card class="panel-detail-dialog" variant="flat">
+        <div class="panel-detail-dialog__header">
+          <h2 class="panel-detail-dialog__title">
+            <v-icon size="20">mdi-link-variant</v-icon>
+            {{ t('dealer.views.vehicles.urlImport.prefillTitle') }}
+          </h2>
+          <button
+            type="button"
+            class="panel-icon-btn"
+            :aria-label="t('common.close')"
+            :disabled="bilbasenPreviewLoading || bilbasenApplying"
+            @click="closeBilbasenDialog"
+          >
+            <v-icon size="18">mdi-close</v-icon>
+          </button>
+        </div>
+        <div class="panel-detail-dialog__body">
+          <p class="text-body-2 text-medium-emphasis mb-4">
+            {{ t('dealer.views.vehicles.urlImport.prefillDescription') }}
+          </p>
+          <v-text-field
+            v-model="bilbasenUrl"
+            :label="t('dealer.views.vehicles.urlImport.urlLabel')"
+            :placeholder="t('dealer.views.vehicles.urlImport.urlPlaceholder')"
+            variant="outlined"
+            hide-details="auto"
+            :disabled="bilbasenPreviewLoading || bilbasenApplying"
+            @keyup.enter="previewBilbasenUrl"
+          />
+          <v-alert
+            v-if="bilbasenError"
+            type="error"
+            variant="tonal"
+            density="compact"
+            class="mt-3"
+            closable
+            @click:close="bilbasenError = null"
+          >
+            {{ bilbasenError }}
+          </v-alert>
+          <div v-if="bilbasenPreview" class="mt-4">
+            <v-alert type="success" variant="tonal" density="compact" class="mb-3">
+              {{ bilbasenPreview.title || t('dealer.views.vehicles.urlImport.previewReady') }}
+            </v-alert>
+            <div class="text-body-2">
+              <div v-if="bilbasenPreview.registration">
+                {{ t('dealer.views.vehicles.urlImport.registration') }}: {{ bilbasenPreview.registration }}
+              </div>
+              <div v-if="bilbasenPreview.price != null">
+                {{ t('dealer.views.vehicles.urlImport.price') }}: {{ bilbasenPreview.price }}
+              </div>
+              <div v-if="bilbasenPreview.mileage != null">
+                {{ t('dealer.views.vehicles.urlImport.mileage') }}: {{ bilbasenPreview.mileage }}
+              </div>
+              <div>
+                {{ t('dealer.views.vehicles.urlImport.imagesCount', { count: bilbasenPreview.image_urls?.length || 0 }) }}
+              </div>
+            </div>
+            <v-alert
+              v-for="(warning, wi) in bilbasenPreview.warnings || []"
+              :key="`bilbasen-warn-${wi}`"
+              type="warning"
+              variant="tonal"
+              density="compact"
+              class="mt-2"
+            >
+              {{ warning }}
+            </v-alert>
+          </div>
+        </div>
+        <div class="panel-detail-dialog__footer d-flex justify-end ga-2 pa-4">
+          <v-btn variant="outlined" :disabled="bilbasenPreviewLoading || bilbasenApplying" @click="closeBilbasenDialog">
+            {{ t('common.cancel') }}
+          </v-btn>
+          <v-btn
+            color="primary"
+            variant="outlined"
+            :loading="bilbasenPreviewLoading"
+            :disabled="!bilbasenUrl || bilbasenApplying"
+            @click="previewBilbasenUrl"
+          >
+            {{ t('dealer.views.vehicles.urlImport.preview') }}
+          </v-btn>
+          <v-btn
+            color="primary"
+            variant="elevated"
+            :loading="bilbasenApplying"
+            :disabled="!bilbasenPreview || bilbasenPreviewLoading"
+            @click="applyBilbasenPreview"
+          >
+            {{ t('dealer.views.vehicles.urlImport.applyToForm') }}
+          </v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -1160,7 +1302,16 @@
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { createVehicle, createVehicleDraft, updateVehicle, getLookupConstants, lookupDealerVehicleByIdentity, getProfile } from '@/api/dealer.api'
+import {
+  createVehicle,
+  createVehicleDraft,
+  updateVehicle,
+  getLookupConstants,
+  lookupDealerVehicleByIdentity,
+  getProfile,
+  previewVehicleFromUrl,
+  type BilbasenUrlImportPreview,
+} from '@/api/dealer.api'
 import { searchLookupModels, searchLookupVariants, type LookupVariantRow } from '@/api/lookup-search.api'
 import { loadSubscriptionFeatures } from '@/api/subscription-features.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
@@ -1828,10 +1979,18 @@ const isLeasingSalesTypeSelected = computed(() => {
 
 // Image previews
 const imagePreviews = ref<string[]>([])
+const remoteImageUrls = ref<string[]>([])
 const draggedImageIndex = ref<number | null>(null)
 const dragOverIndex = ref<number | null>(null)
 const fileInputRef = ref<HTMLInputElement | null>(null)
 const isDragOver = ref(false)
+
+const showBilbasenDialog = ref(false)
+const bilbasenUrl = ref('')
+const bilbasenPreview = ref<BilbasenUrlImportPreview | null>(null)
+const bilbasenPreviewLoading = ref(false)
+const bilbasenApplying = ref(false)
+const bilbasenError = ref<string | null>(null)
 
 // Constants (static data that doesn't come from API)
 const leasingTypes = [
@@ -2056,7 +2215,8 @@ function getInvalidFields(): InvalidField[] {
     invalid.push({ stepIndex: 5, fieldKey: 'description', fieldLabel: label('description') })
   }
   const maxImg = maxVehicleImages.value
-  const imagesCountOk = maxImg <= 0 || imagePreviews.value.length <= maxImg
+  const totalImages = imagePreviews.value.length + remoteImageUrls.value.length
+  const imagesCountOk = maxImg <= 0 || totalImages <= maxImg
   if (!imagesCountOk) {
     invalid.push({
       stepIndex: 5,
@@ -2145,14 +2305,186 @@ async function focusFirstInvalidField(invalidFields: InvalidField[]) {
 }
 
 // Methods
-const performLookup = async () => {
+const resetLookupSection = () => {
+  manualEntryMode.value = false
+  lookupSuccess.value = false
+  lookupData.value = null
+  remoteImageUrls.value = []
+}
+
+const bilbasenApiErrorMessage = (error: any, fallback: string): string =>
+  error?.response?.data?.message || error?.message || fallback
+
+const closeBilbasenDialog = () => {
+  if (bilbasenPreviewLoading.value || bilbasenApplying.value) return
+  showBilbasenDialog.value = false
+  bilbasenError.value = null
+  bilbasenUrl.value = ''
+  bilbasenPreview.value = null
+}
+
+watch(bilbasenUrl, () => {
+  if (bilbasenPreview.value) {
+    bilbasenPreview.value = null
+  }
+  if (bilbasenError.value) {
+    bilbasenError.value = null
+  }
+})
+
+const previewBilbasenUrl = async () => {
+  if (!bilbasenUrl.value.trim()) {
+    bilbasenError.value = t('dealer.views.vehicles.urlImport.urlRequired')
+    return
+  }
+  bilbasenPreviewLoading.value = true
+  bilbasenError.value = null
+  bilbasenPreview.value = null
+  try {
+    bilbasenPreview.value = await previewVehicleFromUrl(bilbasenUrl.value.trim())
+  } catch (error: any) {
+    bilbasenError.value = bilbasenApiErrorMessage(
+      error,
+      t('dealer.views.vehicles.urlImport.previewFailed'),
+    )
+  } finally {
+    bilbasenPreviewLoading.value = false
+  }
+}
+
+const applyMappedIdentityFromBilbasen = async (preview: BilbasenUrlImportPreview) => {
+  manualEntryMode.value = true
+  lookupSuccess.value = false
+  if (brands.value.length === 0) {
+    await loadLookupData()
+  }
+
+  const brandId = preview.mapped?.brand_id ?? null
+  const brandName = preview.mapped?.brand_name || preview.brand
+  if (brandId && brandName) {
+    upsertLookupOption(brands.value, { id: brandId, name: brandName })
+    form.value.make = brandName
+    await loadModelsForBrand(brandId)
+  } else if (brandName) {
+    upsertLookupOption(brands.value, { name: brandName })
+    form.value.make = brandName
+  }
+
+  const modelId = preview.mapped?.model_id ?? null
+  const modelName = preview.mapped?.model_name || preview.model
+  if (modelId && modelName) {
+    upsertLookupOption(models.value, { id: modelId, name: modelName }, brandId ? { brand_id: brandId } : undefined)
+    form.value.model = modelName
+    form.value.modelId = modelId
+    await loadVariantsForModel(modelId)
+  } else if (modelName) {
+    form.value.model = modelName
+  }
+
+  if (preview.variant) {
+    form.value.variant = preview.variant
+  }
+
+  const fuelId = preview.mapped?.fuel_type_id ?? null
+  if (fuelId) {
+    const fuel = fuelTypes.value.find((f) => f.id === fuelId)
+    if (fuel) {
+      form.value.fuelType = fuel.name
+      form.value.fuelTypeId = fuel.id
+    }
+  } else if (preview.fuel_type) {
+    form.value.fuelType = preview.fuel_type
+  }
+
+  form.value.dmr_fact_vehicle_id = preview.mapped?.dmr_fact_vehicle_id ?? null
+  if (preview.registration) {
+    form.value.registrationNumber = preview.registration
+    lookupForm.value.registrationNumber = preview.registration
+  }
+  if (preview.vin) {
+    form.value.vin = preview.vin
+  }
+}
+
+const applyBilbasenPreview = async () => {
+  if (!bilbasenPreview.value) return
+  bilbasenApplying.value = true
+  bilbasenError.value = null
+  try {
+    const preview = bilbasenPreview.value
+    const importedImageUrls = [...(preview.image_urls || [])]
+
+    if (preview.registration) {
+      lookupForm.value.registrationNumber = preview.registration
+      // Non-destructive: do not clearDraft (would wipe Bilbasen images and in-progress form)
+      await performLookup({ preserveForm: true })
+      if (lookupError.value && (preview.mapped?.brand_id || preview.brand)) {
+        lookupError.value = null
+        await applyMappedIdentityFromBilbasen(preview)
+      }
+    } else {
+      await applyMappedIdentityFromBilbasen(preview)
+    }
+
+    // Apply images after lookup so clearDraft cannot erase them
+    remoteImageUrls.value = importedImageUrls
+
+    if (preview.price != null) {
+      form.value.price = Number(preview.price)
+    }
+    if (preview.mileage != null) {
+      form.value.odometer = Number(preview.mileage)
+    }
+    if (preview.description) {
+      form.value.description = preview.description
+      isDescriptionManuallyEdited.value = true
+    }
+    if (preview.vin && !form.value.vin) {
+      form.value.vin = preview.vin
+    }
+    if (preview.year != null && !form.value.registrationDate) {
+      const year = Number(preview.year)
+      if (Number.isFinite(year) && year >= 1900 && year <= 2100) {
+        const ym = `${year}-01`
+        form.value.registrationDate = ym
+        if (!form.value.firstRegistrationDate) {
+          form.value.firstRegistrationDate = ym
+        }
+      }
+    }
+    if (preview.dmr) {
+      lookupData.value = preview.dmr
+    }
+    if (!lookupSuccess.value) {
+      manualEntryMode.value = true
+    }
+
+    showBilbasenDialog.value = false
+    bilbasenUrl.value = ''
+    bilbasenPreview.value = null
+    showSnackbar(t('dealer.views.vehicles.urlImport.appliedToForm'), 'success')
+  } catch (error: any) {
+    bilbasenError.value = bilbasenApiErrorMessage(
+      error,
+      t('dealer.views.vehicles.urlImport.applyFailed'),
+    )
+  } finally {
+    bilbasenApplying.value = false
+  }
+}
+
+const performLookup = async (options?: { preserveForm?: boolean }) => {
   if (!lookupForm.value.registrationNumber) {
     lookupError.value = t('dealer.views.addVehicle.licensePlateRequired')
     return
   }
 
-  // Clear any saved draft/form state before applying lookup data
-  clearDraft()
+  const preserveForm = options?.preserveForm === true
+
+  // Clear draft/form only for explicit plate lookup — Bilbasen apply must preserve form + images
+  if (!preserveForm) {
+    clearDraft()
+  }
   manualEntryMode.value = false
   lookupData.value = null
   formSuccessfullySaved.value = false
@@ -2160,8 +2492,10 @@ const performLookup = async () => {
   lookupLoading.value = true
   lookupError.value = null
   lookupSuccess.value = false
-  // Reset manual edit flag when starting new lookup
-  isDescriptionManuallyEdited.value = false
+  // Reset manual edit flag when starting new lookup (not when overlaying Bilbasen data)
+  if (!preserveForm) {
+    isDescriptionManuallyEdited.value = false
+  }
 
   if (brands.value.length === 0) {
     await loadLookupData()
@@ -2831,6 +3165,9 @@ const saveAsDraft = async () => {
     if (form.value.images && form.value.images.length > 0) {
       vehicleData.images = form.value.images
     }
+    if (remoteImageUrls.value.length > 0) {
+      vehicleData.image_urls = [...remoteImageUrls.value]
+    }
 
     // Equipment
     if (form.value.equipment && form.value.equipment.length > 0) {
@@ -3170,6 +3507,7 @@ const clearDraft = () => {
     URL.revokeObjectURL(url)
   })
   imagePreviews.value = []
+  remoteImageUrls.value = []
   
   // Reset to first step
   currentStep.value = 0
@@ -3259,6 +3597,10 @@ const submitForm = async () => {
       images: form.value.images,
       equipment_ids: form.value.equipment.map(id => parseInt(id)),
       list_status_id: 2,
+    }
+
+    if (remoteImageUrls.value.length > 0) {
+      vehicleData.image_urls = [...remoteImageUrls.value]
     }
 
     const variantName = String(
@@ -3762,6 +4104,7 @@ const addAnotherVehicle = () => {
   lookupError.value = null
   manualEntryMode.value = false
   lookupForm.value.registrationNumber = ''
+  remoteImageUrls.value = []
   currentStep.value = 0
   visitedSteps.value = new Set([0])
   // Reset description manual edit flag
