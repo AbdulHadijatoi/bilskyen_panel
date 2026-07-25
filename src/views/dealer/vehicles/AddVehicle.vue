@@ -755,27 +755,7 @@
                     {{ t('dealer.views.addVehicle.dealerContactShown') }}
                   </h4>
                   <v-row dense>
-                    <v-col cols="12" md="4">
-                      <v-text-field
-                        v-model="form.sellerAddress"
-                        :label="t('dealer.views.addVehicle.address')"
-                        density="compact"
-                        variant="outlined"
-                        hide-details="auto"
-                        :placeholder="t('dealer.views.addVehicle.placeholderStreetCity')"
-                      />
-                    </v-col>
-                    <v-col cols="12" md="4">
-                      <v-text-field
-                        v-model="form.sellerPostcode"
-                        :label="t('dealer.views.addVehicle.postalCode')"
-                        density="compact"
-                        variant="outlined"
-                        hide-details="auto"
-                        :placeholder="t('dealer.views.addVehicle.placeholderPostcode')"
-                      />
-                    </v-col>
-                    <v-col cols="12" md="4">
+                    <v-col cols="12">
                       <v-text-field
                         v-model="form.sellerPhone"
                         :label="t('dealer.views.addVehicle.phone')"
@@ -1801,8 +1781,6 @@ const form = ref({
   leasingDuration: null as number | null,
   leasingAnnualMileage: null as number | null,
   leasingTotalCost: null as number | null,
-  sellerAddress: null as string | null,
-  sellerPostcode: null as string | null,
   sellerPhone: null as string | null,
   
   // Step 6 (Media)
@@ -1879,13 +1857,6 @@ const loadDealerProfileForContact = async () => {
   try {
     const profile = await getProfile()
     const f = form.value
-    if (!f.sellerAddress && (profile.address || profile.city || profile.postcode)) {
-      const parts = [profile.address, profile.city, profile.postcode].filter(Boolean) as string[]
-      if (parts.length) f.sellerAddress = parts.join(', ')
-    }
-    if (!f.sellerPostcode && profile.postcode) {
-      f.sellerPostcode = profile.postcode
-    }
     if (!f.sellerPhone && profile.owner?.phone) {
       f.sellerPhone = profile.owner.phone
     }
@@ -2957,12 +2928,6 @@ const saveAsDraft = async () => {
     if (form.value.salesTypeId) {
       vehicleData.sales_type_id = form.value.salesTypeId
     }
-    if (form.value.sellerAddress) {
-      vehicleData.seller_address = form.value.sellerAddress
-    }
-    if (form.value.sellerPostcode) {
-      vehicleData.seller_postcode = form.value.sellerPostcode
-    }
     if (form.value.sellerPhone) {
       vehicleData.seller_phone = form.value.sellerPhone
     }
@@ -3165,8 +3130,6 @@ const clearDraft = () => {
     leasingDuration: null,
     leasingAnnualMileage: null,
     leasingTotalCost: null,
-    sellerAddress: '',
-    sellerPostcode: '',
     sellerPhone: '',
     
     // Step 6 (Media)
@@ -3426,12 +3389,6 @@ const submitForm = async () => {
       if (salesTypeId !== null) {
         vehicleData.sales_type_id = salesTypeId
       }
-    }
-    if (form.value.sellerAddress) {
-      vehicleData.seller_address = form.value.sellerAddress
-    }
-    if (form.value.sellerPostcode) {
-      vehicleData.seller_postcode = form.value.sellerPostcode
     }
     if (form.value.sellerPhone) {
       vehicleData.seller_phone = form.value.sellerPhone
