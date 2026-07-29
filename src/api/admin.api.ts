@@ -15,6 +15,7 @@ import {
   ADMIN_SYNDICATION_ENDPOINTS,
   ADMIN_AI_ENDPOINTS,
   ADMIN_VEHICLE_ENDPOINTS,
+  ADMIN_LEAD_ENDPOINTS,
   ADMIN_PLAN_ENDPOINTS,
   ADMIN_SUBSCRIPTION_ENDPOINTS,
   ADMIN_SUBSCRIPTION_CHANGE_REQUEST_ENDPOINTS,
@@ -48,6 +49,8 @@ import type { UserModel } from '@/models/user.model'
 import { mapUserFromApi } from '@/models/user.model'
 import type { VehicleModel, VehicleImageModel } from '@/models/vehicle.model'
 import { mapVehicleFromApi } from '@/models/vehicle.model'
+import type { LeadModel } from '@/models/lead.model'
+import { mapLeadFromApi } from '@/models/lead.model'
 import type { DealerModel } from '@/models/dealer.model'
 import { mapDealerFromApi } from '@/models/dealer.model'
 import type { PaginationModel, PaginationParams } from '@/models/pagination.model'
@@ -976,6 +979,51 @@ export async function updateVehicleEquipment(
     )
     const vehicleData = handleSuccess<any>(response)
     return mapVehicleFromApi(vehicleData)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+// ============================================================================
+// LEADS (Admin can see all dealer leads)
+// ============================================================================
+
+/**
+ * Get all leads (any dealer) with pagination
+ */
+export async function getLeads(params?: PaginationParams & {
+  dealer_id?: number
+  stage_id?: number
+  category_id?: number
+  search?: string
+  sort?: string
+  order?: 'asc' | 'desc'
+}): Promise<PaginationModel<LeadModel>> {
+  try {
+    const response = await httpClient.get<{ data: PaginationModel<any> }>(
+      ADMIN_LEAD_ENDPOINTS.LIST,
+      { params }
+    )
+    const data = handleSuccess<PaginationModel<any>>(response)
+    return {
+      ...data,
+      docs: data.docs.map(mapLeadFromApi),
+    }
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Get lead by ID (admin)
+ */
+export async function getLead(id: number | string): Promise<LeadModel> {
+  try {
+    const response = await httpClient.get<{ data: any }>(
+      ADMIN_LEAD_ENDPOINTS.SHOW(id)
+    )
+    const data = handleSuccess<any>(response)
+    return mapLeadFromApi(data)
   } catch (error) {
     throw handleError(error)
   }

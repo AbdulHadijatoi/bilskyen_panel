@@ -32,6 +32,7 @@ const ADMIN_NAV_TITLE_KEYS: Record<string, string> = {
   Users: 'admin.nav.users',
   Overview: 'admin.nav.overview',
   Vehicles: 'admin.nav.vehicles',
+  Leads: 'admin.nav.leads',
   Pages: 'admin.nav.pages',
   'Home Page Content': 'admin.nav.homePageContent',
   'About Page Content': 'admin.nav.aboutPageContent',

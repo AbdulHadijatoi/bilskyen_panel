@@ -73,6 +73,19 @@ export const adminSidebarSections: SidebarSection[] = [
         ],
       },
       {
+        title: 'Leads',
+        url: `${ADMIN_ROUTE_BASE}/leads`,
+        icon: 'mdi-phone-in-talk',
+        permission: 'admin.leads.view',
+        items: [
+          {
+            title: 'Overview',
+            url: `${ADMIN_ROUTE_BASE}/leads`,
+            permission: 'admin.leads.view',
+          },
+        ],
+      },
+      {
         title: 'Vehicle spec definitions',
         url: `${ADMIN_ROUTE_BASE}/vehicle-spec-definitions`,
         icon: 'mdi-clipboard-list-outline',

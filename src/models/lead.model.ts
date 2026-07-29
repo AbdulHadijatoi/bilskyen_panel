@@ -64,6 +64,7 @@ export interface LeadModel {
   updatedAt?: string
   deletedAt?: string
   lastActivityAt?: string
+  firstContactedAt?: string
 
   // Relations (if included in response)
   dealer?: any
@@ -106,9 +107,9 @@ export function mapLeadFromApi(data: any): LeadModel {
     vehicleId: data.vehicle_id,
     userId: data.buyer_user_id || data.user_id,
     assignedToId: data.assigned_user_id || data.assigned_to_id,
-    name: data.buyer_user?.name || data.user?.name || data.name || i18n.global.t('common.unknown'),
-    email: data.buyer_user?.email || data.user?.email || data.email,
-    phone: data.buyer_user?.phone || data.user?.phone || data.phone,
+    name: data.buyer_user?.name || data.user?.name || data.enquiry?.name || data.name || i18n.global.t('common.unknown'),
+    email: data.buyer_user?.email || data.user?.email || data.enquiry?.email || data.email,
+    phone: data.buyer_user?.phone || data.user?.phone || data.enquiry?.phone || data.phone,
     message: data.enquiry?.message || data.message || '',
     stageId: data.lead_stage_id || data.stage_id,
     stage: (data.lead_stage_id || data.stage_id) as LeadStage,
@@ -125,6 +126,7 @@ export function mapLeadFromApi(data: any): LeadModel {
     updatedAt: data.updated_at,
     deletedAt: data.deleted_at,
     lastActivityAt: data.last_activity_at,
+    firstContactedAt: data.first_contacted_at,
     dealer: data.dealer,
     vehicle: data.vehicle,
     user: data.buyer_user || data.user,

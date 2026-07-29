@@ -384,6 +384,14 @@ export const ADMIN_VEHICLE_ENDPOINTS = {
 } as const
 
 /**
+ * Admin lead endpoints
+ */
+export const ADMIN_LEAD_ENDPOINTS = {
+  LIST: '/admin/leads',
+  SHOW: (id: number | string) => `/admin/leads/show/${id}`,
+} as const
+
+/**
  * Admin plan endpoints
  */
 export const ADMIN_PLAN_ENDPOINTS = {

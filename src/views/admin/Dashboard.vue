@@ -394,6 +394,14 @@
               <v-icon size="18" class="mr-2">mdi-phone-in-talk</v-icon>
               <span class="text-subtitle-1">{{ t('admin.views.dashboard.recentLeads') }}</span>
               <v-spacer />
+              <v-btn
+                size="x-small"
+                variant="text"
+                color="primary"
+                @click="router.push({ name: 'admin.leads' })"
+              >
+                {{ t('admin.views.dashboard.viewAll') }}
+              </v-btn>
             </v-card-title>
             <v-card-text class="pa-0">
               <v-list density="compact">
@@ -401,6 +409,7 @@
                   v-for="lead in stats.recent.leads"
                   :key="lead.id"
                   class="recent-item"
+                  @click="router.push({ name: 'admin.leads.detail', params: { id: lead.id } })"
                 >
                   <template v-slot:prepend>
                     <v-icon size="16" color="success">mdi-phone</v-icon>

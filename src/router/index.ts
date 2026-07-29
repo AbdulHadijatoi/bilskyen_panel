@@ -226,6 +226,16 @@ const router = createRouter({
           component: () => import('@/views/admin/vehicles/VehicleDetail.vue'),
         },
         {
+          path: 'leads',
+          name: 'admin.leads',
+          component: () => import('@/views/admin/leads/LeadsOverview.vue'),
+        },
+        {
+          path: 'leads/:id',
+          name: 'admin.leads.detail',
+          component: () => import('@/views/admin/leads/LeadDetail.vue'),
+        },
+        {
           path: 'vehicle-spec-definitions',
           name: 'admin.vehicle-spec-definitions',
           component: () => import('@/views/admin/vehicle-spec-definitions/VehicleSpecDefinitions.vue'),
