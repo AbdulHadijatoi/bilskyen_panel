@@ -91,7 +91,13 @@ export async function register(credentials: RegisterCredentials): Promise<Regist
  */
 export async function login(credentials: LoginCredentials): Promise<LoginResponse> {
   try {
-    const response = await apiClient.post<{ data: LoginResponse['data'] }>('/auth/panel-login', credentials)
+    const { getTurnstileToken, honeypotPayload } = await import('@/utils/turnstile')
+    const turnstileToken = await getTurnstileToken()
+    const response = await apiClient.post<{ data: LoginResponse['data'] }>('/auth/panel-login', {
+      ...credentials,
+      ...honeypotPayload(),
+      ...(turnstileToken ? { 'cf-turnstile-response': turnstileToken } : {}),
+    })
     const authStore = useAuthStore()
 
     // Backend returns { data: { user, access_token, ... } } for success
