@@ -60,9 +60,10 @@ export const useAuthStore = defineStore('auth', () => {
 
   const setAccessToken = (token: string) => {
     accessToken.value = token
-    // Persist to localStorage
+    // Persist to sessionStorage (not localStorage) to limit XSS blast radius
     if (typeof window !== 'undefined') {
-      localStorage.setItem('access_token', token)
+      sessionStorage.setItem('access_token', token)
+      localStorage.removeItem('access_token')
     }
   }
 
@@ -70,9 +71,9 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = userData
     accessToken.value = token
     subscriptionFeatures.value = features || {}
-    // Persist to localStorage
     if (typeof window !== 'undefined') {
-      localStorage.setItem('access_token', token)
+      sessionStorage.setItem('access_token', token)
+      localStorage.removeItem('access_token')
     }
   }
 
@@ -84,8 +85,8 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null
     accessToken.value = null
     subscriptionFeatures.value = {}
-    // Clear from localStorage
     if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('access_token')
       localStorage.removeItem('access_token')
     }
   }
@@ -94,8 +95,8 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null
     accessToken.value = null
     subscriptionFeatures.value = {}
-    // Clear from localStorage
     if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('access_token')
       localStorage.removeItem('access_token')
     }
   }

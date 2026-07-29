@@ -115,9 +115,15 @@ export async function login(credentials: LoginCredentials): Promise<UserModel> {
  */
 export async function staffLogin(credentials: StaffLoginCredentials): Promise<UserModel> {
   try {
+    const { getTurnstileToken, honeypotPayload } = await import('@/utils/turnstile')
+    const turnstileToken = await getTurnstileToken()
     const response = await httpClient.post<{ data: AuthResponseData }>(
       AUTH_ENDPOINTS.STAFF_LOGIN,
-      credentials
+      {
+        ...credentials,
+        ...honeypotPayload(),
+        ...(turnstileToken ? { 'cf-turnstile-response': turnstileToken } : {}),
+      }
     )
     
     const data = handleSuccess<AuthResponseData>(response)
