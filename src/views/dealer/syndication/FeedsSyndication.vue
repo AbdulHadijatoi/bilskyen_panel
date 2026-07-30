@@ -97,6 +97,17 @@
                       />
                     </span>
                   </th>
+                  <th>
+                    <span class="syndication-table-heading">
+                      {{ t('dealer.views.syndication.formatCsv') }}
+                      <PanelHelpHint
+                        :text="help('formatCsv')"
+                        size="sm"
+                        :max-width="340"
+                        :aria-label="t('dealer.views.syndication.helpAria')"
+                      />
+                    </span>
+                  </th>
                   <th class="text-end">{{ t('common.actions') }}</th>
                 </tr>
               </thead>
@@ -108,6 +119,14 @@
                   </td>
                   <td>
                     <v-btn size="x-small" variant="text" @click="copyUrl(feed.xml)">{{ t('common.copy') }}</v-btn>
+                  </td>
+                  <td>
+                    <v-btn
+                      v-if="feed.csv"
+                      size="x-small"
+                      variant="text"
+                      @click="copyUrl(feed.csv)"
+                    >{{ t('common.copy') }}</v-btn>
                   </td>
                   <td class="text-end">
                     <v-btn
@@ -130,6 +149,15 @@
           </template>
         </v-card>
         <UpgradePrompt v-else :feature-key="FeatureKey.INVENTORY_FEEDS" class="mb-6" />
+
+        <v-alert v-if="canUseFeeds || canUseSyndication" type="info" variant="tonal" class="mb-6">
+          <div class="d-flex flex-wrap align-center justify-space-between ga-2">
+            <span>{{ t('dealer.views.syndication.metaGuideBanner') }}</span>
+            <v-btn size="small" color="primary" variant="tonal" :to="'/meta-ads-guide'">
+              {{ t('dealer.views.syndication.openMetaGuide') }}
+            </v-btn>
+          </div>
+        </v-alert>
       </v-col>
 
       <v-col cols="12" lg="6">

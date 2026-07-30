@@ -18,7 +18,8 @@
     "viewProfile": "Se profil",
     "settings": "Indstillinger",
     "changePassword": "Skift adgangskode",
-    "logout": "Log ud"
+    "logout": "Log ud",
+    "metaAdsGuide": "Meta-annoncer guide"
   },
   "navSection": {
     "coreOperations": "Kernefunktioner",
@@ -505,7 +506,8 @@
       "manageRules": "Administrer regler",
       "locations": "Lokationer",
       "leadStages": "Lead-faser",
-      "leads": "Leads"
+      "leads": "Leads",
+      "metaAdsGuide": "Meta-annoncer guide"
     },
     "navSection": {
       "userManagement": "Brugeradministration",
@@ -1034,10 +1036,24 @@
           "dataRetentionDays": "Hvor længe inaktive persondata opbevares før automatisk sletning eller anonymisering.",
           "googlePlacesApiKey": "Google Places API-nøgle til adresseopslag, kort eller anmeldelseswidgets. Gemmes sikkert.",
           "testConnection": "Tester integrationen for den aktive fane (f.eks. Stripe webhook). For AI, brug udbydertest-knapperne.",
-          "save": "Gemmer kun indstillinger for den valgte fane."
+          "save": "Gemmer kun indstillinger for den valgte fane.",
+          "metaSection": "Konfigurer platform Meta Pixel og Conversions API. Katalog-feed-URL’en bruges til Bilskyen-wide Vehicles-katalogannoncer.",
+          "metaPixelEnabled": "Når aktiveret, indlæses Meta Pixel på den offentlige side og sporer PageView, ViewContent og Lead.",
+          "metaPixelId": "Pixel-ID fra Meta Events Manager. Påkrævet for browser- og server-events.",
+          "metaCapiAccessToken": "Server-adgangstoken til Conversions API. Gemmes krypteret. Efterlad som ******** for at bevare den eksisterende hemmelighed.",
+          "metaCapiTestEventCode": "Valgfri testkode fra Events Manager Test Events, mens du verificerer CAPI."
         },
         "loadFailed": "Kunne ikke indlæse integrationsindstillinger",
-        "aiTokenBudgetNote": "Platformomfattende tokenloft for alle AI-udbydere. Grænser pr. forhandler sættes i abonnementsplaner (ai_monthly_requests)."
+        "aiTokenBudgetNote": "Platformomfattende tokenloft for alle AI-udbydere. Grænser pr. forhandler sættes i abonnementsplaner (ai_monthly_requests).",
+        "metaSectionTitle": "Meta Pixel & katalog",
+        "metaPixelEnabled": "Meta Pixel aktiveret",
+        "metaPixelId": "Meta Pixel-ID",
+        "metaCapiAccessToken": "Conversions API-adgangstoken",
+        "metaCapiTestEventCode": "CAPI test event-kode (valgfri)",
+        "openMetaGuide": "Åbn Meta-guide",
+        "copyPlatformFeed": "Kopiér platform-katalog-URL",
+        "feedCopied": "Platform-feed-URL kopieret",
+        "feedCopyFailed": "Kunne ikke kopiere feed-URL"
       },
       "vehicleDetail": {
         "title": "Køretøjsdetaljer",
@@ -1228,7 +1244,8 @@
           "syndication": "Aktiver syndikering og bekræft partnerfeed.",
           "syndication_channels": "Tilføj eller rediger syndikeringskanaler.",
           "marketing_campaigns": "Opret kladde-kampagne under Marketing.",
-          "retargeting": "Konfigurer retargeting under Marketing."
+          "retargeting": "Konfigurer retargeting under Marketing.",
+          "metaAdsGuide": "Åbn Meta-guiden i forhandlerpanelet for at teste katalogflowet."
         }
       },
       "subscriptions": {
@@ -1788,6 +1805,99 @@
         "failedCreatePage": "Kunne ikke oprette side",
         "failedDelete": "Kunne ikke slette side",
         "confirmDelete": "Er du sikker på, at du vil slette denne side?"
+      },
+      "metaAdsGuide": {
+        "title": "Meta katalogannoncer & Marketplace-guide",
+        "subtitle": "Guide til Bilskyen-platformkatalog og Meta Pixel til katalogannoncer og Marketplace",
+        "helpAria": "Vis hjælp til dette afsnit",
+        "copied": "Kopieret til udklipsholder",
+        "copyFailed": "Kunne ikke kopiere",
+        "previewFailed": "Kunne ikke hente katalog-forhåndsvisning for denne bil",
+        "overviewTitle": "Hvad du kan gøre",
+        "overviewBody": "Brug det samme bilkatalog-feed til to Meta-produkter. Katalogannoncer viser biler som lagerkort i betalte annoncer; Marketplace kan vise dem i Facebook Marketplace. Et klik åbner altid bilens detaljeside på Bilskyen.",
+        "catalogAdsLabel": "Katalogannoncer (betalt)",
+        "catalogAdsBlurb": "Promover dit lager i Facebook/Instagram-annoncer. Meta viser bilkort (foto, titel, pris). Et klik åbner bilens detalje-URL på Bilskyen.",
+        "marketplaceLabel": "Marketplace-opslag",
+        "marketplaceBlurb": "List lager på Facebook Marketplace fra samme Vehicles-katalog. Kravene er strengere (billeder, adresse, kilometer).",
+        "prerequisitesTitle": "Forudsætninger",
+        "prerequisites": {
+          "1": "En Meta Business Manager-konto og adgang til Commerce Manager.",
+          "2": "Publicerede biler med titel, pris, billeder, mærke, model og årgang.",
+          "3": "Et Meta Vehicles-katalog forbundet til dit CSV-feed (vises nedenfor).",
+          "4": "Til konverteringssporing: Meta Pixel aktiveret under platform Integrations (admin)."
+        },
+        "openIntegrations": "Åbn Integrations (Pixel)",
+        "openFeeds": "Åbn Feeds & Syndication",
+        "feedTitle": "Din Meta katalog-feed-URL",
+        "feedBody": "Indsæt denne HTTPS CSV-URL i Meta Commerce Manager, når du opretter eller opdaterer et Vehicles-katalog. Meta henter den efter tidsplan.",
+        "feedMissing": "Platform-feed-URL genereres automatisk. Genindlæs siden, eller åbn Integrations → Marketing.",
+        "feedPlaceholder": "[din CSV-feed-URL]",
+        "pixelStatus": "Pixel {id} — {status}",
+        "pixelOn": "aktiveret",
+        "pixelOff": "deaktiveret",
+        "carSelectorTitle": "Vælg en bil (live eksempel)",
+        "carSelectorBody": "Vælg en publiceret bil for at se den nøjagtige katalogrække Meta modtager, en klarhedscheckliste og klik-URL.",
+        "searchVehicles": "Søg i publicerede biler",
+        "ready": "Katalogklar",
+        "needsWork": "Mangler felter",
+        "readinessTitle": "Klarhedscheckliste",
+        "catalogRowTitle": "Katalogrække for valgt bil",
+        "copyRow": "Kopiér række-JSON",
+        "clickThroughExplain": "Når nogen trykker på bilen i en annonce eller Marketplace, åbner Meta detalje-URL’en ovenfor på Bilskyen.",
+        "tabCatalogAds": "Katalogannoncer",
+        "tabMarketplace": "Marketplace-opslag",
+        "catalogStepsTitle": "Opret katalogannoncer",
+        "catalogSteps": {
+          "1": "I Meta Commerce Manager: opret et katalog af typen <strong>Vehicles</strong>.",
+          "2": "Tilføj datakilde → Planlagt feed → indsæt din CSV-URL: <code>{feedUrl}</code>.",
+          "3": "Sæt opdateringsinterval (timevist eller dagligt) og vent til varer er godkendt.",
+          "4": "I Ads Manager: opret en Advantage+ katalog- / vehicle inventory-kampagne med dette katalog.",
+          "5": "Brug dynamisk creative, så hvert annoncekort viser en anden bil.",
+          "6": "Publicér en testannonce og klik på den valgte bil — den skal åbne Bilskyen-detalje-URL’en."
+        },
+        "catalogExample": "Eksempel: et klik på “{title}” skal åbne {url}.",
+        "marketplaceStepsTitle": "List på Facebook Marketplace",
+        "marketplaceSteps": {
+          "1": "Brug samme Vehicles-katalog og CSV-feed-URL: <code>{feedUrl}</code>.",
+          "2": "I Commerce Manager: aktivér Marketplace-distribution for kataloget (hvor det er tilgængeligt).",
+          "3": "Sørg for mindst 2 billeder, kilometer, forhandleradresse og tilstand Used/New pr. bil.",
+          "4": "Gennemgå Metas Marketplace-regler for biler og ret afviste varer.",
+          "5": "Bekræft at opslaget for den valgte bil linker til Bilskyen-detaljesiden."
+        },
+        "marketplaceExample": "Valgt eksempelbil: “{title}”. Ret fejlede checks før du forventer Marketplace-godkendelse.",
+        "troubleshootingTitle": "Fejlfinding",
+        "troubleshooting": {
+          "1": "Feed afvist: tjek påkrævede kolonner (make, model, year, mileage, image[0].url, price, url, state_of_vehicle).",
+          "2": "Manglende biler: kun publicerede biler medtages; kør Sync now under Feeds & Syndication.",
+          "3": "Forkert landingsside: hver rækkes url skal være /vehicles/{slug} for den bil.",
+          "4": "Pixel fyrer ikke: aktivér Meta Pixel under Admin → Integrations → Marketing og tillad domænet i Events Manager."
+        },
+        "readiness": {
+          "title": "Titel",
+          "make": "Mærke",
+          "model": "Model",
+          "year": "Årgang",
+          "price": "Pris",
+          "image": "Primært billede",
+          "url": "Detalje-URL",
+          "body_style": "Karrosseri",
+          "exterior_color": "Farve",
+          "mileage": "Kilometer",
+          "address": "Forhandleradresse",
+          "marketplace_images": "2+ billeder (Marketplace)"
+        },
+        "help": {
+          "page": "Guiden fører dig gennem Meta katalogannoncer og Marketplace via Bilskyens bil-CSV-feed. Vælg en bil for at se en rigtig eksempelrække og klik-URL.",
+          "overview": "Katalogannoncer er betalte lagerannoncer. Marketplace kan vise biler i Facebook Marketplace. Begge bruger samme Vehicles-katalogfeed.",
+          "prerequisites": "Du skal have Meta Business-adgang, publicerede biler med komplette data og CSV-feed-URL fra Bilskyen.",
+          "feed": "Meta henter denne URL for at synke lager. Hold feed-tokens private — alle med URL’en kan læse publiceret lager.",
+          "carSelector": "Søg i dit publicerede lager. Forhåndsvisningen bruger samme mapper som det live Meta CSV-feed.",
+          "readiness": "Grønne checks opfylder Meta-katalogkrav. Gule advarsler kan blokere Marketplace eller sænke annoncekvalitet.",
+          "catalogRow": "Dette er det nøjagtige feltsæt skrevet til Facebook-katalog-CSV for den valgte bil.",
+          "catalogSteps": "Følg trinnene i Meta Ads/Commerce Manager. Bilskyen leverer feedet; annoncer oprettes i Meta.",
+          "marketplaceSteps": "Marketplace har strengere billede- og adresseregler. Ret klarheds-advarsler på den valgte bil først.",
+          "troubleshooting": "De fleste problemer skyldes ufuldstændige bildata eller et forældet feed. Synk feeds efter bulk-ændringer."
+        }
       }
     }
   },
@@ -1941,7 +2051,7 @@
           "page": "Denne side eksporterer dit live køretøjslager til andre systemer. Feed-tokens giver sikre JSON/XML-URL'er til jeres website eller partnere. Syndikering sender automatisk lager til eksterne markedspladser, når I publicerer eller opdaterer køretøjer. Hold musen over eller tryk på ! for detaljeret vejledning. Inventory Feeds og Syndication kræver de tilsvarende funktioner på jeres abonnement.",
           "feedTokensSection": "Feed-tokens er hemmelige nøgler, der låser skrivebeskyttede eksport-URL'er op for jeres publicerede lager. Hver token genererer unikke JSON- og XML-links, I kan dele med webudvikler, prissammenligningssider eller DMS — uden at give panel-login.",
           "addToken": "Opretter et nyt feed-token og genererer nye JSON/XML-URL'er. I kan oprette flere tokens (f.eks. ét pr. website eller partner) og tilbagekalde adgang ved at slette et token. Behandl feed-URL'er som adgangskoder — alle med linket kan læse jeres publicerede lager.",
-          "feedUrls": "Brug Kopi ved JSON eller XML for at hente feed-URL'en for det token. JSON passer til moderne websites og apps; XML passer til ældre DMS-værktøjer og nogle aggregatorer. URL'erne afspejler altid jeres aktuelle publicerede køretøjer.",
+          "feedUrls": "Brug Kopiér ved JSON, XML eller CSV. CSV er til Meta Vehicles-kataloger. URL’er afspejler altid dine publicerede biler.",
           "formatJson": "JSON-format — strukturerede data, der er nemme for websites, apps og scripts at bruge. Giv denne URL til jeres udvikler eller CMS-integration.",
           "formatXml": "XML-format — bredt brugt af ældre DMS-systemer og feed-aggregatorer. Vælg XML, hvis jeres integrationsdokumentation specifikt beder om det.",
           "providersSection": "Syndikeringsudbydere sender jeres lager til eksterne salgskanaler (f.eks. Facebook Marketplace), når køretøjer publiceres eller opdateres. Aktivér kun de kanaler, I bruger, gem indstillingerne, og brug Synkroniser nu for at tvinge en øjeblikkelig opdatering.",
@@ -1949,7 +2059,8 @@
           "saveProviders": "Gemmer hvilke syndikeringskanaler der er aktiveret for jeres forhandler. Det publicerer ikke køretøjer i sig selv — det styrer kun, hvilke eksterne feeds der modtager opdateringer, når lageret ændres.",
           "syncNow": "Tvinger en øjeblikkelig synkronisering for alle aktiverede syndikeringsudbydere. Brug efter masseimport eller hvis en partner melder manglende køretøjer. Normal publicering og opdatering synkroniserer automatisk i baggrunden.",
           "recentLogs": "Viser de seneste syndikeringsforsøg pr. udbyder: succes eller fejl, tidspunkt og en kort besked. Brug det til fejlsøgning — gentagne fejl betyder ofte fejlkonfiguration hos modtageren.",
-          "logTable": "Hver række er ét synkforsøg. Succes betyder, at feedet blev genereret og leveret; Fejl betyder, at noget mislykkedes (læs beskedkolonnen). Prøv Synkroniser nu én gang, og kontakt support, hvis fejlene fortsætter."
+          "logTable": "Hver række er ét synkforsøg. Succes betyder, at feedet blev genereret og leveret; Fejl betyder, at noget mislykkedes (læs beskedkolonnen). Prøv Synkroniser nu én gang, og kontakt support, hvis fejlene fortsætter.",
+          "formatCsv": "CSV-format til Meta Vehicles-katalog (Facebook Marketplace / katalogannoncer). Indsæt denne URL i Commerce Manager."
         },
         "feedTokens": "Feed-tokens",
         "feedUrlsLabel": "Dine feed-URL'er",
@@ -1957,7 +2068,7 @@
         "providerToggleLabel": "Aktiverede kanaler",
         "logTableLabel": "Sådan læser du logtabellen",
         "addToken": "Tilføj token",
-        "noTokens": "Ingen feed-tokens endnu. Opret en for at få JSON/XML feed-URL'er.",
+        "noTokens": "Ingen feed-tokens endnu. Opret én for at få JSON/XML/CSV-feed-URL’er.",
         "providers": {
           "generic_json": {
             "name": "Generisk JSON-feed"
@@ -1988,7 +2099,10 @@
         "formatXml": "XML",
         "defaultTokenName": "Feed-token",
         "logStatusSuccess": "Succes",
-        "logStatusError": "Fejl"
+        "logStatusError": "Fejl",
+        "formatCsv": "CSV (Meta)",
+        "metaGuideBanner": "Brug Meta Ads-guiden til katalogannoncer og Marketplace med dit bil-feed.",
+        "openMetaGuide": "Åbn Meta-guide"
       },
       "tradeIn": {
         "title": "Indbytningsvurderinger",
@@ -2946,6 +3060,99 @@
       "generalSettings": {
         "title": "Generelle indstillinger",
         "placeholder": "Generelle indstillinger implementeres her"
+      },
+      "metaAdsGuide": {
+        "title": "Meta katalogannoncer & Marketplace-guide",
+        "subtitle": "Trin-for-trin guide til at vise dine biler på Facebook og Instagram via katalogannoncer eller Marketplace",
+        "helpAria": "Vis hjælp til dette afsnit",
+        "copied": "Kopieret til udklipsholder",
+        "copyFailed": "Kunne ikke kopiere",
+        "previewFailed": "Kunne ikke hente katalog-forhåndsvisning for denne bil",
+        "overviewTitle": "Hvad du kan gøre",
+        "overviewBody": "Brug det samme bilkatalog-feed til to Meta-produkter. Katalogannoncer viser biler som lagerkort i betalte annoncer; Marketplace kan vise dem i Facebook Marketplace. Et klik åbner altid bilens detaljeside på Bilskyen.",
+        "catalogAdsLabel": "Katalogannoncer (betalt)",
+        "catalogAdsBlurb": "Promover dit lager i Facebook/Instagram-annoncer. Meta viser bilkort (foto, titel, pris). Et klik åbner bilens detalje-URL på Bilskyen.",
+        "marketplaceLabel": "Marketplace-opslag",
+        "marketplaceBlurb": "List lager på Facebook Marketplace fra samme Vehicles-katalog. Kravene er strengere (billeder, adresse, kilometer).",
+        "prerequisitesTitle": "Forudsætninger",
+        "prerequisites": {
+          "1": "En Meta Business Manager-konto og adgang til Commerce Manager.",
+          "2": "Publicerede biler med titel, pris, billeder, mærke, model og årgang.",
+          "3": "Et Meta Vehicles-katalog forbundet til dit CSV-feed (vises nedenfor).",
+          "4": "Til konverteringssporing: Meta Pixel aktiveret under platform Integrations (admin)."
+        },
+        "openIntegrations": "Åbn Integrations (Pixel)",
+        "openFeeds": "Åbn Feeds & Syndication",
+        "feedTitle": "Din Meta katalog-feed-URL",
+        "feedBody": "Indsæt denne HTTPS CSV-URL i Meta Commerce Manager, når du opretter eller opdaterer et Vehicles-katalog. Meta henter den efter tidsplan.",
+        "feedMissing": "Ingen feed-URL endnu. Opret et feed-token under Feeds & Syndication, og vend tilbage hertil.",
+        "feedPlaceholder": "[din CSV-feed-URL]",
+        "pixelStatus": "Pixel {id} — {status}",
+        "pixelOn": "aktiveret",
+        "pixelOff": "deaktiveret",
+        "carSelectorTitle": "Vælg en bil (live eksempel)",
+        "carSelectorBody": "Vælg en publiceret bil for at se den nøjagtige katalogrække Meta modtager, en klarhedscheckliste og klik-URL.",
+        "searchVehicles": "Søg i publicerede biler",
+        "ready": "Katalogklar",
+        "needsWork": "Mangler felter",
+        "readinessTitle": "Klarhedscheckliste",
+        "catalogRowTitle": "Katalogrække for valgt bil",
+        "copyRow": "Kopiér række-JSON",
+        "clickThroughExplain": "Når nogen trykker på bilen i en annonce eller Marketplace, åbner Meta detalje-URL’en ovenfor på Bilskyen.",
+        "tabCatalogAds": "Katalogannoncer",
+        "tabMarketplace": "Marketplace-opslag",
+        "catalogStepsTitle": "Opret katalogannoncer",
+        "catalogSteps": {
+          "1": "I Meta Commerce Manager: opret et katalog af typen <strong>Vehicles</strong>.",
+          "2": "Tilføj datakilde → Planlagt feed → indsæt din CSV-URL: <code>{feedUrl}</code>.",
+          "3": "Sæt opdateringsinterval (timevist eller dagligt) og vent til varer er godkendt.",
+          "4": "I Ads Manager: opret en Advantage+ katalog- / vehicle inventory-kampagne med dette katalog.",
+          "5": "Brug dynamisk creative, så hvert annoncekort viser en anden bil.",
+          "6": "Publicér en testannonce og klik på den valgte bil — den skal åbne Bilskyen-detalje-URL’en."
+        },
+        "catalogExample": "Eksempel: et klik på “{title}” skal åbne {url}.",
+        "marketplaceStepsTitle": "List på Facebook Marketplace",
+        "marketplaceSteps": {
+          "1": "Brug samme Vehicles-katalog og CSV-feed-URL: <code>{feedUrl}</code>.",
+          "2": "I Commerce Manager: aktivér Marketplace-distribution for kataloget (hvor det er tilgængeligt).",
+          "3": "Sørg for mindst 2 billeder, kilometer, forhandleradresse og tilstand Used/New pr. bil.",
+          "4": "Gennemgå Metas Marketplace-regler for biler og ret afviste varer.",
+          "5": "Bekræft at opslaget for den valgte bil linker til Bilskyen-detaljesiden."
+        },
+        "marketplaceExample": "Valgt eksempelbil: “{title}”. Ret fejlede checks før du forventer Marketplace-godkendelse.",
+        "troubleshootingTitle": "Fejlfinding",
+        "troubleshooting": {
+          "1": "Feed afvist: tjek påkrævede kolonner (make, model, year, mileage, image[0].url, price, url, state_of_vehicle).",
+          "2": "Manglende biler: kun publicerede biler medtages; kør Sync now under Feeds & Syndication.",
+          "3": "Forkert landingsside: hver rækkes url skal være /vehicles/{slug} for den bil.",
+          "4": "Pixel fyrer ikke: aktivér Meta Pixel under Admin → Integrations → Marketing og tillad domænet i Events Manager."
+        },
+        "readiness": {
+          "title": "Titel",
+          "make": "Mærke",
+          "model": "Model",
+          "year": "Årgang",
+          "price": "Pris",
+          "image": "Primært billede",
+          "url": "Detalje-URL",
+          "body_style": "Karrosseri",
+          "exterior_color": "Farve",
+          "mileage": "Kilometer",
+          "address": "Forhandleradresse",
+          "marketplace_images": "2+ billeder (Marketplace)"
+        },
+        "help": {
+          "page": "Guiden fører dig gennem Meta katalogannoncer og Marketplace via Bilskyens bil-CSV-feed. Vælg en bil for at se en rigtig eksempelrække og klik-URL.",
+          "overview": "Katalogannoncer er betalte lagerannoncer. Marketplace kan vise biler i Facebook Marketplace. Begge bruger samme Vehicles-katalogfeed.",
+          "prerequisites": "Du skal have Meta Business-adgang, publicerede biler med komplette data og CSV-feed-URL fra Bilskyen.",
+          "feed": "Meta henter denne URL for at synke lager. Hold feed-tokens private — alle med URL’en kan læse publiceret lager.",
+          "carSelector": "Søg i dit publicerede lager. Forhåndsvisningen bruger samme mapper som det live Meta CSV-feed.",
+          "readiness": "Grønne checks opfylder Meta-katalogkrav. Gule advarsler kan blokere Marketplace eller sænke annoncekvalitet.",
+          "catalogRow": "Dette er det nøjagtige feltsæt skrevet til Facebook-katalog-CSV for den valgte bil.",
+          "catalogSteps": "Følg trinnene i Meta Ads/Commerce Manager. Bilskyen leverer feedet; annoncer oprettes i Meta.",
+          "marketplaceSteps": "Marketplace har strengere billede- og adresseregler. Ret klarheds-advarsler på den valgte bil først.",
+          "troubleshooting": "De fleste problemer skyldes ufuldstændige bildata eller et forældet feed. Synk feeds efter bulk-ændringer."
+        }
       }
     }
   },

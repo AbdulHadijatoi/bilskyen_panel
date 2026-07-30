@@ -446,9 +446,71 @@
             />
           </IntegrationField>
 
-          <IntegrationField :label="t('admin.views.integrations.whatsappAutoTask')" help-key="whatsappAutoTask" switch-field>
+          <IntegrationField :label="t('admin.views.integrations.whatsappAutoTask')" help-key="whatsappAutoTask" switch-field class="mb-4">
             <v-switch v-model="marketingSettings.whatsapp_auto_task" color="primary" hide-details />
           </IntegrationField>
+
+          <v-divider class="mb-4" />
+          <IntegrationTabIntro
+            :title="t('admin.views.integrations.metaSectionTitle')"
+            :help="help('metaSection')"
+          />
+
+          <IntegrationField
+            :label="t('admin.views.integrations.metaPixelEnabled')"
+            help-key="metaPixelEnabled"
+            switch-field
+            class="mb-2"
+          >
+            <v-switch v-model="marketingSettings.meta_pixel_enabled" color="primary" hide-details />
+          </IntegrationField>
+
+          <IntegrationField :label="t('admin.views.integrations.metaPixelId')" help-key="metaPixelId" class="mb-2">
+            <v-text-field
+              v-model="marketingSettings.meta_pixel_id"
+              variant="outlined"
+              density="compact"
+              hide-details
+              placeholder="123456789012345"
+            />
+          </IntegrationField>
+
+          <IntegrationField :label="t('admin.views.integrations.metaCapiAccessToken')" help-key="metaCapiAccessToken" class="mb-2">
+            <v-text-field
+              v-model="marketingSettings.meta_capi_access_token"
+              type="password"
+              variant="outlined"
+              density="compact"
+              hide-details
+              autocomplete="new-password"
+            />
+          </IntegrationField>
+
+          <IntegrationField :label="t('admin.views.integrations.metaCapiTestEventCode')" help-key="metaCapiTestEventCode" class="mb-2">
+            <v-text-field
+              v-model="marketingSettings.meta_capi_test_event_code"
+              variant="outlined"
+              density="compact"
+              hide-details
+            />
+          </IntegrationField>
+
+          <div class="d-flex flex-wrap ga-2 mt-2">
+            <v-btn size="small" color="primary" variant="tonal" :to="'/admin/meta-ads-guide'">
+              {{ t('admin.views.integrations.openMetaGuide') }}
+            </v-btn>
+            <v-btn
+              v-if="platformMetaFeedUrl"
+              size="small"
+              variant="text"
+              @click="copyPlatformFeed"
+            >
+              {{ t('admin.views.integrations.copyPlatformFeed') }}
+            </v-btn>
+          </div>
+          <p v-if="platformMetaFeedUrl" class="text-caption text-medium-emphasis mt-2 mb-0 text-break">
+            {{ platformMetaFeedUrl }}
+          </p>
         </v-card>
       </v-window-item>
 
@@ -506,7 +568,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { getIntegrations, updateIntegrations, testIntegration, testAiProvider as testAiProviderApi } from '@/api/admin.api'
+import { getIntegrations, updateIntegrations, testIntegration, testAiProvider as testAiProviderApi, getAdminMetaFeedUrl } from '@/api/admin.api'
 import { API_CONFIG } from '@/config/api'
 import PageHeader from '@/components/panel/PageHeader.vue'
 import PanelHelpHint from '@/components/panel/PanelHelpHint.vue'
@@ -535,9 +597,21 @@ const aiSettings = ref<Record<string, any>>({})
 const mediaSettings = ref<Record<string, any>>({ min_images_before_publish: 0, max_image_upload_mb: 10, watermark_enabled: false, watermark_opacity: 40 })
 const financeSettings = ref<Record<string, any>>({ calculator_enabled: true, default_rate_pct: 4.9, min_rate_pct: 2.9, max_rate_pct: 12.9, default_term_months: 60 })
 const marketplaceSettings = ref<Record<string, any>>({ trust_report_enabled: true })
-const marketingSettings = ref<Record<string, any>>({ enquiry_sequence_enabled: true, enquiry_day1_hours: 24, enquiry_day3_days: 3, abandoned_enquiry_enabled: true, abandoned_timeout_minutes: 30, whatsapp_auto_task: true })
+const marketingSettings = ref<Record<string, any>>({
+  enquiry_sequence_enabled: true,
+  enquiry_day1_hours: 24,
+  enquiry_day3_days: 3,
+  abandoned_enquiry_enabled: true,
+  abandoned_timeout_minutes: 30,
+  whatsapp_auto_task: true,
+  meta_pixel_enabled: false,
+  meta_pixel_id: '',
+  meta_capi_access_token: '',
+  meta_capi_test_event_code: '',
+})
 const complianceSettings = ref<Record<string, any>>({ gdpr_export_enabled: true, data_retention_days: 730 })
 const reputationSettings = ref<Record<string, any>>({ google_places_api_key: '' })
+const platformMetaFeedUrl = ref('')
 
 const stripeModeOptions = computed(() => [
   { title: t('admin.views.integrations.stripeModeTest'), value: 'test' },
@@ -565,11 +639,37 @@ async function load() {
     mediaSettings.value = { ...mediaSettings.value, ...normalizeGenericBools(data.media ?? {}, ['watermark_enabled']) }
     financeSettings.value = { ...financeSettings.value, ...normalizeGenericBools(data.finance ?? {}, ['calculator_enabled']) }
     marketplaceSettings.value = { ...marketplaceSettings.value, ...normalizeGenericBools(data.marketplace ?? {}, ['trust_report_enabled']) }
-    marketingSettings.value = { ...marketingSettings.value, ...normalizeGenericBools(data.marketing ?? {}, ['enquiry_sequence_enabled', 'abandoned_enquiry_enabled', 'whatsapp_auto_task']) }
+    marketingSettings.value = {
+      ...marketingSettings.value,
+      ...normalizeGenericBools(data.marketing ?? {}, [
+        'enquiry_sequence_enabled',
+        'abandoned_enquiry_enabled',
+        'whatsapp_auto_task',
+        'meta_pixel_enabled',
+      ]),
+    }
     complianceSettings.value = { ...complianceSettings.value, ...normalizeGenericBools(data.compliance ?? {}, ['gdpr_export_enabled']) }
     reputationSettings.value = { ...reputationSettings.value, ...(data.reputation ?? {}) }
+    try {
+      const feed = await getAdminMetaFeedUrl()
+      platformMetaFeedUrl.value = feed.feed_url || ''
+    } catch {
+      platformMetaFeedUrl.value = ''
+    }
   } catch {
     message.value = t('admin.views.integrations.loadFailed')
+    messageType.value = 'error'
+  }
+}
+
+async function copyPlatformFeed() {
+  if (!platformMetaFeedUrl.value) return
+  try {
+    await navigator.clipboard.writeText(platformMetaFeedUrl.value)
+    message.value = t('admin.views.integrations.feedCopied')
+    messageType.value = 'success'
+  } catch {
+    message.value = t('admin.views.integrations.feedCopyFailed')
     messageType.value = 'error'
   }
 }

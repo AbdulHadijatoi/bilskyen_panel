@@ -52,10 +52,10 @@ export const FEATURE_TEST_GUIDES: Record<string, FeatureTestGuide> = {
   dealer_trust_badge: { dealerPath: '/branding', locationKey: 'brandingDms' },
   premium_dealer_badge: { dealerPath: '/branding', locationKey: 'brandingDms' },
   inventory_feeds: { dealerPath: '/feeds-syndication', locationKey: 'feedsSyndication' },
-  syndication: { dealerPath: '/feeds-syndication', locationKey: 'feedsSyndication' },
+  syndication: { dealerPath: '/meta-ads-guide', locationKey: 'metaAdsGuide' },
   syndication_channels: { dealerPath: '/feeds-syndication', locationKey: 'feedsSyndication' },
   marketing_campaigns: { dealerPath: '/marketing', locationKey: 'marketing' },
-  retargeting: { dealerPath: '/marketing', locationKey: 'marketing' },
+  retargeting: { dealerPath: '/meta-ads-guide', locationKey: 'metaAdsGuide' },
 }
 
 export function getFeatureTestGuide(featureKey: string): FeatureTestGuide | null {

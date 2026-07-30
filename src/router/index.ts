@@ -144,6 +144,12 @@ const router = createRouter({
           meta: { requiresAuth: true, permission: 'dealer.syndication.manage' },
         },
         {
+          path: 'meta-ads-guide',
+          name: 'dealer.meta-ads-guide',
+          component: () => import('@/views/dealer/syndication/MetaAdsGuidePage.vue'),
+          meta: { requiresAuth: true, permission: 'dealer.syndication.manage' },
+        },
+        {
           path: 'trade-in',
           name: 'dealer.trade-in',
           component: () => import('@/views/dealer/trade-in/TradeInOverview.vue'),
@@ -204,6 +210,12 @@ const router = createRouter({
           path: 'integrations',
           name: 'admin.integrations',
           component: () => import('@/views/admin/integrations/IntegrationsOverview.vue'),
+        },
+        {
+          path: 'meta-ads-guide',
+          name: 'admin.meta-ads-guide',
+          component: () => import('@/views/admin/meta/MetaAdsGuidePage.vue'),
+          meta: { permission: 'admin.integrations.view' },
         },
         {
           path: 'ai/prompts',

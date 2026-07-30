@@ -35,6 +35,7 @@ const DEALER_NAV_TITLE_KEYS: Record<string, string> = {
   Analytics: 'nav.analytics',
   'Audit Logs': 'nav.auditLogs',
   'Feeds & Syndication': 'nav.feedsSyndication',
+  'Meta Ads Guide': 'nav.metaAdsGuide',
   'Trade-In': 'nav.tradeIn',
   'Branding & DMS': 'nav.brandingDms',
   Marketing: 'nav.marketing',

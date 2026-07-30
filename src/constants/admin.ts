@@ -315,6 +315,12 @@ export const adminSidebarSections: SidebarSection[] = [
         permission: 'admin.integrations.view',
       },
       {
+        title: 'Meta Ads Guide',
+        url: `${ADMIN_ROUTE_BASE}/meta-ads-guide`,
+        icon: 'mdi-facebook',
+        permission: 'admin.integrations.view',
+      },
+      {
         title: 'AI Prompt Templates',
         url: `${ADMIN_ROUTE_BASE}/ai/prompts`,
         icon: 'mdi-text-box-edit-outline',

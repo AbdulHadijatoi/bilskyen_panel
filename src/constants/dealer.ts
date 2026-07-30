@@ -130,6 +130,12 @@ export const dealerSidebarSections: SidebarSection[] = [
         permission: 'dealer.syndication.manage',
       },
       {
+        title: 'Meta Ads Guide',
+        url: `${DEALER_ROUTE_BASE}meta-ads-guide`,
+        icon: 'mdi-facebook',
+        permission: 'dealer.syndication.manage',
+      },
+      {
         title: 'Branding & DMS',
         url: `${DEALER_ROUTE_BASE}branding`,
         icon: 'mdi-palette',

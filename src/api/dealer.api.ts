@@ -2301,6 +2301,7 @@ export interface DealerFeedUrlsModel {
   name: string
   json: string
   xml: string
+  csv?: string
 }
 
 export interface DealerSyndicationProviderModel {
@@ -2365,6 +2366,38 @@ export async function syncDealerSyndicationNow(): Promise<{ synced: number }> {
     DEALER_SYNDICATION_ENDPOINTS.SYNC
   )
   return handleSuccess<any>(response)
+}
+
+export interface MetaCatalogPreview {
+  vehicle: {
+    id: number
+    title: string
+    slug: string
+    detail_url: string
+    list_status_id?: number
+    is_published?: boolean
+  }
+  row: Record<string, string>
+  readiness: Array<{ key: string; ok: boolean; label: string }>
+  ready: boolean
+  feed_url: string | null
+  has_feed_token?: boolean
+  pixel_enabled?: boolean
+  pixel_id?: string
+}
+
+export async function getDealerMetaCatalogPreview(vehicleId: number | string): Promise<MetaCatalogPreview> {
+  const response = await httpClient.get<{ data: MetaCatalogPreview }>(
+    DEALER_SYNDICATION_ENDPOINTS.META_PREVIEW(vehicleId)
+  )
+  return handleSuccess<MetaCatalogPreview>(response)
+}
+
+export async function getDealerMetaFeedUrl(): Promise<{ feed_url: string | null; has_feed_token: boolean }> {
+  const response = await httpClient.get<{ data: { feed_url: string | null; has_feed_token: boolean } }>(
+    DEALER_SYNDICATION_ENDPOINTS.META_FEED_URL
+  )
+  return handleSuccess(response)
 }
 
 export async function getTradeInRequests(page = 1): Promise<any> {

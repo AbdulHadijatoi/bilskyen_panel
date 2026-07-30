@@ -93,6 +93,8 @@ export const DEALER_FEED_ENDPOINTS = {
 export const DEALER_SYNDICATION_ENDPOINTS = {
   INDEX: '/dealer/syndication',
   SYNC: '/dealer/syndication/sync',
+  META_PREVIEW: (id: number | string) => `/dealer/syndication/meta-preview/${id}`,
+  META_FEED_URL: '/dealer/syndication/meta-feed-url',
 } as const
 
 export const DEALER_TRADE_IN_ENDPOINTS = {
@@ -186,6 +188,11 @@ export const ADMIN_SYNDICATION_ENDPOINTS = {
   SYNC_DEALER: (dealerId: number | string) => `/admin/syndication/dealers/${dealerId}/sync`,
   SFTP_TEST: '/admin/syndication/sftp/test',
   SFTP_UPLOAD: '/admin/syndication/sftp/upload',
+} as const
+
+export const ADMIN_META_CATALOG_ENDPOINTS = {
+  FEED_URL: '/admin/meta-catalog/feed-url',
+  PREVIEW: (id: number | string) => `/admin/meta-catalog/preview/${id}`,
 } as const
 
 export const ADMIN_AI_ENDPOINTS = {
