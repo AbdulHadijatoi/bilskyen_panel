@@ -13,6 +13,7 @@ import {
   ADMIN_DEALER_ENDPOINTS,
   ADMIN_INTEGRATION_ENDPOINTS,
   ADMIN_SYNDICATION_ENDPOINTS,
+  ADMIN_META_CATALOG_ENDPOINTS,
   ADMIN_AI_ENDPOINTS,
   ADMIN_VEHICLE_ENDPOINTS,
   ADMIN_LEAD_ENDPOINTS,
@@ -435,6 +436,35 @@ export async function updateIntegrations(group: string, settings: Record<string,
 export async function testIntegration(provider: string) {
   const response = await httpClient.post<{ data: any }>(ADMIN_INTEGRATION_ENDPOINTS.TEST, { provider })
   return handleSuccess<any>(response)
+}
+
+export async function getAdminMetaCatalogPreview(vehicleId: number | string): Promise<{
+  vehicle: {
+    id: number
+    title: string
+    slug: string
+    detail_url: string
+    list_status_id?: number
+    is_published?: boolean
+  }
+  row: Record<string, string>
+  readiness: Array<{ key: string; ok: boolean; label: string }>
+  ready: boolean
+  feed_url: string | null
+  pixel_enabled?: boolean
+  pixel_id?: string
+}> {
+  const response = await httpClient.get<{ data: any }>(ADMIN_META_CATALOG_ENDPOINTS.PREVIEW(vehicleId))
+  return handleSuccess(response)
+}
+
+export async function getAdminMetaFeedUrl(): Promise<{
+  feed_url: string
+  pixel_enabled?: boolean
+  pixel_id?: string
+}> {
+  const response = await httpClient.get<{ data: any }>(ADMIN_META_CATALOG_ENDPOINTS.FEED_URL)
+  return handleSuccess(response)
 }
 
 export async function getSyndicationLogs(params?: {

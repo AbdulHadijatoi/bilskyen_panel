@@ -18,7 +18,8 @@
     "viewProfile": "View Profile",
     "settings": "Settings",
     "changePassword": "Change Password",
-    "logout": "Logout"
+    "logout": "Logout",
+    "metaAdsGuide": "Meta Ads Guide"
   },
   "navSection": {
     "coreOperations": "Core Operations",
@@ -505,7 +506,8 @@
       "manageRules": "Manage Rules",
       "locations": "Locations",
       "leadStages": "Lead Stages",
-      "leads": "Leads"
+      "leads": "Leads",
+      "metaAdsGuide": "Meta Ads Guide"
     },
     "navSection": {
       "userManagement": "User Management",
@@ -1100,8 +1102,22 @@
           "dataRetentionDays": "How long inactive personal data is kept before automatic deletion or anonymisation.",
           "googlePlacesApiKey": "Google Places API key for address lookup, maps, or review widgets. Stored securely.",
           "testConnection": "Tests the active tab’s integration (e.g. Stripe webhook reachability). For AI, use the per-provider test buttons.",
-          "save": "Saves settings for the currently selected tab only."
-        }
+          "save": "Saves settings for the currently selected tab only.",
+          "metaSection": "Configure the platform Meta Pixel and Conversions API. The catalog feed URL is used for Bilskyen-wide Vehicles catalog ads.",
+          "metaPixelEnabled": "When enabled, Meta Pixel loads on the public site and tracks PageView, ViewContent, and Lead.",
+          "metaPixelId": "Pixel ID from Meta Events Manager. Required for browser and server events.",
+          "metaCapiAccessToken": "Server access token for Conversions API. Stored encrypted. Leave as ******** to keep the existing secret.",
+          "metaCapiTestEventCode": "Optional test code from Events Manager Test Events while verifying CAPI."
+        },
+        "metaSectionTitle": "Meta Pixel & catalog",
+        "metaPixelEnabled": "Meta Pixel enabled",
+        "metaPixelId": "Meta Pixel ID",
+        "metaCapiAccessToken": "Conversions API access token",
+        "metaCapiTestEventCode": "CAPI test event code (optional)",
+        "openMetaGuide": "Open Meta guide",
+        "copyPlatformFeed": "Copy platform catalog URL",
+        "feedCopied": "Platform feed URL copied",
+        "feedCopyFailed": "Could not copy feed URL"
       },
       "vehicleDetail": {
         "title": "Vehicle Details",
@@ -1292,7 +1308,8 @@
           "syndication": "Enable syndication export and confirm partner feed updates.",
           "syndication_channels": "Add or edit multiple syndication channels in settings.",
           "marketing_campaigns": "Create a draft campaign in Marketing.",
-          "retargeting": "Configure retargeting pixel/script in Marketing settings."
+          "retargeting": "Configure retargeting pixel/script in Marketing settings.",
+          "metaAdsGuide": "Open the Meta guide in the dealer panel to verify the catalog flow."
         }
       },
       "subscriptions": {
@@ -1788,6 +1805,99 @@
         "failedCreatePage": "Failed to create page",
         "failedDelete": "Failed to delete page",
         "confirmDelete": "Are you sure you want to delete this page?"
+      },
+      "metaAdsGuide": {
+        "title": "Meta Catalog Ads & Marketplace Guide",
+        "subtitle": "Guide for the Bilskyen platform catalog and Meta Pixel for Catalog Ads and Marketplace",
+        "helpAria": "Show help for this section",
+        "copied": "Copied to clipboard",
+        "copyFailed": "Could not copy",
+        "previewFailed": "Could not load catalog preview for this vehicle",
+        "overviewTitle": "What you can do",
+        "overviewBody": "Use the same vehicle catalog feed for two Meta products. Catalog Ads show cars as inventory cards in paid ads; Marketplace listing can show them in Facebook Marketplace. A click always opens your Bilskyen car detail page.",
+        "catalogAdsLabel": "Catalog Ads (paid)",
+        "catalogAdsBlurb": "Promote your inventory in Facebook/Instagram ads. Meta shows car cards (photo, title, price). Clicking a car opens that car’s detail URL on Bilskyen.",
+        "marketplaceLabel": "Marketplace listing",
+        "marketplaceBlurb": "List inventory on Facebook Marketplace from the same Vehicles catalog. Requirements are stricter (images, address, mileage).",
+        "prerequisitesTitle": "Prerequisites",
+        "prerequisites": {
+          "1": "A Meta Business Manager account and access to Commerce Manager.",
+          "2": "Published vehicles with title, price, images, make, model, and year.",
+          "3": "A Meta Vehicles catalog connected to your catalog CSV feed URL (shown below).",
+          "4": "For conversion tracking: Meta Pixel enabled in platform Integrations (admin)."
+        },
+        "openIntegrations": "Open Integrations (Pixel)",
+        "openFeeds": "Open Feeds & Syndication",
+        "feedTitle": "Your Meta catalog feed URL",
+        "feedBody": "Paste this HTTPS CSV URL into Meta Commerce Manager when creating or updating a Vehicles catalog. Meta will fetch it on a schedule.",
+        "feedMissing": "Platform feed URL is generated automatically. Reload this page, or open Integrations → Marketing.",
+        "feedPlaceholder": "[your CSV feed URL]",
+        "pixelStatus": "Pixel {id} — {status}",
+        "pixelOn": "enabled",
+        "pixelOff": "disabled",
+        "carSelectorTitle": "Select a car (live example)",
+        "carSelectorBody": "Pick a published vehicle to see the exact catalog row Meta will receive, a readiness checklist, and how the click-through URL looks.",
+        "searchVehicles": "Search published vehicles",
+        "ready": "Catalog ready",
+        "needsWork": "Needs fields",
+        "readinessTitle": "Readiness checklist",
+        "catalogRowTitle": "Catalog row for selected car",
+        "copyRow": "Copy row JSON",
+        "clickThroughExplain": "When someone taps this car in an ad or Marketplace, Meta opens the detail URL above on Bilskyen.",
+        "tabCatalogAds": "Catalog Ads",
+        "tabMarketplace": "Marketplace listing",
+        "catalogStepsTitle": "Create Catalog Ads",
+        "catalogSteps": {
+          "1": "In Meta Commerce Manager, create a catalog of type <strong>Vehicles</strong>.",
+          "2": "Add a data source → Scheduled feed → paste your CSV URL: <code>{feedUrl}</code>.",
+          "3": "Set refresh interval (hourly or daily) and wait until items are approved.",
+          "4": "In Ads Manager, create an Advantage+ catalog / vehicle inventory campaign using this catalog.",
+          "5": "Use dynamic creative so each ad card shows a different car from the catalog.",
+          "6": "Publish a test ad and click the selected car — it must open the Bilskyen detail URL."
+        },
+        "catalogExample": "Example: tapping “{title}” should open {url}.",
+        "marketplaceStepsTitle": "List on Facebook Marketplace",
+        "marketplaceSteps": {
+          "1": "Use the same Vehicles catalog and CSV feed URL: <code>{feedUrl}</code>.",
+          "2": "In Commerce Manager, enable Marketplace distribution for the catalog (where available in your region).",
+          "3": "Ensure each vehicle has at least 2 images, mileage, dealer address, and state Used/New.",
+          "4": "Review Meta’s Marketplace vehicle policies and fix any rejected items.",
+          "5": "Confirm the listing for your selected car links to the Bilskyen detail page."
+        },
+        "marketplaceExample": "Selected example vehicle: “{title}”. Fix any failed readiness checks before expecting Marketplace approval.",
+        "troubleshootingTitle": "Troubleshooting",
+        "troubleshooting": {
+          "1": "Feed rejected: check required columns (make, model, year, mileage, image[0].url, price, url, state_of_vehicle).",
+          "2": "Missing cars: only published vehicles are included; run Sync now on Feeds & Syndication.",
+          "3": "Wrong landing page: each row’s url must be /vehicles/{slug} for that car.",
+          "4": "Pixel not firing: enable Meta Pixel in Admin → Integrations → Marketing and allow the domain in Events Manager."
+        },
+        "readiness": {
+          "title": "Title",
+          "make": "Make",
+          "model": "Model",
+          "year": "Year",
+          "price": "Price",
+          "image": "Primary image",
+          "url": "Detail URL",
+          "body_style": "Body style",
+          "exterior_color": "Exterior color",
+          "mileage": "Mileage",
+          "address": "Dealer address",
+          "marketplace_images": "2+ images (Marketplace)"
+        },
+        "help": {
+          "page": "This guide walks you through Meta Catalog Ads and Marketplace listing using Bilskyen’s vehicle CSV feed. Select a car to see a real example row and click-through URL.",
+          "overview": "Catalog Ads are paid inventory ads. Marketplace listing can appear in Facebook Marketplace. Both use the same Vehicles catalog feed.",
+          "prerequisites": "You need Meta Business access, published cars with complete data, and the CSV feed URL from Bilskyen.",
+          "feed": "Meta fetches this URL to sync inventory. Keep feed tokens private — anyone with the URL can read published stock.",
+          "carSelector": "Search your published stock. The preview uses the same mapper as the live Meta CSV feed.",
+          "readiness": "Green checks meet Meta catalog requirements. Yellow warnings may block Marketplace or reduce ad quality.",
+          "catalogRow": "This is the exact field set written into the Facebook catalog CSV for the selected vehicle.",
+          "catalogSteps": "Follow these steps in Meta Ads/Commerce Manager. Bilskyen provides the feed; ads are created in Meta.",
+          "marketplaceSteps": "Marketplace has stricter image and address rules. Fix readiness warnings on the selected car first.",
+          "troubleshooting": "Most issues are incomplete vehicle data or an outdated feed. Sync feeds after bulk edits."
+        }
       }
     }
   },
@@ -1941,7 +2051,7 @@
           "page": "This page exports your live vehicle inventory to other systems. Feed tokens provide secure JSON/XML URLs for your website or partners. Syndication automatically pushes stock to external marketplaces when you publish or update vehicles. Hover or tap the ! buttons for detailed guidance. Inventory Feeds and Syndication require the matching features on your subscription plan.",
           "feedTokensSection": "Feed tokens are secret keys that unlock read-only export URLs for your published stock. Each token generates unique JSON and XML links you can share with your web developer, price-comparison sites, or DMS — without giving them panel login access.",
           "addToken": "Creates a new feed token and generates fresh JSON/XML URLs. You can create multiple tokens (e.g. one per website or partner) and revoke access anytime by deleting a token. Treat feed URLs like passwords — anyone with the link can read your published inventory.",
-          "feedUrls": "Use Copy next to JSON or XML to grab the feed URL for that token. JSON suits modern websites and apps; XML suits older DMS tools and some aggregators. URLs always reflect your current published vehicles.",
+          "feedUrls": "Use Copy next to JSON, XML, or CSV. CSV is for Meta Vehicles catalogs. URLs always reflect your current published vehicles.",
           "formatJson": "JSON format — structured data that is easy for websites, apps, and scripts to consume. Give this URL to your developer or CMS integration.",
           "formatXml": "XML format — widely used by legacy DMS systems and feed aggregators. Choose XML if your integration documentation specifically requests it.",
           "providersSection": "Syndication providers send your inventory to external sales channels (e.g. Facebook Marketplace) when vehicles are published or updated. Enable only the channels you use, save your settings, and use Sync now to force an immediate refresh.",
@@ -1949,7 +2059,8 @@
           "saveProviders": "Saves which syndication channels are enabled for your dealership. This does not publish vehicles by itself — it only controls which external feeds receive updates when your stock changes.",
           "syncNow": "Forces an immediate sync for all enabled syndication providers. Use after bulk imports or if a partner reports missing vehicles. Normal publish and update actions sync automatically in the background.",
           "recentLogs": "Shows the latest syndication attempts per provider: success or error, time, and a short message. Use this to troubleshoot partner feed issues — repeated errors often mean a misconfiguration on the receiving side.",
-          "logTable": "Each row is one sync attempt. Success means the feed was generated and delivered; Error means something failed (read the message column). Try Sync now once, then contact support if errors continue."
+          "logTable": "Each row is one sync attempt. Success means the feed was generated and delivered; Error means something failed (read the message column). Try Sync now once, then contact support if errors continue.",
+          "formatCsv": "CSV format for Meta Vehicles catalogs (Marketplace / Catalog Ads). Paste this URL into Commerce Manager."
         },
         "feedTokens": "Feed tokens",
         "feedUrlsLabel": "Your feed URLs",
@@ -1957,7 +2068,7 @@
         "providerToggleLabel": "Enabled channels",
         "logTableLabel": "Reading the log table",
         "addToken": "Add token",
-        "noTokens": "No feed tokens yet. Create one to get JSON/XML feed URLs.",
+        "noTokens": "No feed tokens yet. Create one to get JSON/XML/CSV feed URLs.",
         "providers": {
           "generic_json": {
             "name": "Generic JSON feed"
@@ -1988,7 +2099,10 @@
         "formatXml": "XML",
         "defaultTokenName": "Feed token",
         "logStatusSuccess": "Success",
-        "logStatusError": "Error"
+        "logStatusError": "Error",
+        "formatCsv": "CSV (Meta)",
+        "metaGuideBanner": "Use the Meta Ads Guide for Catalog Ads and Marketplace with your vehicle feed.",
+        "openMetaGuide": "Open Meta guide"
       },
       "tradeIn": {
         "title": "Trade-In Appraisals",
@@ -2946,6 +3060,99 @@
       "generalSettings": {
         "title": "General Settings",
         "placeholder": "General settings form will be implemented here"
+      },
+      "metaAdsGuide": {
+        "title": "Meta Catalog Ads & Marketplace Guide",
+        "subtitle": "Step-by-step guide to list your vehicles on Facebook and Instagram with Catalog Ads or Marketplace",
+        "helpAria": "Show help for this section",
+        "copied": "Copied to clipboard",
+        "copyFailed": "Could not copy",
+        "previewFailed": "Could not load catalog preview for this vehicle",
+        "overviewTitle": "What you can do",
+        "overviewBody": "Use the same vehicle catalog feed for two Meta products. Catalog Ads show cars as inventory cards in paid ads; Marketplace listing can show them in Facebook Marketplace. A click always opens your Bilskyen car detail page.",
+        "catalogAdsLabel": "Catalog Ads (paid)",
+        "catalogAdsBlurb": "Promote your inventory in Facebook/Instagram ads. Meta shows car cards (photo, title, price). Clicking a car opens that car’s detail URL on Bilskyen.",
+        "marketplaceLabel": "Marketplace listing",
+        "marketplaceBlurb": "List inventory on Facebook Marketplace from the same Vehicles catalog. Requirements are stricter (images, address, mileage).",
+        "prerequisitesTitle": "Prerequisites",
+        "prerequisites": {
+          "1": "A Meta Business Manager account and access to Commerce Manager.",
+          "2": "Published vehicles with title, price, images, make, model, and year.",
+          "3": "A Meta Vehicles catalog connected to your catalog CSV feed URL (shown below).",
+          "4": "For conversion tracking: Meta Pixel enabled in platform Integrations (admin)."
+        },
+        "openIntegrations": "Open Integrations (Pixel)",
+        "openFeeds": "Open Feeds & Syndication",
+        "feedTitle": "Your Meta catalog feed URL",
+        "feedBody": "Paste this HTTPS CSV URL into Meta Commerce Manager when creating or updating a Vehicles catalog. Meta will fetch it on a schedule.",
+        "feedMissing": "No feed URL yet. Create a feed token on Feeds & Syndication, then return here.",
+        "feedPlaceholder": "[your CSV feed URL]",
+        "pixelStatus": "Pixel {id} — {status}",
+        "pixelOn": "enabled",
+        "pixelOff": "disabled",
+        "carSelectorTitle": "Select a car (live example)",
+        "carSelectorBody": "Pick a published vehicle to see the exact catalog row Meta will receive, a readiness checklist, and how the click-through URL looks.",
+        "searchVehicles": "Search published vehicles",
+        "ready": "Catalog ready",
+        "needsWork": "Needs fields",
+        "readinessTitle": "Readiness checklist",
+        "catalogRowTitle": "Catalog row for selected car",
+        "copyRow": "Copy row JSON",
+        "clickThroughExplain": "When someone taps this car in an ad or Marketplace, Meta opens the detail URL above on Bilskyen.",
+        "tabCatalogAds": "Catalog Ads",
+        "tabMarketplace": "Marketplace listing",
+        "catalogStepsTitle": "Create Catalog Ads",
+        "catalogSteps": {
+          "1": "In Meta Commerce Manager, create a catalog of type <strong>Vehicles</strong>.",
+          "2": "Add a data source → Scheduled feed → paste your CSV URL: <code>{feedUrl}</code>.",
+          "3": "Set refresh interval (hourly or daily) and wait until items are approved.",
+          "4": "In Ads Manager, create an Advantage+ catalog / vehicle inventory campaign using this catalog.",
+          "5": "Use dynamic creative so each ad card shows a different car from the catalog.",
+          "6": "Publish a test ad and click the selected car — it must open the Bilskyen detail URL."
+        },
+        "catalogExample": "Example: tapping “{title}” should open {url}.",
+        "marketplaceStepsTitle": "List on Facebook Marketplace",
+        "marketplaceSteps": {
+          "1": "Use the same Vehicles catalog and CSV feed URL: <code>{feedUrl}</code>.",
+          "2": "In Commerce Manager, enable Marketplace distribution for the catalog (where available in your region).",
+          "3": "Ensure each vehicle has at least 2 images, mileage, dealer address, and state Used/New.",
+          "4": "Review Meta’s Marketplace vehicle policies and fix any rejected items.",
+          "5": "Confirm the listing for your selected car links to the Bilskyen detail page."
+        },
+        "marketplaceExample": "Selected example vehicle: “{title}”. Fix any failed readiness checks before expecting Marketplace approval.",
+        "troubleshootingTitle": "Troubleshooting",
+        "troubleshooting": {
+          "1": "Feed rejected: check required columns (make, model, year, mileage, image[0].url, price, url, state_of_vehicle).",
+          "2": "Missing cars: only published vehicles are included; run Sync now on Feeds & Syndication.",
+          "3": "Wrong landing page: each row’s url must be /vehicles/{slug} for that car.",
+          "4": "Pixel not firing: enable Meta Pixel in Admin → Integrations → Marketing and allow the domain in Events Manager."
+        },
+        "readiness": {
+          "title": "Title",
+          "make": "Make",
+          "model": "Model",
+          "year": "Year",
+          "price": "Price",
+          "image": "Primary image",
+          "url": "Detail URL",
+          "body_style": "Body style",
+          "exterior_color": "Exterior color",
+          "mileage": "Mileage",
+          "address": "Dealer address",
+          "marketplace_images": "2+ images (Marketplace)"
+        },
+        "help": {
+          "page": "This guide walks you through Meta Catalog Ads and Marketplace listing using Bilskyen’s vehicle CSV feed. Select a car to see a real example row and click-through URL.",
+          "overview": "Catalog Ads are paid inventory ads. Marketplace listing can appear in Facebook Marketplace. Both use the same Vehicles catalog feed.",
+          "prerequisites": "You need Meta Business access, published cars with complete data, and the CSV feed URL from Bilskyen.",
+          "feed": "Meta fetches this URL to sync inventory. Keep feed tokens private — anyone with the URL can read published stock.",
+          "carSelector": "Search your published stock. The preview uses the same mapper as the live Meta CSV feed.",
+          "readiness": "Green checks meet Meta catalog requirements. Yellow warnings may block Marketplace or reduce ad quality.",
+          "catalogRow": "This is the exact field set written into the Facebook catalog CSV for the selected vehicle.",
+          "catalogSteps": "Follow these steps in Meta Ads/Commerce Manager. Bilskyen provides the feed; ads are created in Meta.",
+          "marketplaceSteps": "Marketplace has stricter image and address rules. Fix readiness warnings on the selected car first.",
+          "troubleshooting": "Most issues are incomplete vehicle data or an outdated feed. Sync feeds after bulk edits."
+        }
       }
     }
   },
