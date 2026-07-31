@@ -228,6 +228,11 @@ const router = createRouter({
           component: () => import('@/views/admin/ai/AiUsageLogs.vue'),
         },
         {
+          path: 'system-settings',
+          name: 'admin.system-settings',
+          component: () => import('@/views/admin/system-settings/SystemSettings.vue'),
+        },
+        {
           path: 'vehicles',
           name: 'admin.vehicles',
           component: () => import('@/views/admin/vehicles/VehiclesOverview.vue'),

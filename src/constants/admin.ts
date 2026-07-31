@@ -337,6 +337,11 @@ export const adminSidebarSections: SidebarSection[] = [
         icon: 'mdi-chart-timeline-variant',
         permission: 'admin.ai.view',
       },
+      {
+        title: 'System Settings',
+        url: `${ADMIN_ROUTE_BASE}/system-settings`,
+        icon: 'mdi-cog-outline',
+      },
     ],
   },
 ]

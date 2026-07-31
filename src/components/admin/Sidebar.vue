@@ -70,6 +70,7 @@ const ADMIN_NAV_TITLE_KEYS: Record<string, string> = {
   'Manage Rules': 'admin.nav.manageRules',
   Locations: 'admin.nav.locations',
   'Lead Stages': 'admin.nav.leadStages',
+  'System Settings': 'admin.nav.systemSettings',
 }
 
 const filteredSidebarSections = computed(() =>

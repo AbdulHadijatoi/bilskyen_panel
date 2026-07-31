@@ -30,7 +30,7 @@
       "account": "Konto",
       "profile": "Profil",
       "platform": "Platform",
-      "localization": "Sprog"
+      "localization": "Systemindstillinger"
     },
     "platform": {
       "localizationTitle": "Sprog",
@@ -40,7 +40,7 @@
       "faqTitle": "Hjælp & FAQ",
       "faqDescription": "Styr den offentlige FAQ-hjælpeside og AI-chatbotten på siden (bruger AI-udbydere aktiveret under Integrationer).",
       "faqPageEnabled": "FAQ / hjælpeside",
-      "faqPageHint": "Når aktiveret, er /faq offentlig og linket fra navigation og footer. Admins redigerer indhold under Sider → FAQ-sideindhold.",
+      "faqPageHint": "Når aktiveret, er /faq offentlig og linket fra footeren. Admins redigerer indhold under Sider → FAQ-sideindhold.",
       "faqChatbotEnabled": "FAQ-chatbot",
       "faqChatbotHint": "Når aktiveret, vises en chat-widget på FAQ-siden og svarer ud fra FAQ-indhold via den aktive AI-udbyder under Integrationer.",
       "saved": "Indstillinger gemt.",
@@ -514,7 +514,8 @@
       "locations": "Lokationer",
       "leadStages": "Lead-faser",
       "leads": "Leads",
-      "metaAdsGuide": "Meta-annoncer guide"
+      "metaAdsGuide": "Meta-annoncer guide",
+      "systemSettings": "Systemindstillinger"
     },
     "navSection": {
       "userManagement": "Brugeradministration",
@@ -522,7 +523,7 @@
       "subscriptions": "Abonnementer",
       "analyticsLogs": "Analyser og log",
       "settings": "Indstillinger",
-      "localization": "Lokalisering"
+      "localization": "Systemindstillinger"
     },
     "breadcrumb": {
       "dashboard": "Dashboard",
@@ -906,6 +907,10 @@
         "colStatus": "Status",
         "colError": "Fejl",
         "loadMore": "Indlæs flere"
+      },
+      "systemSettings": {
+        "title": "Systemindstillinger",
+        "subtitle": "Platformindstillinger for sprog, FAQ og andre offentlige funktioner."
       },
       "integrations": {
         "title": "Integrationer",
