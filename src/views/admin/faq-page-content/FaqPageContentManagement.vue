@@ -242,34 +242,42 @@ function moveSection(index: number, delta: number) {
   const target = index + delta
   if (target < 0 || target >= sections.value.length) return
   const copy = [...sections.value]
-  const [item] = copy.splice(index, 1)
-  copy.splice(target, 0, item)
+  const moved = copy.splice(index, 1)[0]
+  if (!moved) return
+  copy.splice(target, 0, moved)
   sections.value = copy
   reindexSections()
 }
 
 function addItem(sectionIndex: number) {
-  sections.value[sectionIndex].items.push({
+  const section = sections.value[sectionIndex]
+  if (!section) return
+  section.items.push({
     id: newId('faq'),
     question: '',
     answer: '',
-    order: sections.value[sectionIndex].items.length,
+    order: section.items.length,
   })
 }
 
 function removeItem(sectionIndex: number, itemIndex: number) {
-  sections.value[sectionIndex].items.splice(itemIndex, 1)
+  const section = sections.value[sectionIndex]
+  if (!section) return
+  section.items.splice(itemIndex, 1)
   reindexItems(sectionIndex)
 }
 
 function moveItem(sectionIndex: number, itemIndex: number, delta: number) {
-  const items = sections.value[sectionIndex].items
+  const section = sections.value[sectionIndex]
+  if (!section) return
+  const items = section.items
   const target = itemIndex + delta
   if (target < 0 || target >= items.length) return
   const copy = [...items]
-  const [item] = copy.splice(itemIndex, 1)
-  copy.splice(target, 0, item)
-  sections.value[sectionIndex].items = copy
+  const moved = copy.splice(itemIndex, 1)[0]
+  if (!moved) return
+  copy.splice(target, 0, moved)
+  section.items = copy
   reindexItems(sectionIndex)
 }
 
@@ -280,7 +288,9 @@ function reindexSections() {
 }
 
 function reindexItems(sectionIndex: number) {
-  sections.value[sectionIndex].items.forEach((item, i) => {
+  const section = sections.value[sectionIndex]
+  if (!section) return
+  section.items.forEach((item, i) => {
     item.order = i
   })
 }
