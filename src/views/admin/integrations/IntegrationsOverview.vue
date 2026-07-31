@@ -141,7 +141,7 @@
           </div>
 
           <v-row>
-            <v-col cols="12" md="4">
+            <v-col cols="12" md="6" lg="3">
               <IntegrationField :label="t('admin.views.integrations.openai')" help-key="openai" switch-field class="mb-2">
                 <v-switch v-model="aiSettings.openai_enabled" color="primary" hide-details />
               </IntegrationField>
@@ -159,7 +159,7 @@
               </IntegrationField>
             </v-col>
 
-            <v-col cols="12" md="4">
+            <v-col cols="12" md="6" lg="3">
               <IntegrationField :label="t('admin.views.integrations.anthropic')" help-key="anthropic" switch-field class="mb-2">
                 <v-switch v-model="aiSettings.anthropic_enabled" color="primary" hide-details />
               </IntegrationField>
@@ -177,7 +177,7 @@
               </IntegrationField>
             </v-col>
 
-            <v-col cols="12" md="4">
+            <v-col cols="12" md="6" lg="3">
               <IntegrationField :label="t('admin.views.integrations.googleGemini')" help-key="googleGemini" switch-field class="mb-2">
                 <v-switch v-model="aiSettings.gemini_enabled" color="primary" hide-details />
               </IntegrationField>
@@ -192,6 +192,24 @@
               </IntegrationField>
               <IntegrationField :label="t('admin.views.integrations.geminiModel')" help-key="geminiModel">
                 <v-text-field v-model="aiSettings.gemini_model" variant="outlined" density="compact" hide-details />
+              </IntegrationField>
+            </v-col>
+
+            <v-col cols="12" md="6" lg="3">
+              <IntegrationField :label="t('admin.views.integrations.deepseek')" help-key="deepseek" switch-field class="mb-2">
+                <v-switch v-model="aiSettings.deepseek_enabled" color="primary" hide-details />
+              </IntegrationField>
+              <IntegrationField :label="t('admin.views.integrations.deepseekApiKey')" help-key="deepseekApiKey" class="mb-2">
+                <v-text-field
+                  v-model="aiSettings.deepseek_api_key"
+                  type="password"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                />
+              </IntegrationField>
+              <IntegrationField :label="t('admin.views.integrations.deepseekModel')" help-key="deepseekModel">
+                <v-text-field v-model="aiSettings.deepseek_model" variant="outlined" density="compact" hide-details />
               </IntegrationField>
             </v-col>
           </v-row>
@@ -256,6 +274,12 @@
                 {{ t('admin.views.integrations.testGemini') }}
               </v-btn>
               <PanelHelpHint :text="help('testGemini')" size="sm" :aria-label="t('admin.views.integrations.helpAria')" />
+            </span>
+            <span class="integrations-action-with-help">
+              <v-btn variant="outlined" size="small" :loading="testingProvider === 'deepseek'" @click="testAiProvider('deepseek')">
+                {{ t('admin.views.integrations.testDeepseek') }}
+              </v-btn>
+              <PanelHelpHint :text="help('testDeepseek')" size="sm" :aria-label="t('admin.views.integrations.helpAria')" />
             </span>
           </div>
 
@@ -692,7 +716,7 @@ function normalizePaymentBools(obj: Record<string, any>) {
 
 function normalizeAiBools(obj: Record<string, any>) {
   const out = { ...obj }
-  for (const key of ['openai_enabled', 'anthropic_enabled', 'gemini_enabled']) {
+  for (const key of ['openai_enabled', 'anthropic_enabled', 'gemini_enabled', 'deepseek_enabled']) {
     if (out[key] === 'true' || out[key] === true) out[key] = true
     if (out[key] === 'false' || out[key] === false) out[key] = false
   }
@@ -803,7 +827,7 @@ async function testConnection() {
   }
 }
 
-async function testAiProvider(provider: 'openai' | 'anthropic' | 'gemini') {
+async function testAiProvider(provider: 'openai' | 'anthropic' | 'gemini' | 'deepseek') {
   testingProvider.value = provider
   message.value = ''
   try {
