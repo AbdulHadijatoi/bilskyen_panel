@@ -37,9 +37,15 @@
       "localizationDescription": "Control language options shown on the public marketplace and in the panel.",
       "languageSwitcherEnabled": "Language switcher (public site & panel)",
       "languageSwitcherHint": "When enabled, users can switch between Danish and English on the Laravel marketplace and in the dealer, staff, and admin panel.",
-      "saved": "Localization settings saved.",
-      "saveFailed": "Could not save localization settings.",
-      "loadFailed": "Could not load localization settings."
+      "faqTitle": "Help & FAQ",
+      "faqDescription": "Control the public FAQ help page and the on-page AI chatbot (uses AI providers enabled under Integrations).",
+      "faqPageEnabled": "FAQ / Help page",
+      "faqPageHint": "When enabled, /faq is public and linked from the site navigation and footer. Admins edit content under Pages → FAQ Page Content.",
+      "faqChatbotEnabled": "FAQ chatbot",
+      "faqChatbotHint": "When enabled, a chat widget appears on the FAQ page and answers using FAQ content via the active AI provider in Integrations.",
+      "saved": "Settings saved.",
+      "saveFailed": "Could not save settings.",
+      "loadFailed": "Could not load settings."
     }
   },
   "subscription": {
@@ -477,6 +483,7 @@
       "termsPageContent": "Terms Page Content",
       "loginPageContent": "Login Page Content",
       "pricingPageContent": "Pricing Page Content",
+      "faqPageContent": "FAQ Page Content",
       "socialLinks": "Social Links",
       "seoContent": "SEO Content",
       "featuredVehicles": "Featured Vehicles",
@@ -531,6 +538,7 @@
       "termsPageContent": "Terms Page Content",
       "loginPageContent": "Login Page Content",
       "pricingPageContent": "Pricing Page Content",
+      "faqPageContent": "FAQ Page Content",
       "socialLinks": "Social Links",
       "seoContent": "SEO Content",
       "featuredVehicles": "Featured Vehicles",
@@ -795,6 +803,24 @@
         "successMessage": "Pricing page content updated successfully!",
         "failedLoad": "Failed to load pricing page content",
         "failedSave": "Failed to save pricing page content"
+      },
+      "faqPageContent": {
+        "title": "FAQ Page Content",
+        "description": "Edit the public /faq help page: header copy, sections, and Q&A items. The on-page chatbot uses this content when enabled.",
+        "saveChanges": "Save Changes",
+        "headerTitle": "Page title",
+        "headerDescription": "Page subtitle",
+        "sections": "Sections",
+        "addSection": "Add section",
+        "sectionTitle": "Section title",
+        "deleteSection": "Delete section",
+        "faqItems": "FAQ items",
+        "addFaq": "Add question",
+        "question": "Question",
+        "answer": "Answer",
+        "successMessage": "FAQ page content updated successfully!",
+        "failedLoad": "Failed to load FAQ page content",
+        "failedSave": "Failed to save FAQ page content"
       },
       "socialLinks": {
         "title": "Social Links Management",

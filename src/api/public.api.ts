@@ -192,6 +192,8 @@ export async function getPublicPlans(): Promise<{ plans: PublicPlanModel[]; max_
 
 export interface PlatformUiSettings {
   language_switcher_enabled: boolean
+  faq_page_enabled?: boolean
+  faq_chatbot_enabled?: boolean
 }
 
 export async function getPlatformUiSettings(): Promise<PlatformUiSettings> {

@@ -338,6 +338,11 @@ const router = createRouter({
           component: () => import('@/views/admin/pricing-page-content/PricingPageContentManagement.vue'),
         },
         {
+          path: 'pages/faq-page-content',
+          name: 'admin.faq-page-content',
+          component: () => import('@/views/admin/faq-page-content/FaqPageContentManagement.vue'),
+        },
+        {
           path: 'pages/social-links',
           name: 'admin.social-links',
           component: () => import('@/views/admin/social-links/SocialLinksManagement.vue'),

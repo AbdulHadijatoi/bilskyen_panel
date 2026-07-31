@@ -37,9 +37,15 @@
       "localizationDescription": "Styr sprogvalg på den offentlige markedsplads og i panelet.",
       "languageSwitcherEnabled": "Sprogvælger (offentlig side og panel)",
       "languageSwitcherHint": "Når aktiveret, kan brugere skifte mellem dansk og engelsk på Laravel-markedspladsen og i forhandler-, medarbejder- og admin-panelet.",
-      "saved": "Sprogindstillinger gemt.",
-      "saveFailed": "Kunne ikke gemme sprogindstillinger.",
-      "loadFailed": "Kunne ikke indlæse sprogindstillinger."
+      "faqTitle": "Hjælp & FAQ",
+      "faqDescription": "Styr den offentlige FAQ-hjælpeside og AI-chatbotten på siden (bruger AI-udbydere aktiveret under Integrationer).",
+      "faqPageEnabled": "FAQ / hjælpeside",
+      "faqPageHint": "Når aktiveret, er /faq offentlig og linket fra navigation og footer. Admins redigerer indhold under Sider → FAQ-sideindhold.",
+      "faqChatbotEnabled": "FAQ-chatbot",
+      "faqChatbotHint": "Når aktiveret, vises en chat-widget på FAQ-siden og svarer ud fra FAQ-indhold via den aktive AI-udbyder under Integrationer.",
+      "saved": "Indstillinger gemt.",
+      "saveFailed": "Kunne ikke gemme indstillinger.",
+      "loadFailed": "Kunne ikke indlæse indstillinger."
     }
   },
   "subscription": {
@@ -477,6 +483,7 @@
       "termsPageContent": "Vilkår sideindhold",
       "loginPageContent": "Login sideindhold",
       "pricingPageContent": "Prissideindhold",
+      "faqPageContent": "FAQ-sideindhold",
       "socialLinks": "Sociale links",
       "seoContent": "SEO-indhold",
       "featuredVehicles": "Fremhævede køretøjer",
@@ -531,6 +538,7 @@
       "termsPageContent": "Vilkår sideindhold",
       "loginPageContent": "Login sideindhold",
       "pricingPageContent": "Prissideindhold",
+      "faqPageContent": "FAQ-sideindhold",
       "socialLinks": "Sociale links",
       "seoContent": "SEO-indhold",
       "featuredVehicles": "Fremhævede køretøjer",
@@ -795,6 +803,24 @@
         "successMessage": "Prissideindhold opdateret!",
         "failedLoad": "Kunne ikke indlæse prissideindhold",
         "failedSave": "Kunne ikke gemme prissideindhold"
+      },
+      "faqPageContent": {
+        "title": "FAQ-sideindhold",
+        "description": "Rediger den offentlige /faq hjælpeside: header, sektioner og Q&A. Chatbotten bruger dette indhold, når den er aktiveret.",
+        "saveChanges": "Gem ændringer",
+        "headerTitle": "Sidetitel",
+        "headerDescription": "Undertitel",
+        "sections": "Sektioner",
+        "addSection": "Tilføj sektion",
+        "sectionTitle": "Sektionstitel",
+        "deleteSection": "Slet sektion",
+        "faqItems": "FAQ-elementer",
+        "addFaq": "Tilføj spørgsmål",
+        "question": "Spørgsmål",
+        "answer": "Svar",
+        "successMessage": "FAQ-sideindhold opdateret!",
+        "failedLoad": "Kunne ikke indlæse FAQ-sideindhold",
+        "failedSave": "Kunne ikke gemme FAQ-sideindhold"
       },
       "socialLinks": {
         "title": "Administration af sociale links",

@@ -4,20 +4,55 @@
       :title="t('settings.platform.localizationTitle')"
       :description="t('settings.platform.localizationDescription')"
       icon="mdi-translate"
-      :divider="false"
     >
       <div class="settings-platform-panel__row">
         <v-switch
           v-model="languageSwitcherEnabled"
           color="primary"
           hide-details
-          :loading="saving"
-          :disabled="loading || saving"
+          :loading="savingKey === 'language'"
+          :disabled="loading || savingKey !== null"
           @update:model-value="saveLanguageSwitcher"
         />
         <div class="settings-platform-panel__copy">
           <p class="settings-platform-panel__label">{{ t('settings.platform.languageSwitcherEnabled') }}</p>
           <p class="settings-platform-panel__hint">{{ t('settings.platform.languageSwitcherHint') }}</p>
+        </div>
+      </div>
+    </PanelSection>
+
+    <PanelSection
+      :title="t('settings.platform.faqTitle')"
+      :description="t('settings.platform.faqDescription')"
+      icon="mdi-help-circle-outline"
+      :divider="false"
+    >
+      <div class="settings-platform-panel__row mb-4">
+        <v-switch
+          v-model="faqPageEnabled"
+          color="primary"
+          hide-details
+          :loading="savingKey === 'faq_page'"
+          :disabled="loading || savingKey !== null"
+          @update:model-value="saveFaqPage"
+        />
+        <div class="settings-platform-panel__copy">
+          <p class="settings-platform-panel__label">{{ t('settings.platform.faqPageEnabled') }}</p>
+          <p class="settings-platform-panel__hint">{{ t('settings.platform.faqPageHint') }}</p>
+        </div>
+      </div>
+      <div class="settings-platform-panel__row">
+        <v-switch
+          v-model="faqChatbotEnabled"
+          color="primary"
+          hide-details
+          :loading="savingKey === 'faq_chatbot'"
+          :disabled="loading || savingKey !== null || !faqPageEnabled"
+          @update:model-value="saveFaqChatbot"
+        />
+        <div class="settings-platform-panel__copy">
+          <p class="settings-platform-panel__label">{{ t('settings.platform.faqChatbotEnabled') }}</p>
+          <p class="settings-platform-panel__hint">{{ t('settings.platform.faqChatbotHint') }}</p>
         </div>
       </div>
     </PanelSection>
@@ -47,12 +82,15 @@ const { t } = useI18n()
 const platformSettingsStore = usePlatformSettingsStore()
 
 const loading = ref(true)
-const saving = ref(false)
+const savingKey = ref<'language' | 'faq_page' | 'faq_chatbot' | null>(null)
 const languageSwitcherEnabled = ref(true)
+const faqPageEnabled = ref(true)
+const faqChatbotEnabled = ref(false)
 const message = ref('')
 const messageType = ref<'success' | 'error'>('success')
 
-function parseEnabled(value: unknown): boolean {
+function parseEnabled(value: unknown, fallback = false): boolean {
+  if (value === undefined || value === null) return fallback
   return value === true || value === 'true'
 }
 
@@ -61,9 +99,11 @@ async function load() {
   message.value = ''
   try {
     const data = await getIntegrations()
-    const enabled = parseEnabled(data.general?.language_switcher_enabled ?? true)
+    const enabled = parseEnabled(data.general?.language_switcher_enabled, true)
     languageSwitcherEnabled.value = enabled
     platformSettingsStore.setLanguageSwitcherEnabled(enabled)
+    faqPageEnabled.value = parseEnabled(data.general?.faq_page_enabled, true)
+    faqChatbotEnabled.value = parseEnabled(data.general?.faq_chatbot_enabled, false)
   } catch {
     message.value = t('settings.platform.loadFailed')
     messageType.value = 'error'
@@ -75,7 +115,7 @@ async function load() {
 async function saveLanguageSwitcher(enabled: boolean | null) {
   if (enabled === null || loading.value) return
 
-  saving.value = true
+  savingKey.value = 'language'
   message.value = ''
   try {
     await updateIntegrations('general', { language_switcher_enabled: enabled })
@@ -87,7 +127,50 @@ async function saveLanguageSwitcher(enabled: boolean | null) {
     message.value = t('settings.platform.saveFailed')
     messageType.value = 'error'
   } finally {
-    saving.value = false
+    savingKey.value = null
+  }
+}
+
+async function saveFaqPage(enabled: boolean | null) {
+  if (enabled === null || loading.value) return
+
+  const previous = !enabled
+  savingKey.value = 'faq_page'
+  message.value = ''
+  try {
+    const payload: Record<string, boolean> = { faq_page_enabled: enabled }
+    if (!enabled) {
+      payload.faq_chatbot_enabled = false
+      faqChatbotEnabled.value = false
+    }
+    await updateIntegrations('general', payload)
+    message.value = t('settings.platform.saved')
+    messageType.value = 'success'
+  } catch {
+    faqPageEnabled.value = previous
+    message.value = t('settings.platform.saveFailed')
+    messageType.value = 'error'
+  } finally {
+    savingKey.value = null
+  }
+}
+
+async function saveFaqChatbot(enabled: boolean | null) {
+  if (enabled === null || loading.value) return
+
+  const previous = !enabled
+  savingKey.value = 'faq_chatbot'
+  message.value = ''
+  try {
+    await updateIntegrations('general', { faq_chatbot_enabled: enabled })
+    message.value = t('settings.platform.saved')
+    messageType.value = 'success'
+  } catch {
+    faqChatbotEnabled.value = previous
+    message.value = t('settings.platform.saveFailed')
+    messageType.value = 'error'
+  } finally {
+    savingKey.value = null
   }
 }
 

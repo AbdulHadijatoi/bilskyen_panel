@@ -531,6 +531,12 @@ export const ADMIN_PRICING_PAGE_ENDPOINTS = {
   BULK_UPDATE: '/admin/pricing-page-content/bulk-update',
 } as const
 
+export const ADMIN_FAQ_PAGE_ENDPOINTS = {
+  LIST: '/admin/faq-page-content',
+  UPDATE: (sectionKey: string) => `/admin/faq-page-content/${sectionKey}`,
+  BULK_UPDATE: '/admin/faq-page-content/bulk-update',
+} as const
+
 /**
  * Admin SEO pages endpoints
  */
