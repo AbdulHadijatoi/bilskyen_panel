@@ -363,9 +363,29 @@ const router = createRouter({
           component: () => import('@/views/admin/cms/BlogPostsManagement.vue'),
         },
         {
+          path: 'cms/blog/new',
+          name: 'admin.cms.blog.new',
+          component: () => import('@/views/admin/cms/BlogPostEditor.vue'),
+        },
+        {
+          path: 'cms/blog/:id/edit',
+          name: 'admin.cms.blog.edit',
+          component: () => import('@/views/admin/cms/BlogPostEditor.vue'),
+        },
+        {
           path: 'cms/landing-pages',
           name: 'admin.cms.landing-pages',
           component: () => import('@/views/admin/cms/LandingPagesManagement.vue'),
+        },
+        {
+          path: 'cms/landing-pages/new',
+          name: 'admin.cms.landing-pages.new',
+          component: () => import('@/views/admin/cms/LandingPageEditor.vue'),
+        },
+        {
+          path: 'cms/landing-pages/:id/edit',
+          name: 'admin.cms.landing-pages.edit',
+          component: () => import('@/views/admin/cms/LandingPageEditor.vue'),
         },
         {
           path: 'cms/media',

@@ -568,6 +568,11 @@ export const ADMIN_LANDING_PAGE_ENDPOINTS = {
   RESTORE_VERSION: (id: number | string, versionId: number | string) => `/admin/cms/landing-pages/${id}/versions/${versionId}/restore`,
 } as const
 
+export const ADMIN_CMS_PREVIEW_ENDPOINTS = {
+  LANDING: '/admin/cms/preview/landing',
+  BLOG: '/admin/cms/preview/blog',
+} as const
+
 export const ADMIN_CMS_MEDIA_ENDPOINTS = {
   LIST: '/admin/cms/media',
   CREATE: '/admin/cms/media',

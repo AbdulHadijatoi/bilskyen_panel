@@ -34,6 +34,7 @@ import {
   ADMIN_SEO_PAGE_ENDPOINTS,
   ADMIN_CMS_POST_ENDPOINTS,
   ADMIN_LANDING_PAGE_ENDPOINTS,
+  ADMIN_CMS_PREVIEW_ENDPOINTS,
   ADMIN_CMS_MEDIA_ENDPOINTS,
   ADMIN_SEO_REDIRECT_ENDPOINTS,
   ADMIN_SEO_TOOLS_ENDPOINTS,
@@ -2841,6 +2842,22 @@ export async function updateLandingPage(id: number | string, data: Record<string
 
 export async function deleteLandingPage(id: number | string) {
   await httpClient.delete(ADMIN_LANDING_PAGE_ENDPOINTS.DELETE(id))
+}
+
+export async function previewLandingPageHtml(data: Record<string, unknown>): Promise<string> {
+  const response = await httpClient.post(ADMIN_CMS_PREVIEW_ENDPOINTS.LANDING, data, {
+    responseType: 'text',
+    transformResponse: [(body) => body],
+  })
+  return typeof response.data === 'string' ? response.data : String(response.data ?? '')
+}
+
+export async function previewBlogPostHtml(data: Record<string, unknown>): Promise<string> {
+  const response = await httpClient.post(ADMIN_CMS_PREVIEW_ENDPOINTS.BLOG, data, {
+    responseType: 'text',
+    transformResponse: [(body) => body],
+  })
+  return typeof response.data === 'string' ? response.data : String(response.data ?? '')
 }
 
 export async function getCmsMedia(params?: { search?: string; page?: number }) {
