@@ -652,6 +652,7 @@
         "add": "Add redirect",
         "from": "From path",
         "to": "To path",
+        "matchType": "Match type",
         "type": "Redirect type",
         "active": "Active"
       },

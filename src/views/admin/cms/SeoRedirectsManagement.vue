@@ -20,6 +20,12 @@
         <v-card-text>
           <v-text-field v-model="form.from_path" :label="t('admin.cms.redirects.from')" class="mb-2" />
           <v-text-field v-model="form.to_path" :label="t('admin.cms.redirects.to')" class="mb-2" />
+          <v-select
+            v-model="form.match_type"
+            :items="matchTypeItems"
+            :label="t('admin.cms.redirects.matchType')"
+            class="mb-2"
+          />
           <v-select v-model="form.redirect_type" :items="[301, 302]" :label="t('admin.cms.redirects.type')" class="mb-2" />
           <v-switch v-model="form.is_active" :label="t('admin.cms.redirects.active')" />
         </v-card-text>
@@ -43,11 +49,17 @@ const dialog = ref(false)
 const editing = ref(false)
 const editId = ref<number | null>(null)
 const redirects = ref<any[]>([])
-const form = ref({ from_path: '', to_path: '', redirect_type: 301, is_active: true })
+const form = ref({ from_path: '', to_path: '', match_type: 'exact', redirect_type: 301, is_active: true })
+
+const matchTypeItems = [
+  { title: 'Exact', value: 'exact' },
+  { title: 'Prefix', value: 'prefix' },
+]
 
 const headers = [
   { title: 'From', key: 'from_path' },
   { title: 'To', key: 'to_path' },
+  { title: 'Match', key: 'match_type' },
   { title: 'Type', key: 'redirect_type' },
   { title: 'Hits', key: 'hit_count' },
   { title: 'Active', key: 'is_active' },
@@ -63,7 +75,7 @@ async function load() {
 function openCreate() {
   editing.value = false
   editId.value = null
-  form.value = { from_path: '', to_path: '', redirect_type: 301, is_active: true }
+  form.value = { from_path: '', to_path: '', match_type: 'exact', redirect_type: 301, is_active: true }
   dialog.value = true
 }
 

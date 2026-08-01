@@ -652,6 +652,7 @@
         "add": "Tilføj redirect",
         "from": "Fra sti",
         "to": "Til sti",
+        "matchType": "Match-type",
         "type": "Redirect-type",
         "active": "Aktiv"
       },
