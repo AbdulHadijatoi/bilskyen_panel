@@ -40,5 +40,5 @@ export const CMS_STYLES: CmsStyleDef[] = [
 ]
 
 export function getStyle(id: string): CmsStyleDef {
-  return CMS_STYLES.find((s) => s.id === id) ?? CMS_STYLES[0]
+  return CMS_STYLES.find((s) => s.id === id) ?? CMS_STYLES[0]!
 }

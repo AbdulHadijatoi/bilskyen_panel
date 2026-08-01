@@ -101,9 +101,9 @@ export const BLOG_LAYOUTS: CmsLayoutDef[] = [
 ]
 
 export function getLandingLayout(id: string): CmsLayoutDef {
-  return LANDING_LAYOUTS.find((l) => l.id === id) ?? LANDING_LAYOUTS[1]
+  return LANDING_LAYOUTS.find((l) => l.id === id) ?? LANDING_LAYOUTS[1]!
 }
 
 export function getBlogLayout(id: string): CmsLayoutDef {
-  return BLOG_LAYOUTS.find((l) => l.id === id) ?? BLOG_LAYOUTS[0]
+  return BLOG_LAYOUTS.find((l) => l.id === id) ?? BLOG_LAYOUTS[0]!
 }

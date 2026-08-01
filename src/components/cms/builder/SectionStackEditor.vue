@@ -149,9 +149,11 @@ function move(idx: number, dir: number) {
   const next = [...props.blocks]
   const target = idx + dir
   if (target < 0 || target >= next.length) return
-  const tmp = next[idx]
-  next[idx] = next[target]
-  next[target] = tmp
+  const current = next[idx]
+  const swapWith = next[target]
+  if (!current || !swapWith) return
+  next[idx] = swapWith
+  next[target] = current
   emit('update:blocks', next)
 }
 
@@ -171,6 +173,7 @@ function pickType(type: string) {
 
 function openVariant(idx: number) {
   const block = props.blocks[idx]
+  if (!block) return
   pendingType.value = block.type
   pendingVariant.value = block.variant
   editingIndex.value = idx
