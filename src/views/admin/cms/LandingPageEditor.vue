@@ -54,7 +54,7 @@
                 <v-text-field
                   v-model="form.slug"
                   :label="t('admin.cms.landing.slug')"
-                  hint="/guides/{slug}"
+                  hint="/lp/{slug}"
                   persistent-hint
                   density="compact"
                   variant="outlined"

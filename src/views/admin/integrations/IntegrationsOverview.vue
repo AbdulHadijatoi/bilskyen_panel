@@ -212,6 +212,25 @@
                 <v-text-field v-model="aiSettings.deepseek_model" variant="outlined" density="compact" hide-details />
               </IntegrationField>
             </v-col>
+
+            <v-col cols="12" md="6" lg="3">
+              <IntegrationField :label="t('admin.views.integrations.ollama')" help-key="ollama" switch-field class="mb-2">
+                <v-switch v-model="aiSettings.ollama_enabled" color="primary" hide-details />
+              </IntegrationField>
+              <IntegrationField :label="t('admin.views.integrations.ollamaBaseUrl')" help-key="ollamaBaseUrl" class="mb-2">
+                <v-text-field
+                  v-model="aiSettings.ollama_base_url"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  placeholder="http://127.0.0.1:11434"
+                />
+              </IntegrationField>
+              <IntegrationField :label="t('admin.views.integrations.ollamaModel')" help-key="ollamaModel" class="mb-2">
+                <v-text-field v-model="aiSettings.ollama_model" variant="outlined" density="compact" hide-details />
+              </IntegrationField>
+              <p class="text-caption text-medium-emphasis">{{ t('admin.views.integrations.ollamaLocalNote') }}</p>
+            </v-col>
           </v-row>
 
           <v-divider class="my-4" />
@@ -280,6 +299,12 @@
                 {{ t('admin.views.integrations.testDeepseek') }}
               </v-btn>
               <PanelHelpHint :text="help('testDeepseek')" size="sm" :aria-label="t('admin.views.integrations.helpAria')" />
+            </span>
+            <span class="integrations-action-with-help">
+              <v-btn variant="outlined" size="small" :loading="testingProvider === 'ollama'" @click="testAiProvider('ollama')">
+                {{ t('admin.views.integrations.testOllama') }}
+              </v-btn>
+              <PanelHelpHint :text="help('testOllama')" size="sm" :aria-label="t('admin.views.integrations.helpAria')" />
             </span>
           </div>
 
@@ -716,7 +741,7 @@ function normalizePaymentBools(obj: Record<string, any>) {
 
 function normalizeAiBools(obj: Record<string, any>) {
   const out = { ...obj }
-  for (const key of ['openai_enabled', 'anthropic_enabled', 'gemini_enabled', 'deepseek_enabled']) {
+  for (const key of ['openai_enabled', 'anthropic_enabled', 'gemini_enabled', 'deepseek_enabled', 'ollama_enabled']) {
     if (out[key] === 'true' || out[key] === true) out[key] = true
     if (out[key] === 'false' || out[key] === false) out[key] = false
   }
@@ -827,7 +852,7 @@ async function testConnection() {
   }
 }
 
-async function testAiProvider(provider: 'openai' | 'anthropic' | 'gemini' | 'deepseek') {
+async function testAiProvider(provider: 'openai' | 'anthropic' | 'gemini' | 'deepseek' | 'ollama') {
   testingProvider.value = provider
   message.value = ''
   try {
