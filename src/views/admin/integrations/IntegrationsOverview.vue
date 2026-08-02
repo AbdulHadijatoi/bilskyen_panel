@@ -742,8 +742,7 @@ function normalizePaymentBools(obj: Record<string, any>) {
 function normalizeAiBools(obj: Record<string, any>) {
   const out = { ...obj }
   for (const key of ['openai_enabled', 'anthropic_enabled', 'gemini_enabled', 'deepseek_enabled', 'ollama_enabled']) {
-    if (out[key] === 'true' || out[key] === true) out[key] = true
-    if (out[key] === 'false' || out[key] === false) out[key] = false
+    out[key] = out[key] === true || out[key] === 'true' || out[key] === 1 || out[key] === '1'
   }
   return out
 }
@@ -789,7 +788,7 @@ async function save() {
     const settingsMap: Record<string, any> = {
       crm: crmSettings.value,
       payment: paymentSettings.value,
-      ai: aiSettings.value,
+      ai: normalizeAiBools(aiSettings.value),
       media: mediaSettings.value,
       finance: financeSettings.value,
       marketplace: marketplaceSettings.value,
