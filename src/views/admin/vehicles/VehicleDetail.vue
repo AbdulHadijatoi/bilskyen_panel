@@ -1887,7 +1887,7 @@ import {
   type VehicleModelConstant,
   type VariantConstant,
 } from '@/api/admin.api'
-import { SALES_TYPE_LEASING_DETAILS } from '@/constants/salesTypes'
+import { isLeasingSalesTypeName } from '@/constants/salesTypes'
 import type { VehicleModel } from '@/models/vehicle.model'
 import type { VehicleImageModel } from '@/models/vehicle.model'
 import { VehicleStatus } from '@/models/vehicle.model'
@@ -2049,11 +2049,11 @@ const salesTypes = computed(() => constants.value?.sales_types || [])
 const isLeasingSalesTypeEditingAdmin = computed(() => {
   const id = vehicleData.value.sales_type_id
   if (id == null) return false
-  return salesTypes.value.some((st) => st.id === id && st.name === SALES_TYPE_LEASING_DETAILS)
+  return salesTypes.value.some((st) => st.id === id && isLeasingSalesTypeName(st.name))
 })
 const showLeasingBlockAdmin = computed(() => {
   if (editMode.value) return isLeasingSalesTypeEditingAdmin.value
-  return vehicle.value?.details?.sales_type_name === SALES_TYPE_LEASING_DETAILS
+  return isLeasingSalesTypeName(vehicle.value?.details?.sales_type_name)
 })
 const priceTypes = computed(() => constants.value?.price_types || [])
 const euronorms = computed(() => constants.value?.euronorms || [])
