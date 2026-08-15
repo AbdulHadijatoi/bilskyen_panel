@@ -1534,7 +1534,7 @@ import type { VehicleModel } from '@/models/vehicle.model'
 import type { VehicleImageModel } from '@/models/vehicle.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import { getFeatureLimit, hasFeature, FeatureKey } from '@/utils/subscriptionFeatures'
-import { SALES_TYPE_LEASING_DETAILS } from '@/constants/salesTypes'
+import { isLeasingSalesTypeName } from '@/constants/salesTypes'
 import PageHeader from '@/components/panel/PageHeader.vue'
 import PanelDialog from '@/components/ui/PanelDialog.vue'
 import PanelButton from '@/components/ui/PanelButton.vue'
@@ -1750,11 +1750,11 @@ const salesTypes = computed(() => constants.value?.sales_types || [])
 const isLeasingSalesTypeEditing = computed(() => {
   const id = vehicleData.value.sales_type_id
   if (id == null) return false
-  return salesTypes.value.some((st) => st.id === id && st.name === SALES_TYPE_LEASING_DETAILS)
+  return salesTypes.value.some((st) => st.id === id && isLeasingSalesTypeName(st.name))
 })
 const showLeasingBlock = computed(() => {
   if (editMode.value) return isLeasingSalesTypeEditing.value
-  return vehicle.value?.details?.sales_type_name === SALES_TYPE_LEASING_DETAILS
+  return isLeasingSalesTypeName(vehicle.value?.details?.sales_type_name)
 })
 const euronorms = computed(() => constants.value?.euronorms || [])
 const vehicleUses = computed(() => constants.value?.vehicle_uses || [])

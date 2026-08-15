@@ -1156,7 +1156,7 @@ import MonthYearPicker from '@/components/ui/MonthYearPicker.vue'
 import { useErrorMessage } from '@/composables/useErrorMessage'
 import { getFeatureLimit, getSubscriptionFeatures, FeatureKey } from '@/utils/subscriptionFeatures'
 import { getIntlLocale } from '@/utils/defaultLocale'
-import { SALES_TYPE_LEASING_DETAILS } from '@/constants/salesTypes'
+import { isLeasingSalesTypeName } from '@/constants/salesTypes'
 import AiGenerateButton from '@/components/ai/AiGenerateButton.vue'
 import PageHeader from '@/components/panel/PageHeader.vue'
 
@@ -1808,7 +1808,7 @@ const equipmentTypes = ref<Array<{id: number, name: string, equipments: Array<{i
 const isLeasingSalesTypeSelected = computed(() => {
   const id = form.value.salesTypeId
   if (id == null) return false
-  return salesTypes.value.some((st) => st.id === id && st.name === SALES_TYPE_LEASING_DETAILS)
+  return salesTypes.value.some((st) => st.id === id && isLeasingSalesTypeName(st.name))
 })
 
 // Image previews
