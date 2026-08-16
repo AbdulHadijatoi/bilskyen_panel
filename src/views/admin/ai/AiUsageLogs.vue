@@ -110,7 +110,7 @@ const filters = ref({
   status: null as string | null,
 })
 
-const providerOptions = ['openai', 'anthropic', 'gemini', 'deepseek', 'ollama']
+const providerOptions = ['openai', 'anthropic', 'gemini', 'deepseek', 'openrouter', 'opencodezen', 'ollama']
 const taskOptions = [
   'vehicle_description',
   'vehicle_title',

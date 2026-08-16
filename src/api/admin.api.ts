@@ -522,7 +522,7 @@ export async function updateAiPromptTemplate(id: number, data: Partial<AiPromptT
   return handleSuccess<AiPromptTemplateModel>(response)
 }
 
-export async function testAiProvider(provider: 'openai' | 'anthropic' | 'gemini' | 'deepseek' | 'ollama') {
+export async function testAiProvider(provider: 'openai' | 'anthropic' | 'gemini' | 'deepseek' | 'openrouter' | 'opencodezen' | 'ollama') {
   const response = await httpClient.post<{ data: { success: boolean; message: string } }>(ADMIN_AI_ENDPOINTS.TEST, { provider })
   return handleSuccess<{ success: boolean; message: string }>(response)
 }

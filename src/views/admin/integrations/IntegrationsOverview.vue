@@ -214,6 +214,44 @@
             </v-col>
 
             <v-col cols="12" md="6" lg="3">
+              <IntegrationField :label="t('admin.views.integrations.openrouter')" help-key="openrouter" switch-field class="mb-2">
+                <v-switch v-model="aiSettings.openrouter_enabled" color="primary" hide-details />
+              </IntegrationField>
+              <IntegrationField :label="t('admin.views.integrations.openrouterApiKey')" help-key="openrouterApiKey" class="mb-2">
+                <v-text-field
+                  v-model="aiSettings.openrouter_api_key"
+                  type="password"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                />
+              </IntegrationField>
+              <IntegrationField :label="t('admin.views.integrations.openrouterModel')" help-key="openrouterModel">
+                <v-text-field v-model="aiSettings.openrouter_model" variant="outlined" density="compact" hide-details />
+              </IntegrationField>
+              <p class="text-caption text-medium-emphasis">{{ t('admin.views.integrations.openrouterFreeNote') }}</p>
+            </v-col>
+
+            <v-col cols="12" md="6" lg="3">
+              <IntegrationField :label="t('admin.views.integrations.opencodezen')" help-key="opencodezen" switch-field class="mb-2">
+                <v-switch v-model="aiSettings.opencodezen_enabled" color="primary" hide-details />
+              </IntegrationField>
+              <IntegrationField :label="t('admin.views.integrations.opencodezenApiKey')" help-key="opencodezenApiKey" class="mb-2">
+                <v-text-field
+                  v-model="aiSettings.opencodezen_api_key"
+                  type="password"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                />
+              </IntegrationField>
+              <IntegrationField :label="t('admin.views.integrations.opencodezenModel')" help-key="opencodezenModel">
+                <v-text-field v-model="aiSettings.opencodezen_model" variant="outlined" density="compact" hide-details />
+              </IntegrationField>
+              <p class="text-caption text-medium-emphasis">{{ t('admin.views.integrations.opencodezenFreeNote') }}</p>
+            </v-col>
+
+            <v-col cols="12" md="6" lg="3">
               <IntegrationField :label="t('admin.views.integrations.ollama')" help-key="ollama" switch-field class="mb-2">
                 <v-switch v-model="aiSettings.ollama_enabled" color="primary" hide-details />
               </IntegrationField>
@@ -299,6 +337,18 @@
                 {{ t('admin.views.integrations.testDeepseek') }}
               </v-btn>
               <PanelHelpHint :text="help('testDeepseek')" size="sm" :aria-label="t('admin.views.integrations.helpAria')" />
+            </span>
+            <span class="integrations-action-with-help">
+              <v-btn variant="outlined" size="small" :loading="testingProvider === 'openrouter'" @click="testAiProvider('openrouter')">
+                {{ t('admin.views.integrations.testOpenrouter') }}
+              </v-btn>
+              <PanelHelpHint :text="help('testOpenrouter')" size="sm" :aria-label="t('admin.views.integrations.helpAria')" />
+            </span>
+            <span class="integrations-action-with-help">
+              <v-btn variant="outlined" size="small" :loading="testingProvider === 'opencodezen'" @click="testAiProvider('opencodezen')">
+                {{ t('admin.views.integrations.testOpencodezen') }}
+              </v-btn>
+              <PanelHelpHint :text="help('testOpencodezen')" size="sm" :aria-label="t('admin.views.integrations.helpAria')" />
             </span>
             <span class="integrations-action-with-help">
               <v-btn variant="outlined" size="small" :loading="testingProvider === 'ollama'" @click="testAiProvider('ollama')">
@@ -741,7 +791,7 @@ function normalizePaymentBools(obj: Record<string, any>) {
 
 function normalizeAiBools(obj: Record<string, any>) {
   const out = { ...obj }
-  for (const key of ['openai_enabled', 'anthropic_enabled', 'gemini_enabled', 'deepseek_enabled', 'ollama_enabled']) {
+  for (const key of ['openai_enabled', 'anthropic_enabled', 'gemini_enabled', 'deepseek_enabled', 'openrouter_enabled', 'opencodezen_enabled', 'ollama_enabled']) {
     out[key] = out[key] === true || out[key] === 'true' || out[key] === 1 || out[key] === '1'
   }
   return out
@@ -851,7 +901,7 @@ async function testConnection() {
   }
 }
 
-async function testAiProvider(provider: 'openai' | 'anthropic' | 'gemini' | 'deepseek' | 'ollama') {
+async function testAiProvider(provider: 'openai' | 'anthropic' | 'gemini' | 'deepseek' | 'openrouter' | 'opencodezen' | 'ollama') {
   testingProvider.value = provider
   message.value = ''
   try {
