@@ -594,6 +594,16 @@
             />
           </IntegrationField>
 
+          <IntegrationField :label="t('admin.views.integrations.metaDomainVerification')" help-key="metaDomainVerification" class="mb-2">
+            <v-text-field
+              v-model="marketingSettings.meta_domain_verification"
+              variant="outlined"
+              density="compact"
+              hide-details
+              placeholder="abc123def456"
+            />
+          </IntegrationField>
+
           <div class="d-flex flex-wrap ga-2 mt-2">
             <v-btn size="small" color="primary" variant="tonal" :to="'/admin/meta-ads-guide'">
               {{ t('admin.views.integrations.openMetaGuide') }}
@@ -707,6 +717,7 @@ const marketingSettings = ref<Record<string, any>>({
   meta_pixel_id: '',
   meta_capi_access_token: '',
   meta_capi_test_event_code: '',
+  meta_domain_verification: '',
 })
 const complianceSettings = ref<Record<string, any>>({ gdpr_export_enabled: true, data_retention_days: 730 })
 const reputationSettings = ref<Record<string, any>>({ google_places_api_key: '' })
