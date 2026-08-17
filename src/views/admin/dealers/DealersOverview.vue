@@ -74,25 +74,26 @@
         </template>
 
         <template #item.actions="{ item }">
-          <div class="d-flex gap-1">
-            <v-btn
-              variant="tonal"
-              size="small"
-              color="primary"
-              prepend-icon="mdi-eye"
-              @click.stop="openDealer(item.id)"
-            >
-              {{ t('common.view') }}
-            </v-btn>
-            <v-btn
-              variant="outlined"
-              size="small"
-              color="secondary"
-              prepend-icon="mdi-pencil"
-              @click.stop="openDealer(item.id)"
-            >
-              {{ t('common.edit') }}
-            </v-btn>
+          <div class="d-flex gap-1 align-center justify-end">
+            <v-tooltip :text="t('common.view')" location="top">
+              <template #activator="{ props }">
+                <v-btn
+                  icon
+                  variant="text"
+                  size="small"
+                  color="primary"
+                  v-bind="props"
+                  @click.stop="openDealer(item.id)"
+                >
+                  <v-icon size="20">mdi-eye</v-icon>
+                </v-btn>
+              </template>
+            </v-tooltip>
+            <LoginAsDealerButton
+              :dealer-id="item.id"
+              :dealer-name="getDealerDisplayName(item, t('admin.views.dealers.unnamedDealer'))"
+              :has-owner="!!(item.owner?.id || item.userId)"
+            />
           </div>
         </template>
 
@@ -114,6 +115,7 @@ import { getDealers } from '@/api/admin.api'
 import type { DealerModel } from '@/models/dealer.model'
 import { getDealerDisplayName, isValidCvr } from '@/utils/dealerDisplay'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import LoginAsDealerButton from '@/components/admin/LoginAsDealerButton.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -128,7 +130,7 @@ const headers = [
   { title: t('admin.views.dealers.city'), key: 'city' },
   { title: t('admin.views.dealers.vehicles'), key: 'vehicles_count' },
   { title: t('admin.views.dealers.status'), key: 'status', sortable: false },
-  { title: t('common.actions'), key: 'actions', sortable: false, width: '180px', align: 'center' as const },
+  { title: t('common.actions'), key: 'actions', sortable: false, width: '96px', align: 'end' as const },
 ]
 
 const SUBSCRIPTION_STATUS_META: Record<number, { key: string; color: string }> = {

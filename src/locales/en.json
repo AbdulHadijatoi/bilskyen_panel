@@ -930,7 +930,14 @@
         "noSubscription": "No subscription",
         "publishedOfTotal": "{published} of {total} published",
         "viewDetails": "View details",
-        "noDealersFound": "No dealers found"
+        "noDealersFound": "No dealers found",
+        "loginAsDealer": "Login as dealer",
+        "loginAsDealerConfirmTitle": "Login as this dealer?",
+        "loginAsDealerConfirm": "You will open {name}'s dealer panel. You can return to admin anytime.",
+        "loginAsDealerNoOwner": "This dealer has no owner account",
+        "loginAsDealerFailed": "Could not log in as this dealer",
+        "viewingAsDealer": "Viewing as {name}",
+        "returnToAdmin": "Return to admin"
       },
       "leads": {
         "title": "Leads",

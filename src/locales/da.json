@@ -1775,7 +1775,14 @@
         "noSubscription": "Intet abonnement",
         "publishedOfTotal": "{published} af {total} udgivet",
         "viewDetails": "Se detaljer",
-        "noDealersFound": "Ingen forhandlere fundet"
+        "noDealersFound": "Ingen forhandlere fundet",
+        "loginAsDealer": "Log ind som forhandler",
+        "loginAsDealerConfirmTitle": "Log ind som denne forhandler?",
+        "loginAsDealerConfirm": "Du åbner {name}s forhandlerpanel. Du kan vende tilbage til admin når som helst.",
+        "loginAsDealerNoOwner": "Denne forhandler har ingen ejerkonto",
+        "loginAsDealerFailed": "Kunne ikke logge ind som denne forhandler",
+        "viewingAsDealer": "Viser som {name}",
+        "returnToAdmin": "Tilbage til admin"
       },
       "leads": {
         "title": "Leads",

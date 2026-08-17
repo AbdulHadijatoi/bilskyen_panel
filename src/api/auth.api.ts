@@ -366,3 +366,23 @@ export async function changePassword(data: ChangePasswordData): Promise<void> {
   }
 }
 
+export interface StopImpersonationResponse {
+  user: any
+  access_token: string
+  token_type: string
+  expires_in: number
+  subscription_features?: Record<string, string>
+}
+
+export async function stopImpersonation(): Promise<StopImpersonationResponse> {
+  try {
+    const response = await httpClient.post<{ data: StopImpersonationResponse }>(
+      AUTH_ENDPOINTS.STOP_IMPERSONATION,
+      {}
+    )
+    return handleSuccess<StopImpersonationResponse>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+

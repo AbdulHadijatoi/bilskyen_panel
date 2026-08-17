@@ -11,6 +11,7 @@ import { getRequestLocale } from '@/utils/defaultLocale'
 import { getAccessToken, clearTokens } from '@/utils/token'
 import { handleError } from './response'
 import router from '@/router'
+import { useAuthStore } from '@/stores/auth.store'
 
 /**
  * Create axios instance
@@ -61,11 +62,38 @@ httpClient.interceptors.request.use(
 httpClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    // If error is 401, clear auth and redirect to login
-    if (error.response?.status === 401) {
-      clearTokens()
-      if (router.currentRoute.value.path !== '/auth/login') {
-        router.push('/auth/login')
+    const status = error.response?.status
+    const requestUrl = String(error.config?.url || '')
+    const isStopImpersonation = requestUrl.includes('/stop-impersonation')
+    const isPanelRefresh = requestUrl.includes('/panel-refresh')
+
+    if (status === 401) {
+      const authStore = useAuthStore()
+
+      // Never refresh via the admin cookie while impersonating — that would
+      // silently restore the admin identity. Restore the stashed admin session instead.
+      if (authStore.isImpersonating && !isStopImpersonation && !isPanelRefresh) {
+        const snap = authStore.impersonation
+        authStore.clearImpersonation()
+        if (snap?.adminToken && snap.adminUser) {
+          authStore.setAuth(snap.adminUser, snap.adminToken, snap.adminFeatures || {})
+          if (router.currentRoute.value.name !== 'admin.dealers') {
+            router.push({ name: 'admin.dealers' })
+          }
+        } else {
+          clearTokens()
+          if (router.currentRoute.value.path !== '/auth/login') {
+            router.push('/auth/login')
+          }
+        }
+        return Promise.reject(error)
+      }
+
+      if (!isStopImpersonation) {
+        clearTokens()
+        if (router.currentRoute.value.path !== '/auth/login') {
+          router.push('/auth/login')
+        }
       }
       return Promise.reject(error)
     }

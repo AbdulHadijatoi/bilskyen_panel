@@ -14,6 +14,7 @@
       }"
     >
       <Header />
+      <ImpersonationBanner />
       <div class="panel-content">
         <router-view v-slot="{ Component, route }">
           <transition
@@ -39,6 +40,7 @@ import { ensureLocaleLoaded } from '@/plugins/i18n'
 import Sidebar from './Sidebar.vue'
 import Header from './Header.vue'
 import Footer from './Footer.vue'
+import ImpersonationBanner from '@/components/panel/ImpersonationBanner.vue'
 
 const sidebarStore = useSidebarStore()
 const themeStore = useThemeStore()

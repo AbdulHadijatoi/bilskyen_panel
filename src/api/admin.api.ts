@@ -425,6 +425,30 @@ export async function getDealerDetailRaw(id: number | string): Promise<any> {
   return handleSuccess<any>(response)
 }
 
+export interface ImpersonateDealerResponse {
+  user: any
+  access_token: string
+  token_type: string
+  expires_in: number
+  subscription_features?: Record<string, string>
+  impersonation?: {
+    dealer_id: number
+    dealer_name: string
+  }
+}
+
+export async function impersonateDealer(id: number | string): Promise<ImpersonateDealerResponse> {
+  try {
+    const response = await httpClient.post<{ data: ImpersonateDealerResponse }>(
+      ADMIN_DEALER_ENDPOINTS.IMPERSONATE(id),
+      {}
+    )
+    return handleSuccess<ImpersonateDealerResponse>(response)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
 export async function getIntegrations(): Promise<Record<string, Record<string, unknown>>> {
   const response = await httpClient.get<{ data: any }>(ADMIN_INTEGRATION_ENDPOINTS.LIST)
   return handleSuccess<Record<string, Record<string, unknown>>>(response)

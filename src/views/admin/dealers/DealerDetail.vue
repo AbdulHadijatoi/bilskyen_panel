@@ -18,6 +18,12 @@
           <v-chip v-if="pendingChangeRequest" size="small" color="info" variant="tonal" class="ml-2">
             {{ t('admin.views.dealers.pendingChangeRequest') }}
           </v-chip>
+          <LoginAsDealerButton
+            class="ml-2"
+            :dealer-id="dealer.id"
+            :dealer-name="displayName"
+            :has-owner="!!(dealer.owner?.id || dealer.user_id)"
+          />
         </template>
       </PageHeader>
 
@@ -57,6 +63,7 @@ import { useI18n } from 'vue-i18n'
 import { getDealerDetailRaw } from '@/api/admin.api'
 import { getDealerDisplayName, isValidCvr } from '@/utils/dealerDisplay'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import LoginAsDealerButton from '@/components/admin/LoginAsDealerButton.vue'
 
 const { t } = useI18n()
 const route = useRoute()
