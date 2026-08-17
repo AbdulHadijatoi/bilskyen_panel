@@ -217,18 +217,17 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getProfile, updateProfile, type UpdateProfileData } from '@/api/dealer.api'
-import { getCurrentUser } from '@/api/auth.api'
+import { getCurrentUser, updateUser } from '@/api/auth.api'
 import { useAuthStore } from '@/stores/auth.store'
 import type { DealerModel } from '@/models/dealer.model'
 import PanelSection from '@/components/ui/PanelSection.vue'
 import PanelButton from '@/components/ui/PanelButton.vue'
-import { isDealer, isStaff } from '@/utils/permissions'
+import { isDealer } from '@/utils/permissions'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
 
 const isDealerRole = computed(() => isDealer())
-const isStaffRole = computed(() => isStaff())
 
 const formRef = ref()
 const formValid = ref(false)
@@ -307,7 +306,7 @@ async function loadProfile() {
       form.city = data.city || ''
       form.postcode = data.postcode || ''
       form.country_code = data.countryCode || ''
-    } else if (isStaffRole.value && authStore.user) {
+    } else if (authStore.user) {
       form.name = authStore.user.name || ''
       form.email = authStore.user.email || ''
       form.phone = authStore.user.phone || ''
@@ -385,6 +384,15 @@ async function handleSubmit() {
       logoFile.value = null
       logoFileToUpload.value = null
       logoCacheBuster.value = Date.now()
+    } else {
+      const updatedUser = await updateUser({
+        name: form.name || undefined,
+        email: form.email || undefined,
+        phone: form.phone || undefined,
+      })
+      form.name = updatedUser.name || ''
+      form.email = updatedUser.email || ''
+      form.phone = updatedUser.phone || ''
     }
 
     if (form.name || form.email || form.phone) {

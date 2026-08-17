@@ -337,7 +337,7 @@ export async function updateUser(data: UpdateUserData): Promise<UserModel> {
       data
     )
     const userData = handleSuccess<any>(response)
-    const user = normalizeUser(userData)
+    const user = normalizeUser(userData.user ?? userData)
     const authStore = useAuthStore()
     authStore.setUser(user)
     return user
