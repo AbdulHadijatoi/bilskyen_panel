@@ -207,6 +207,8 @@ const PAGE_TYPE_OPTIONS = computed(() => [
   { value: 'static', label: $t('admin.seoContent.pageTypeStatic') },
   { value: 'vehicle', label: $t('admin.seoContent.pageTypeVehicle') },
   { value: 'dealer', label: $t('admin.seoContent.pageTypeDealer') },
+  { value: 'blog', label: $t('admin.seoContent.pageTypeBlog') },
+  { value: 'landing', label: $t('admin.seoContent.pageTypeLanding') },
 ])
 
 // Page keys for fixed route types (home, listing, static) - labels translated
@@ -218,6 +220,7 @@ const PAGE_KEY_OPTIONS = computed<Record<string, { value: string; label: string 
     { value: 'contact', label: $t('admin.seoContent.pageKeyContact') },
     { value: 'privacy-policy', label: $t('admin.seoContent.pageKeyPrivacyPolicy') },
     { value: 'terms-of-service', label: $t('admin.seoContent.pageKeyTermsOfService') },
+    { value: 'blog', label: $t('admin.seoContent.pageKeyBlog') },
   ],
 }))
 
@@ -278,7 +281,17 @@ const breadcrumbsJsonText = ref('')
 // Dynamic page_key options for vehicle/dealer (loaded when needed)
 const vehicleSlugOptions = ref<SeoPageKeyOption[]>([])
 const dealerSlugOptions = ref<SeoPageKeyOption[]>([])
+const blogSlugOptions = ref<SeoPageKeyOption[]>([])
+const landingSlugOptions = ref<SeoPageKeyOption[]>([])
 const loadingPageKeyOptions = ref(false)
+
+const DYNAMIC_PAGE_TYPES = ['vehicle', 'dealer', 'blog', 'landing'] as const
+
+function isDynamicPageType(
+  type: string
+): type is 'vehicle' | 'dealer' | 'blog' | 'landing' {
+  return (DYNAMIC_PAGE_TYPES as readonly string[]).includes(type)
+}
 
 const formPageKeyOptions = computed(() => {
   const type = form.value.page_type
@@ -286,20 +299,25 @@ const formPageKeyOptions = computed(() => {
   if (options[type]) return options[type]
   if (type === 'vehicle') return vehicleSlugOptions.value
   if (type === 'dealer') return dealerSlugOptions.value
+  if (type === 'blog') return blogSlugOptions.value
+  if (type === 'landing') return landingSlugOptions.value
   return []
 })
 
-async function loadDynamicPageKeyOptions() {
-  const type = form.value.page_type
-  if (type !== 'vehicle' && type !== 'dealer') return
+async function loadDynamicPageKeyOptions(pageType = form.value.page_type) {
+  if (!isDynamicPageType(pageType)) return
   loadingPageKeyOptions.value = true
   try {
-    const options = await getSeoPageKeyOptions(type)
-    if (type === 'vehicle') vehicleSlugOptions.value = options
-    else dealerSlugOptions.value = options
+    const options = await getSeoPageKeyOptions(pageType)
+    if (pageType === 'vehicle') vehicleSlugOptions.value = options
+    else if (pageType === 'dealer') dealerSlugOptions.value = options
+    else if (pageType === 'blog') blogSlugOptions.value = options
+    else landingSlugOptions.value = options
   } catch {
-    if (type === 'vehicle') vehicleSlugOptions.value = []
-    else dealerSlugOptions.value = []
+    if (pageType === 'vehicle') vehicleSlugOptions.value = []
+    else if (pageType === 'dealer') dealerSlugOptions.value = []
+    else if (pageType === 'blog') blogSlugOptions.value = []
+    else landingSlugOptions.value = []
   } finally {
     loadingPageKeyOptions.value = false
   }
@@ -376,7 +394,7 @@ watch(
       else if (newType === 'listing') form.value.page_key = 'vehicles'
       else if (newType === 'static') form.value.page_key = 'about'
       else form.value.page_key = ''
-      if (newType === 'vehicle' || newType === 'dealer') loadDynamicPageKeyOptions()
+      if (isDynamicPageType(newType)) loadDynamicPageKeyOptions()
     }
   }
 )
@@ -407,7 +425,7 @@ async function openEdit(item: SeoPageModel) {
   isEdit.value = true
   try {
     const full = await getSeoPage(item.id)
-    if (full.page_type === 'vehicle' || full.page_type === 'dealer') await loadDynamicPageKeyOptions()
+    if (isDynamicPageType(full.page_type)) await loadDynamicPageKeyOptions(full.page_type)
     form.value = {
       page_type: full.page_type,
       page_key: full.page_key,

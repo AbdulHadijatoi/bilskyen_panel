@@ -2742,9 +2742,11 @@ export interface SeoPageKeyOption {
 }
 
 /**
- * Get page_key options for dropdown (vehicle slugs or dealer slugs)
+ * Get page_key options for dropdown (vehicle, dealer, blog, or landing slugs)
  */
-export async function getSeoPageKeyOptions(pageType: 'vehicle' | 'dealer'): Promise<SeoPageKeyOption[]> {
+export async function getSeoPageKeyOptions(
+  pageType: 'vehicle' | 'dealer' | 'blog' | 'landing'
+): Promise<SeoPageKeyOption[]> {
   try {
     const response = await httpClient.get<{ data: SeoPageKeyOption[] }>(
       ADMIN_SEO_PAGE_ENDPOINTS.PAGE_KEY_OPTIONS,
