@@ -225,7 +225,7 @@ import { login, register, logout, getCurrentUser, checkAuth } from '@/api/auth.a
 const user = await login({ email: 'user@example.com', password: 'password' })
 
 // Register
-const newUser = await register({ name: 'John', email: 'john@example.com', password: 'password' })
+const newUser = await register({ name: 'Test User', email: 'user@example.com', password: 'password' })
 
 // Get current user
 const currentUser = await getCurrentUser()
