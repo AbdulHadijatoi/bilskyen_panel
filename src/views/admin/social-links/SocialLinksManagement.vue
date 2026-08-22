@@ -127,7 +127,7 @@ async function loadContent() {
   error.value = null
 
   try {
-    const sections = await getHomePageContent('home')
+    const { sections } = await getHomePageContent('home')
     instagramUrl.value = sections.find((s) => s.sectionKey === INSTAGRAM_KEY)?.content ?? ''
     facebookUrl.value = sections.find((s) => s.sectionKey === FACEBOOK_KEY)?.content ?? ''
     twitterUrl.value = sections.find((s) => s.sectionKey === TWITTER_KEY)?.content ?? ''

@@ -476,6 +476,8 @@ export const ADMIN_HOME_PAGE_ENDPOINTS = {
   LIST: '/admin/home-page-content',
   UPDATE: (sectionKey: string) => `/admin/home-page-content/${sectionKey}`,
   BULK_UPDATE: '/admin/home-page-content/bulk-update',
+  UPLOAD_IMAGE: '/admin/home-page-content/images/upload',
+  DELETE_IMAGE: (imageId: number | string) => `/admin/home-page-content/images/${imageId}`,
 } as const
 
 /**

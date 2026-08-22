@@ -1671,8 +1671,12 @@
           "businessHoursWeekend": "Business Hours (Weekend)",
           "mapTitle": "Map Title",
           "mapAddress": "Map Address",
-          "mapImage": "Map Image"
-        }
+          "mapImage": "Map Image",
+          "heroBackgroundImage": "Hero background image",
+          "uploadImage": "Upload image"
+        },
+        "deleteImageTitle": "Delete image",
+        "deleteImageConfirm": "Are you sure you want to delete this image? The homepage will fall back to the default pattern."
       },
       "homePageContent": {
         "title": "Home Page Content Management",

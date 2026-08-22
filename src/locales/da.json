@@ -1600,8 +1600,12 @@
           "businessHoursWeekend": "Åbningstider (weekend)",
           "mapTitle": "Korttitel",
           "mapAddress": "Kortadresse",
-          "mapImage": "Kortbillede"
-        }
+          "mapImage": "Kortbillede",
+          "heroBackgroundImage": "Hero-baggrundsbillede",
+          "uploadImage": "Upload billede"
+        },
+        "deleteImageTitle": "Slet billede",
+        "deleteImageConfirm": "Er du sikker på, at du vil slette dette billede? Forsiden bruger derefter det standardmønster."
       },
       "homePageContent": {
         "title": "Administration af forsideindhold",

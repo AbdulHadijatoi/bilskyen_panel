@@ -1994,18 +1994,24 @@ export async function publishPage(id: number | string): Promise<PageModel> {
 // ============================================================================
 
 /**
- * Get all home page sections
+ * Get all home page sections and images
  */
 export async function getHomePageContent(
   pageName?: string
-): Promise<HomePageSectionModel[]> {
+): Promise<{ sections: HomePageSectionModel[], images: PageImagesMap }> {
   try {
-    const response = await httpClient.get<{ data: any[] }>(
+    const response = await httpClient.get<{ data: { sections: any[], images: any } }>(
       ADMIN_HOME_PAGE_ENDPOINTS.LIST,
       { params: pageName ? { page_name: pageName } : {} }
     )
-    const sections = handleSuccess<any[]>(response)
-    return mapHomePageSectionsFromApi(sections)
+    const data = handleSuccess<{ sections: any[], images: any }>(response)
+    return {
+      sections: mapHomePageSectionsFromApi(data.sections || []),
+      images: Object.keys(data.images || {}).reduce((acc, key) => {
+        acc[key] = mapPageImagesFromApi(data.images[key] || [])
+        return acc
+      }, {} as PageImagesMap),
+    }
   } catch (error) {
     throw handleError(error)
   }
@@ -2080,6 +2086,51 @@ export async function bulkUpdateHomePageContent(
     }
     
     return mapHomePageSectionsFromApi(sectionsData)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Upload image for home page
+ */
+export async function uploadHomePageImage(
+  sectionKey: string,
+  image: File,
+  altText?: string,
+  sortOrder?: number,
+  pageName?: string
+): Promise<PageImageModel> {
+  try {
+    const formData = new FormData()
+    formData.append('section_key', sectionKey)
+    formData.append('image', image)
+    if (altText) formData.append('alt_text', altText)
+    if (sortOrder !== undefined) formData.append('sort_order', sortOrder.toString())
+    if (pageName) formData.append('page_name', pageName)
+
+    const response = await httpClient.post<{ data: any }>(
+      ADMIN_HOME_PAGE_ENDPOINTS.UPLOAD_IMAGE,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    )
+    const imageData = handleSuccess<any>(response)
+    return mapPageImageFromApi(imageData)
+  } catch (error) {
+    throw handleError(error)
+  }
+}
+
+/**
+ * Delete home page image
+ */
+export async function deleteHomePageImage(imageId: number | string): Promise<void> {
+  try {
+    await httpClient.delete(ADMIN_HOME_PAGE_ENDPOINTS.DELETE_IMAGE(imageId))
   } catch (error) {
     throw handleError(error)
   }

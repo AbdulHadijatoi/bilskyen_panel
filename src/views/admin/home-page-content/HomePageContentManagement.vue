@@ -108,6 +108,38 @@
                   @focus="handleFocus"
                 ></div>
               </div>
+              <div class="editable-field">
+                <div class="field-label">{{ t('admin.views.pageContentCommon.fields.heroBackgroundImage') }}</div>
+                <div class="image-upload-section">
+                  <div v-if="getImageForSection('hero_background')" class="image-preview-container">
+                    <img
+                      :src="getImageForSection('hero_background')?.imageUrl"
+                      :alt="getImageForSection('hero_background')?.altText || t('admin.views.pageContentCommon.fields.heroBackgroundImage')"
+                      class="image-preview"
+                    />
+                    <v-btn
+                      icon
+                      variant="text"
+                      color="error"
+                      size="small"
+                      class="delete-image-btn"
+                      @click="confirmDeleteImage(getImageForSection('hero_background')?.id)"
+                    >
+                      <v-icon>mdi-delete</v-icon>
+                    </v-btn>
+                  </div>
+                  <v-file-input
+                    v-model="imageFiles['hero_background']"
+                    :label="t('admin.views.pageContentCommon.fields.uploadImage')"
+                    accept="image/*"
+                    variant="outlined"
+                    density="compact"
+                    prepend-icon="mdi-image"
+                    hide-details="auto"
+                    @update:model-value="handleImageFileSelect('hero_background', $event)"
+                  />
+                </div>
+              </div>
             </div>
           </v-expansion-panel-text>
         </v-expansion-panel>
@@ -857,6 +889,32 @@
         <v-btn variant="text" @click="showError = false">{{ t('common.close') }}</v-btn>
       </template>
     </v-snackbar>
+
+    <v-dialog v-model="showDeleteImageDialog" max-width="400">
+      <v-card>
+        <v-card-title class="d-flex align-center text-subtitle-1">
+          <v-icon color="error" size="18" class="mr-2">mdi-delete</v-icon>
+          {{ t('admin.views.pageContentCommon.deleteImageTitle') }}
+        </v-card-title>
+        <v-card-text class="pa-3">
+          <p class="text-body-2">
+            {{ t('admin.views.pageContentCommon.deleteImageConfirm') }}
+          </p>
+        </v-card-text>
+        <v-card-actions class="pa-3">
+          <v-spacer />
+          <v-btn variant="text" size="small" @click="showDeleteImageDialog = false">{{ t('common.cancel') }}</v-btn>
+          <v-btn
+            color="error"
+            size="small"
+            @click="deleteImage"
+            :loading="deletingImage"
+          >
+            {{ t('common.delete') }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -867,8 +925,10 @@ import PageHeader from '@/components/panel/PageHeader.vue'
 import {
   getHomePageContent,
   bulkUpdateHomePageContent,
+  uploadHomePageImage,
+  deleteHomePageImage,
 } from '@/api/admin.api'
-import type { HomePageContentMap, HomePageSectionModel } from '@/models/home-page-content.model'
+import type { HomePageContentMap, HomePageSectionModel, PageImageModel, PageImagesMap } from '@/models/home-page-content.model'
 
 const { t } = useI18n()
 
@@ -930,7 +990,12 @@ const errorMessage = ref('')
 const showSuccess = ref(false)
 const showError = ref(false)
 const sections = ref<HomePageSectionModel[]>([])
+const images = ref<PageImagesMap>({})
 const expandedPanels = ref<number[]>([])
+const imageFiles = reactive<Record<string, File | null>>({})
+const showDeleteImageDialog = ref(false)
+const deletingImage = ref(false)
+const imageToDelete = ref<number | null>(null)
 
 // Form data - reactive object with all section keys
 const formData = reactive<HomePageContentMap>({})
@@ -945,6 +1010,61 @@ Object.keys(sectionDefinitions).forEach((key) => {
  */
 function getPlaceholder(key: string): string {
   return t(`admin.views.homePageContent.placeholders.${key}`)
+}
+
+function getImageForSection(sectionKey: string): PageImageModel | null {
+  const sectionImages = images.value[sectionKey]
+  if (sectionImages && sectionImages.length > 0) {
+    return sectionImages[0] ?? null
+  }
+  return null
+}
+
+async function handleImageFileSelect(sectionKey: string, file: File | File[] | null) {
+  if (!file) return
+  const fileToUpload = Array.isArray(file) ? file[0] : file
+  if (!fileToUpload) return
+
+  try {
+    const uploadedImage = await uploadHomePageImage(sectionKey, fileToUpload, undefined, 0, 'home')
+    images.value[sectionKey] = [uploadedImage]
+    imageFiles[sectionKey] = null
+    showSuccess.value = true
+  } catch (err: any) {
+    errorMessage.value = err.message || t('common.errors.failedUploadImages')
+    showError.value = true
+    console.error('Error uploading image:', err)
+  }
+}
+
+function confirmDeleteImage(imageId: number | undefined) {
+  if (imageId) {
+    imageToDelete.value = imageId
+    showDeleteImageDialog.value = true
+  }
+}
+
+async function deleteImage() {
+  if (!imageToDelete.value) return
+
+  deletingImage.value = true
+  try {
+    await deleteHomePageImage(imageToDelete.value)
+    Object.keys(images.value).forEach((key) => {
+      if (images.value[key]) {
+        images.value[key] = images.value[key].filter(img => img.id !== imageToDelete.value)
+      }
+    })
+    showDeleteImageDialog.value = false
+    imageToDelete.value = null
+    showSuccess.value = true
+  } catch (err: any) {
+    errorMessage.value = err.message || t('common.errors.failedDeleteImage')
+    showError.value = true
+    console.error('Error deleting image:', err)
+  } finally {
+    deletingImage.value = false
+  }
 }
 
 /**
@@ -1110,10 +1230,11 @@ async function loadContent() {
 
   try {
     const data = await getHomePageContent('home')
-    sections.value = data
+    sections.value = data.sections
+    images.value = data.images || {}
 
     // Populate form data with existing content
-    data.forEach((section) => {
+    data.sections.forEach((section) => {
       if (formData.hasOwnProperty(section.sectionKey)) {
         // Always set the value, even if null (will be empty string)
         formData[section.sectionKey] = section.content || ''
@@ -1568,5 +1689,33 @@ onMounted(async () => {
 .expansion-panels :deep(.v-expansion-panel-title) {
   flex-direction: row;
   align-items: center;
+}
+
+.image-upload-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.image-preview-container {
+  position: relative;
+  display: inline-block;
+  max-width: 300px;
+}
+
+.image-preview {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.delete-image-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 </style>
