@@ -808,6 +808,14 @@ function normalizeAiBools(obj: Record<string, any>) {
   return out
 }
 
+/** Empty monthly token budget means unlimited (0). */
+function normalizeAiSettingsForSave(obj: Record<string, any>) {
+  const out = normalizeAiBools(obj)
+  const budget = Number(out.monthly_token_budget)
+  out.monthly_token_budget = Number.isFinite(budget) ? budget : 0
+  return out
+}
+
 function normalizeGenericBools(obj: Record<string, any>, keys: string[]) {
   const out = { ...obj }
   for (const key of keys) {
@@ -849,7 +857,7 @@ async function save() {
     const settingsMap: Record<string, any> = {
       crm: crmSettings.value,
       payment: paymentSettings.value,
-      ai: normalizeAiBools(aiSettings.value),
+      ai: normalizeAiSettingsForSave(aiSettings.value),
       media: mediaSettings.value,
       finance: financeSettings.value,
       marketplace: marketplaceSettings.value,
