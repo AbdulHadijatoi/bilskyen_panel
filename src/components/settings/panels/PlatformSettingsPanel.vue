@@ -25,7 +25,6 @@
       :title="t('settings.platform.faqTitle')"
       :description="t('settings.platform.faqDescription')"
       icon="mdi-help-circle-outline"
-      :divider="false"
     >
       <div class="settings-platform-panel__row mb-4">
         <v-switch
@@ -57,6 +56,28 @@
       </div>
     </PanelSection>
 
+    <PanelSection
+      :title="t('settings.platform.vehicleDetailMapTitle')"
+      :description="t('settings.platform.vehicleDetailMapDescription')"
+      icon="mdi-map-marker-outline"
+      :divider="false"
+    >
+      <div class="settings-platform-panel__row">
+        <v-switch
+          v-model="vehicleDetailMapEnabled"
+          color="primary"
+          hide-details
+          :loading="savingKey === 'vehicle_detail_map'"
+          :disabled="loading || savingKey !== null"
+          @update:model-value="saveVehicleDetailMap"
+        />
+        <div class="settings-platform-panel__copy">
+          <p class="settings-platform-panel__label">{{ t('settings.platform.vehicleDetailMapEnabled') }}</p>
+          <p class="settings-platform-panel__hint">{{ t('settings.platform.vehicleDetailMapHint') }}</p>
+        </div>
+      </div>
+    </PanelSection>
+
     <v-alert
       v-if="message"
       :type="messageType"
@@ -82,10 +103,11 @@ const { t } = useI18n()
 const platformSettingsStore = usePlatformSettingsStore()
 
 const loading = ref(true)
-const savingKey = ref<'language' | 'faq_page' | 'faq_chatbot' | null>(null)
+const savingKey = ref<'language' | 'faq_page' | 'faq_chatbot' | 'vehicle_detail_map' | null>(null)
 const languageSwitcherEnabled = ref(true)
 const faqPageEnabled = ref(true)
 const faqChatbotEnabled = ref(false)
+const vehicleDetailMapEnabled = ref(true)
 const message = ref('')
 const messageType = ref<'success' | 'error'>('success')
 
@@ -104,6 +126,7 @@ async function load() {
     platformSettingsStore.setLanguageSwitcherEnabled(enabled)
     faqPageEnabled.value = parseEnabled(data.general?.faq_page_enabled, true)
     faqChatbotEnabled.value = parseEnabled(data.general?.faq_chatbot_enabled, false)
+    vehicleDetailMapEnabled.value = parseEnabled(data.marketplace?.vehicle_detail_map_enabled, true)
   } catch {
     message.value = t('settings.platform.loadFailed')
     messageType.value = 'error'
@@ -167,6 +190,25 @@ async function saveFaqChatbot(enabled: boolean | null) {
     messageType.value = 'success'
   } catch {
     faqChatbotEnabled.value = previous
+    message.value = t('settings.platform.saveFailed')
+    messageType.value = 'error'
+  } finally {
+    savingKey.value = null
+  }
+}
+
+async function saveVehicleDetailMap(enabled: boolean | null) {
+  if (enabled === null || loading.value) return
+
+  const previous = !enabled
+  savingKey.value = 'vehicle_detail_map'
+  message.value = ''
+  try {
+    await updateIntegrations('marketplace', { vehicle_detail_map_enabled: enabled })
+    message.value = t('settings.platform.saved')
+    messageType.value = 'success'
+  } catch {
+    vehicleDetailMapEnabled.value = previous
     message.value = t('settings.platform.saveFailed')
     messageType.value = 'error'
   } finally {

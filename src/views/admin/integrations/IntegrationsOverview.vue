@@ -486,6 +486,14 @@
           >
             <v-switch v-model="marketplaceSettings.trust_report_enabled" color="primary" hide-details />
           </IntegrationField>
+
+          <IntegrationField
+            :label="t('admin.views.integrations.vehicleDetailMapEnabled')"
+            help-key="vehicleDetailMapEnabled"
+            switch-field
+          >
+            <v-switch v-model="marketplaceSettings.vehicle_detail_map_enabled" color="primary" hide-details />
+          </IntegrationField>
         </v-card>
       </v-window-item>
 
@@ -705,7 +713,7 @@ const paymentSettings = ref<Record<string, any>>({
 const aiSettings = ref<Record<string, any>>({})
 const mediaSettings = ref<Record<string, any>>({ min_images_before_publish: 0, max_image_upload_mb: 10, watermark_enabled: false, watermark_opacity: 40 })
 const financeSettings = ref<Record<string, any>>({ calculator_enabled: true, default_rate_pct: 4.9, min_rate_pct: 2.9, max_rate_pct: 12.9, default_term_months: 60 })
-const marketplaceSettings = ref<Record<string, any>>({ trust_report_enabled: true })
+const marketplaceSettings = ref<Record<string, any>>({ trust_report_enabled: true, vehicle_detail_map_enabled: true })
 const marketingSettings = ref<Record<string, any>>({
   enquiry_sequence_enabled: true,
   enquiry_day1_hours: 24,
@@ -748,7 +756,7 @@ async function load() {
     aiSettings.value = { ...aiSettings.value, ...normalizeAiBools(data.ai ?? {}) }
     mediaSettings.value = { ...mediaSettings.value, ...normalizeGenericBools(data.media ?? {}, ['watermark_enabled']) }
     financeSettings.value = { ...financeSettings.value, ...normalizeGenericBools(data.finance ?? {}, ['calculator_enabled']) }
-    marketplaceSettings.value = { ...marketplaceSettings.value, ...normalizeGenericBools(data.marketplace ?? {}, ['trust_report_enabled']) }
+    marketplaceSettings.value = { ...marketplaceSettings.value, ...normalizeGenericBools(data.marketplace ?? {}, ['trust_report_enabled', 'vehicle_detail_map_enabled']) }
     marketingSettings.value = {
       ...marketingSettings.value,
       ...normalizeGenericBools(data.marketing ?? {}, [
