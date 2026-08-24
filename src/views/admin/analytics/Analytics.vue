@@ -132,6 +132,84 @@
         </v-card-text>
       </v-card>
 
+      <v-card variant="outlined" class="mb-6">
+        <v-card-title class="d-flex flex-wrap align-center justify-space-between ga-2">
+          <span>{{ t('admin.views.analytics.adsFunnelTitle') }}</span>
+          <v-btn-toggle
+            v-model="adsFunnelSource"
+            mandatory
+            density="compact"
+            variant="outlined"
+            divided
+            @update:model-value="loadAdsFunnel"
+          >
+            <v-btn value="meta" size="small">{{ t('admin.views.analytics.adsSourceMeta') }}</v-btn>
+            <v-btn value="other" size="small">{{ t('admin.views.analytics.adsSourceOther') }}</v-btn>
+            <v-btn value="all" size="small">{{ t('admin.views.analytics.adsSourceAll') }}</v-btn>
+          </v-btn-toggle>
+        </v-card-title>
+        <v-card-text>
+          <p class="text-body-2 text-medium-emphasis mb-4">{{ t('admin.views.analytics.adsFunnelSubtitle') }}</p>
+          <v-row v-if="adsFunnel">
+            <v-col cols="6" md>
+              <MetricCard :title="t('admin.views.analytics.adsLanded')" :value="adsFunnel.steps.landed" icon="mdi-login" />
+            </v-col>
+            <v-col cols="6" md>
+              <MetricCard :title="t('admin.views.analytics.adsEngaged')" :value="adsFunnel.steps.engaged" icon="mdi-gesture-tap" />
+              <div class="text-caption text-medium-emphasis mt-1">{{ t('admin.views.analytics.adsDropoff') }} {{ adsDropoff(adsFunnel.steps.landed, adsFunnel.steps.engaged) }}%</div>
+            </v-col>
+            <v-col cols="6" md>
+              <MetricCard :title="t('admin.views.analytics.adsCta')" :value="adsFunnel.steps.cta" icon="mdi-cursor-default-click" />
+              <div class="text-caption text-medium-emphasis mt-1">{{ t('admin.views.analytics.adsDropoff') }} {{ adsDropoff(adsFunnel.steps.engaged, adsFunnel.steps.cta) }}%</div>
+            </v-col>
+            <v-col cols="6" md>
+              <MetricCard :title="t('admin.views.analytics.adsFormOpen')" :value="adsFunnel.steps.form_open" icon="mdi-form-select" />
+              <div class="text-caption text-medium-emphasis mt-1">{{ t('admin.views.analytics.adsDropoff') }} {{ adsDropoff(adsFunnel.steps.cta, adsFunnel.steps.form_open) }}%</div>
+            </v-col>
+            <v-col cols="6" md>
+              <MetricCard :title="t('admin.views.analytics.adsConverted')" :value="adsFunnel.steps.converted" icon="mdi-check-bold" icon-color="success" />
+              <div class="text-caption text-medium-emphasis mt-1">{{ t('admin.views.analytics.adsDropoff') }} {{ adsDropoff(adsFunnel.steps.form_open, adsFunnel.steps.converted) }}%</div>
+            </v-col>
+          </v-row>
+          <p v-if="adsFunnel" class="text-body-2 text-medium-emphasis mt-3">
+            {{ t('admin.views.analytics.conversionRateLabel') }} {{ adsFunnel.rates.landed_to_converted }}%
+            · {{ t('admin.views.analytics.adsFormErrors') }}: {{ adsFunnel.form_errors }}
+            · {{ t('admin.views.analytics.adsFormCloses') }}: {{ adsFunnel.form_closes }}
+          </p>
+          <p v-if="adsFunnel" class="text-body-2 mt-1">
+            {{ t('admin.views.analytics.adsMetaVsOther') }}:
+            Meta {{ adsFunnel.compare.meta_conversion_rate }}%
+            ({{ adsFunnel.compare.meta_converted }}/{{ adsFunnel.compare.meta_landed }})
+            · {{ t('admin.views.analytics.adsSourceOther') }} {{ adsFunnel.compare.other_conversion_rate }}%
+            ({{ adsFunnel.compare.other_converted }}/{{ adsFunnel.compare.other_landed }})
+          </p>
+          <h4 v-if="adsFunnel" class="text-subtitle-2 mt-4 mb-2">{{ t('admin.views.analytics.adsVehiclesTitle') }}</h4>
+          <v-table v-if="adsFunnel?.vehicles?.length" density="compact">
+            <thead>
+              <tr>
+                <th>{{ t('admin.views.analytics.vehicle') }}</th>
+                <th class="text-end">{{ t('admin.views.analytics.adsLanded') }}</th>
+                <th class="text-end">{{ t('admin.views.analytics.adsEngaged') }}</th>
+                <th class="text-end">{{ t('admin.views.analytics.adsCta') }}</th>
+                <th class="text-end">{{ t('admin.views.analytics.adsConverted') }}</th>
+                <th class="text-end">{{ t('admin.views.analytics.adsConversionPct') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="row in adsFunnel.vehicles" :key="row.vehicle_id">
+                <td>{{ row.title || row.slug || row.vehicle_id }}</td>
+                <td class="text-end">{{ row.landed }}</td>
+                <td class="text-end">{{ row.engaged }}</td>
+                <td class="text-end">{{ row.cta }}</td>
+                <td class="text-end">{{ row.converted }}</td>
+                <td class="text-end">{{ row.conversion_rate }}%</td>
+              </tr>
+            </tbody>
+          </v-table>
+          <div v-else-if="adsFunnel" class="text-medium-emphasis">{{ t('common.noData') }}</div>
+        </v-card-text>
+      </v-card>
+
       <!-- Trends -->
       <v-card variant="outlined" class="mb-6">
         <v-card-title>{{ t('admin.views.analytics.trendsTitle') }}</v-card-title>
@@ -574,6 +652,7 @@ import {
   getAnalyticsLeads,
   getAnalyticsActivity,
   getAnalyticsFunnel,
+  getAnalyticsAdsFunnel,
   getAnalyticsCohort,
   getAnalyticsIntegrations,
   getAnalyticsTrends,
@@ -587,6 +666,7 @@ import type {
   LeadAnalytics,
   UserActivityAnalytics,
   FunnelAnalytics,
+  AdsFunnelAnalytics,
   CohortAnalytics,
   IntegrationsAnalytics,
   TrendAnalytics,
@@ -615,6 +695,8 @@ const vehicles = ref<VehicleAnalytics | null>(null)
 const leads = ref<LeadAnalytics | null>(null)
 const activity = ref<UserActivityAnalytics | null>(null)
 const funnel = ref<FunnelAnalytics | null>(null)
+const adsFunnel = ref<AdsFunnelAnalytics | null>(null)
+const adsFunnelSource = ref<'meta' | 'other' | 'all'>('meta')
 const cohort = ref<CohortAnalytics | null>(null)
 const integrations = ref<IntegrationsAnalytics | null>(null)
 const trends = ref<TrendAnalytics | null>(null)
@@ -729,6 +811,16 @@ const loadFunnel = async () => {
   }
 }
 
+const adsDropoff = (from: number, to: number) => (from > 0 ? Math.round((1 - to / from) * 10000) / 100 : 0)
+
+const loadAdsFunnel = async () => {
+  try {
+    adsFunnel.value = await getAnalyticsAdsFunnel(dateRange.value, adsFunnelSource.value)
+  } catch (err) {
+    recordSectionError(t('admin.views.analytics.adsFunnelTitle'), err)
+  }
+}
+
 const loadCohort = async () => {
   try {
     cohort.value = (await getAnalyticsCohort()) as CohortAnalytics
@@ -763,6 +855,7 @@ const loadAllAnalytics = async () => {
   await Promise.all([
     loadOverview(),
     loadFunnel(),
+    loadAdsFunnel(),
     loadCohort(),
     loadIntegrations(),
     loadTrends(),

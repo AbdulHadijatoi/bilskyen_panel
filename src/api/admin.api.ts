@@ -3116,6 +3116,16 @@ export async function getAnalyticsFunnel(dateRange?: string, compare = false) {
   return handleSuccess(response)
 }
 
+export async function getAnalyticsAdsFunnel(
+  dateRange?: string,
+  source: 'meta' | 'other' | 'all' = 'meta'
+): Promise<import('@/models/analytics.model').AdsFunnelAnalytics> {
+  const response = await httpClient.get(ADMIN_ANALYTICS_ENDPOINTS.ADS_FUNNEL, {
+    params: { date_range: dateRange, source },
+  })
+  return handleSuccess(response)
+}
+
 export async function getAnalyticsCohort() {
   const response = await httpClient.get(ADMIN_ANALYTICS_ENDPOINTS.COHORT)
   return handleSuccess(response)

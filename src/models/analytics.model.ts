@@ -255,6 +255,45 @@ export interface FunnelAnalytics {
   previous_rates?: FunnelAnalytics['rates']
 }
 
+export interface AdsFunnelAnalytics {
+  source: 'meta' | 'other' | 'all'
+  steps: {
+    landed: number
+    engaged: number
+    cta: number
+    form_open: number
+    converted: number
+  }
+  rates: {
+    landed_to_engaged: number
+    engaged_to_cta: number
+    cta_to_form: number
+    form_to_converted: number
+    landed_to_converted: number
+  }
+  form_errors: number
+  form_closes: number
+  compare: {
+    meta_conversion_rate: number
+    other_conversion_rate: number
+    meta_landed: number
+    other_landed: number
+    meta_converted: number
+    other_converted: number
+  }
+  vehicles: Array<{
+    vehicle_id: number
+    title: string | null
+    slug: string | null
+    landed: number
+    engaged: number
+    cta: number
+    form_open: number
+    converted: number
+    conversion_rate: number
+  }>
+}
+
 export interface StockAnalytics {
   published_inventory: number
   sold_in_period: number
