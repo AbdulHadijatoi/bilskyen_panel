@@ -631,6 +631,7 @@ export const ADMIN_ANALYTICS_ENDPOINTS = {
   LEADS: '/admin/analytics/leads',
   ACTIVITY: '/admin/analytics/activity',
   FUNNEL: '/admin/analytics/funnel',
+  ADS_FUNNEL: '/admin/analytics/ads-funnel',
   COHORT: '/admin/analytics/cohort',
   INTEGRATIONS: '/admin/analytics/integrations',
   TRENDS: '/admin/analytics/trends',

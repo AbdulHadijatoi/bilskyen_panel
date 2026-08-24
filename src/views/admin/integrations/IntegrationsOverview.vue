@@ -602,17 +602,42 @@
             />
           </IntegrationField>
 
-          <IntegrationField :label="t('admin.views.integrations.metaDomainVerification')" help-key="metaDomainVerification" class="mb-2">
-            <v-text-field
-              v-model="marketingSettings.meta_domain_verification"
-              variant="outlined"
-              density="compact"
-              hide-details
-              placeholder="abc123def456"
-            />
-          </IntegrationField>
+            <IntegrationField :label="t('admin.views.integrations.metaDomainVerification')" help-key="metaDomainVerification" class="mb-4">
+              <v-text-field
+                v-model="marketingSettings.meta_domain_verification"
+                variant="outlined"
+                density="compact"
+                hide-details
+                placeholder="abc123def456"
+              />
+            </IntegrationField>
 
-          <div class="d-flex flex-wrap ga-2 mt-2">
+            <v-divider class="mb-4" />
+            <IntegrationTabIntro
+              :title="t('admin.views.integrations.claritySectionTitle')"
+              :help="help('claritySection')"
+            />
+
+            <IntegrationField
+              :label="t('admin.views.integrations.microsoftClarityEnabled')"
+              help-key="microsoftClarityEnabled"
+              switch-field
+              class="mb-2"
+            >
+              <v-switch v-model="marketingSettings.microsoft_clarity_enabled" color="primary" hide-details />
+            </IntegrationField>
+
+            <IntegrationField :label="t('admin.views.integrations.microsoftClarityProjectId')" help-key="microsoftClarityProjectId" class="mb-4">
+              <v-text-field
+                v-model="marketingSettings.microsoft_clarity_project_id"
+                variant="outlined"
+                density="compact"
+                hide-details
+                placeholder="abcdefghij"
+              />
+            </IntegrationField>
+
+            <div class="d-flex flex-wrap ga-2 mt-2">
             <v-btn size="small" color="primary" variant="tonal" :to="'/admin/meta-ads-guide'">
               {{ t('admin.views.integrations.openMetaGuide') }}
             </v-btn>
@@ -726,6 +751,8 @@ const marketingSettings = ref<Record<string, any>>({
   meta_capi_access_token: '',
   meta_capi_test_event_code: '',
   meta_domain_verification: '',
+  microsoft_clarity_enabled: false,
+  microsoft_clarity_project_id: '',
 })
 const complianceSettings = ref<Record<string, any>>({ gdpr_export_enabled: true, data_retention_days: 730 })
 const reputationSettings = ref<Record<string, any>>({ google_places_api_key: '' })
@@ -764,6 +791,7 @@ async function load() {
         'abandoned_enquiry_enabled',
         'whatsapp_auto_task',
         'meta_pixel_enabled',
+        'microsoft_clarity_enabled',
       ]),
     }
     complianceSettings.value = { ...complianceSettings.value, ...normalizeGenericBools(data.compliance ?? {}, ['gdpr_export_enabled']) }
