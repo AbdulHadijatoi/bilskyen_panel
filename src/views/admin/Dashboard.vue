@@ -257,176 +257,100 @@
       </v-row>
 
       <!-- Recent Activity -->
-      <v-row>
-        <!-- Recent Vehicles -->
-        <v-col cols="12" md="6" lg="3">
-          <v-card variant="flat" class="recent-card" elevation="1">
-            <v-card-title class="d-flex align-center">
-              <v-icon size="18" class="mr-2">mdi-car</v-icon>
-              <span class="text-subtitle-1">{{ t('admin.views.dashboard.recentVehicles') }}</span>
-              <v-spacer />
-              <v-btn
-                variant="text"
-                size="x-small"
-                :to="{ name: 'admin.vehicles' }"
-              >
-                {{ t('admin.views.dashboard.viewAll') }}
-              </v-btn>
-            </v-card-title>
-            <v-card-text class="pa-0">
-              <v-list density="compact">
-                <v-list-item
-                  v-for="vehicle in stats.recent.vehicles"
-                  :key="vehicle.id"
-                  :to="{ name: 'admin.vehicles.detail', params: { id: vehicle.id } }"
-                  class="recent-item"
-                >
-                  <template v-slot:prepend>
-                    <v-icon size="16" color="medium-emphasis">mdi-car</v-icon>
-                  </template>
-                  <v-list-item-title class="text-body-2">
-                    {{ vehicle.title || `Vehicle #${vehicle.id}` }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle class="text-caption">
-                    {{ vehicle.registration || t('common.noRegistration') }} • {{ formatPrice(vehicle.price) }}
-                  </v-list-item-subtitle>
-                  <template v-slot:append>
-                    <v-chip
-                      :color="getVehicleStatusColor(vehicle.status)"
-                      size="x-small"
-                      variant="flat"
-                    >
-                      {{ getVehicleStatusName(vehicle.status) }}
-                    </v-chip>
-                  </template>
-                </v-list-item>
-                <v-list-item v-if="stats.recent.vehicles.length === 0" class="text-center py-4">
-                  <span class="text-caption text-medium-emphasis">{{ t('admin.views.dashboard.noRecentVehicles') }}</span>
-                </v-list-item>
-              </v-list>
-            </v-card-text>
-          </v-card>
+      <v-row class="recent-feed-row">
+        <v-col cols="12" md="6" xl="3">
+          <DashboardRecentFeedCard
+            :title="t('admin.views.dashboard.recentVehicles')"
+            icon="mdi-car-outline"
+            icon-color="primary"
+            :view-all-to="{ name: 'admin.vehicles' }"
+            :view-all-label="t('admin.views.dashboard.viewAll')"
+            :empty-text="t('admin.views.dashboard.noRecentVehicles')"
+            :has-items="stats.recent.vehicles.length > 0"
+          >
+            <DashboardRecentFeedItem
+              v-for="vehicle in stats.recent.vehicles"
+              :key="vehicle.id"
+              :title="vehicle.title || `Vehicle #${vehicle.id}`"
+              :subtitle="formatVehicleMeta(vehicle)"
+              :time="formatRecentTime(vehicle.created_at)"
+              :to="{ name: 'admin.vehicles.detail', params: { id: vehicle.id } }"
+              prepend-icon="mdi-car-side"
+              prepend-icon-color="primary"
+              :chips="[{ text: getVehicleStatusName(vehicle.status), color: getVehicleStatusColor(vehicle.status) }]"
+            />
+          </DashboardRecentFeedCard>
         </v-col>
 
-        <!-- Recent Users -->
-        <v-col cols="12" md="6" lg="3">
-          <v-card variant="flat" class="recent-card" elevation="1">
-            <v-card-title class="d-flex align-center">
-              <v-icon size="18" class="mr-2">mdi-account-group</v-icon>
-              <span class="text-subtitle-1">{{ t('admin.views.dashboard.recentUsers') }}</span>
-              <v-spacer />
-              <v-btn
-                variant="text"
-                size="x-small"
-                :to="{ name: 'admin.users' }"
-              >
-                {{ t('admin.views.dashboard.viewAll') }}
-              </v-btn>
-            </v-card-title>
-            <v-card-text class="pa-0">
-              <v-list density="compact">
-                <v-list-item
-                  v-for="user in stats.recent.users"
-                  :key="user.id"
-                  :to="{ name: 'admin.users.detail', params: { id: user.id } }"
-                  class="recent-item"
-                >
-                  <template v-slot:prepend>
-                    <v-avatar size="24" color="primary">
-                      <span class="text-caption">{{ user.name?.charAt(0).toUpperCase() || 'U' }}</span>
-                    </v-avatar>
-                  </template>
-                  <v-list-item-title class="text-body-2">
-                    {{ user.name || t('common.unknown') }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle class="text-caption">
-                    {{ user.email }} • {{ user.role }}
-                  </v-list-item-subtitle>
-                </v-list-item>
-                <v-list-item v-if="stats.recent.users.length === 0" class="text-center py-4">
-                  <span class="text-caption text-medium-emphasis">{{ t('admin.views.dashboard.noRecentUsers') }}</span>
-                </v-list-item>
-              </v-list>
-            </v-card-text>
-          </v-card>
+        <v-col cols="12" md="6" xl="3">
+          <DashboardRecentFeedCard
+            :title="t('admin.views.dashboard.recentUsers')"
+            icon="mdi-account-group-outline"
+            icon-color="info"
+            :view-all-to="{ name: 'admin.users' }"
+            :view-all-label="t('admin.views.dashboard.viewAll')"
+            :empty-text="t('admin.views.dashboard.noRecentUsers')"
+            :has-items="stats.recent.users.length > 0"
+          >
+            <DashboardRecentFeedItem
+              v-for="user in stats.recent.users"
+              :key="user.id"
+              :title="user.name || t('common.unknown')"
+              :subtitle="user.email"
+              :time="formatRecentTime(user.created_at)"
+              :to="{ name: 'admin.users.detail', params: { id: user.id } }"
+              :avatar-text="(user.name?.charAt(0) || 'U').toUpperCase()"
+              avatar-color="info"
+              :chips="user.role ? [{ text: user.role, color: 'grey' }] : undefined"
+            />
+          </DashboardRecentFeedCard>
         </v-col>
 
-        <!-- Recent Dealers -->
-        <v-col cols="12" md="6" lg="3">
-          <v-card variant="flat" class="recent-card" elevation="1">
-            <v-card-title class="d-flex align-center">
-              <v-icon size="18" class="mr-2">mdi-store</v-icon>
-              <span class="text-subtitle-1">{{ t('admin.views.dashboard.recentDealers') }}</span>
-              <v-spacer />
-            </v-card-title>
-            <v-card-text class="pa-0">
-              <v-list density="compact">
-                <v-list-item
-                  v-for="dealer in stats.recent.dealers"
-                  :key="dealer.id"
-                  class="recent-item"
-                >
-                  <template v-slot:prepend>
-                    <v-icon size="16" color="info">mdi-store</v-icon>
-                  </template>
-                  <v-list-item-title class="text-body-2">
-                    {{ dealer.name || dealer.cvr || t('admin.views.dealers.unnamedDealer') + ` #${dealer.id}` }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle class="text-caption">
-                    <template v-if="dealer.cvr_pending">{{ t('admin.views.dealers.pendingCvr') }}</template>
-                    <template v-else-if="dealer.cvr">{{ dealer.cvr }}</template>
-                    <template v-if="dealer.city || dealer.address"> · {{ dealer.city || dealer.address }}</template>
-                    <template v-else-if="!dealer.cvr_pending"> · {{ t('common.noLocation') }}</template>
-                  </v-list-item-subtitle>
-                </v-list-item>
-                <v-list-item v-if="stats.recent.dealers.length === 0" class="text-center py-4">
-                  <span class="text-caption text-medium-emphasis">{{ t('admin.views.dashboard.noRecentDealers') }}</span>
-                </v-list-item>
-              </v-list>
-            </v-card-text>
-          </v-card>
+        <v-col cols="12" md="6" xl="3">
+          <DashboardRecentFeedCard
+            :title="t('admin.views.dashboard.recentDealers')"
+            icon="mdi-store-outline"
+            icon-color="warning"
+            :view-all-to="{ name: 'admin.dealers' }"
+            :view-all-label="t('admin.views.dashboard.viewAll')"
+            :empty-text="t('admin.views.dashboard.noRecentDealers')"
+            :has-items="stats.recent.dealers.length > 0"
+          >
+            <DashboardRecentFeedItem
+              v-for="dealer in stats.recent.dealers"
+              :key="dealer.id"
+              :title="dealer.name || dealer.cvr || `${t('admin.views.dealers.unnamedDealer')} #${dealer.id}`"
+              :subtitle="formatDealerMeta(dealer)"
+              :time="formatRecentTime(dealer.created_at)"
+              :to="{ name: 'admin.dealers.detail', params: { id: dealer.id } }"
+              prepend-icon="mdi-storefront-outline"
+              prepend-icon-color="warning"
+            />
+          </DashboardRecentFeedCard>
         </v-col>
 
-        <!-- Recent Leads -->
-        <v-col cols="12" md="6" lg="3">
-          <v-card variant="flat" class="recent-card" elevation="1">
-            <v-card-title class="d-flex align-center">
-              <v-icon size="18" class="mr-2">mdi-phone-in-talk</v-icon>
-              <span class="text-subtitle-1">{{ t('admin.views.dashboard.recentLeads') }}</span>
-              <v-spacer />
-              <v-btn
-                size="x-small"
-                variant="text"
-                color="primary"
-                @click="router.push({ name: 'admin.leads' })"
-              >
-                {{ t('admin.views.dashboard.viewAll') }}
-              </v-btn>
-            </v-card-title>
-            <v-card-text class="pa-0">
-              <v-list density="compact">
-                <v-list-item
-                  v-for="lead in stats.recent.leads"
-                  :key="lead.id"
-                  class="recent-item"
-                  @click="router.push({ name: 'admin.leads.detail', params: { id: lead.id } })"
-                >
-                  <template v-slot:prepend>
-                    <v-icon size="16" color="success">mdi-phone</v-icon>
-                  </template>
-                  <v-list-item-title class="text-body-2">
-                    {{ lead.vehicle_title || `Lead #${lead.id}` }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle class="text-caption">
-                    {{ lead.buyer_name }} • {{ lead.dealer_cvr }}
-                  </v-list-item-subtitle>
-                </v-list-item>
-                <v-list-item v-if="stats.recent.leads.length === 0" class="text-center py-4">
-                  <span class="text-caption text-medium-emphasis">{{ t('admin.views.dashboard.noRecentLeads') }}</span>
-                </v-list-item>
-              </v-list>
-            </v-card-text>
-          </v-card>
+        <v-col cols="12" md="6" xl="3">
+          <DashboardRecentFeedCard
+            :title="t('admin.views.dashboard.recentLeads')"
+            icon="mdi-phone-in-talk-outline"
+            icon-color="success"
+            :view-all-to="{ name: 'admin.leads' }"
+            :view-all-label="t('admin.views.dashboard.viewAll')"
+            :empty-text="t('admin.views.dashboard.noRecentLeads')"
+            :has-items="stats.recent.leads.length > 0"
+          >
+            <DashboardRecentFeedItem
+              v-for="lead in stats.recent.leads"
+              :key="lead.id"
+              :title="lead.buyer_name || `Lead #${lead.id}`"
+              :subtitle="formatLeadMeta(lead)"
+              :time="formatRecentTime(lead.created_at)"
+              :to="{ name: 'admin.leads.detail', params: { id: lead.id } }"
+              prepend-icon="mdi-account-voice"
+              prepend-icon-color="success"
+              :chips="lead.stage_id ? [{ text: getStageName(lead.stage_id), color: getStageColor(lead.stage_id) }] : undefined"
+            />
+          </DashboardRecentFeedCard>
         </v-col>
       </v-row>
     </div>
@@ -435,7 +359,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { getDashboardStats, type DashboardStats } from '@/api/admin.api'
 import type { ApiErrorModel } from '@/models/api-error.model'
@@ -443,11 +366,13 @@ import PageHeader from '@/components/panel/PageHeader.vue'
 import StatMetricCard from '@/components/panel/StatMetricCard.vue'
 import MiniStatCard from '@/components/panel/MiniStatCard.vue'
 import TrendAreaChart from '@/components/panel/TrendAreaChart.vue'
+import DashboardRecentFeedCard from '@/components/panel/DashboardRecentFeedCard.vue'
+import DashboardRecentFeedItem from '@/components/panel/DashboardRecentFeedItem.vue'
 import { translateStatus } from '@/utils/vehicleLabels'
 import { buildVehicleStatusDistribution } from '@/utils/dashboardDistribution'
+import { formatLeadDate, getStageName, getStageColor } from '@/utils/leadHelpers'
 
 const { t } = useI18n()
-const router = useRouter()
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -518,6 +443,45 @@ const getVehicleStatusName = (statusId?: number) => {
   return names[statusId || 0] || t('common.unknown')
 }
 
+const formatRecentTime = (date?: string | null) => {
+  if (!date) return undefined
+  return formatLeadDate(date)
+}
+
+const formatVehicleMeta = (vehicle: { registration?: string; price?: number; dealer_name?: string }) => {
+  const parts = [
+    vehicle.registration || t('common.noRegistration'),
+    formatPrice(vehicle.price ?? 0),
+  ]
+  if (vehicle.dealer_name) {
+    parts.push(vehicle.dealer_name)
+  }
+  return parts.join(' · ')
+}
+
+const formatDealerMeta = (dealer: { cvr?: string | null; cvr_pending?: boolean; city?: string; address?: string }) => {
+  const parts: string[] = []
+  if (dealer.cvr_pending) {
+    parts.push(t('admin.views.dealers.pendingCvr'))
+  } else if (dealer.cvr) {
+    parts.push(dealer.cvr)
+  }
+  if (dealer.city || dealer.address) {
+    parts.push(dealer.city || dealer.address || '')
+  } else if (!dealer.cvr_pending) {
+    parts.push(t('common.noLocation'))
+  }
+  return parts.filter(Boolean).join(' · ')
+}
+
+const formatLeadMeta = (lead: { vehicle_title?: string; dealer_cvr?: string }) => {
+  const parts = [lead.vehicle_title || t('common.na')]
+  if (lead.dealer_cvr) {
+    parts.push(lead.dealer_cvr)
+  }
+  return parts.join(' · ')
+}
+
 onMounted(() => {
   loadDashboard()
 })
@@ -575,28 +539,12 @@ onMounted(() => {
   padding: 0 8px;
 }
 
-.recent-card {
-  height: 100%;
-  max-height: 400px;
+.recent-feed-row {
+  margin-top: 0.25rem;
+}
+
+.recent-feed-row > .v-col {
   display: flex;
-  flex-direction: column;
-}
-
-.recent-card :deep(.v-card-title) {
-  border-bottom: 1px solid var(--border);
-}
-
-.recent-item {
-  border-bottom: 1px solid var(--border);
-  transition: background-color 0.2s ease;
-}
-
-.recent-item:hover {
-  background-color: var(--muted);
-}
-
-.recent-item:last-child {
-  border-bottom: none;
 }
 
 @media (max-width: 960px) {
