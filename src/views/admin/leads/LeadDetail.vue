@@ -43,6 +43,9 @@
                   <div class="text-caption text-medium-emphasis mb-1">{{ t('admin.views.leadsDetail.source') }}</div>
                   <div class="font-weight-medium">{{ getSourceName(lead.source) }}</div>
                 </v-col>
+                <v-col cols="12">
+                  <LeadAttributionBlock :lead="lead" />
+                </v-col>
               </v-row>
             </v-card-text>
           </v-card>
@@ -177,6 +180,7 @@ import { getLead } from '@/api/admin.api'
 import type { LeadModel } from '@/models/lead.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import LeadAttributionBlock from '@/components/leads/LeadAttributionBlock.vue'
 import { getDealerDisplayName } from '@/utils/dealerDisplay'
 import {
   getStageName,

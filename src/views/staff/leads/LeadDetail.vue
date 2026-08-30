@@ -105,6 +105,9 @@
                     <div class="font-weight-medium">{{ lead.source || t('common.na') }}</div>
                   </div>
                 </v-col>
+                <v-col cols="12">
+                  <LeadAttributionBlock :lead="lead" />
+                </v-col>
                 <v-col cols="12" v-if="lead.message">
                   <div class="mb-3">
                     <div class="text-caption text-medium-emphasis mb-1">Message/Enquiry</div>
@@ -455,6 +458,7 @@ import {
 } from '@/utils/leadHelpers'
 import { formatCurrency } from '@/utils/formatCurrency'
 import PageHeader from '@/components/panel/PageHeader.vue'
+import LeadAttributionBlock from '@/components/leads/LeadAttributionBlock.vue'
 
 const { t } = useI18n()
 const route = useRoute()

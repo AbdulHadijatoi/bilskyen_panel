@@ -104,6 +104,19 @@
                 @update:model-value="applyFilters"
               />
               <v-select
+                v-model="filterTrafficChannel"
+                :items="trafficChannelOptions"
+                item-title="label"
+                item-value="value"
+                :label="t('dealer.views.leads.filterTrafficChannel')"
+                variant="outlined"
+                density="compact"
+                hide-details
+                clearable
+                class="mb-3"
+                @update:model-value="applyFilters"
+              />
+              <v-select
                 v-model="filterVehicles"
                 :items="vehicleOptions"
                 item-title="title"
@@ -158,6 +171,12 @@
         <span v-if="filterIntent" class="panel-filter-chip">
           {{ intentOptions.find(i => i.id === filterIntent)?.name }}
           <button type="button" aria-label="Remove filter" @click="filterIntent = null; applyFilters()">
+            <v-icon size="12">mdi-close</v-icon>
+          </button>
+        </span>
+        <span v-if="filterTrafficChannel" class="panel-filter-chip">
+          {{ trafficChannelOptions.find(c => c.value === filterTrafficChannel)?.label }}
+          <button type="button" aria-label="Remove filter" @click="filterTrafficChannel = null; applyFilters()">
             <v-icon size="12">mdi-close</v-icon>
           </button>
         </span>
@@ -222,6 +241,20 @@
                   {{ getCategoryName(item.categoryId) }}
                 </v-chip>
                 <span v-else class="text-medium-emphasis">{{ t('dealer.views.leads.notSet') }}</span>
+              </template>
+              <template #item.trafficChannel="{ item }">
+                <div>
+                  <v-chip
+                    size="small"
+                    variant="flat"
+                    :color="getLeadTrafficChannelColor(item)"
+                  >
+                    {{ getLeadTrafficChannelLabel(item) }}
+                  </v-chip>
+                  <div v-if="item.utmCampaign" class="text-caption text-medium-emphasis text-truncate mt-1">
+                    {{ item.utmCampaign }}
+                  </div>
+                </div>
               </template>
               <template #item.message="{ item }">
                 <div v-if="item.message || item.enquiry?.message" class="text-caption lead-message-cell">
@@ -470,6 +503,11 @@ import {
   getStageOptions,
   getIntentOptions,
   getCategoryOptions,
+  getLeadTrafficChannelColor,
+  getLeadTrafficChannelLabel,
+  getLeadEffectiveTrafficSource,
+  TRAFFIC_SOURCE_META,
+  TRAFFIC_SOURCE_OTHER,
 } from '@/utils/leadHelpers'
 import LeadCard from '@/components/dealer/LeadCard.vue'
 import AnalyticsSidebar from '@/components/dealer/AnalyticsSidebar.vue'
@@ -492,6 +530,7 @@ const filterDays = ref<number | null>(null)
 const filterVehicles = ref<number[]>([])
 const filterStage = ref<number | null>(null)
 const filterIntent = ref<number | null>(null)
+const filterTrafficChannel = ref<string | null>(null)
 const assignDialog = ref(false)
 const intentDialog = ref(false)
 const categoryDialog = ref(false)
@@ -516,8 +555,14 @@ const hasActiveFilters = computed(() => {
   return !!(filterDays.value || 
     (filterVehicles.value && filterVehicles.value.length > 0) || 
     filterStage.value || 
-    filterIntent.value)
+    filterIntent.value ||
+    filterTrafficChannel.value)
 })
+
+const trafficChannelOptions = computed(() => [
+  { label: t('common.leadAttribution.channelMeta'), value: TRAFFIC_SOURCE_META },
+  { label: t('common.leadAttribution.channelWeb'), value: TRAFFIC_SOURCE_OTHER },
+])
 
 const activeFilterCount = computed(() => {
   let count = 0
@@ -525,6 +570,7 @@ const activeFilterCount = computed(() => {
   if (filterVehicles.value && filterVehicles.value.length > 0) count += filterVehicles.value.length
   if (filterStage.value) count++
   if (filterIntent.value) count++
+  if (filterTrafficChannel.value) count++
   return count
 })
 
@@ -533,6 +579,7 @@ const clearAllFilters = () => {
   filterVehicles.value = []
   filterStage.value = null
   filterIntent.value = null
+  filterTrafficChannel.value = null
   applyFilters()
 }
 
@@ -606,6 +653,11 @@ const filteredLeads = computed(() => {
   // Apply intent filter
   if (filterIntent.value) {
     filtered = filtered.filter(lead => lead.intentId === filterIntent.value)
+  }
+
+  // Apply traffic channel filter
+  if (filterTrafficChannel.value) {
+    filtered = filtered.filter(lead => getLeadEffectiveTrafficSource(lead) === filterTrafficChannel.value)
   }
   
   return filtered
@@ -765,6 +817,7 @@ const tableHeaders = computed(() => [
   { title: t('dealer.views.leads.stage'), key: 'stageId', sortable: true },
   { title: t('dealer.views.leads.intent'), key: 'intentId', sortable: true },
   { title: t('dealer.views.leads.category'), key: 'categoryId', sortable: true },
+  { title: t('dealer.views.leads.trafficChannel'), key: 'trafficChannel', sortable: false },
   { title: t('dealer.views.leads.message'), key: 'message', sortable: false },
   { title: t('common.date'), key: 'createdAt', sortable: true },
   { title: t('common.actions'), key: 'actions', sortable: false, align: 'end' as const },

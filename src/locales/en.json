@@ -263,6 +263,19 @@
       "Walk-in": "Walk-in",
       "Unknown": "Unknown"
     },
+    "leadAttribution": {
+      "marketingAttribution": "Marketing attribution",
+      "trafficChannel": "Channel",
+      "utmSource": "UTM source",
+      "utmMedium": "UTM medium",
+      "utmCampaign": "Campaign",
+      "referrer": "Referrer",
+      "noAttribution": "No attribution data recorded for this lead.",
+      "channelMeta": "Meta ads",
+      "channelWeb": "Web & other",
+      "filterTrafficChannel": "Traffic channel",
+      "filterAllChannels": "All channels"
+    },
     "plans": {
       "basic": "Basic Plan",
       "professional": "Professional Plan",
@@ -965,6 +978,7 @@
         "colVehicle": "Vehicle",
         "colStage": "Stage",
         "colCategory": "Category",
+        "colChannel": "Channel",
         "colCreated": "Created",
         "colContacted": "Contacted",
         "colActions": "Actions"
@@ -2084,6 +2098,8 @@
         "noLeadsInStage": "No leads in this stage",
         "customer": "Customer",
         "category": "Category",
+        "trafficChannel": "Channel",
+        "filterTrafficChannel": "Traffic channel",
         "failedUpdateStage": "Failed to update lead stage",
         "daysOptions": {
           "oneDay": "One Day",
@@ -3788,6 +3804,8 @@
         "noLeadsInStage": "No leads in this stage",
         "customer": "Customer",
         "category": "Category",
+        "trafficChannel": "Channel",
+        "filterTrafficChannel": "Traffic channel",
         "failedUpdateStage": "Failed to update lead stage",
         "daysOptions": {
           "oneDay": "One Day",

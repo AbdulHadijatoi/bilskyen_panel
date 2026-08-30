@@ -1051,6 +1051,7 @@ export async function getLeads(params?: PaginationParams & {
   dealer_id?: number
   stage_id?: number
   category_id?: number
+  traffic_source?: string
   search?: string
   sort?: string
   order?: 'asc' | 'desc'

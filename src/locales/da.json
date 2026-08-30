@@ -263,6 +263,19 @@
       "Walk-in": "Walk-in",
       "Unknown": "Ukendt"
     },
+    "leadAttribution": {
+      "marketingAttribution": "Marketingattribution",
+      "trafficChannel": "Kanal",
+      "utmSource": "UTM-kilde",
+      "utmMedium": "UTM-medium",
+      "utmCampaign": "Kampagne",
+      "referrer": "Henviser",
+      "noAttribution": "Ingen attributionsdata registreret for dette lead.",
+      "channelMeta": "Meta-annoncer",
+      "channelWeb": "Web og andet",
+      "filterTrafficChannel": "Trafikkanal",
+      "filterAllChannels": "Alle kanaler"
+    },
     "plans": {
       "basic": "Basisplan",
       "professional": "Professionel plan",
@@ -1838,6 +1851,7 @@
         "colVehicle": "Køretøj",
         "colStage": "Fase",
         "colCategory": "Kategori",
+        "colChannel": "Kanal",
         "colCreated": "Oprettet",
         "colContacted": "Kontaktet",
         "colActions": "Handlinger"
@@ -2084,6 +2098,8 @@
         "noLeadsInStage": "Ingen leads i denne fase",
         "customer": "Kunde",
         "category": "Kategori",
+        "trafficChannel": "Kanal",
+        "filterTrafficChannel": "Trafikkanal",
         "failedUpdateStage": "Kunne ikke opdatere lead-fase",
         "daysOptions": {
           "oneDay": "En dag",
@@ -3788,6 +3804,8 @@
         "noLeadsInStage": "Ingen leads i denne fase",
         "customer": "Kunde",
         "category": "Kategori",
+        "trafficChannel": "Kanal",
+        "filterTrafficChannel": "Trafikkanal",
         "failedUpdateStage": "Kunne ikke opdatere lead-fase",
         "daysOptions": {
           "oneDay": "En dag",

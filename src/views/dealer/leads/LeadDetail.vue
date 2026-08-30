@@ -82,6 +82,9 @@
                     <div class="font-weight-medium">{{ lead.source || t('common.na') }}</div>
                   </div>
                 </v-col>
+                <v-col cols="12">
+                  <LeadAttributionBlock :lead="lead" />
+                </v-col>
                 <v-col cols="12" v-if="lead.message || lead.enquiry">
                   <div class="mb-3">
                     <div class="text-caption text-medium-emphasis mb-1">
@@ -359,6 +362,7 @@ import { getLead, updateLeadStage, updateLeadIntent, updateLeadCategory, assignL
 import type { LeadModel } from '@/models/lead.model'
 import type { ApiErrorModel } from '@/models/api-error.model'
 import LeadCrmPanel from '@/components/crm/LeadCrmPanel.vue'
+import LeadAttributionBlock from '@/components/leads/LeadAttributionBlock.vue'
 import DealBuilderPanel from '@/components/dealer/leads/DealBuilderPanel.vue'
 import {
   getStageColor,

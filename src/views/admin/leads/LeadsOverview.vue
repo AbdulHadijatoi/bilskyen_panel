@@ -64,6 +64,22 @@
             @update:model-value="handleFilterChange"
           />
         </div>
+        <div class="panel-filters-grid__field">
+          <span class="panel-filters-card__label">{{ t('common.leadAttribution.filterTrafficChannel') }}</span>
+          <v-select
+            v-model="trafficChannelFilter"
+            :items="trafficChannelOptions"
+            item-title="label"
+            item-value="value"
+            :placeholder="t('common.leadAttribution.filterAllChannels')"
+            variant="outlined"
+            density="comfortable"
+            prepend-inner-icon="mdi-bullhorn-outline"
+            hide-details
+            clearable
+            @update:model-value="handleFilterChange"
+          />
+        </div>
         <div class="panel-filters-grid__actions">
           <button
             type="button"
@@ -161,6 +177,21 @@
             <span class="text-body-2">{{ getCategoryName(item.categoryId) }}</span>
           </template>
 
+          <template #item.trafficChannel="{ item }">
+            <div>
+              <v-chip
+                size="small"
+                variant="flat"
+                :color="getLeadTrafficChannelColor(item)"
+              >
+                {{ getLeadTrafficChannelLabel(item) }}
+              </v-chip>
+              <div v-if="item.utmCampaign" class="text-caption text-medium-emphasis text-truncate mt-1">
+                {{ item.utmCampaign }}
+              </div>
+            </div>
+          </template>
+
           <template #item.createdAt="{ item }">
             <span class="text-body-2">{{ formatLeadDateFull(item.createdAt) }}</span>
           </template>
@@ -222,6 +253,10 @@ import {
   formatLeadDate,
   formatLeadDateFull,
   LEAD_STAGE_COLORS,
+  getLeadTrafficChannelColor,
+  getLeadTrafficChannelLabel,
+  TRAFFIC_SOURCE_META,
+  TRAFFIC_SOURCE_OTHER,
 } from '@/utils/leadHelpers'
 
 const { t } = useI18n()
@@ -233,6 +268,7 @@ const error = ref<string | null>(null)
 const search = ref('')
 const dealerFilter = ref<number | null>(null)
 const stageFilter = ref<number | null>(null)
+const trafficChannelFilter = ref<string | null>(null)
 const currentPage = ref(1)
 const dealers = ref<DealerMinimalItem[]>([])
 const stages = ref<Array<{ id: number; name: string }>>([])
@@ -267,6 +303,11 @@ const stageOptions = computed(() => {
   }))
 })
 
+const trafficChannelOptions = computed(() => [
+  { label: t('common.leadAttribution.channelMeta'), value: TRAFFIC_SOURCE_META },
+  { label: t('common.leadAttribution.channelWeb'), value: TRAFFIC_SOURCE_OTHER },
+])
+
 const headers = computed(() => [
   { title: t('admin.views.leads.colId'), key: 'id', width: '72px', sortable: false },
   { title: t('admin.views.leads.colBuyer'), key: 'buyer', sortable: false },
@@ -274,6 +315,7 @@ const headers = computed(() => [
   { title: t('admin.views.leads.colVehicle'), key: 'vehicle', sortable: false },
   { title: t('admin.views.leads.colStage'), key: 'stage', width: '130px', sortable: false },
   { title: t('admin.views.leads.colCategory'), key: 'category', width: '140px', sortable: false },
+  { title: t('admin.views.leads.colChannel'), key: 'trafficChannel', width: '140px', sortable: false },
   { title: t('admin.views.leads.colCreated'), key: 'createdAt', width: '140px', sortable: false },
   { title: t('admin.views.leads.colContacted'), key: 'contacted', width: '130px', sortable: false },
   { title: t('admin.views.leads.colActions'), key: 'actions', width: '72px', sortable: false, align: 'end' as const },
@@ -314,6 +356,9 @@ const loadLeads = async () => {
     }
     if (stageFilter.value != null) {
       params.stage_id = stageFilter.value
+    }
+    if (trafficChannelFilter.value) {
+      params.traffic_source = trafficChannelFilter.value
     }
     leads.value = await getLeads(params)
   } catch (err) {

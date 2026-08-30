@@ -60,6 +60,12 @@ export interface LeadModel {
   intent?: LeadIntentModel
   category?: LeadCategoryModel
   source?: string
+  utmSource?: string
+  utmMedium?: string
+  utmCampaign?: string
+  referrerUrl?: string
+  trafficSource?: string
+  effectiveTrafficSource?: string
   createdAt?: string
   updatedAt?: string
   deletedAt?: string
@@ -122,6 +128,12 @@ export function mapLeadFromApi(data: any): LeadModel {
       description: data.lead_category.description
     } : undefined,
     source: data.source?.name || data.source,
+    utmSource: data.utm_source,
+    utmMedium: data.utm_medium,
+    utmCampaign: data.utm_campaign,
+    referrerUrl: data.referrer_url,
+    trafficSource: data.traffic_source,
+    effectiveTrafficSource: data.effective_traffic_source,
     createdAt: data.created_at,
     updatedAt: data.updated_at,
     deletedAt: data.deleted_at,

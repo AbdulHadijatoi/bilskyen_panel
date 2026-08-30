@@ -4,7 +4,7 @@
  * Helper functions for lead intent, category, and stage display
  */
 
-import { LeadIntent, LeadStage } from '@/models/lead.model'
+import { LeadIntent, LeadStage, type LeadModel } from '@/models/lead.model'
 import i18n from '@/plugins/i18n'
 import { useLeadStagesStore } from '@/stores/leadStages.store'
 
@@ -99,6 +99,34 @@ export const getIntentName = getLeadIntentName
 export const getIntentColor = getLeadIntentColor
 export const getCategoryName = getLeadCategoryName
 export const getSourceName = getLeadSourceName
+
+export const TRAFFIC_SOURCE_META = 'meta'
+export const TRAFFIC_SOURCE_OTHER = 'other'
+
+export function getLeadEffectiveTrafficSource(lead: Pick<LeadModel, 'effectiveTrafficSource' | 'trafficSource'>): string {
+  return lead.effectiveTrafficSource || lead.trafficSource || TRAFFIC_SOURCE_OTHER
+}
+
+export function getLeadTrafficChannelLabel(lead: Pick<LeadModel, 'effectiveTrafficSource' | 'trafficSource'>): string {
+  return getLeadEffectiveTrafficSource(lead) === TRAFFIC_SOURCE_META
+    ? t('common.leadAttribution.channelMeta')
+    : t('common.leadAttribution.channelWeb')
+}
+
+export function getLeadTrafficChannelColor(lead: Pick<LeadModel, 'effectiveTrafficSource' | 'trafficSource'>): string {
+  return getLeadEffectiveTrafficSource(lead) === TRAFFIC_SOURCE_META ? 'blue' : 'grey'
+}
+
+export function hasLeadAttribution(lead: Pick<LeadModel, 'utmSource' | 'utmMedium' | 'utmCampaign' | 'referrerUrl' | 'trafficSource' | 'effectiveTrafficSource'>): boolean {
+  return !!(
+    lead.utmSource
+    || lead.utmMedium
+    || lead.utmCampaign
+    || lead.referrerUrl
+    || lead.trafficSource
+    || lead.effectiveTrafficSource
+  )
+}
 
 /**
  * Format date for display

@@ -812,6 +812,7 @@ export async function getLeads(params?: PaginationParams & {
   stage_id?: number
   assigned_to_id?: number
   vehicle_id?: number
+  traffic_source?: string
   search?: string
 }): Promise<PaginationModel<LeadModel>> {
   try {
