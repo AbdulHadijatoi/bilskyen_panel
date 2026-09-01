@@ -52,15 +52,64 @@
           </v-card>
         </v-col>
       </v-row>
+
+      <v-row class="mt-2">
+        <v-col cols="12" md="8" lg="6">
+          <v-card variant="outlined">
+            <v-card-title>{{ t('admin.views.dealers.listingBadgeLabel') }}</v-card-title>
+            <v-card-text>
+              <p class="text-body-2 text-medium-emphasis mb-4">
+                {{ t('admin.views.dealers.listingBadgeLabelHint') }}
+              </p>
+              <v-text-field
+                v-model="listingBadgeLabel"
+                :label="t('admin.views.dealers.listingBadgeLabel')"
+                :placeholder="t('admin.views.dealers.listingBadgeLabelPlaceholder')"
+                :counter="20"
+                maxlength="20"
+                variant="outlined"
+                density="comfortable"
+                hide-details="auto"
+                :disabled="savingBadgeLabel"
+              />
+              <div class="d-flex flex-wrap gap-2 mt-4">
+                <v-btn
+                  color="primary"
+                  :loading="savingBadgeLabel"
+                  :disabled="!badgeLabelDirty"
+                  @click="saveListingBadgeLabel"
+                >
+                  {{ t('admin.views.dealers.saveListingBadgeLabel') }}
+                </v-btn>
+                <v-btn
+                  variant="outlined"
+                  :disabled="savingBadgeLabel || !dealer.listing_badge_label"
+                  @click="clearListingBadgeLabel"
+                >
+                  {{ t('admin.views.dealers.clearListingBadgeLabel') }}
+                </v-btn>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
     </template>
+
+    <v-snackbar v-model="showSuccess" color="success" timeout="3000" location="top">
+      {{ successMessage }}
+    </v-snackbar>
+    <v-snackbar v-model="showError" color="error" timeout="5000" location="top">
+      {{ errorMessage }}
+    </v-snackbar>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { getDealerDetailRaw } from '@/api/admin.api'
+import { getDealerDetailRaw, updateDealer } from '@/api/admin.api'
+import type { ApiErrorModel } from '@/models/api-error.model'
 import { getDealerDisplayName, isValidCvr } from '@/utils/dealerDisplay'
 import PageHeader from '@/components/panel/PageHeader.vue'
 import LoginAsDealerButton from '@/components/admin/LoginAsDealerButton.vue'
@@ -69,6 +118,12 @@ const { t } = useI18n()
 const route = useRoute()
 const dealer = ref<any>(null)
 const loading = ref(true)
+const listingBadgeLabel = ref('')
+const savingBadgeLabel = ref(false)
+const showSuccess = ref(false)
+const showError = ref(false)
+const successMessage = ref('')
+const errorMessage = ref('')
 
 const displayName = computed(() =>
   getDealerDisplayName(
@@ -90,6 +145,42 @@ const cvrLabel = computed(() =>
 const pendingChangeRequest = computed(
   () => (dealer.value?.subscription_change_requests?.length ?? 0) > 0,
 )
+
+const badgeLabelDirty = computed(() => {
+  const current = (dealer.value?.listing_badge_label ?? '').trim()
+  return listingBadgeLabel.value.trim() !== current
+})
+
+watch(dealer, (value) => {
+  listingBadgeLabel.value = value?.listing_badge_label ?? ''
+}, { immediate: true })
+
+async function saveListingBadgeLabel() {
+  if (!dealer.value) return
+
+  savingBadgeLabel.value = true
+  const wasClearing = listingBadgeLabel.value.trim() === ''
+  try {
+    await updateDealer(dealer.value.id, {
+      listing_badge_label: listingBadgeLabel.value.trim() || null,
+    })
+    dealer.value = await getDealerDetailRaw(dealer.value.id)
+    successMessage.value = wasClearing
+      ? t('admin.views.dealers.listingBadgeLabelCleared')
+      : t('admin.views.dealers.listingBadgeLabelSaved')
+    showSuccess.value = true
+  } catch (err) {
+    errorMessage.value = (err as ApiErrorModel).message || t('admin.views.dealers.listingBadgeLabelSaveFailed')
+    showError.value = true
+  } finally {
+    savingBadgeLabel.value = false
+  }
+}
+
+async function clearListingBadgeLabel() {
+  listingBadgeLabel.value = ''
+  await saveListingBadgeLabel()
+}
 
 onMounted(async () => {
   try {

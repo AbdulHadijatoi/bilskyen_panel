@@ -646,6 +646,7 @@ export interface UpdateDealerData {
   phone?: string
   address?: string
   website?: string
+  listing_badge_label?: string | null
 }
 
 /**

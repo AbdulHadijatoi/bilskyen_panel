@@ -138,6 +138,7 @@
     "createdAt": "Created At",
     "updatedAt": "Updated At",
     "na": "N/A",
+    "leadNumber": "Lead #{id}",
     "vehicleListStatus": {
       "draft": "Draft",
       "published": "Published",
@@ -957,7 +958,15 @@
         "loginAsDealerNoOwner": "This dealer has no owner account",
         "loginAsDealerFailed": "Could not log in as this dealer",
         "viewingAsDealer": "Viewing as {name}",
-        "returnToAdmin": "Return to admin"
+        "returnToAdmin": "Return to admin",
+        "listingBadgeLabel": "Listing badge label",
+        "listingBadgeLabelHint": "Replaces the default \"Dealer\" tag on all this dealer's car thumbnails. Leave empty to use the default.",
+        "listingBadgeLabelPlaceholder": "e.g. Partner, Premium",
+        "listingBadgeLabelSaved": "Listing badge label saved",
+        "listingBadgeLabelCleared": "Listing badge label cleared",
+        "listingBadgeLabelSaveFailed": "Could not save listing badge label",
+        "clearListingBadgeLabel": "Clear label",
+        "saveListingBadgeLabel": "Save label"
       },
       "leads": {
         "title": "Leads",

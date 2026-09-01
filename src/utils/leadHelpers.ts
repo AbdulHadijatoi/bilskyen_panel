@@ -201,3 +201,20 @@ export function getStageOptions() {
     color: LEAD_STAGE_COLORS[Number(id)],
   }))
 }
+
+const PLACEHOLDER_BUYER_NAMES = new Set(['', 'n/a', 'na', 'guest', 'unknown', 'ukendt'])
+
+/**
+ * Resolve a dashboard/list buyer label, treating legacy "N/A" placeholders as empty.
+ */
+export function resolveRecentLeadBuyerName(
+  buyerName: string | null | undefined,
+  leadId: number,
+): string {
+  const trimmed = buyerName?.trim() ?? ''
+  if (trimmed && !PLACEHOLDER_BUYER_NAMES.has(trimmed.toLowerCase())) {
+    return trimmed
+  }
+
+  return t('common.leadNumber', { id: leadId })
+}

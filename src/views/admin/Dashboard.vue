@@ -342,7 +342,7 @@
             <DashboardRecentFeedItem
               v-for="lead in stats.recent.leads"
               :key="lead.id"
-              :title="lead.buyer_name || `Lead #${lead.id}`"
+              :title="resolveRecentLeadBuyerName(lead.buyer_name, lead.id)"
               :subtitle="formatLeadMeta(lead)"
               :time="formatRecentTime(lead.created_at)"
               :to="{ name: 'admin.leads.detail', params: { id: lead.id } }"
@@ -370,7 +370,7 @@ import DashboardRecentFeedCard from '@/components/panel/DashboardRecentFeedCard.
 import DashboardRecentFeedItem from '@/components/panel/DashboardRecentFeedItem.vue'
 import { translateStatus } from '@/utils/vehicleLabels'
 import { buildVehicleStatusDistribution } from '@/utils/dashboardDistribution'
-import { formatLeadDate, getStageName, getStageColor } from '@/utils/leadHelpers'
+import { formatLeadDate, getStageName, getStageColor, resolveRecentLeadBuyerName } from '@/utils/leadHelpers'
 
 const { t } = useI18n()
 

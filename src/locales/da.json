@@ -138,6 +138,7 @@
     "createdAt": "Oprettet den",
     "updatedAt": "Opdateret den",
     "na": "N/A",
+    "leadNumber": "Lead #{id}",
     "vehicleListStatus": {
       "draft": "Kladde",
       "published": "Offentliggjort",
@@ -1830,7 +1831,15 @@
         "loginAsDealerNoOwner": "Denne forhandler har ingen ejerkonto",
         "loginAsDealerFailed": "Kunne ikke logge ind som denne forhandler",
         "viewingAsDealer": "Viser som {name}",
-        "returnToAdmin": "Tilbage til admin"
+        "returnToAdmin": "Tilbage til admin",
+        "listingBadgeLabel": "Listing-badge tekst",
+        "listingBadgeLabelHint": "Erstatter standard \"Forhandler\"-mærket på alle denne forhandlers bil-thumbnails. Lad feltet være tomt for standard.",
+        "listingBadgeLabelPlaceholder": "f.eks. Partner, Premium",
+        "listingBadgeLabelSaved": "Listing-badge gemt",
+        "listingBadgeLabelCleared": "Listing-badge fjernet",
+        "listingBadgeLabelSaveFailed": "Kunne ikke gemme listing-badge",
+        "clearListingBadgeLabel": "Fjern tekst",
+        "saveListingBadgeLabel": "Gem tekst"
       },
       "leads": {
         "title": "Leads",

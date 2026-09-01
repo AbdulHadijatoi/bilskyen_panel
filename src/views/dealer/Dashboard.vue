@@ -315,7 +315,7 @@
                     {{ lead.vehicle_title || `Lead #${lead.id}` }}
                   </v-list-item-title>
                   <v-list-item-subtitle class="text-caption">
-                    {{ lead.buyer_name }} • {{ formatDate(lead.created_at) }}
+                    {{ resolveRecentLeadBuyerName(lead.buyer_name, lead.id) }} • {{ formatDate(lead.created_at) }}
                   </v-list-item-subtitle>
                 </v-list-item>
                 <v-list-item v-if="stats.recent.leads.length === 0" class="text-center py-4">
@@ -347,6 +347,7 @@ import UpgradePrompt from '@/components/dealer/UpgradePrompt.vue'
 import { FeatureKey, hasFeature } from '@/utils/subscriptionFeatures'
 import { translateStatus } from '@/utils/vehicleLabels'
 import { buildVehicleStatusDistribution } from '@/utils/dashboardDistribution'
+import { resolveRecentLeadBuyerName } from '@/utils/leadHelpers'
 
 const router = useRouter()
 const { t } = useI18n()

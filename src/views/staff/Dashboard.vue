@@ -340,7 +340,7 @@
                     {{ lead.vehicle_title || t('staff.views.dashboard.leadFallback', { id: lead.id }) }}
                   </v-list-item-title>
                   <v-list-item-subtitle class="text-caption">
-                    {{ lead.buyer_name }} • {{ formatDate(lead.created_at) }}
+                    {{ resolveRecentLeadBuyerName(lead.buyer_name, lead.id) }} • {{ formatDate(lead.created_at) }}
                   </v-list-item-subtitle>
                 </v-list-item>
                 <v-list-item v-if="stats.recent.leads.length === 0" class="text-center py-4">
@@ -366,6 +366,7 @@ import TrendAreaChart from '@/components/panel/TrendAreaChart.vue'
 import PageHeader from '@/components/panel/PageHeader.vue'
 import { translateStatus } from '@/utils/vehicleLabels'
 import { buildVehicleStatusDistribution } from '@/utils/dashboardDistribution'
+import { resolveRecentLeadBuyerName } from '@/utils/leadHelpers'
 
 const { t } = useI18n()
 const router = useRouter()
