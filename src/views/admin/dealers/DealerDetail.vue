@@ -58,6 +58,17 @@
           <v-card variant="outlined">
             <v-card-title>{{ t('admin.views.dealers.listingBadgeLabel') }}</v-card-title>
             <v-card-text>
+              <v-switch
+                v-model="showListingBadge"
+                :label="t('admin.views.dealers.showListingBadge')"
+                color="primary"
+                hide-details
+                class="mb-2"
+                :disabled="savingBadgeSettings"
+              />
+              <p class="text-body-2 text-medium-emphasis mb-4">
+                {{ t('admin.views.dealers.showListingBadgeHint') }}
+              </p>
               <p class="text-body-2 text-medium-emphasis mb-4">
                 {{ t('admin.views.dealers.listingBadgeLabelHint') }}
               </p>
@@ -70,20 +81,20 @@
                 variant="outlined"
                 density="comfortable"
                 hide-details="auto"
-                :disabled="savingBadgeLabel"
+                :disabled="savingBadgeSettings || !showListingBadge"
               />
               <div class="d-flex flex-wrap gap-2 mt-4">
                 <v-btn
                   color="primary"
-                  :loading="savingBadgeLabel"
-                  :disabled="!badgeLabelDirty"
-                  @click="saveListingBadgeLabel"
+                  :loading="savingBadgeSettings"
+                  :disabled="!badgeSettingsDirty"
+                  @click="saveListingBadgeSettings"
                 >
                   {{ t('admin.views.dealers.saveListingBadgeLabel') }}
                 </v-btn>
                 <v-btn
                   variant="outlined"
-                  :disabled="savingBadgeLabel || !dealer.listing_badge_label"
+                  :disabled="savingBadgeSettings || !dealer.listing_badge_label"
                   @click="clearListingBadgeLabel"
                 >
                   {{ t('admin.views.dealers.clearListingBadgeLabel') }}
@@ -119,7 +130,8 @@ const route = useRoute()
 const dealer = ref<any>(null)
 const loading = ref(true)
 const listingBadgeLabel = ref('')
-const savingBadgeLabel = ref(false)
+const showListingBadge = ref(true)
+const savingBadgeSettings = ref(false)
 const showSuccess = ref(false)
 const showError = ref(false)
 const successMessage = ref('')
@@ -146,40 +158,40 @@ const pendingChangeRequest = computed(
   () => (dealer.value?.subscription_change_requests?.length ?? 0) > 0,
 )
 
-const badgeLabelDirty = computed(() => {
-  const current = (dealer.value?.listing_badge_label ?? '').trim()
-  return listingBadgeLabel.value.trim() !== current
+const badgeSettingsDirty = computed(() => {
+  const currentLabel = (dealer.value?.listing_badge_label ?? '').trim()
+  const currentShow = dealer.value?.show_listing_badge !== false
+  return listingBadgeLabel.value.trim() !== currentLabel || showListingBadge.value !== currentShow
 })
 
 watch(dealer, (value) => {
   listingBadgeLabel.value = value?.listing_badge_label ?? ''
+  showListingBadge.value = value?.show_listing_badge !== false
 }, { immediate: true })
 
-async function saveListingBadgeLabel() {
+async function saveListingBadgeSettings() {
   if (!dealer.value) return
 
-  savingBadgeLabel.value = true
-  const wasClearing = listingBadgeLabel.value.trim() === ''
+  savingBadgeSettings.value = true
   try {
     await updateDealer(dealer.value.id, {
       listing_badge_label: listingBadgeLabel.value.trim() || null,
+      show_listing_badge: showListingBadge.value,
     })
     dealer.value = await getDealerDetailRaw(dealer.value.id)
-    successMessage.value = wasClearing
-      ? t('admin.views.dealers.listingBadgeLabelCleared')
-      : t('admin.views.dealers.listingBadgeLabelSaved')
+    successMessage.value = t('admin.views.dealers.listingBadgeSettingsSaved')
     showSuccess.value = true
   } catch (err) {
-    errorMessage.value = (err as ApiErrorModel).message || t('admin.views.dealers.listingBadgeLabelSaveFailed')
+    errorMessage.value = (err as ApiErrorModel).message || t('admin.views.dealers.listingBadgeSettingsSaveFailed')
     showError.value = true
   } finally {
-    savingBadgeLabel.value = false
+    savingBadgeSettings.value = false
   }
 }
 
 async function clearListingBadgeLabel() {
   listingBadgeLabel.value = ''
-  await saveListingBadgeLabel()
+  await saveListingBadgeSettings()
 }
 
 onMounted(async () => {

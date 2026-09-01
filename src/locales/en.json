@@ -966,7 +966,11 @@
         "listingBadgeLabelCleared": "Listing badge label cleared",
         "listingBadgeLabelSaveFailed": "Could not save listing badge label",
         "clearListingBadgeLabel": "Clear label",
-        "saveListingBadgeLabel": "Save label"
+        "saveListingBadgeLabel": "Save label",
+        "showListingBadge": "Show dealer label on listings",
+        "showListingBadgeHint": "When off, the dealer/private seller tag is hidden on all this dealer's car thumbnails.",
+        "listingBadgeSettingsSaved": "Listing badge settings saved",
+        "listingBadgeSettingsSaveFailed": "Could not save listing badge settings"
       },
       "leads": {
         "title": "Leads",

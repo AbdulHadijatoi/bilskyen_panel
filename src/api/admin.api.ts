@@ -647,6 +647,7 @@ export interface UpdateDealerData {
   address?: string
   website?: string
   listing_badge_label?: string | null
+  show_listing_badge?: boolean
 }
 
 /**

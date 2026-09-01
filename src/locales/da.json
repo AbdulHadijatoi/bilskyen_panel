@@ -1839,7 +1839,11 @@
         "listingBadgeLabelCleared": "Listing-badge fjernet",
         "listingBadgeLabelSaveFailed": "Kunne ikke gemme listing-badge",
         "clearListingBadgeLabel": "Fjern tekst",
-        "saveListingBadgeLabel": "Gem tekst"
+        "saveListingBadgeLabel": "Gem tekst",
+        "showListingBadge": "Vis forhandler-mærke på annoncer",
+        "showListingBadgeHint": "Når slået fra, skjules forhandler/privat-sælger-mærket på alle denne forhandlers bil-thumbnails.",
+        "listingBadgeSettingsSaved": "Listing-badge indstillinger gemt",
+        "listingBadgeSettingsSaveFailed": "Kunne ikke gemme listing-badge indstillinger"
       },
       "leads": {
         "title": "Leads",
