@@ -77,6 +77,18 @@
         </v-alert>
 
         <v-alert
+          v-if="queuedProcessing"
+          type="info"
+          variant="tonal"
+          density="compact"
+          icon="mdi-progress-clock"
+          class="import-dialog__alert"
+        >
+          <v-progress-linear indeterminate color="primary" class="mb-2" rounded />
+          {{ queuedMessage || t('dealer.views.vehicles.import.queuedProcessing') }}
+        </v-alert>
+
+        <v-alert
           v-if="usageNotice"
           type="info"
           variant="tonal"
@@ -109,7 +121,7 @@
               <button
                 type="button"
                 class="panel-btn panel-btn--outline"
-                :disabled="downloadingTemplate || importing"
+                :disabled="downloadingTemplate || importing || queuedProcessing"
                 @click="handleDownloadTemplate"
               >
                 <v-progress-circular
@@ -173,7 +185,7 @@
             :class="{
               'import-dialog__dropzone--active': dragOver,
               'import-dialog__dropzone--filled': !!importFile,
-              'import-dialog__dropzone--disabled': importing,
+              'import-dialog__dropzone--disabled': importing || queuedProcessing,
             }"
             @click="openFilePicker"
             @dragenter.prevent="onDragEnter"
@@ -186,7 +198,7 @@
               type="file"
               class="import-dialog__file-input"
               accept=".xlsx,.xls,.csv"
-              :disabled="importing"
+              :disabled="importing || queuedProcessing"
               @change="onNativeFileChange"
             />
 
@@ -199,7 +211,7 @@
               <button
                 type="button"
                 class="panel-btn panel-btn--ghost panel-btn--sm"
-                :disabled="importing"
+                :disabled="importing || queuedProcessing"
                 @click.stop="clearFile"
               >
                 {{ t('dealer.views.vehicles.import.removeFile') }}
@@ -359,7 +371,7 @@
           <button
             type="button"
             class="panel-btn panel-btn--outline"
-            :disabled="!importFile || importing"
+            :disabled="!importFile || importing || queuedProcessing"
             @click="runImport(true)"
           >
             <v-progress-circular
@@ -374,7 +386,7 @@
           <button
             type="button"
             class="panel-btn panel-btn--primary"
-            :disabled="!importFile || importing"
+            :disabled="!importFile || importing || queuedProcessing"
             @click="runImport(false)"
           >
             <v-progress-circular
@@ -408,12 +420,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
   downloadVehicleImportTemplate,
+  getVehicleImportBatch,
   getVehicleImportSample,
   importVehicles,
+  isVehicleImportQueued,
+  type VehicleImportBatchDetail,
   type VehicleImportResult,
   type VehicleImportSample,
 } from '@/api/dealer.api'
@@ -436,11 +451,15 @@ const dragOver = ref(false)
 const downloadingTemplate = ref(false)
 const importing = ref(false)
 const importingDryRun = ref(false)
+const queuedProcessing = ref(false)
+const queuedMessage = ref<string | null>(null)
 const importError = ref<string | null>(null)
 const result = ref<VehicleImportResult | null>(null)
 const dryRunLast = ref(false)
 const resultsFilter = ref<'issues' | 'all'>('issues')
 let dragDepth = 0
+let pollGeneration = 0
+let pollTimer: ReturnType<typeof setTimeout> | null = null
 
 const snackbar = ref({
   show: false,
@@ -478,6 +497,8 @@ const displayedRows = computed(() => {
   )
 })
 
+const fileBusy = computed(() => importing.value || queuedProcessing.value)
+
 function setSelectedFile(file: File | null) {
   selectedFiles.value = file
 }
@@ -489,7 +510,7 @@ function clearFileInput() {
 }
 
 function openFilePicker() {
-  if (importing.value) return
+  if (fileBusy.value) return
   fileInputRef.value?.click()
 }
 
@@ -511,13 +532,13 @@ function onNativeFileChange(event: Event) {
 }
 
 function onDragEnter() {
-  if (importing.value) return
+  if (fileBusy.value) return
   dragDepth += 1
   dragOver.value = true
 }
 
 function onDragOver() {
-  if (importing.value) return
+  if (fileBusy.value) return
   dragOver.value = true
 }
 
@@ -532,7 +553,7 @@ function onDragLeave() {
 function onDrop(event: DragEvent) {
   dragDepth = 0
   dragOver.value = false
-  if (importing.value) return
+  if (fileBusy.value) return
 
   const file = event.dataTransfer?.files?.[0] ?? null
   if (!file) return
@@ -608,6 +629,7 @@ watch(
   () => props.modelValue,
   (open) => {
     if (open) {
+      stopPolling()
       loadSample()
       result.value = null
       importError.value = null
@@ -616,11 +638,18 @@ watch(
       resultsFilter.value = 'issues'
       dragOver.value = false
       dragDepth = 0
+    } else {
+      stopPolling()
     }
   }
 )
 
+onUnmounted(() => {
+  stopPolling()
+})
+
 function close() {
+  stopPolling()
   emit('update:modelValue', false)
 }
 
@@ -679,6 +708,8 @@ async function runImport(dryRun: boolean) {
   const file = importFile.value
   if (!file) return
 
+  stopPolling()
+
   try {
     importing.value = true
     importingDryRun.value = dryRun
@@ -687,6 +718,19 @@ async function runImport(dryRun: boolean) {
     result.value = null
 
     const data = await importVehicles(file, { dryRun })
+
+    if (!dryRun && isVehicleImportQueued(data)) {
+      importing.value = false
+      queuedMessage.value = data.message
+      showSnackbar(data.message, 'info')
+      void pollQueuedBatch(data.batch_id, pollGeneration)
+      return
+    }
+
+    if (isVehicleImportQueued(data)) {
+      importError.value = data.message
+      return
+    }
 
     result.value = data
     syncResultsFilter()
@@ -698,6 +742,68 @@ async function runImport(dryRun: boolean) {
     importError.value = (err as ApiErrorModel).message || t('dealer.views.vehicles.import.importFailed')
   } finally {
     importing.value = false
+  }
+}
+
+function stopPolling() {
+  pollGeneration += 1
+  if (pollTimer !== null) {
+    clearTimeout(pollTimer)
+    pollTimer = null
+  }
+  queuedProcessing.value = false
+  queuedMessage.value = null
+}
+
+function waitForPoll(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    pollTimer = setTimeout(resolve, ms)
+  })
+}
+
+function applyCompletedBatch(batch: VehicleImportBatchDetail) {
+  result.value = {
+    summary: batch.summary ?? { total: 0, created: 0, failed: 0, warnings: 0 },
+    rows: batch.rows ?? [],
+  }
+  syncResultsFilter()
+  if (batch.status === 'failed' && batch.error_message && (result.value.summary.created ?? 0) === 0) {
+    importError.value = batch.error_message
+  }
+  showImportCompleteSnackbar(result.value, false)
+  if ((result.value.summary.created ?? 0) > 0) {
+    emit('imported')
+  }
+}
+
+async function pollQueuedBatch(batchId: number, generation: number) {
+  queuedProcessing.value = true
+  try {
+    while (generation === pollGeneration) {
+      const batch = await getVehicleImportBatch(batchId)
+      if (generation !== pollGeneration) {
+        return
+      }
+
+      if (batch.status === 'completed' || batch.status === 'failed') {
+        queuedProcessing.value = false
+        queuedMessage.value = null
+        if (batch.status === 'failed' && (!batch.rows || batch.rows.length === 0)) {
+          importError.value = batch.error_message || t('dealer.views.vehicles.import.importFailed')
+          return
+        }
+        applyCompletedBatch(batch)
+        return
+      }
+
+      await waitForPoll(2000)
+    }
+  } catch (err) {
+    if (generation !== pollGeneration) {
+      return
+    }
+    queuedProcessing.value = false
+    importError.value = (err as ApiErrorModel).message || t('dealer.views.vehicles.import.importFailed')
   }
 }
 

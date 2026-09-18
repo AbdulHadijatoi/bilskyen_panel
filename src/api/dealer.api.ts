@@ -699,9 +699,16 @@ export interface VehicleImportResult {
 }
 
 export interface VehicleImportQueuedResult {
+  queued: true
   batch_id: number
   status: string
   message: string
+}
+
+export function isVehicleImportQueued(
+  data: VehicleImportResult | VehicleImportQueuedResult
+): data is VehicleImportQueuedResult {
+  return 'queued' in data && data.queued === true
 }
 
 export interface VehicleImportBatchSummary {
@@ -760,16 +767,18 @@ export async function getVehicleImportSample(): Promise<VehicleImportSample> {
 }
 
 /**
- * Bulk import vehicles from Excel/CSV (processed synchronously on the server).
+ * Bulk import vehicles from Excel/CSV.
+ * Small files (and all validate-only runs) complete in the request.
+ * Imports with more than 5 rows are queued and return a batch id.
  */
 export async function importVehicles(
   file: File,
   options?: { dryRun?: boolean }
-): Promise<VehicleImportResult> {
+): Promise<VehicleImportResult | VehicleImportQueuedResult> {
   const formData = new FormData()
   formData.append('file', file)
 
-  const response = await httpClient.post<{ data: VehicleImportResult }>(
+  const response = await httpClient.post<{ data: VehicleImportResult | VehicleImportQueuedResult }>(
     DEALER_VEHICLE_ENDPOINTS.IMPORT,
     formData,
     {
