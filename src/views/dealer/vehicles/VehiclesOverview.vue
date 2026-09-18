@@ -91,7 +91,7 @@
             prepend-inner-icon="mdi-filter-variant"
             hide-details
             clearable
-            @update:model-value="loadVehicles"
+            @update:model-value="handleStatusFilter"
           />
         </div>
         <div class="panel-filters-grid__actions panel-filters-grid__actions--trailing">
@@ -135,19 +135,14 @@
         </button>
       </div>
       <div class="panel-table-card__body">
-        <div v-if="loading" class="loading-container">
-          <v-progress-circular indeterminate color="primary" size="48" />
-          <p class="text-body-2 text-medium-emphasis mt-4">{{ t('dealer.views.vehicles.loadingVehicles') }}</p>
-        </div>
-
-        <div v-else-if="error" class="error-container pa-6">
+        <div v-if="error" class="error-container pa-6">
           <v-alert type="error" variant="tonal" prominent>
             <v-alert-title>{{ t('dealer.views.vehicles.error') }}</v-alert-title>
             {{ error }}
           </v-alert>
         </div>
 
-        <v-data-table
+        <v-data-table-server
           v-else
           v-model="selectedVehicleIds"
           show-select
@@ -157,6 +152,7 @@
           :items-per-page="vehicles.limit"
           :items-length="vehicles.totalDocs || 0"
           :page="currentPage"
+          :loading="loading"
           density="comfortable"
           class="panel-data-table"
           elevation="0"
@@ -220,7 +216,7 @@
               </button>
             </div>
           </template>
-        </v-data-table>
+        </v-data-table-server>
       </div>
     </div>
 
@@ -375,7 +371,13 @@ const handleSearch = () => {
   loadVehicles()
 }
 
+const handleStatusFilter = () => {
+  currentPage.value = 1
+  loadVehicles()
+}
+
 const handlePageChange = (page: number) => {
+  if (page === currentPage.value) return
   currentPage.value = page
   loadVehicles()
 }
